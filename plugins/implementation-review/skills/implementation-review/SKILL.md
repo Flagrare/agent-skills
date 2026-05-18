@@ -19,8 +19,8 @@ Before spawning subagents, collect in the main agent:
 - `git diff --staged --name-only` — file list
 - The **active plan** — look in this order:
   1. Session context: did `/plan` run earlier in this conversation? Use that output.
-  2. `~/.claude/plans/*.md` — the most recently modified file is the working plan.
-  3. `docs/decisions/` ADRs — ADR-0001 is always the mission/scope anchor.
+  2. `~/.claude/plans/*.md` — the most recently modified file, if the directory exists.
+  3. The project's decision log (`docs/decisions/`, `docs/adr/`, RFCs, or equivalent) — the foundational decision is always the mission/scope anchor.
   4. README roadmap — checked/unchecked items define what is in scope.
 - Full content of test files touched or related to the staged changes.
 - Full content of non-test source files in the staged diff.
@@ -56,7 +56,7 @@ Flag every gap. A deferred item is not a gap — but it must be explicitly defer
 
 ### Subagent brief — Check 2: Use-case coverage
 
-**Inputs:** full `git diff --staged`, ADR-0001 (or equivalent mission/scope ADR), README feature description.
+**Inputs:** full `git diff --staged`, the project's foundational scope document (ADR-0001, RFC-001, mission doc, or equivalent — whichever anchors what this project is for), README feature description.
 
 For every **user-facing capability** in scope for this commit:
 - Is there at least one test that exercises it through the public API?

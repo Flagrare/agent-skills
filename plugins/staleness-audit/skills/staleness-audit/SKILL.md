@@ -1,6 +1,6 @@
 ---
 name: staleness-audit
-description: Pre-commit audit. Invoke before every git commit. Diffs the staged change against the repo's "canaries" (README, ADRs, roadmap, public API, changelogs, TSDoc, test discipline) and surfaces anything that's drifted out of sync. Updates the obvious drifts in place; flags judgement calls for the operator.
+description: Pre-commit audit. Invoke before every git commit. Diffs the staged change against the repo's "canaries" (README, decision log, roadmap, public API, doc comments, release notes, test discipline) and surfaces anything that's drifted out of sync. Updates the obvious drifts in place; flags judgement calls for the operator.
 ---
 
 # Staleness audit
@@ -11,7 +11,7 @@ Don't be lazy — actually run the checks. Each one is a `grep` or a `diff`. The
 
 ## How to invoke
 
-You (the model) invoke this skill yourself, before staging the final commit. The user's binding rule (saved in agent memory) says: *every commit goes through this checklist*. If you're amending or splitting commits, run it per commit.
+You (the model) invoke this skill yourself, before staging the final commit. The rule: *every commit goes through this checklist*. If you're amending or splitting commits, run it per commit.
 
 ## Inputs
 
@@ -30,54 +30,69 @@ The `README.md` is the project's storefront. After every commit, ask:
 
 - **Status line**: does `## Status` (or the equivalent line) still match reality? Words like "pre-alpha", "bootstrapping", "WIP", "coming soon", "not yet implemented" need to age out as features ship. If this commit moves the needle, update the status text.
 - **Roadmap checkboxes**: `- [ ] X` for things that *just shipped* in this commit (or earlier ones not yet ticked) should become `- [x] X`. Conversely, anything ticked that's been ripped out needs to be re-opened or removed.
-- **Code examples**: if a public-API signature changed (look at `src/index.ts` diff), do the README code blocks still compile and reflect the new shape? Grep the README for the renamed/removed identifier.
+- **Code examples**: if a public-API signature changed, do the README code blocks still compile and reflect the new shape? Grep the README for the renamed/removed identifier.
 - **Badge accuracy**: if a CI workflow or license changed, the badges still point at the right thing.
 
-### 2. ADR index integrity
+### 2. Decision log integrity
 
-`docs/decisions/README.md` is the index. Check:
+If the project has a decision log (ADRs in `docs/decisions/`, RFCs, or equivalent), check:
 
-- Any new `docs/decisions/NNNN-*.md` that isn't in the index table. Add it.
-- Any ADR whose `Status:` says "Accepted" but is actually superseded by a later ADR — the older one should say `Accepted (X superseded by ADR-NNNN)` and the newer one should declare what it supersedes.
-- ADR cross-references (`[ADR-0002](./0002-…)`) that point at filenames that no longer exist.
+- Any new decision file that isn't in the index. Add it.
+- Any decision whose `Status:` says "Accepted" but is actually superseded by a later one — update status on both.
+- Cross-references that point at filenames that no longer exist.
 
-### 3. Public API ↔ barrel export sync
+If the project has no decision log, skip this check.
 
-For a library, `src/index.ts` is the only thing consumers can `import`. After every commit that touches `src/`:
+### 3. Public API sync
 
-- For every `export` newly added in `src/**/*.ts` (other than `index.ts`), is it re-exported from `src/index.ts`?
-- For every removed export, is the corresponding line in `src/index.ts` also removed?
+If the project has a single public entry point, verify exports are in sync after every commit touching source files. The entry point varies by language:
 
-Quick check: `grep -hE "^export " src/*.ts | grep -v index.ts | sort | uniq` versus the lines in `src/index.ts`.
+- **TypeScript:** `src/index.ts` (or the barrel specified in `package.json#exports`)
+- **Python:** `<package>/__init__.py`
+- **Rust:** `src/lib.rs` (`pub use` re-exports)
+- **Go:** exported symbols in the package's public files
 
-### 4. TSDoc completeness on public surface
+For every export newly added in non-entry source files, is it re-exported from the entry point? For every removed export, is the entry point cleaned up?
 
-Per ADR-0002, every exported symbol needs TSDoc. Spot-check the staged `.ts` files:
+If the project has no single entry point (e.g. a CLI tool, not a library), skip or adapt this check.
 
-- Any new `export class`, `export function`, `export interface`, `export type`, `export const` without a leading `/** ... */`?
-- Any newly added public method on an exported class without a TSDoc?
-- TSDoc that still says "TODO" or "@todo"?
+### 4. Doc comment completeness on public symbols
 
-(`eslint-plugin-tsdoc` enforces *syntax*; this check enforces *presence*.)
+For the project's documentation format, spot-check staged source files:
 
-### 5. Changeset for user-facing changes
+- **TypeScript:** any new `export class / function / interface / type / const` without a leading `/** … */`?
+- **Python:** any new public function/class without a docstring?
+- **Rust:** any new `pub fn / pub struct / pub trait` without `///` doc comments?
+- **Other:** apply the language's equivalent convention.
 
-If the commit touches `src/`, ask: is this user-observable?
+Flag any new public symbol without documentation. Flag existing doc comments that still say `TODO` or `@todo`.
 
-- If yes and there's no `.changeset/*.md` (other than `README.md`) in this commit, write one. Use `pnpm changeset` to draft.
-- If no (pure internal refactor / test / docs / tooling), no changeset is needed — but note that explicitly in the response.
+### 5. Release note for user-facing changes
 
-### 6. CONTRIBUTING and docs/decisions hygiene
+If the commit touches source files, ask: is this user-observable?
 
-- Search `CONTRIBUTING.md` for any reference to removed tooling (`cucumber`, `gherkin`, `attw`, etc. — anything that's not in `package.json` anymore).
-- If a workflow changed (lefthook hook, CI job, npm script), make sure CONTRIBUTING reflects it.
+- If yes, verify it's captured in the project's changelog mechanism:
+  - **Changesets:** a `.changeset/*.md` file (run `pnpm changeset` or `npx changeset` to draft)
+  - **towncrier:** a `changelog.d/` fragment
+  - **Manual CHANGELOG:** a new entry in `CHANGELOG.md`
+  - **Conventional commits:** the commit message itself is the record — verify it's descriptive enough
+- If no (pure internal refactor / test / docs / tooling), no release note is needed — but note that explicitly.
 
-### 7. Test name discipline (Kent-style)
+### 6. Contributor guide hygiene
 
-Per ADR-0003 + the testing-philosophy memory, test names should describe **behaviour**, not method names. Grep newly added/changed test files for:
+If the project has a `CONTRIBUTING.md` (or equivalent), after any commit that adds or removes tooling:
 
-- `it("works")`, `it("test \d")`, `it("it should")`, `it("returns the value")` — vague or method-centric. Flag.
-- Good names look like `it("rejects an out-of-range choice index with StoryChoiceRangeError")`.
+- Search for references to tools that are no longer in the project's dependency manifest (`package.json`, `Cargo.toml`, `pyproject.toml`, `go.mod`, etc.).
+- If a workflow changed (CI job, hook, script), make sure the contributor guide reflects it.
+
+### 7. Test name discipline
+
+Test names should describe **behaviour**, not method names. Grep newly added/changed test files for:
+
+- `it("works")`, `test("test 1")`, `it("should work correctly")`, `it("returns the value")` — vague or method-centric. Flag.
+- Good names: `it("rejects an out-of-range index with a RangeError carrying the attempted value")`.
+
+This applies regardless of framework (Jest, Vitest, pytest, RSpec, Go test, etc.).
 
 ### 8. Stale markers in new code
 
@@ -85,59 +100,62 @@ Grep the staged diff for tokens that shouldn't ship:
 
 - `TODO`, `FIXME`, `XXX`, `HACK`, `@todo` — fine if they reference an issue (`TODO(#42)`); not fine if naked.
 - `console.log`, `debugger`, `.only`, `.skip` in test files.
-- Leftover `// biome-ignore`, `// eslint-disable` without an explanation comment.
+- Leftover lint-suppression comments without an explanation.
 
-### 9. Memory file crosslinks
+### 9. Agent memory crosslinks
 
-The `~/.claude/projects/-home-flagrare-Dev-poltergink/memory/` directory uses `[[name]]` to crosslink. If a commit touches docs that reference memory, or memory itself, check:
+If the project uses a `~/.claude/projects/<path>/memory/` directory with `[[name]]` crosslinks, and this commit touches docs or memory files, check:
 
-- Every `[[some-name]]` resolves to a file `some-name.md` in the memory dir.
+- Every `[[some-name]]` resolves to a file `some-name.md` in the memory directory for this project.
 - The `MEMORY.md` index has an entry for every `.md` file (other than itself).
 
-### 10. Commit message itself
+To find the memory path: derive it from `pwd` — the project memory dir is `~/.claude/projects/<pwd-with-slashes-replaced-by-dashes>/memory/`. If the directory doesn't exist, skip this check.
 
-Before invoking `git commit`, verify the message:
+### 10. Commit message format
 
-- Leading **gitmoji** present (✨ 🐛 📝 ♻️ 🧪 ⚡ 🧹 🔧 🔖) — required.
-- `type(scope): subject` shape — required.
-- Subject is a **tight topical noun phrase**, not an imperative sentence. Target ≤ 50 chars.
-- Body explains *why* and lists what changed at file level when useful.
+Before invoking `git commit`, verify the message matches the project's commit convention. Check the recent `git log` to identify what convention is in use, then verify the new message follows it. Common conventions:
+
+- **gitmoji + conventional commits:** `✨ feat(scope): subject`
+- **Conventional commits:** `feat(scope): description`
+- **Free-form:** whatever the project's history establishes
+
+Regardless of convention: subject should be ≤ 72 chars; body explains *why* when the change is non-obvious.
 
 ### 11. Automated-committer message format
 
-The commitlint rule applies to **every** commit that hits this repo — including ones produced by tools like Changesets, Renovate, Dependabot, or release bots. Their default messages are *not* gitmoji-formatted. Whenever a commit you're staging touches a workflow or config that controls an automated committer, audit the messages it produces:
+If this commit touches CI/CD config or dependency management config, verify that any automated committers (Renovate, Dependabot, release bots, merge bots) produce messages that match the project's commit convention.
 
-- `.github/workflows/release.yml` — `changesets/action`'s `commit:` and `title:` inputs.
-- `.github/renovate.json` — `commitMessagePrefix` / `semanticCommits` (we set `semanticCommits` + `semanticCommitTypeAll(chore)` so the PR gets `chore:` prefix, but the *commit messages* on Renovate's PR branches need to comply once squash-merged).
-- `.github/dependabot.yml` — `commit-message.prefix` (currently `chore`).
-- Any new GitHub Action or bot that commits on the project's behalf.
+Check the relevant config files for the project's CI platform:
+- **GitHub Actions:** `.github/workflows/`, `.github/renovate.json`, `.github/dependabot.yml`
+- **GitLab CI:** `.gitlab-ci.yml`, `.gitlab/`
+- **Other:** whatever config files control automated commits
 
-The rule of thumb: if a tool can push a commit, configure its commit-message template to satisfy commitlint *or* arrange for the commits to be squash-merged with a manually-written message.
+The rule of thumb: if a tool can push a commit, its message template must satisfy the project's commitlint rules — or the merge strategy must ensure a manually-written squash message.
 
-### 12. CI workflow drift
+### 12. CI config drift
 
-Whenever this commit touches `.github/workflows/*.yml`:
+Whenever this commit touches CI config files:
 
-- Sanity-check there's no version conflict between an action's `with:` inputs and a config file in the repo (e.g. `pnpm/action-setup`'s `version:` vs. `package.json#packageManager`). This bit us in `🐛 fix(ci): pnpm version conflict`.
-- Confirm any action version pins (`actions/checkout@v4` etc.) still match what's running elsewhere in `.github/workflows/`.
-- If a job's prerequisite tool was removed from the repo (e.g. cucumber, attw), the corresponding workflow step should go in the same commit.
+- Check for version conflicts between tool inputs and config files in the repo (e.g. a package manager version pinned in CI that diverges from the one in the project's toolchain manifest).
+- Confirm any pinned action/image versions are consistent across CI jobs.
+- If a prerequisite tool was removed from the project, the corresponding CI step should go in the same commit.
 
 ## Output
 
-When you're done, give the user a concise audit line for each check — `✓` if clean, `→ fixed: …` if you applied a mechanical fix, `⚠ needs decision: …` if it's a judgement call. Don't pad with checks that found nothing — just say "Clean: README, ADR index, exports, TSDoc, changeset N/A, contributing, test names, markers, memory, automated-committer, workflow drift" if everything passes.
+When you're done, give the user a concise audit line for each check — `✓` if clean, `→ fixed: …` if you applied a mechanical fix, `⚠ needs decision: …` if it's a judgement call. Don't pad with checks that found nothing.
 
 If any check found a real issue, *fix it before committing* unless the user explicitly opted out of fixing this round.
 
 ## Anti-patterns (what this skill is not)
 
-- It is not a substitute for `pnpm verify`. The pre-push hook still runs the full quality gate.
+- It is not a substitute for the project's test/lint/build gate. That gate still runs.
 - It is not a place to add new tests or refactors — those belong in the commit they relate to.
 - It is not a license to chase every TODO across the repo — only the drift caused or revealed by *this* commit.
 
 ## After this skill: invoke `/release-check`
 
-Once the commit lands, invoke `/release-check` immediately. That skill answers the post-commit question "is a release due?" using the `.changeset/` state and `package.json#private`, and drafts a value-focused CHANGELOG entry (Valve Dota style) when one is. Cheap when nothing's pending.
+Once the commit lands, invoke `/release-check` immediately. That skill answers the post-commit question "is a release due?" and drafts a value-focused CHANGELOG entry when one is. Cheap when nothing's pending.
 
 ## Why this exists
 
-Project rot starts when README says "pre-alpha" three months after v1.0, when ADR-0001 still says "Accepted" while the codebase has moved on, when the roadmap shows boxes already ticked elsewhere. Catching drift at commit time costs ~30 seconds. Catching it at "why is our README lying" time costs hours and credibility. See also the `feedback-pre-commit-staleness-audit` memory entry that mandates running this skill before every commit.
+Project rot starts when README says "pre-alpha" three months after v1.0, when the decision log shows choices nobody remembers the reasons for, when the roadmap shows boxes already ticked elsewhere. Catching drift at commit time costs ~30 seconds. Catching it at "why is our README lying" time costs hours and credibility.

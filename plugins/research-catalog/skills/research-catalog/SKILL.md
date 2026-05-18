@@ -39,7 +39,7 @@ If you've already done research on a related topic *today*, append to that file 
 
 ### 2. Create or open `docs/research/<slug>.md`
 
-Use the file template below.
+If `docs/research/` does not exist, create it now. Use the file template below.
 
 ### 3. Fill in one source entry per source
 
@@ -47,7 +47,7 @@ Only catalog sources that actually informed the synthesis. Don't pad the list wi
 
 ### 4. Update `docs/research/README.md`
 
-Add a row to the index table linking the new file. Keep the index in reverse chronological order (newest at the top).
+If this file does not exist, create it using the index template below. Add a row linking the new catalog file. Keep the index in reverse chronological order (newest at the top).
 
 ### 5. Cross-link in the consuming artifact
 

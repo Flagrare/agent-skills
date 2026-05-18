@@ -7,202 +7,180 @@ description: Post-commit gate. Invoke after every commit (right after /staleness
 
 ## When to invoke
 
-After every commit, immediately after `/staleness-audit`. Cheap to run when there's nothing to do (early-exit ~1 second). The user's binding rule (saved in agent memory) says: every commit triggers this check.
+After every commit, immediately after `/staleness-audit`. Cheap to run when there's nothing to do (early-exit ~1 second).
 
-You should also invoke this on demand whenever the user asks "is a release due?", "let's ship this", "what would v0.2 look like?", or similar.
+Also invoke on demand whenever the user asks "is a release due?", "let's ship this", "what would v0.2 look like?", or similar.
 
 ## Procedure
 
-### 1. Read inputs (cheap)
+### 1. Detect the project's release mechanism
 
-- `package.json` → current `version`, `private` flag, `name`
-- `.changeset/*.md` (excluding `README.md` and `config.json`) → pending changes
-- `CHANGELOG.md` if present → previous release entries (for stylistic continuity)
+Before reading inputs, identify how this project tracks and ships releases:
 
-### 2. Compute pending bump
+| Signal | Mechanism |
+|---|---|
+| `.changeset/` directory present | **Changesets** (`pnpm/npm/yarn changeset`) |
+| `changelog.d/` directory present | **towncrier** |
+| `CHANGELOG.md` with structured entries | **Manual CHANGELOG** |
+| Conventional commits without a changelog file | **Commit-driven** — the git log is the changelog |
+| `RELEASES.md` or `HISTORY.md` | **Manual release notes** |
 
-For each `.changeset/*.md`, read the frontmatter. It looks like:
+Note which mechanism applies — the rest of the procedure adapts accordingly.
 
+### 2. Read inputs
+
+- **Version manifest** — the file that holds the current version:
+  - Node.js: `package.json` → `version`, `private`, `name`
+  - Rust: `Cargo.toml` → `[package] version`
+  - Python: `pyproject.toml` → `[project] version` or `__version__` in `__init__.py`
+  - Other: identify the canonical version source
+- **Pending change entries** — depends on mechanism detected above:
+  - Changesets: `.changeset/*.md` (excluding `README.md` and `config.json`)
+  - towncrier: `changelog.d/*.{bugfix,feature,breaking,...}`
+  - Manual: inspect `CHANGELOG.md` for an `[Unreleased]` section
+  - Commit-driven: commits since the last tag (`git log <last-tag>..HEAD`)
+- **Previous releases** — `CHANGELOG.md` or `git tag --sort=-version:refname` for stylistic continuity.
+
+### 3. Compute pending bump
+
+Aggregate pending changes by severity:
+- Any breaking/major → proposed bump is **major**
+- Else any new feature/minor → proposed bump is **minor**
+- Else any fix/patch → proposed bump is **patch**
+- Else → nothing pending, **release is not due**
+
+For Changesets, read the frontmatter level field:
 ```
 ---
-"poltergink": minor
+"<package-name>": minor
 ---
 ```
 
-Aggregate by level:
-- Any `"major"` → proposed bump is **major**
-- Else any `"minor"` → proposed bump is **minor**
-- Else any `"patch"` → proposed bump is **patch**
-- Else → no pending changesets, **release is not due**
+Compute the proposed version by applying the bump. Semver pre-1.0 rule: in `0.x.y`, breaking changes ride the `x` (minor) bump — they do not require a major bump.
 
-Compute the proposed version from the current one by applying the bump (semver rules: 0.x.y treats `minor` like `major` would in 1.x.y — breaking changes are allowed in 0.x without major bumps).
-
-### 3. Decide: is the release DUE?
+### 4. Decide: is the release DUE?
 
 | State | Decision |
 |---|---|
-| No pending changesets | **Not due** — done, early exit |
-| Pending + `private: true` and proposed version still in 0.0.x range | **Not due yet** — pre-feature release; surface the proposal as a heads-up |
-| Pending + `private: true` and proposed version is 0.1.0+ | **Due if the headline feature is in** — present the proposal, ask the user |
-| Pending + `private: false` and any `major` | **Due now** |
-| Pending + `private: false` and ≥ 1 `minor` or ≥ 3 `patch` | **Due** — propose to ship |
-| Pending + `private: false` and < 3 `patch` only | **Soft due** — propose but flag it could wait |
+| No pending changes | **Not due** — done, early exit |
+| Pending + pre-release / `private` + proposed version still in `0.0.x` range | **Not due yet** — pre-feature; surface the proposal as a heads-up |
+| Pending + pre-release / `private` + proposed version is `0.1.0+` | **Due if the headline feature is in** — present the proposal, ask the user |
+| Pending + public package + any `major` | **Due now** |
+| Pending + public package + ≥ 1 `minor` or ≥ 3 `patch` | **Due** — propose to ship |
+| Pending + public package + < 3 `patch` only | **Soft due** — propose but flag it could wait |
 
-These are heuristics. Trust your judgment: a single security-fix `patch` ships immediately; ten cosmetic `patch`es probably batch.
+These are heuristics. A single security-fix patch ships immediately; ten cosmetic patches probably batch.
 
-### 4. If DUE, draft the value-focused CHANGELOG entry
+### 5. If DUE, draft the value-focused CHANGELOG entry
 
-**This is the part that takes care.** The default `pnpm changeset version` output inherits the changeset summary text directly — that text is often written tersely by the author and leans technical. Rewrite it before commit.
+**This is the part that takes care.** Tooling-generated output inherits the raw change-entry text directly — it is often terse and leans technical. Rewrite it before commit.
 
-The model is **Valve's Dota 2 patch notes** as actually published (see e.g. <https://liquipedia.net/dota2/Version_7.36>, not your memory of them). The reader is the consumer of the library, not its author. They want: "what can I do now that I couldn't before, and how does my code need to change?"
+The model is **Valve's Dota 2 patch notes** as actually published. The reader is the consumer of the package, not its author. They want: "what can I do now that I couldn't before, and how does my code need to change?"
 
-#### Style (calibrated to actual Valve patches)
+#### Style
 
-**Section headers — Title Case.** Not ALL CAPS. Examples Valve uses: "General Mechanics", "Map Changes", "Hero Adjustments", "Item Changes", "Bug Fixes". For a TS library, the spiritual equivalents:
+**Section headers — Title Case.** Examples from Valve: "General Mechanics", "Hero Adjustments", "Bug Fixes". Adapt to your package:
 
 - `## General` — top-level capabilities and breaking changes
 - `## Public API` — new exports, signature changes, deprecations
-- `## Behaviour` — things that work differently now without an API change
+- `## Behaviour` — things that work differently without an API change
 - `## Performance` — measurable wins the user will notice
-- `## Bug Fixes` — terminal section, purely factual, no detail beyond "what was broken, fixed"
+- `## Bug Fixes` — terminal section, purely factual
 
-Skip a section entirely if it has nothing in it. Better to have fewer sections that each carry weight.
+Skip a section entirely if it has nothing in it.
 
 **Per-entry shape — bold anchor + colon + delta.** Valve's canonical pattern:
 
 ```
 - **Bloodstone**: spell lifesteal 30% → 20%.
-- **Templar Assassin**: Refraction shields 30/40/50/60 → 20/30/40/50.
-- **Anti-Mage**: major rework — new innate 'Persecutor' applies
-  movement-speed slow based on enemy mana.
+- **Anti-Mage**: major rework — new innate applies movement-speed slow.
 ```
 
-For a TS library, the anchor is the symbol the user calls:
+For a library, the anchor is the symbol the user calls:
 
 ```
 - **`Session.run()`**: now returns a frozen `Transcript` instead of
-  a plain object. Shape is a superset — `turns` and `finalScene`
-  are where they were.
-- **`StoryChoiceRangeError`**: carries `.attempted` and `.available`
-  for typed handling without parsing `.message`.
+  a plain object. `turns` and `finalScene` are where they were.
+- **`RangeError`**: carries `.attempted` and `.available` for typed
+  handling without parsing `.message`.
 ```
 
-**Length per entry — one line for simple deltas, 2–3 lines for reworks chained with semicolons.** Match Valve's density.
+**Use `→` for numerical or behavioural deltas.** `"Cooldown 7s → 18s"`, `"Coverage threshold 80% → 75%"`.
 
-**Use the `→` arrow for numerical or behavioural deltas.** `"Cooldown 7s → 18s"`, `"Coverage threshold 80% → 75%"`. Two characters, instantly readable.
-
-**Tense — declarative, present, sentence fragments.** Mix matches Valve's: "Refraction shields …" not "We changed Refraction shields …", "Sessions now expose …" not "Added event emission …".
+**Tense — declarative, present, sentence fragments.** "Sessions now expose …" not "Added event emission …".
 
 **What goes in:**
-- Concrete user-callable changes (new exports, behaviour shifts, error-shape changes).
-- Numerical deltas with `→`.
-- Breaking changes with a one-line migration hint when non-obvious.
-- Bug fixes the user might have hit, as a terminal `## Bug Fixes` section, purely factual.
+- Concrete user-callable changes (new exports, behaviour shifts, error-shape changes)
+- Numerical deltas with `→`
+- Breaking changes with a one-line migration hint when non-obvious
+- Bug fixes the user might have hit (terminal `## Bug Fixes` section, factual)
 
 **What stays out:**
-- Refactors that don't change behaviour (type-alias renames where the shape is compatible, file moves, internal-module re-orgs).
-- Build/lockfile/lint config changes.
-- Test framework migrations.
-- ADR creation (cross-reference if a breaking change is rooted in an ADR, but don't make the ADR the entry).
-- PR numbers, SHAs, branch names.
-- The *why* — unless it's a security fix or a breaking-change rationale the user needs.
+- Internal refactors that don't change behaviour
+- Build/lockfile/lint config changes
+- Test framework migrations
+- PR numbers, SHAs, branch names
+- The *why* — unless it's a security fix or a breaking-change rationale the user needs
 
-#### Good vs bad — concrete examples
+#### Good vs bad
 
-✅ Valve-calibrated (what the user reads):
+✅ Value-focused (what the user reads):
 
 ```markdown
-## 0.1.0 — 2026-05-18
+## 0.2.0 — YYYY-MM-DD
 
-The first release that drives an Ink narrative end-to-end. Pick a
-Player, hand it a Story, get a frozen Transcript and live events.
+One-line summary of what this release unlocks.
 
 ### Public API
 
-- **`Story.fromInk(source)` / `Story.fromJson(json)`**: load an Ink
-  narrative from raw source or pre-compiled JSON. Compiler is
-  bundled — no inklecate needed.
-- **`Story.advance()`**: drives the story to the next branch point;
-  returns the accumulated text, passage tags, and the choices to
-  pick from.
-- **`Story.choose(index)`**: out-of-range or non-integer indices
-  reject with `StoryChoiceRangeError` carrying `.attempted` and
-  `.available`.
-- **`Story.snapshot()` / `Story.restore(json)`**: round-trippable
-  state JSON for save/load.
-- **`Session({ story, player })`**: runs the turn loop; returns a
-  frozen `Transcript`.
-- **`ScriptedPlayer([0, 1, 0])`**: deterministic Player for tests
-  and replays. `ScriptExhaustedError` carries `.scriptLength` and
-  `.turnIndex`.
-- **`Transcript`**: every `TurnRecord` includes `snapshotBefore` /
-  `snapshotAfter`. Replay from any turn via `story.restore(turn.
-  snapshotBefore)`.
-- **`Session.on(type, listener)`**: typed events `turn:start`,
-  `choice:made`, `story:ended`. Returns an unsubscribe.
-- **`maxTurns`** option on `Session`: throws
-  `SessionMaxTurnsError` with the partial Transcript on overrun.
+- **`Client.query()`**: now accepts an optional `timeout` parameter;
+  defaults to 30s (was infinite). Pass `timeout: 0` to restore
+  previous behaviour.
+- **`AuthError`**: carries `.statusCode` and `.retryAfter` for
+  typed handling without parsing `.message`.
 
-### Behaviour
+### Bug Fixes
 
-- Per-choice tags written **before** the bracketed choice text
-  populate `Choice.tags`; tags **after** the brackets surface on
-  the next `Scene.tags`. This is the hook the upcoming
-  `PersonaDirector` reads.
-
-### Known Limits
-
-- No `LLMPlayer` yet — bring your own `Player`, or drive with
-  `ScriptedPlayer` until v0.2.
+- Fixed a race condition in the connection pool that could cause
+  duplicate requests under high concurrency.
 ```
 
-❌ Engineering changelog (the thing to NOT write — and what `pnpm changeset version` will produce verbatim if not rewritten):
+❌ Engineering changelog (what tooling generates verbatim — do NOT ship):
 
+```markdown
+## 0.2.0
+
+- Added timeout parameter to query method
+- Refactored AuthError to carry statusCode field
+- Fixed race condition (see PR #142)
+- Bumped eslint peer range
+- Migrated tests from mocha to vitest
 ```
-## 0.1.0
 
-- Refactored `SessionResult` → `Transcript` (breaking type rename)
-- Added EventEmitter pattern to Session via `Map<EventType, Set<Listener>>`
-- Added `Object.freeze` to TurnRecord and Transcript construction
-- Pinned `@typescript-eslint/parser` to `8.59.3`
-- Migrated tests from Cucumber to Vitest (see ADR-0003)
-- Bumped `typescript` peer range
-```
-
-### 5. Present the proposal
-
-Use this exact shape so the user can scan it fast:
+### 6. Present the proposal
 
 ```
 Release check: DUE / NOT DUE / SOFT-DUE
 Current version: x.y.z   →   Proposed: x.y.z
 
-Pending changesets (N):
-  - <slug>.md   <level>   <one-line summary>
+Pending changes (N):
+  - <entry>   <level>   <one-line summary>
 
 Proposed CHANGELOG entry:
-
-  ## x.y.z — YYYY-MM-DD
-
-  **NEW CAPABILITIES**
-  - …
-  - …
-
-  **BEHAVIOUR CHANGES**
-  - …
-
-  **BREAKING CHANGES**
-  - …
+  [draft here]
 
 Action plan:
-  1. Run `pnpm changeset version` (bumps package.json, consumes
-     changesets, generates draft CHANGELOG).
+  1. Run the project's version-bump command:
+       Changesets:  pnpm changeset version  (or npx changeset version)
+       towncrier:   towncrier build --version x.y.z
+       Manual:      edit version manifest + CHANGELOG.md directly
   2. Overwrite the generated CHANGELOG entry with the rewrite above.
-  3. Commit `🔖 release: vX.Y.Z`.
-  4. Tag `vX.Y.Z` and push (`--tags`).
-  5. If `private: false` and the workflow exists, trigger the
-     Release action from the Actions tab (or have it run on push
-     if auto-trigger is on). Otherwise stop at step 4.
+  3. Run the project's verification gate (tests, lint, build).
+  4. Commit with message matching the project's convention (e.g. "🔖 release: vX.Y.Z").
+  5. Tag: git tag vX.Y.Z
+  6. Push: git push origin <main-branch> --follow-tags
+  7. If the project has a publish workflow (npm publish, cargo publish, PyPI, CI release action),
+     trigger it — or note that it runs automatically on tag push.
 
 Approve to proceed?
 ```
@@ -211,36 +189,33 @@ If NOT DUE:
 
 ```
 Release check: not due. <one-line reason>.
-Pending: N changesets, would propose vX.Y.Z when ready.
+Pending: N change entries, would propose vX.Y.Z when ready.
 ```
 
-### 6. On approval, execute the plan
+### 7. On approval, execute the plan
 
-Run the steps in order. After each, verify the previous step succeeded. If `pnpm changeset version` fails or produces unexpected output, stop and surface — do not silently push.
+Run the steps in order. After each, verify the previous step succeeded. If the version-bump command fails or produces unexpected output, stop and surface — do not silently push.
 
 For the CHANGELOG rewrite specifically:
-
-1. Capture the auto-generated CHANGELOG entry as a reference (do **not** ship it).
+1. Capture the auto-generated entry as a reference (do **not** ship it).
 2. Replace that block with the value-focused rewrite.
-3. Run `pnpm verify` to make sure the version bump didn't break anything that depends on package.json (it usually won't).
-4. Stage and commit with `🔖 release: vX.Y.Z` (matches commitlint).
-5. Tag: `git tag vX.Y.Z`.
-6. Push: `git push origin main --follow-tags`.
+3. Run the project's verification gate.
+4. Stage and commit.
+5. Tag and push with `--follow-tags`.
 
 ## Anti-patterns
 
-- **Don't release just because changesets exist.** A single typo-fix changeset for a private package isn't a release event.
-- **Don't write the changelog from the diff.** Write from intent — read the changeset summary, the commit body, then translate to what the user *gains*. The diff is misleadingly engineering-shaped.
-- **Don't ship the auto-generated CHANGELOG without rewriting.** Changesets' default output is fine as a starting point; it is not fine to publish.
-- **Don't bypass the user's approval for the actual release.** Propose, wait, then act. Releases are public, hard to reverse.
-- **Don't add a section that's empty.** Skip `**FIXES**` if there are no fixes; better to have fewer sections that each carry weight.
+- **Don't release just because change entries exist.** A single typo-fix for a private package isn't a release event.
+- **Don't write the changelog from the diff.** Write from intent — read the change entries and commit bodies, then translate to what the user *gains*.
+- **Don't ship the auto-generated CHANGELOG without rewriting.** Tooling output is a starting point, not a final product.
+- **Don't bypass the user's approval for the actual release.** Propose, wait, then act. Releases are public and hard to reverse.
+- **Don't add a section that's empty.** Skip `## Bug Fixes` if there are no fixes.
 
 ## Cross-references
 
-- `/staleness-audit` runs *before* this check, on the commit being created. This check runs *after* the commit lands, since release decisions depend on `package.json` + `.changeset/` state as they exist post-commit.
-- `feedback-post-commit-release-check` in agent memory mandates invoking this skill.
+- `/staleness-audit` runs *before* the commit. This check runs *after* the commit lands, since release decisions depend on the version manifest + change-entry state post-commit.
 - Valve's Dota 2 patch notes: <https://www.dota2.com/news/updates> — the canonical reference for the changelog style this skill enforces.
 
 ## Why this exists
 
-A library's CHANGELOG is the first thing a prospective user reads after the README. Tooling like Changesets makes it easy to *generate* one and easy to write a bad one — the default flow stitches together author-written summaries verbatim, which often read like a Git log. Valve's Dota patch notes are the canonical example of how to write a changelog the audience actually wants: every line is a thing the player can observe, not a thing the engineers did. Same principle for libraries: the user wants to know what they can do now, what they need to update, and what bugs they no longer have. Nothing else.
+A project's CHANGELOG is the first thing a prospective user reads after the README. Release tooling makes it easy to *generate* one and easy to write a bad one — the default flow stitches together author-written summaries verbatim, which often read like a git log. Valve's Dota patch notes are the canonical example of how to write a changelog the audience actually wants: every line is a thing the player can observe, not a thing the engineers did. Same principle: the user wants to know what they can do now, what they need to update, and what bugs they no longer have. Nothing else.
