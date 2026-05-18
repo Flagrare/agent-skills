@@ -1,19 +1,23 @@
 # agent-skills
 
-Personal agent skill library. Each plugin is a slash command available in any Claude Code session once the marketplace is registered.
+Personal agent skill library. Each plugin is a slash command available in any Claude Code session once the marketplace is added and the plugins enabled.
 
-## Setup
+## Install
 
-Merge this block into `~/.claude/settings.json`:
+Two steps. Both required — neither alone is sufficient.
+
+**1. Register and clone the marketplace:**
+
+```bash
+claude plugin marketplace add Flagrare/agent-skills
+```
+
+This declares the marketplace in `~/.claude/settings.json` (under `extraKnownMarketplaces`) **and** fetches the plugin manifests into the local cache. The CLI is the only way to trigger the initial fetch — adding `extraKnownMarketplaces` by hand registers the marketplace but does not pull its contents.
+
+**2. Enable the six skills.** Merge into `~/.claude/settings.json`:
 
 ```json
 {
-  "extraKnownMarketplaces": {
-    "personal": {
-      "source": { "source": "github", "repo": "Flagrare/agent-skills" },
-      "autoUpdate": true
-    }
-  },
   "enabledPlugins": {
     "intake@personal": true,
     "research-catalog@personal": true,
@@ -25,19 +29,44 @@ Merge this block into `~/.claude/settings.json`:
 }
 ```
 
-Restart Claude Code (or run `/reload-plugins`). The six slash commands become active and the marketplace updates on every startup.
+Then either restart Claude Code or run `/reload-plugins` in any session.
 
-### Developer mode (for editing skills locally)
+## Verify
 
-If you want to iterate on these skills and test changes without pushing:
+After reload, expect Claude Code to report **6 additional plugins** with **0 errors** on the load line. Test one of the slash commands — type `/atdd-plan` and confirm it appears as an option. If it does, you're done.
+
+## Troubleshooting
+
+| Symptom | Cause | Fix |
+|---|---|---|
+| `N errors during load` after reload | One layer of the install pipeline (registration, clone, enablement) is incomplete | Run `/doctor` for specifics |
+| `Plugin X not found in marketplace personal` | Marketplace registered but contents not cloned | Re-run `claude plugin marketplace add Flagrare/agent-skills` |
+| 0 errors but slash commands missing | `enabledPlugins` entries missing or mistyped | Check that each entry is `<plugin>@personal` exactly (e.g. `atdd-plan@personal`, not `atdd-plan` or `plan@personal`) |
+| Marketplace re-clone hangs | Stale lock or partial fetch | `claude plugin marketplace remove personal` then re-add |
+
+`/doctor` is the source of truth for what's broken — it names the specific plugin and the specific failure mode.
+
+## Migrating from the old (symlink) setup
+
+Earlier versions of this README told you to clone the repo and symlink it into `~/.claude/plugins/marketplaces/personal`. That approach silently fails: the symlink gets discovered but no install pipeline runs, so plugins enable into nothing. If you followed those instructions, remove the symlink before installing fresh:
+
+```bash
+rm ~/.claude/plugins/marketplaces/personal
+```
+
+Then run the two install steps above.
+
+## Developer mode
+
+To edit skills locally and see changes on `/reload-plugins` without push/pull:
 
 ```bash
 git clone git@github.com:Flagrare/agent-skills.git ~/Dev/agent-skills
-mkdir -p ~/.claude/plugins/marketplaces
-ln -s ~/Dev/agent-skills ~/.claude/plugins/marketplaces/personal
+claude plugin marketplace remove personal
+claude plugin marketplace add ~/Dev/agent-skills
 ```
 
-Then **remove the `extraKnownMarketplaces` block** from `settings.json` (keep `enabledPlugins`). The symlink takes over as the marketplace source, and your edits become live after `/reload-plugins`.
+This swaps the GitHub source for a local directory source. Edits in `~/Dev/agent-skills` become live after `/reload-plugins`. To switch back to the published version: `claude plugin marketplace remove personal && claude plugin marketplace add Flagrare/agent-skills`.
 
 ## Skills
 
