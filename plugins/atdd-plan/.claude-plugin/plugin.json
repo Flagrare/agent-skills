@@ -1,5 +1,5 @@
 {
-  "name": "plan",
+  "name": "atdd-plan",
   "description": "ATDD-first implementation planning with named design patterns, SOLID audit, and Kent Dodds Testing Trophy. Use when planning any feature, fix, or refactor.",
   "author": {
     "name": "Yuri Flagrare",

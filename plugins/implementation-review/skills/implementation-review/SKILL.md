@@ -18,7 +18,7 @@ Before spawning subagents, collect in the main agent:
 - `git diff --staged` — full diff (the primary input for all subagents)
 - `git diff --staged --name-only` — file list
 - The **active plan** — look in this order:
-  1. Session context: did `/plan` run earlier in this conversation? Use that output.
+  1. Session context: did `/atdd-plan` run earlier in this conversation? Use that output.
   2. `~/.claude/plans/*.md` — the most recently modified file, if the directory exists.
   3. The project's decision log (`docs/decisions/`, `docs/adr/`, RFCs, or equivalent) — the foundational decision is always the mission/scope anchor.
   4. README roadmap — checked/unchecked items define what is in scope.

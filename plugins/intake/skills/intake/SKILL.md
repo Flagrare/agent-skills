@@ -1,11 +1,11 @@
 ---
 name: intake
-description: "Pre-planning ticket ingestion. Given a ticket ID or URL, reads the full ticket via MCP or CLI, follows all referenced links (Notion, Figma, GitHub, articles, etc.) using parallel subagents, synthesises a context brief, asks targeted clarifying questions, then hands off to /plan. Works with Linear, Jira, Asana, Shortcut, Trello."
+description: "Pre-planning ticket ingestion. Given a ticket ID or URL, reads the full ticket via MCP or CLI, follows all referenced links (Notion, Figma, GitHub, articles, etc.) using parallel subagents, synthesises a context brief, asks targeted clarifying questions, then hands off to /atdd-plan. Works with Linear, Jira, Asana, Shortcut, Trello."
 ---
 
 # Intake
 
-Turn a ticket reference into a planning-ready context brief before `/plan` runs. The goal: **every relevant fact is on the table and every ambiguity is resolved before a single line of implementation is planned**.
+Turn a ticket reference into a planning-ready context brief before `/atdd-plan` runs. The goal: **every relevant fact is on the table and every ambiguity is resolved before a single line of implementation is planned**.
 
 ---
 
@@ -135,13 +135,13 @@ After the user answers, fold answers into the brief and clear Open Questions.
 
 ---
 
-## Step 6 — Hand off to /plan
+## Step 6 — Hand off to /atdd-plan
 
 When the brief is complete and Open Questions is empty (or residuals are explicitly deferred by the user), say:
 
-> Context complete. Invoking `/plan` with the brief above.
+> Context complete. Invoking `/atdd-plan` with the brief above.
 
-Then invoke `/plan`, passing the full context brief as opening context. `/plan` does not re-read the ticket or references — all context is already in the brief.
+Then invoke `/atdd-plan`, passing the full context brief as opening context. `/atdd-plan` does not re-read the ticket or references — all context is already in the brief.
 
 ---
 
@@ -150,8 +150,8 @@ Then invoke `/plan`, passing the full context brief as opening context. `/plan` 
 - Don't summarise the ticket without reading it — "I assume this means X" is not intake.
 - Don't spawn a subagent per sentence — one per distinct resource (ticket, Notion page, Figma frame, article).
 - Don't skip inaccessible references silently — note them, they may be critical.
-- Don't ask more than 5 clarifying questions — prioritise the blockers; defer the rest to `/plan`'s gap review.
-- Don't proceed to `/plan` if Acceptance Criteria are still ⚠ undefined — resolve them first.
+- Don't ask more than 5 clarifying questions — prioritise the blockers; defer the rest to `/atdd-plan`'s gap review.
+- Don't proceed to `/atdd-plan` if Acceptance Criteria are still ⚠ undefined — resolve them first.
 - Don't invent acceptance criteria to fill the gap — flag the absence and ask.
 
 ---
@@ -165,7 +165,7 @@ Then invoke `/plan`, passing the full context brief as opening context. `/plan` 
      ↓ context brief synthesised
      ↓ clarifying questions answered
      ↓
-/plan  ← receives the context brief as input
+/atdd-plan  ← receives the context brief as input
      ↓
 [implementation]
      ↓

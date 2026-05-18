@@ -1,5 +1,5 @@
 ---
-name: plan
+name: atdd-plan
 description: "Produce an ATDD-first implementation plan with named design patterns, SOLID audit, and gap review. Use whenever the user wants to plan a feature, fix, or refactor — 'how should we implement X', 'plan this', 'let's design X', 'where do we start on Y'. Tests follow Kent Dodds Testing Trophy: behavior over implementation, integration-heavy, public-API-only, refactor-proof. Never start writing implementation until the plan is agreed and the acceptance tests are defined."
 ---
 

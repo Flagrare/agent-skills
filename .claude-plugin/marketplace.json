@@ -11,7 +11,7 @@
     {
       "name": "intake",
       "source": "./plugins/intake",
-      "description": "Pre-planning ticket ingestion. Reads a ticket via MCP or CLI, follows all references in parallel subagents, synthesises a context brief, clarifies ambiguities, then hands off to /plan."
+      "description": "Pre-planning ticket ingestion. Reads a ticket via MCP or CLI, follows all references in parallel subagents, synthesises a context brief, clarifies ambiguities, then hands off to /atdd-plan."
     },
     {
       "name": "research-catalog",
@@ -19,8 +19,8 @@
       "description": "Whenever you do external research (WebFetch, WebSearch, Explore-agent fetches of URLs outside the repo), catalog it under docs/research/ in the consuming project before sending the synthesis back to the user. Credits sources by name/URL/type, captures findings, and creates a traceable link from the decision back to the evidence."
     },
     {
-      "name": "plan",
-      "source": "./plugins/plan",
+      "name": "atdd-plan",
+      "source": "./plugins/atdd-plan",
       "description": "ATDD-first implementation planning with named design patterns, SOLID audit, and Kent Dodds Testing Trophy. Use when planning any feature, fix, or refactor."
     },
     {
