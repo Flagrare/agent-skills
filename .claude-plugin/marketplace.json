@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "personal",
+  "version": "0.1.0",
+  "description": "Personal agent skill library — pre-plan, plan, audit, review, release.",
+  "owner": {
+    "name": "Yuri Flagrare",
+    "email": "yuri.flagrare@gmail.com"
+  },
+  "plugins": [
+    {
+      "name": "intake",
+      "source": "./plugins/intake",
+      "description": "Pre-planning ticket ingestion. Reads a ticket via MCP or CLI, follows all references in parallel subagents, synthesises a context brief, clarifies ambiguities, then hands off to /plan."
+    },
+    {
+      "name": "research-catalog",
+      "source": "./plugins/research-catalog",
+      "description": "Whenever you do external research (WebFetch, WebSearch, Explore-agent fetches of URLs outside the repo), catalog it under docs/research/ in the consuming project before sending the synthesis back to the user. Credits sources by name/URL/type, captures findings, and creates a traceable link from the decision back to the evidence."
+    },
+    {
+      "name": "plan",
+      "source": "./plugins/plan",
+      "description": "ATDD-first implementation planning with named design patterns, SOLID audit, and Kent Dodds Testing Trophy. Use when planning any feature, fix, or refactor."
+    },
+    {
+      "name": "staleness-audit",
+      "source": "./plugins/staleness-audit",
+      "description": "Pre-commit audit. Diffs staged changes against docs canaries (README, ADRs, roadmap, public API, TSDoc, changelogs) and surfaces drift before it lands in history."
+    },
+    {
+      "name": "implementation-review",
+      "source": "./plugins/implementation-review",
+      "description": "Pre-commit quality gate. Six checks: plan gaps, use-case coverage, missing test scenarios, test philosophy (Kent Dodds Testing Trophy), SOLID violations, Clean Code violations."
+    },
+    {
+      "name": "release-check",
+      "source": "./plugins/release-check",
+      "description": "Post-commit gate. Checks whether a release is due from pending changesets and proposes a semver bump with a Valve Dota-style value-focused CHANGELOG entry."
+    }
+  ]
+}
