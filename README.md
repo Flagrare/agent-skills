@@ -1,12 +1,12 @@
-# claude-skills
+# agent-skills
 
-Personal Claude Code skill library. Each plugin is a slash command available in any Claude Code session once the marketplace is linked.
+Personal agent skill library. Each plugin is a slash command available in any Claude Code session once the marketplace is linked.
 
 ## Setup
 
 ```bash
-git clone https://github.com/Flagrare/claude-skills ~/Dev/claude-skills
-ln -s ~/Dev/claude-skills ~/.claude/plugins/marketplaces/personal
+git clone https://github.com/Flagrare/agent-skills ~/Dev/agent-skills
+ln -s ~/Dev/agent-skills ~/.claude/plugins/marketplaces/personal
 ```
 
 ## Skills
