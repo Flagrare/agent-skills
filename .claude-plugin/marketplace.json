@@ -26,7 +26,7 @@
     {
       "name": "staleness-audit",
       "source": "./plugins/staleness-audit",
-      "description": "Pre-commit audit. Diffs staged changes against docs canaries (README, ADRs, roadmap, public API, TSDoc, changelogs) and surfaces drift before it lands in history."
+      "description": "Pre-commit audit. Diffs staged changes against the repo's canary files (README, decision log, roadmap, public entry point, doc comments, release notes, test names) and surfaces drift before it lands in history."
     },
     {
       "name": "implementation-review",
@@ -36,7 +36,7 @@
     {
       "name": "release-check",
       "source": "./plugins/release-check",
-      "description": "Post-commit gate. Checks whether a release is due from pending changesets and proposes a semver bump with a Valve Dota-style value-focused CHANGELOG entry."
+      "description": "Post-commit gate. Detects the project's release mechanism, checks whether a release is due, and proposes a semver bump with a Valve Dota-style value-focused CHANGELOG entry."
     }
   ]
 }

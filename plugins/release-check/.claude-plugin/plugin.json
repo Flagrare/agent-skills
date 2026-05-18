@@ -1,6 +1,6 @@
 {
   "name": "release-check",
-  "description": "Post-commit gate. Checks whether a release is due from pending changesets and proposes a semver bump with a Valve Dota-style value-focused CHANGELOG entry.",
+  "description": "Post-commit gate. Detects the project's release mechanism, checks whether a release is due, and proposes a semver bump with a Valve Dota-style value-focused CHANGELOG entry.",
   "author": {
     "name": "Yuri Flagrare",
     "email": "yuri.flagrare@gmail.com"

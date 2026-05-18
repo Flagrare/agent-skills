@@ -102,7 +102,17 @@ Grep the staged diff for tokens that shouldn't ship:
 - `console.log`, `debugger`, `.only`, `.skip` in test files.
 - Leftover lint-suppression comments without an explanation.
 
-### 9. Agent memory crosslinks
+### 9. Research catalog
+
+If external research was conducted during this session (WebFetch, WebSearch, or Explore-agent fetches of URLs outside the repo) and the findings informed this commit:
+
+- Was `/research-catalog` invoked before the synthesis was returned? If not, run it now before committing.
+- Does the consuming artifact (ADR, code comment, doc) cross-link back to the catalog file? If not, add the cross-link.
+
+If no external research was conducted this session, skip this check.
+
+### 10. Agent memory crosslinks
+
 
 If the project uses a `~/.claude/projects/<path>/memory/` directory with `[[name]]` crosslinks, and this commit touches docs or memory files, check:
 
@@ -111,7 +121,7 @@ If the project uses a `~/.claude/projects/<path>/memory/` directory with `[[name
 
 To find the memory path: derive it from `pwd` — the project memory dir is `~/.claude/projects/<pwd-with-slashes-replaced-by-dashes>/memory/`. If the directory doesn't exist, skip this check.
 
-### 10. Commit message format
+### 11. Commit message format
 
 Before invoking `git commit`, verify the message matches the project's commit convention. Check the recent `git log` to identify what convention is in use, then verify the new message follows it. Common conventions:
 
@@ -121,7 +131,7 @@ Before invoking `git commit`, verify the message matches the project's commit co
 
 Regardless of convention: subject should be ≤ 72 chars; body explains *why* when the change is non-obvious.
 
-### 11. Automated-committer message format
+### 12. Automated-committer message format
 
 If this commit touches CI/CD config or dependency management config, verify that any automated committers (Renovate, Dependabot, release bots, merge bots) produce messages that match the project's commit convention.
 
@@ -132,7 +142,7 @@ Check the relevant config files for the project's CI platform:
 
 The rule of thumb: if a tool can push a commit, its message template must satisfy the project's commitlint rules — or the merge strategy must ensure a manually-written squash message.
 
-### 12. CI config drift
+### 13. CI config drift
 
 Whenever this commit touches CI config files:
 
