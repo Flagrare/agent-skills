@@ -19,12 +19,18 @@ Run this skill **immediately after** a research session that pulled in external 
 
 It does **not** apply to:
 
-- Lookups inside the repo (`git log`, `grep`, file reads)
-- Re-stating prior research without re-fetching anything
-- Trivial single-query lookups like "what's the latest version of X" or "is package Y on npm"
-- Internal reasoning that doesn't lean on a citable external source
+- Lookups inside the repo (`git log`, `grep`, file reads).
+- Re-stating prior research without re-fetching anything.
+- Trivial single-query lookups like "what's the latest version of X" or "is package Y on npm".
+- Internal reasoning that doesn't lean on a citable external source.
+- **Research that informed the project's dev tooling or workflow rather than the project's subject matter.** A catalog entry in `docs/research/` documents *why the product is built the way it is*, not *how the team chose to build it*. If you researched a commit-message convention, a testing framework's idioms, a changelog-formatting style, a build tool's options, or an agent-skill's calibration — that research belongs with the tooling it informed (a doc in the tool's own repo, a comment in the relevant config, a memory entry in the agent's working files). It does not belong in the project's research log alongside research about the project's actual domain.
 
-The trigger is: *did external work inform the answer the user is about to read?* If yes, catalog it.
+The trigger is the conjunction of two things:
+
+1. *Did external work inform the answer the user is about to read?* If no, don't catalog.
+2. *Is the work the user is about to read part of the project's premise — its subject matter, the problem domain it tackles, the design decisions about what it does for its users?* If no, don't catalog *here* — catalog with the tooling instead, or skip cataloging entirely if the tooling lives elsewhere with its own provenance.
+
+The rule of thumb: if a stranger reading `docs/research/` learns something about *what the product is and why it's designed this way*, the entry belongs. If they only learn *how the team built it*, it doesn't.
 
 ## Procedure
 
