@@ -1,0 +1,8 @@
+{
+  "name": "research-catalog",
+  "description": "Whenever you do external research (WebFetch, WebSearch, Explore-agent fetches of URLs outside the repo), catalog it under docs/research/ in the consuming project before sending the synthesis back to the user. Credits sources by name/URL/type, captures findings, and creates a traceable link from the decision back to the evidence.",
+  "author": {
+    "name": "Yuri Flagrare",
+    "email": "yuri.flagrare@gmail.com"
+  }
+}
