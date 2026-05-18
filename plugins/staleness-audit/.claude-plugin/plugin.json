@@ -1,0 +1,8 @@
+{
+  "name": "staleness-audit",
+  "description": "Pre-commit audit. Diffs staged changes against docs canaries (README, ADRs, roadmap, public API, TSDoc, changelogs) and surfaces drift before it lands in history.",
+  "author": {
+    "name": "Yuri Flagrare",
+    "email": "yuri.flagrare@gmail.com"
+  }
+}
