@@ -14,6 +14,7 @@ ln -s ~/Dev/agent-skills ~/.claude/plugins/marketplaces/personal
 | Skill | When to invoke |
 |---|---|
 | `/intake` | When given a ticket — reads the ticket via MCP/CLI, follows all references in parallel subagents, builds a context brief, clarifies ambiguities, then calls `/plan` |
+| `/research-catalog` | After any external research (WebFetch, WebSearch, Explore-agent) — catalogs sources and findings under `docs/research/` before returning the synthesis, creating a traceable link from decision back to evidence |
 | `/plan` | Before any feature, fix, or refactor — ATDD-first plan with design patterns, SOLID audit, and gap review |
 | `/staleness-audit` | Before every commit — docs drift check across README, ADRs, exports, TSDoc, changesets, test names |
 | `/implementation-review` | Before every commit, after `/staleness-audit` — six parallel subagents: plan gaps, use-case coverage, test scenarios, test philosophy, SOLID, Clean Code |
