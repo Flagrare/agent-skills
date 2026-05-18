@@ -25,9 +25,10 @@ ln -s ~/Dev/agent-skills ~/.claude/plugins/marketplaces/personal
 ```
 /intake [ticket ID or URL]
      ↓ parallel subagents read ticket + all references
+     ↓ /research-catalog  ← log external sources before synthesising
      ↓ context brief + clarifying questions
      ↓
-/plan
+/plan                    ← /research-catalog again if plan requires external research
      ↓
 [implementation]
      ↓

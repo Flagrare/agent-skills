@@ -161,6 +161,7 @@ Then invoke `/plan`, passing the full context brief as opening context. `/plan` 
 ```
 /intake [ticket ID or URL]
      ↓ subagents read ticket + all references in parallel
+     ↓ /research-catalog  ← log every external source before synthesising
      ↓ context brief synthesised
      ↓ clarifying questions answered
      ↓
