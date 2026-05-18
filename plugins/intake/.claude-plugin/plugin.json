@@ -1,0 +1,8 @@
+{
+  "name": "intake",
+  "description": "Pre-planning ticket ingestion. Reads a ticket via MCP or CLI, follows all references in parallel subagents, synthesises a context brief, clarifies ambiguities, then hands off to /plan.",
+  "author": {
+    "name": "Yuri Flagrare",
+    "email": "yuri.flagrare@gmail.com"
+  }
+}
