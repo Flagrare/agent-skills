@@ -37,6 +37,11 @@
       "name": "release-check",
       "source": "./plugins/release-check",
       "description": "Post-commit gate. Detects the project's release mechanism, checks whether a release is due, and proposes a semver bump with a Valve Dota-style value-focused CHANGELOG entry."
+    },
+    {
+      "name": "write-docs",
+      "source": "./plugins/write-docs",
+      "description": "Procedural guide for writing documentation. Identifies the Diátaxis mode (tutorial / how-to / reference / explanation), picks the shape that fits, applies Google + Microsoft line-level style rules, and treats the README as a special landing-page form modeled on SpacetimeDB / Tokio / RocksDB / Qdrant / Stripe."
     }
   ]
 }

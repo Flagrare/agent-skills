@@ -1,0 +1,8 @@
+{
+  "name": "write-docs",
+  "description": "Procedural guide for writing documentation that lands. Identifies the Diátaxis mode (tutorial / how-to / reference / explanation), picks the shape that fits the mode, applies Google + Microsoft line-level style rules, and treats the README as a special landing-page form modeled on SpacetimeDB / Tokio / RocksDB / Qdrant / Stripe. Names anti-patterns the way release-check names tooling-generated changelog entries — explicit, with examples.",
+  "author": {
+    "name": "Yuri Flagrare",
+    "email": "yuri.flagrare@gmail.com"
+  }
+}
