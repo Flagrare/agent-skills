@@ -90,12 +90,14 @@ The good docs put context at the point of need, not in a glossary that ships sep
 A few moves to reach for, all attributable:
 
 - **Name what you're assuming**, up front (Anthropic's preconditions block). *"This guide assumes you have a Stripe account and have installed the Node SDK."* The reader who lacks one of those self-selects out before they get lost.
+- **Name what the project *is* before naming how to install it** — especially on multi-component projects. If the codebase is a Rust engine exposed to Python via PyO3, or a JVM library with a native core, or a C library with multi-language wrappers, name that fact in two sentences before the install commands appear. The reader landing in your Quick Start may not yet know whether they're installing a library, a service, or a CLI tool; whether they need a compiler; whether the language on the badges is the language they'll actually call. Forcing them to reverse-engineer the architecture from `pip install` output is unkind. *"TardigradeDB is a Rust engine with a Python API; the install command is `pip install tardigrade-db` regardless of what language you write your consumer in"* costs almost nothing and answers the question every reader was already asking.
 - **Pre-announce the error the reader will hit** (React's pattern). *"You'll see a console warning here — that's expected, and we'll fix it in the next section."* Surfacing the failure mode before the reader encounters it converts a frustrating moment into a validating one.
+- **Name the gap you don't fill.** When a feature path is unsupported — say, *"there is no third-party Rust API today; the workspace crates are unpublished and not designed as a public surface"* — say so in the same paragraph where the option would have appeared, not three pages later when the reader has already started trying it. Honest gap-naming pairs with the preconditions block: it lets the reader who can't use a path self-select out, and lets the reader who *can* work around the gap (fork and path-depend, embed Python, wait for the roadmap item) make that decision deliberately. The honest move is also the kind one.
 - **Drop the definition inline, not in a sidebar.** A parenthetical, a footnote, or a single sentence at the moment of first use. Reserve glossaries for the cases where the term appears many times across many pages.
 - **Lead with the conclusion, then back up the claim** (the inverted pyramid; GOV.UK's house style). The opening sentence states what's true; the rest of the paragraph supports it. Don't make the reader wait for the verdict.
 - **Treat the reader as a collaborator, not a recipient.** Ask them direct questions when you want them to think: *"Which of these are state? Identify the ones that are not."* React uses this constantly. The reader who answers in their head is now learning rather than scanning.
 
-The thing all five moves share is that they put the context in the reader's path *exactly when the reader needs it* — not earlier, where it bores them, and not later, where it's too late.
+What these moves share is that they put the context in the reader's path *exactly when the reader needs it* — not earlier, where it bores them, and not later, where it's too late.
 
 ### 5. Calibrate tone to the reader's state, keep your voice constant
 
@@ -147,6 +149,12 @@ The hero example is the single most load-bearing section. If you cannot write a 
 Several things stay out, no matter how tempted you are. Long narrative introductions. Generic motivational language — *"revolutionise"*, *"game-changer"*, *"next-generation"*. A Table of Contents in a ≤500-line doc (it just clutters the top). The full changelog (link to `CHANGELOG.md`). The full roadmap (link to `docs/roadmap.md`). Detailed installation steps (link to the contributor or user guide). Multiple "Getting Started" sections aimed at different audiences without explicit audience tagging.
 
 Several things are mandatory and easy to forget. A link to `LICENSE`, `CHANGELOG.md`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, and `CITATION.cff` if the project is research-adjacent. A truthful status line — pick one of *Research-grade preview*, *Beta*, *Stable*, *Archived* — and own it. And the hero example, again, because it's that important.
+
+#### Label Quick-Start paths by intent, not by audience
+
+The most common Quick-Start failure on multi-language projects is heading the subsections with audience labels — *"Python users"*, *"Rust contributors"*, *"Java developers"*. Audience labels route by identity. The Rust developer who lands on the page wanting to *use* the library now reads "Python users" and assumes that section doesn't apply to them, even though it does — because the project's only third-party API happens to ship as a Python wheel. The reverse misroute happens too: the Python developer who wants to contribute reads "Rust contributors" and assumes they need to switch languages, when the contributor workflow is actually identical regardless of what language they call the library from.
+
+Use intent labels instead. *"Using TardigradeDB from Python"* and *"Building TardigradeDB from source"* route by what the reader is trying to do, which is the only routing that's stable across the reader's actual mental state. *"Using"* means *the reader is calling the library*; *"Building"* means *the reader is modifying the library*. Whether they happen to write Rust or Python or Go elsewhere doesn't enter the routing decision. The label switch costs nothing and prevents an entire class of routing failure. (TardigradeDB hit this on 2026-05-21 — the rewrite is `dac44c3e` in that repo.)
 
 ### 7. Self-check by reading it aloud
 
