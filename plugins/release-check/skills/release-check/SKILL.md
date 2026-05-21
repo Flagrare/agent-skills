@@ -161,7 +161,30 @@ One-line summary of what this release unlocks.
 
 A release bump touches more than the version manifest. Several files in a typical repo cite the current version, and they go stale the moment you tag the new one. Sweep for drift before presenting the proposal.
 
-Common files to check:
+#### 6a. Identify every file the build tooling reads for the version
+
+This is the load-bearing sub-check on multi-build-system projects, and the one that has historically caused the most painful silent failures. **A "canonical manifest" mental model is wrong for any project where two build systems each read their own manifest.** Each tool stamps the version from a different file into a different artifact, and the artifact whose filename gets uploaded to the registry is what determines whether the publish succeeds.
+
+| Project shape | Files the publish tool reads the version from | Failure mode if they disagree |
+|---|---|---|
+| **Rust crate + Python wheel via maturin / PyO3** | `Cargo.toml` (for `cargo publish`) **and** `pyproject.toml` `[project] version` (for the wheel filename — maturin uses this, NOT Cargo.toml) | wheel uploads as `pkg-OLD-*.whl`, PyPI returns 400 File-already-exists, workflow goes red, downstream `pip install pkg==NEW` returns "no matching distribution" |
+| **Rust crate + Python wheel via setuptools-rust** | `Cargo.toml`, `setup.cfg` / `setup.py` `version=` | same shape — Python tooling reads its own file |
+| **Node package with native code (NAPI-RS, neon, node-gyp)** | `package.json` `version`, native sub-crate `Cargo.toml`, sometimes `binding.gyp` | npm publish carries `package.json` version; native artifact name carries the sub-crate version; mismatch causes load-time failures, not registry rejection |
+| **Python package + C extension built with scikit-build-core** | `pyproject.toml` `[project] version`, `CMakeLists.txt` `project(... VERSION ...)` | sdist contains conflicting metadata; wheel name vs `__version__` divergence |
+| **Multi-module monorepo (Lerna, pnpm workspaces, Nx)** | each module's `package.json`, plus the root `lerna.json` / `pnpm-workspace.yaml` if pinned | partial publish — some modules go out, others don't, dependency resolution breaks for consumers |
+
+For each build system in the project, **list every file it reads for the version**, and verify they all carry the same value before tagging. The cost is a single grep:
+
+```bash
+NEW="0.7.2"
+# Adjust to the project's actual manifest files.
+grep -nE "^version\s*=" Cargo.toml pyproject.toml setup.cfg package.json 2>/dev/null
+# Each line must show "$NEW", not the previous version.
+```
+
+If even one file lags, the bump is incomplete. Stop and fix before tagging — recovery from a half-bumped tag is force-pushing the tag, which is real history rewrite.
+
+#### 6b. Other files that cite the current version
 
 | File | What to update | Pattern |
 |---|---|---|
@@ -169,7 +192,7 @@ Common files to check:
 | `SECURITY.md` | Supported-versions table | Bump the supported row; remove rows now out of support. |
 | `README.md` | Any "Current version: vX.Y.Z" line; any status framing tied to the version (e.g. "vX.Y.Z is a research-grade preview") | Update version number; reconsider status framing if maturity actually shifted. |
 | `CONTRIBUTING.md`, guides, architecture docs | Any "v0.X onwards" or "as of v0.X" claim that's now older than current | Bump or convert to a historical reference. |
-| `pyproject.toml` / `package.json` / per-crate `Cargo.toml` | `version =` field if separate from workspace manifest | Match. |
+| Per-crate / per-module manifests not inheriting from workspace | `version =` field | Match. (Workspace-inheriting manifests with `version.workspace = true` need no edit.) |
 | `docs/positioning/*.md`, `docs/research-log.md` | Any "Status: vX" line | Bump if it's meant to track current. |
 
 How to find drift mechanically:
@@ -345,6 +368,7 @@ For the CHANGELOG rewrite specifically:
 - **Don't bypass the user's approval for the actual release.** Propose, wait, then act. Releases are public and hard to reverse.
 - **Don't add a section that's empty.** Skip `## Bug Fixes` if there are no fixes.
 - **Don't declare a release done at the tag push.** Tagging is necessary, not sufficient. Verify the publish workflow ran green AND the artifact actually appears in the registry. A "tag pushed, must be live" assumption is how multi-release publish failures stack up unnoticed — the only signal that something's wrong is when a downstream consumer reports `pip install <name>` returns the version-before-last.
+- **Don't assume one manifest is the only version source.** On multi-build-system projects (maturin/PyO3, setuptools-rust, scikit-build, NAPI-RS, multi-module monorepos), each build tool reads its own manifest and stamps that version into its own artifact. The wheel filename comes from `pyproject.toml`'s `[project] version`, NOT from `Cargo.toml`. If you bump only one of them, the artifact name and the tag will disagree, the registry will reject the upload, and the workflow will fail with a confusing "file already exists" error against the previous version's filename. See step 6a for the full list of manifest pairs by project shape, and grep for `^version\s*=` across every manifest before tagging.
 
 ## Cross-references
 
