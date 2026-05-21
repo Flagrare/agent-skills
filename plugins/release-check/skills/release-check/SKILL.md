@@ -225,13 +225,92 @@ Action plan:
      SECURITY.md supported-versions, README status line, etc.).
   4. Run the project's verification gate (tests, lint, build).
   5. Commit with message matching the project's convention (e.g. "🔖 release: vX.Y.Z").
-  6. Tag: git tag vX.Y.Z
+  6. Tag the release commit explicitly (NOT main):
+       git tag vX.Y.Z <release-commit-sha>
+     The tag MUST point at the commit that bumped the version manifest.
+     If you tag main and main has moved past the release commit, the
+     publish workflow will check out the wrong tree and build wheels
+     with the previous version — PyPI / crates.io will then reject
+     them as duplicates. (See the "GitHub Release vs tag commit"
+     section below for why this matters.)
   7. Push: git push origin <main-branch> --follow-tags
   8. If the project has a publish workflow (npm publish, cargo publish, PyPI, CI release action),
-     trigger it — or note that it runs automatically on tag push.
+     trigger it — or note that it runs automatically on tag push or
+     release publish.
+  9. **Verify the publish actually succeeded.** Tagging is not shipping.
+     For GitHub Actions release workflows:
+       gh run list --workflow=<publish-workflow>.yml --limit 1
+     If status is `failure` or `cancelled`, inspect with `gh run view
+     <id> --log-failed` and surface the root cause before declaring
+     the release done. Common failure: wheel filename version doesn't
+     match the tag (see "GitHub Release vs tag commit" below).
+ 10. **Confirm the artifact actually landed in the index.** Tooling
+     can succeed-then-silently-skip. For PyPI:
+       curl -s https://pypi.org/pypi/<package>/json | jq -r .info.version
+     For crates.io:
+       cargo search <crate> --limit 1
+     For npm:
+       npm view <pkg> version
+     If the latest published version is still the previous one after
+     the workflow reports success, something between the workflow and
+     the registry broke — escalate, don't move on.
 
 Approve to proceed?
 ```
+
+### GitHub Release vs tag commit — the silent-publish-failure trap
+
+GitHub Actions workflows triggered by `on: release: [published]` check
+out the **release's target commit**, not the **git tag's commit**.
+These can diverge in three common ways:
+
+1. **Release created from a stale main.** Operator clicks "Draft a new
+   release" in the GitHub UI, picks tag `vX.Y.Z`, but the release's
+   "target" defaults to main — which may be ahead of (or behind) the
+   tagged commit. The workflow checks out main, not the tag.
+2. **Tag pushed before version bump.** Operator runs `git tag vX.Y.Z`
+   on a commit that doesn't bump the version manifest, then bumps it
+   in a follow-up commit. The tag is wrong; the workflow builds the
+   pre-bump tree.
+3. **Multiple consecutive releases without main rebasing.** Operator
+   tags v0.6.0 and v0.7.0 within minutes on commits that all share a
+   stale Cargo.toml because the version-bump commits haven't been
+   reordered correctly.
+
+All three produce the same downstream failure: the wheel/crate/package
+filename carries the *old* version, the registry rejects it as a
+duplicate of the previously-shipped release, and the workflow status
+turns red. Recovery requires either re-tagging (if the registry hasn't
+seen any artifact yet) or bumping past the gap (if a partial upload
+landed first).
+
+**Prevention checklist before pushing the tag:**
+
+- `git show <tag>:<manifest>` matches the expected new version.
+  Example: `git show v0.7.2:Cargo.toml | grep '^version'` returns
+  `version = "0.7.2"`.
+- The GitHub Release (if created via UI) points at the same commit
+  the tag points at. If using `gh release create vX.Y.Z`, this is
+  automatic. If using the UI, the "Target" dropdown must be the
+  tagged commit, not main.
+- The publish workflow's first step asserts wheel-version-matches-tag
+  before uploading. Add this guard if it's missing:
+  ```yaml
+  - name: Verify wheel version matches tag
+    run: |
+      EXPECTED="${GITHUB_REF#refs/tags/v}"
+      for whl in dist/*.whl; do
+        VER=$(echo "$whl" | sed -E 's/.*-([0-9]+\.[0-9]+\.[0-9]+)-.*/\1/')
+        [ "$VER" = "$EXPECTED" ] || { echo "wheel $whl version $VER != tag $EXPECTED"; exit 1; }
+      done
+  ```
+  This converts a silent PyPI 400 into a loud workflow failure at the
+  build stage, where the diagnostic message is actionable.
+
+If the project has had a publish failure of this shape before, surface
+it in the release proposal as a known-risk reminder: *"v0.7.0 / v0.6.0
+both failed PyPI publish due to GitHub-Release-vs-tag-commit drift;
+verifying tag commit matches release target before push."*
 
 If NOT DUE:
 
@@ -249,7 +328,14 @@ For the CHANGELOG rewrite specifically:
 2. Replace that block with the value-focused rewrite.
 3. Run the project's verification gate.
 4. Stage and commit.
-5. Tag and push with `--follow-tags`.
+5. Tag the release commit explicitly (`git tag vX.Y.Z <release-sha>`),
+   not whatever HEAD happens to be — see "GitHub Release vs tag commit"
+   in step 7.
+6. Push with `--follow-tags`.
+7. Verify the publish workflow succeeded (`gh run list --workflow=<…>
+   --limit 1`) and that the artifact landed in the registry (PyPI /
+   crates.io / npm) before declaring done. A green tag-push is not a
+   green release.
 
 ## Anti-patterns
 
@@ -258,6 +344,7 @@ For the CHANGELOG rewrite specifically:
 - **Don't ship the auto-generated CHANGELOG without rewriting.** Tooling output is a starting point, not a final product.
 - **Don't bypass the user's approval for the actual release.** Propose, wait, then act. Releases are public and hard to reverse.
 - **Don't add a section that's empty.** Skip `## Bug Fixes` if there are no fixes.
+- **Don't declare a release done at the tag push.** Tagging is necessary, not sufficient. Verify the publish workflow ran green AND the artifact actually appears in the registry. A "tag pushed, must be live" assumption is how multi-release publish failures stack up unnoticed — the only signal that something's wrong is when a downstream consumer reports `pip install <name>` returns the version-before-last.
 
 ## Cross-references
 
