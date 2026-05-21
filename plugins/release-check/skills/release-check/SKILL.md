@@ -157,7 +157,49 @@ One-line summary of what this release unlocks.
 - Migrated tests from mocha to vitest
 ```
 
-### 6. Present the proposal
+### 6. Sync version-referencing files
+
+A release bump touches more than the version manifest. Several files in a typical repo cite the current version, and they go stale the moment you tag the new one. Sweep for drift before presenting the proposal.
+
+Common files to check:
+
+| File | What to update | Pattern |
+|---|---|---|
+| `CITATION.cff` | `version:` field, optionally `date-released:` | Must match new package version exactly. GitHub's "Cite this repository" button reads this. |
+| `SECURITY.md` | Supported-versions table | Bump the supported row; remove rows now out of support. |
+| `README.md` | Any "Current version: vX.Y.Z" line; any status framing tied to the version (e.g. "vX.Y.Z is a research-grade preview") | Update version number; reconsider status framing if maturity actually shifted. |
+| `CONTRIBUTING.md`, guides, architecture docs | Any "v0.X onwards" or "as of v0.X" claim that's now older than current | Bump or convert to a historical reference. |
+| `pyproject.toml` / `package.json` / per-crate `Cargo.toml` | `version =` field if separate from workspace manifest | Match. |
+| `docs/positioning/*.md`, `docs/research-log.md` | Any "Status: vX" line | Bump if it's meant to track current. |
+
+How to find drift mechanically:
+
+```bash
+# Replace OLD with the version the release is moving past.
+OLD="0.7.0"
+grep -rn "v${OLD}\|version.*${OLD}\|\"${OLD}\"" \
+  --include="*.md" --include="*.cff" --include="*.toml" \
+  --include="*.yml" --include="*.yaml" \
+  --exclude-dir=target --exclude-dir=node_modules --exclude-dir=.venv .
+```
+
+For each hit, judge:
+
+- **Historical reference** ("v0.7.0 introduced X", "added in v0.7.0", "retracted in v0.5") — leave alone. These document what shipped, when. Bumping them rewrites history.
+- **Current-version claim** ("TardigradeDB v0.7.0 is a research-grade preview", "Supported: 0.7.x", `version: "0.7.0"` in CITATION.cff) — update. These should track HEAD.
+
+Community Standards files deserve special attention since they're the project's public face beyond the README:
+
+- `CITATION.cff` — always bump.
+- `SECURITY.md` — bump supported versions; if a previously-supported minor falls out of support, surface it in the CHANGELOG entry (consumers on the old minor need to know).
+- `CODE_OF_CONDUCT.md` — usually no version coupling; verify the contact route is still valid.
+- Any new community files added since the last release — call them out in the CHANGELOG entry as `### Community Standards`.
+
+Include the doc updates in the same release commit. A two-commit release ("bump version" + "update docs") splits the artifact across two SHAs and makes `git blame` on `CITATION.cff` lag the actual release date.
+
+**Skip this step only for trivial patch releases** (e.g. a single typo fix) where the only version-coupled file is the manifest. Anything user-visible — and any release of meaningful scope — gets the full sweep.
+
+### 7. Present the proposal
 
 ```
 Release check: DUE / NOT DUE / SOFT-DUE
@@ -169,17 +211,23 @@ Pending changes (N):
 Proposed CHANGELOG entry:
   [draft here]
 
+Documentation drift to fix in the same commit (from step 6):
+  - <file>:<line>   <one-line description>
+  - …
+
 Action plan:
   1. Run the project's version-bump command:
        Changesets:  pnpm changeset version  (or npx changeset version)
        towncrier:   towncrier build --version x.y.z
        Manual:      edit version manifest + CHANGELOG.md directly
   2. Overwrite the generated CHANGELOG entry with the rewrite above.
-  3. Run the project's verification gate (tests, lint, build).
-  4. Commit with message matching the project's convention (e.g. "🔖 release: vX.Y.Z").
-  5. Tag: git tag vX.Y.Z
-  6. Push: git push origin <main-branch> --follow-tags
-  7. If the project has a publish workflow (npm publish, cargo publish, PyPI, CI release action),
+  3. Apply the documentation drift fixes from step 6 (CITATION.cff,
+     SECURITY.md supported-versions, README status line, etc.).
+  4. Run the project's verification gate (tests, lint, build).
+  5. Commit with message matching the project's convention (e.g. "🔖 release: vX.Y.Z").
+  6. Tag: git tag vX.Y.Z
+  7. Push: git push origin <main-branch> --follow-tags
+  8. If the project has a publish workflow (npm publish, cargo publish, PyPI, CI release action),
      trigger it — or note that it runs automatically on tag push.
 
 Approve to proceed?
@@ -192,7 +240,7 @@ Release check: not due. <one-line reason>.
 Pending: N change entries, would propose vX.Y.Z when ready.
 ```
 
-### 7. On approval, execute the plan
+### 8. On approval, execute the plan
 
 Run the steps in order. After each, verify the previous step succeeded. If the version-bump command fails or produces unexpected output, stop and surface — do not silently push.
 
