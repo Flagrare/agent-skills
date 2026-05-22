@@ -68,7 +68,7 @@ After this one-time bootstrap, `/flagrare:update` works for all future versions 
 
 ### Maintenance
 
-`/flagrare:update` pulls the latest skills from GitHub by refreshing the marketplace cache. Run it whenever you want the newest version of any skill.
+`/flagrare:update` pulls the latest skills from GitHub. It runs the canonical `update.sh` from `main` directly, so the update logic is always current even if your locally cached skill is from an older release. It migrates legacy marketplace names, installs the plugin so version refreshes propagate, scrubs stale settings entries, and prunes obsolete caches in a single run.
 
 `/flagrare:uninstall` removes the flagrare plugin and marketplace registration. Run it to cleanly disable all skills.
 
