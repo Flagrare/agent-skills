@@ -88,7 +88,7 @@ If you want to edit these skills and see changes without pushing to GitHub:
 
 ```bash
 git clone git@github.com:Flagrare/agent-skills.git ~/Dev/agent-skills
-claude plugin marketplace remove personal
+claude plugin marketplace remove agent-skills
 claude plugin marketplace add ~/Dev/agent-skills
 ```
 
@@ -101,6 +101,6 @@ Run `/doctor`. It names the specific plugin and the specific failure.
 | Symptom | Fix |
 |---|---|
 | `N errors during load` | Run `/doctor` for the exact plugin and error |
-| `Plugin X not found in marketplace personal` | Re-run `claude plugin marketplace add Flagrare/agent-skills` |
-| Slash commands missing, 0 errors | Check `~/.claude/settings.json` has `"flagrare@personal": true` |
-| Marketplace operation hangs | `claude plugin marketplace remove personal`, then re-add |
+| `Plugin X not found in marketplace agent-skills` | Re-run `claude plugin marketplace add Flagrare/agent-skills` |
+| Slash commands missing, 0 errors | Check `~/.claude/settings.json` has `"flagrare@agent-skills": true` |
+| Marketplace operation hangs | `claude plugin marketplace remove agent-skills`, then re-add |
