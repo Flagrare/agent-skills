@@ -66,9 +66,9 @@ These findings populate a new ticket subsection (see template updates below).
 
 ### How to ground (backlog / spec → tickets)
 
-For multi-ticket flows (spec/TDD decomposition), dispatch parallel `/flagrare:codebase-explore` agents — one per candidate ticket — via `superpowers:dispatching-parallel-agents`. Each agent gets that candidate's `{title, summary}` and returns its findings independently. Wall-clock stays bounded regardless of backlog size.
+For multi-ticket flows (spec/TDD decomposition), dispatch N parallel `/flagrare:codebase-explore` agents — one per candidate ticket — in a **single message** with multiple `Agent` tool calls. Each agent gets that candidate's `{title, summary}` and returns its findings independently. Wall-clock stays bounded regardless of backlog size.
 
-Do NOT run codebase-explore sequentially for backlog flows. The parallelism is the whole point.
+Do NOT run codebase-explore sequentially for backlog flows. The parallelism is the whole point — emit all `Agent` calls in one message so the runtime can execute them concurrently.
 
 ---
 
@@ -282,7 +282,7 @@ Specific and testable:
    - Technical layers (BE, FE, Database, Infra)
    - Dependencies and sequencing
    - Sizing (2-3 days each)
-3. **Parallel codebase grounding** — if conditions allow (Step 0.5), dispatch N parallel `/flagrare:codebase-explore` agents via `superpowers:dispatching-parallel-agents`, one per candidate ticket. Wait for all results before drafting.
+3. **Parallel codebase grounding** — if conditions allow (Step 0.5), dispatch N parallel `/flagrare:codebase-explore` agents (one per candidate ticket) by emitting N `Agent` tool calls in a single message. Wait for all results before drafting.
 4. **Draft and polish each ticket** — for each ticket: assemble with grounding findings, then call `/flagrare:write-docs` on the Context section (skip if grounding was skipped or polish opted out).
 5. **Write all files:**
    - `00-epic.md` (if creating a new Epic/Project)
@@ -359,5 +359,5 @@ Present a summary with all created ticket keys/URLs.
 - Don't assume the project/team. Ask if unclear.
 - Don't hard-code a single tracker. Detect from context.
 - Don't skip codebase grounding when a codebase exists. A ticket pointing at `path/to/file.ts:42` is dramatically more useful than one gesturing at "the relevant area".
-- Don't run `/flagrare:codebase-explore` sequentially for a backlog flow. Parallelism via `superpowers:dispatching-parallel-agents` is the whole point — N tickets must take roughly the same wall-clock as 1.
+- Don't run `/flagrare:codebase-explore` sequentially for a backlog flow. Emit all `Agent` tool calls in a single message — the runtime executes them concurrently. N tickets must take roughly the same wall-clock as 1.
 - Don't polish acceptance criteria, environment, or metadata via write-docs. Those sections are mechanical by design; prose-ifying them blurs the testability.

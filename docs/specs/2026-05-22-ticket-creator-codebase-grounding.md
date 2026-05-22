@@ -84,7 +84,7 @@ Opt-out: user says "skip polish" / "rough draft only" / `--rough` (informal flag
 
 ## Parallel dispatch for backlog
 
-For spec/TDD → backlog, after decomposing into N candidate tickets, dispatch N parallel `codebase-explore` agents via `superpowers:dispatching-parallel-agents`. Each agent receives one candidate's `{title, summary}` and returns its findings independently.
+For spec/TDD → backlog, after decomposing into N candidate tickets, dispatch N parallel `codebase-explore` agents in a single message with multiple `Agent` tool calls. Each agent receives one candidate's `{title, summary}` and returns its findings independently. No external skill dependency — the parallelism is a property of how tool calls in a single message are executed.
 
 Wall-clock stays bounded regardless of backlog size. The draft + polish pass per ticket may also parallelize at the implementer's discretion, but is not required by this spec.
 
