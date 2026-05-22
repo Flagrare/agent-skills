@@ -158,17 +158,41 @@ Now that the brief is codebase-grounded, prefer concrete questions over abstract
 
 Do not ask about things inferable from the ticket. Do not ask for information already in the brief or codebase findings.
 
-After the user answers, fold answers into the brief and clear Open Questions.
+### How to ask — use the AskUserQuestion tool, never freeform narration
+
+**REQUIRED:** when you have blocking questions, ask them via the `AskUserQuestion` tool, not as prose. Freeform "I'd like to confirm X..." text leaves the user without a clear answering surface and frequently results in the model stopping with no answer received.
+
+Batch all 3–5 questions into a single `AskUserQuestion` invocation. For each question, supply 2–4 distinct options when the choice is genuinely bounded (e.g., "extend the existing utility / fork it / wrap it / replace it"). Open-ended judgement calls without obvious options should be phrased as a question with one most-likely option plus alternatives.
+
+After the user answers, fold answers into the brief and clear Open Questions before proceeding to Step 6.
+
+### If there are no blocking questions
+
+If the codebase-grounded brief is complete and no blocking ambiguity remains, **do not silently proceed**. Present a short overview to the user — 4–6 lines summarising what the ticket is, what the code currently does in that area, and what the plan will most likely need to build — and then explicitly prompt for the next step (see Step 6).
 
 ---
 
-## Step 6 — Hand off to /flagrare:atdd-plan
+## Step 6 — Present overview and prompt for next step
 
-When the brief is complete and Open Questions is empty (or residuals are explicitly deferred by the user), say:
+Once the brief is complete (Open Questions resolved, or explicitly deferred by the user), **always end intake with a tool-driven next-step prompt** — exactly like plan mode ends with an accept/reject tool, not prose.
 
-> Context complete. Invoking `/flagrare:atdd-plan` with the brief above.
+Present:
 
-Then invoke `/flagrare:atdd-plan`, passing the full context brief as opening context. `/flagrare:atdd-plan` does not re-read the ticket or references — those are already in the brief. It WILL run its own `/flagrare:codebase-explore` pass (atdd-plan stays self-sufficient for standalone use); intake's findings in the brief are additional input, not a substitute.
+1. **Overview** — 4–6 lines: what the ticket is, the codebase context the plan will work within, and what's now resolved. Skip if the user just answered clarifying questions (they have the context fresh; don't repeat it).
+2. **Next-step prompt** — issue an `AskUserQuestion` tool call. This is the same interaction shape as plan-mode's accept-plan tool: the user gets a discrete set of buttons, picks one, and the flow continues without freeform typing. Do NOT phrase this as a prose question ("So, would you like me to...") — that produces ambiguity and frequently ends the turn with no answer captured.
+
+   Default option set (adjust if the brief suggests a different continuation is more likely):
+
+   - **Proceed to planning** (recommended first option): invokes `/flagrare:atdd-plan` with the brief as opening context. The plan skill runs its own `/flagrare:codebase-explore` pass (it stays self-sufficient for standalone use); intake's findings are additive input.
+   - **Create tickets first**: invokes `/flagrare:ticket-creator` to decompose the brief into a backlog before planning.
+   - **Write a TDD**: invokes `/flagrare:tdd-writer` for larger projects (2+ weeks) that need a full Technical Design Document before planning.
+   - **Stop here**: return control to the user with the brief saved/printed for later use.
+
+   Mark the first option `(Recommended)` in the label so the user can press through the default quickly.
+
+If invoked through `/flagrare:work-prep`, skip the prompt and proceed directly to `/flagrare:atdd-plan` — work-prep already decided the next step. (Detect this by checking whether the prior message indicated work-prep orchestration.)
+
+Never end intake with a context dump and silence. The user should always know what happens next and have a button to direct it — same UX contract as the plan-mode accept tool.
 
 ---
 
@@ -180,6 +204,8 @@ Then invoke `/flagrare:atdd-plan`, passing the full context brief as opening con
 - Don't ask more than 5 clarifying questions — prioritise the blockers; defer the rest to `/flagrare:atdd-plan`'s gap review.
 - Don't proceed to `/flagrare:atdd-plan` if Acceptance Criteria are still ⚠ undefined — resolve them first.
 - Don't invent acceptance criteria to fill the gap — flag the absence and ask.
+- **Don't ask clarifying questions as prose.** Use the `AskUserQuestion` tool with options. Prose questions cause the turn to end with no answer captured.
+- **Don't end intake with a context dump and silence.** Always close with a tool-driven next-step prompt — same UX contract as plan mode's accept tool. The user must have a button, not a typing prompt.
 
 ---
 
