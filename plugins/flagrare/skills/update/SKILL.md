@@ -14,13 +14,9 @@ Pull the latest version of all flagrare skills from the remote repository.
 
 ## Procedure
 
-Run the update script:
-
-```bash
-bash "${CLAUDE_PLUGIN_ROOT}/../../update.sh"
-```
-
-If the script is not found at that path (e.g. running from a remote install with a stripped layout), fall back to one-shot:
+Run the canonical update script directly from GitHub. This guarantees
+the script logic is current even if this skill's text has been cached
+from an older release:
 
 ```bash
 bash <(curl -sL https://raw.githubusercontent.com/Flagrare/agent-skills/main/update.sh)

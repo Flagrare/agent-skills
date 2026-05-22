@@ -10,13 +10,23 @@ All skills are namespaced under `flagrare:*` to avoid collisions with other plug
 bash <(curl -sL https://raw.githubusercontent.com/Flagrare/agent-skills/main/install.sh)
 ```
 
-One command. It registers the marketplace, enables the `flagrare` plugin, and makes all sixteen skills available. Restart Claude Code or run `/reload-plugins` afterward.
+One command. It registers the marketplace, installs the `flagrare` plugin, and makes all sixteen skills available. Restart Claude Code or run `/reload-plugins` afterward.
 
 If you prefer to clone first:
 
 ```bash
 git clone git@github.com:Flagrare/agent-skills.git && ./agent-skills/install.sh
 ```
+
+### Already installed on an older version?
+
+If you're on a release before `1.3.0`, the cached version of `/flagrare:update` has obsolete logic baked into its text and can't update itself. Run the canonical updater directly from GitHub once — it will heal any stale marketplace, plugin, or settings state:
+
+```bash
+bash <(curl -sL https://raw.githubusercontent.com/Flagrare/agent-skills/main/update.sh)
+```
+
+After this one-time bootstrap, `/flagrare:update` works for all future versions because it now just calls the same script from main.
 
 ## What each skill does
 
