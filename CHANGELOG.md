@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.5.0 — 2026-05-22
+
+`/flagrare:intake` now knows what's already in the codebase before asking you anything. Clarifying questions reference specific files instead of asking abstract architectural questions.
+
+### Behaviour
+
+- **`/flagrare:intake`**: between brief synthesis and clarifying questions, runs `/flagrare:codebase-explore` to populate a new `## Codebase Findings` section in the brief. The 3–5 questions asked next are now codebase-aware: *"I see `src/billing/quote.ts:84` already handles the discount math — extend it or fork it?"* instead of *"where should the discount logic live?"*. Skips exploration for pre-code projects, docs-only repos, process-only tickets, or when the user asks for a "rough intake".
+- **`/flagrare:atdd-plan`**: unchanged. Still always runs its own `/flagrare:codebase-explore` pass — intake's findings in the brief are additive input, not a substitute. Keeps atdd-plan self-sufficient when invoked standalone (without going through intake or work-prep).
+- **`/flagrare:work-prep`**: orchestration documentation updated to reflect the new intake order and the deliberate double-exploration design (once in intake to inform questions, once in atdd-plan to anchor the plan).
+
+### Documentation
+
+- **README**: intake, work-prep, and codebase-explore descriptions catch up with the new flow; workflow diagram shows intake's grounding step.
+
 ## 1.4.0 — 2026-05-22
 
 `/flagrare:ticket-creator` now points at the actual code. Engineers picking up tickets no longer have to re-do the codebase exploration the skill could have done once at draft time.
