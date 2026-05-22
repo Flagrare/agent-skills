@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.5.1 — 2026-05-22
+
+The work-prep flow no longer ends mid-conversation when a tool-driven prompt would close the loop. Every gate now uses interactive button-prompts — the same UX as plan-mode's accept tool — instead of prose questions the model would narrate and then stop on.
+
+### Bug Fixes
+
+- **`/flagrare:intake`** clarifying questions: now batched into a single `AskUserQuestion` tool call with concrete options per question. Previously the skill narrated questions as prose and the turn ended without your answer being captured.
+- **`/flagrare:intake`** standalone completion: ends with a tool-driven next-step prompt — **Proceed to /flagrare:atdd-plan (Recommended)** or **Stop here**. Was: silent context dump with no prompt.
+- **`/flagrare:intake`** next-step options pruned: dropped `/flagrare:ticket-creator` and `/flagrare:tdd-writer` from the prompt — those run earlier in different workflows (decomposing specs into tickets, drafting design docs for new multi-week projects), not downstream of a single-ticket intake.
+- **`/flagrare:work-prep`** post-plan confirmation: ends with a tool-driven prompt — **Start implementation (Recommended)** / **Adjust the plan** / **Stop here**. Was: prose "say 'go' to start" which let the turn end ambiguously.
+
 ## 1.5.0 — 2026-05-22
 
 `/flagrare:intake` now knows what's already in the codebase before asking you anything. Clarifying questions reference specific files instead of asking abstract architectural questions.
