@@ -160,7 +160,11 @@ If any check found a real issue, *fix it before committing* unless the user expl
 
 If any of checks 1, 2, 4, 5, or 6 surfaced drift (README staleness, decision log issues, missing doc comments, missing release notes, contributor guide hygiene), invoke `/flagrare:write-docs` to rewrite the affected sections. Pass it the specific files and the nature of the drift so it can apply craft-level prose rather than mechanical patching.
 
-Skip this step only when the fix is purely mechanical (e.g. ticking a checkbox, updating a number). If the fix requires rewriting prose, descriptions, or explanations, `/flagrare:write-docs` owns the quality of that output.
+Skip this step when:
+- The fix is purely mechanical (e.g. ticking a checkbox, updating a number).
+- The affected file has its own writing guidelines that should take precedence. Check for: a style/voice section in the file itself, a repo-level writing guide (e.g. `docs/style-guide.md`, `WRITING.md`), or user instructions in `CLAUDE.md` / memory that specify how that file should be written. When project-specific or user-specific writing rules exist, follow those directly instead of delegating to `/flagrare:write-docs`.
+
+If neither exception applies and the fix requires rewriting prose, descriptions, or explanations, `/flagrare:write-docs` owns the quality of that output.
 
 ## Anti-patterns (what this skill is not)
 
