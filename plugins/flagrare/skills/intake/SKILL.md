@@ -166,7 +166,7 @@ Then invoke `/flagrare:atdd-plan`, passing the full context brief as opening con
      ↓ clarifying questions answered
      ↓
 /flagrare:atdd-plan  ← receives the context brief as input
-     ↓ /feature-kickoff  ← codebase exploration
+     ↓ /flagrare:codebase-explore  ← codebase exploration
      ↓ ATDD plan produced
      ↓
 [implementation]

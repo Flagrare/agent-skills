@@ -9,15 +9,16 @@ Produce a structured ATDD-first implementation plan. Acceptance tests define "do
 
 ---
 
-## Step 1 — Explore the codebase via `/feature-kickoff`
+## Step 1 — Explore the codebase via `/flagrare:codebase-explore`
 
-Before writing the plan, invoke `/feature-kickoff` to explore the codebase. Pass it the context brief (from `/flagrare:intake`) or the user's description. `/feature-kickoff` will:
+Before writing the plan, invoke `/flagrare:codebase-explore`. Pass it the context brief (from `/flagrare:intake`) or the user's description. It will:
 
 1. Check existing branches and PRs for prior attempts
 2. Explore relevant source files to understand conventions and reusable pieces
 3. Map dependencies, data flows, and integration points
+4. Inventory reusable utilities and shared components
 
-Wait for `/feature-kickoff` to complete. Use its findings to inform every subsequent step.
+Wait for `/flagrare:codebase-explore` to complete. Use its findings to inform every subsequent step. Do NOT write acceptance tests or implementation phases until you have the exploration output.
 
 ---
 
