@@ -1,6 +1,6 @@
 ---
 name: ticket-creator
-description: "Create well-structured tickets as reviewable markdown files, then push to any tracker (Jira, Linear, Trello, Asana, Shortcut) via MCP or CLI after user review. Use when the user asks to create tickets, file bugs, write stories, create tasks, build a backlog, or convert specs/TDDs into implementation tickets."
+description: "Create well-structured tickets as reviewable markdown files, then push to any tracker (Jira, Linear, Trello, Asana, Shortcut) via MCP or CLI after user review. Grounds each ticket in actual code by calling /flagrare:codebase-explore before drafting, and polishes the Context section via /flagrare:write-docs. Use when the user asks to create tickets, file bugs, write stories, create tasks, build a backlog, or convert specs/TDDs into implementation tickets."
 ---
 
 # Ticket Creator
@@ -42,6 +42,33 @@ Before anything else, determine which tracker to target.
 | GitHub Issues | `gh issue create` | `gh` | `#[0-9]+` |
 
 Record which tools are available. Use the best one when it's time to push.
+
+---
+
+## Step 0.5: Ground the Ticket in Code (Pre-Draft)
+
+Before drafting any ticket, ground it in the actual codebase if one exists. An engineer picking up an ungrounded ticket has to repeat the codebase exploration that this skill could have done once. Tickets that point at specific files and reuse-candidates are dramatically more useful than tickets that gesture vaguely at "the relevant area".
+
+### When to skip
+
+Skip codebase grounding when any of these is true:
+
+- `git rev-parse --show-toplevel` fails — not in a repo
+- The repo has no source files (docs-only, empty, pre-code project). Heuristic: `git ls-files | grep -vE '\.(md|txt|json|ya?ml|toml|gitignore|cff)$' | head -1` returns nothing
+- The user explicitly says "rough draft", "skip exploration", "no code yet"
+- The ticket is purely process (e.g. `[INFRA] add CODEOWNERS file`, `[DEVOPS] rotate AWS keys`) and exploration would add no value — use judgement
+
+### How to ground (single ticket)
+
+Call `/flagrare:codebase-explore` with the ticket's working title and a one-paragraph description of what it covers. Capture the returned findings: file paths with line numbers, related patterns, existing utilities that could be reused, prior branches/PRs.
+
+These findings populate a new ticket subsection (see template updates below).
+
+### How to ground (backlog / spec → tickets)
+
+For multi-ticket flows (spec/TDD decomposition), dispatch parallel `/flagrare:codebase-explore` agents — one per candidate ticket — via `superpowers:dispatching-parallel-agents`. Each agent gets that candidate's `{title, summary}` and returns its findings independently. Wall-clock stays bounded regardless of backlog size.
+
+Do NOT run codebase-explore sequentially for backlog flows. The parallelism is the whole point.
 
 ---
 
@@ -130,6 +157,8 @@ Summary should be concise and action-oriented. If you have seen the ticket befor
 
 ## Ticket Body Templates
 
+Each template has an optional grounding subsection populated from `/flagrare:codebase-explore` findings (Step 0.5). The heading varies by type but the content format is the same: file paths with brief annotations, existing utilities, prior branches. Omit the subsection entirely if codebase grounding was skipped.
+
 ### Feature Tickets (Story/Task)
 
 ```markdown
@@ -138,6 +167,11 @@ Summary should be concise and action-oriented. If you have seen the ticket befor
 
 ## Context
 [Assume zero prior context. Explain what part of the project, what needs to change, end result. Link TDD/spec if available.]
+
+## Existing Patterns (optional — from codebase-explore)
+- `path/to/file.ts:42` — the function this touches today
+- `path/to/utility.ts` — existing helper to reuse instead of writing fresh
+- `prior-branch/feat-x` — abandoned approach, see PR #142 for why
 
 ## What needs to happen (optional, if implementation is known)
 [Bullet list of specific changes: files, components, endpoints.]
@@ -152,6 +186,10 @@ Summary should be concise and action-oriented. If you have seen the ticket befor
 ```markdown
 ## Context
 [What is happening vs what should happen. How discovered. Include IDs, threads, screenshots.]
+
+## Suspect Code (optional — from codebase-explore)
+- `path/to/file.ts:128` — handler where the bad behavior originates
+- `path/to/validator.ts:64` — likely missing the guard for this input shape
 
 ## Steps to Reproduce (if known)
 1. Step 1
@@ -182,6 +220,10 @@ Summary should be concise and action-oriented. If you have seen the ticket befor
 ## Context
 [Background on why the spike is needed.]
 
+## Prior Work (optional — from codebase-explore)
+- `path/to/experimental.ts` — partial attempt from Q1
+- `feat/spike-x` branch — abandoned, see PR #87 discussion for blockers
+
 ## Acceptance Criteria
 * Document findings in [location]
 * Evaluate LOE for [approaches]
@@ -190,6 +232,22 @@ Summary should be concise and action-oriented. If you have seen the ticket befor
 ## Reference
 [Links to existing docs, related systems.]
 ```
+
+---
+
+## Polish the Context (Post-Draft)
+
+After the draft is assembled with codebase findings, polish the **Context section only** by invoking `/flagrare:write-docs` with the draft Context as input.
+
+The polish applies write-docs's craft layer to the Context: reader-situation-first opening, concrete file references inline (drawn from the grounding subsection), prose over bullets where causality matters, voice consistent across tickets.
+
+Sections NOT polished — they stay mechanical:
+
+- Metadata block — fixed format
+- Acceptance criteria — testable bullets; prose would blur them
+- Environment, References, Steps to Reproduce — factual lists
+
+**Skip polish when:** the user says "rough draft" / "skip polish" / `--rough`, or codebase grounding was skipped (without code references, there is little for write-docs to humanize).
 
 ---
 
@@ -211,9 +269,11 @@ Specific and testable:
 
 1. Determine issue type, prefix, parent, and tracker.
 2. Ask for the backlog folder path if not obvious from context.
-3. Write the `.md` file with the next available sequence number.
-4. If an `INDEX.md` exists, update it.
-5. Present the ticket for review.
+3. **Ground in code** — if conditions allow (see Step 0.5), call `/flagrare:codebase-explore` with the ticket's working title and description. Capture findings.
+4. Write the `.md` file with the next available sequence number, including the grounding subsection if applicable.
+5. **Polish the Context** — if grounding ran and polish wasn't opted out, call `/flagrare:write-docs` on the Context section. Replace the draft Context with the polished version.
+6. If an `INDEX.md` exists, update it.
+7. Present the ticket for review.
 
 ## Workflow: Spec/TDD to Backlog
 
@@ -222,11 +282,13 @@ Specific and testable:
    - Technical layers (BE, FE, Database, Infra)
    - Dependencies and sequencing
    - Sizing (2-3 days each)
-3. **Write all files:**
+3. **Parallel codebase grounding** — if conditions allow (Step 0.5), dispatch N parallel `/flagrare:codebase-explore` agents via `superpowers:dispatching-parallel-agents`, one per candidate ticket. Wait for all results before drafting.
+4. **Draft and polish each ticket** — for each ticket: assemble with grounding findings, then call `/flagrare:write-docs` on the Context section (skip if grounding was skipped or polish opted out).
+5. **Write all files:**
    - `00-epic.md` (if creating a new Epic/Project)
    - `NN-slug.md` for each ticket
    - `INDEX.md` with sequencing, summary table, open questions, blockers
-4. Present the full backlog for user review.
+6. Present the full backlog for user review.
 
 ---
 
@@ -296,3 +358,6 @@ Present a summary with all created ticket keys/URLs.
 - Don't use vague summaries. The title alone should remind you what it is about.
 - Don't assume the project/team. Ask if unclear.
 - Don't hard-code a single tracker. Detect from context.
+- Don't skip codebase grounding when a codebase exists. A ticket pointing at `path/to/file.ts:42` is dramatically more useful than one gesturing at "the relevant area".
+- Don't run `/flagrare:codebase-explore` sequentially for a backlog flow. Parallelism via `superpowers:dispatching-parallel-agents` is the whole point — N tickets must take roughly the same wall-clock as 1.
+- Don't polish acceptance criteria, environment, or metadata via write-docs. Those sections are mechanical by design; prose-ifying them blurs the testability.
