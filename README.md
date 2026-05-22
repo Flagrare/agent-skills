@@ -20,7 +20,7 @@ git clone git@github.com:Flagrare/agent-skills.git && ./agent-skills/install.sh
 
 ### Already installed on an older version?
 
-If you're on a release before `1.3.0`, the cached version of `/flagrare:update` has obsolete logic baked into its text and can't update itself. Run the canonical updater directly from GitHub once — it will heal any stale marketplace, plugin, or settings state:
+If you're on a release before `1.3.1`, the cached version of `/flagrare:update` has obsolete logic baked into its text and can't update itself. Run the canonical updater directly from GitHub once — it will heal any stale marketplace, plugin, or settings state:
 
 ```bash
 bash <(curl -sL https://raw.githubusercontent.com/Flagrare/agent-skills/main/update.sh)
