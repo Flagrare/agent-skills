@@ -17,9 +17,12 @@ Pull the latest version of all flagrare skills from the remote repository.
 Run:
 
 ```bash
-claude plugin disable "flagrare@personal" 2>/dev/null || true
-claude plugin marketplace remove personal 2>/dev/null || true
-claude plugin marketplace add Flagrare/agent-skills
+# Refresh the marketplace cache if it exists; otherwise add it.
+# Either path leaves other plugins untouched.
+claude plugin marketplace update personal 2>/dev/null \
+  || claude plugin marketplace add Flagrare/agent-skills
+
+# Ensure flagrare is enabled (idempotent)
 claude plugin enable "flagrare@personal" 2>/dev/null || true
 ```
 
