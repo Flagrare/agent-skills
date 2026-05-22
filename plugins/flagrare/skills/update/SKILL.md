@@ -14,12 +14,19 @@ Pull the latest version of all flagrare skills from the remote repository.
 
 ## Procedure
 
-Run:
+Run the following as a single Bash block:
 
 ```bash
+# Snapshot all currently-enabled personal plugins before removing the marketplace
+enabled_personal=$(jq -r '.enabledPlugins | to_entries[] | select(.key | endswith("@personal")) | select(.value == true) | .key' ~/.claude/settings.json 2>/dev/null)
+
 claude plugin marketplace remove personal 2>/dev/null || true
 claude plugin marketplace add Flagrare/agent-skills
-claude plugin enable "flagrare@personal" 2>/dev/null || true
+
+# Re-enable every plugin that was enabled before
+for plugin in $enabled_personal; do
+  claude plugin enable "$plugin" 2>/dev/null || true
+done
 ```
 
 After running, tell the user:
