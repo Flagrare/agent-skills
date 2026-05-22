@@ -1,5 +1,26 @@
 # Changelog
 
+## 1.4.0 — 2026-05-22
+
+`/flagrare:ticket-creator` now points at the actual code. Engineers picking up tickets no longer have to re-do the codebase exploration the skill could have done once at draft time.
+
+### Behaviour
+
+- **`/flagrare:ticket-creator`**: before drafting, calls `/flagrare:codebase-explore` to find specific file paths, conventions, and prior attempts. The resulting findings appear in a new optional subsection — `Suspect Code` for bugs, `Existing Patterns` for features, `Prior Work` for spikes — populated with `path/to/file.ts:42`-style references instead of vague gestures at "the relevant area".
+- **`/flagrare:ticket-creator`**: after drafting, polishes the Context section via `/flagrare:write-docs`. The Context reads like a senior engineer wrote it after reading the code, not a template filled in from requirements. Mechanical sections (acceptance criteria, environment, metadata) stay untouched.
+- **Spec/TDD → backlog flows**: codebase exploration runs in parallel (one `Agent` call per candidate ticket emitted in a single message), so N tickets take roughly the same wall-clock as 1.
+
+### Skip conditions
+
+The new orchestration steps are conditional. Both auto-skip when:
+- The current directory isn't a git repo or contains no source files (pre-code projects, docs-only)
+- The user asks for a "rough draft" or "skip exploration"
+- The ticket is purely process (e.g. `[INFRA] rotate keys`) where exploration adds no value
+
+### Design
+
+- **No external skill dependencies.** flagrare skills are self-contained. The parallel dispatch uses `Agent` tool calls directly, not a wrapping skill from another plugin.
+
 ## 1.3.1 — 2026-05-22
 
 Fixes the self-migration flow that 1.3.0 promised but didn't fully deliver. The `/flagrare:update` skill now heals any prior state in one run.
