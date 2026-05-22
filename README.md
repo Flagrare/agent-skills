@@ -1,8 +1,8 @@
 # agent-skills
 
-Thirteen skills that wrap around your development cycle in Claude Code. They turn tickets into ATDD plans, guard commits against doc drift, run six-axis code review, draft changelogs that read like patch notes, and review PRs with full context from your tracker and design tools.
+Fifteen skills that wrap around your development cycle in Claude Code. They turn tickets into ATDD plans, guard commits against doc drift, run six-axis code review, draft changelogs that read like patch notes, and review PRs with full context from your tracker and design tools.
 
-All skills are namespaced under `flagrare:*` to avoid collisions with other plugins. Installing this marketplace adds `/flagrare:intake`, `/flagrare:work-prep`, `/flagrare:wrap-up`, `/flagrare:pr-reviewer`, and ten more to every Claude Code session.
+All skills are namespaced under `flagrare:*` to avoid collisions with other plugins. Installing this marketplace adds `/flagrare:intake`, `/flagrare:work-prep`, `/flagrare:wrap-up`, `/flagrare:pr-reviewer`, and eleven more to every Claude Code session.
 
 ## Install
 
@@ -10,7 +10,7 @@ All skills are namespaced under `flagrare:*` to avoid collisions with other plug
 bash <(curl -sL https://raw.githubusercontent.com/Flagrare/agent-skills/main/install.sh)
 ```
 
-One command. It registers the marketplace, enables the `flagrare` plugin, and makes all thirteen skills available. Restart Claude Code or run `/reload-plugins` afterward.
+One command. It registers the marketplace, enables the `flagrare` plugin, and makes all fifteen skills available. Restart Claude Code or run `/reload-plugins` afterward.
 
 If you prefer to clone first:
 
@@ -26,7 +26,7 @@ git clone git@github.com:Flagrare/agent-skills.git && ./agent-skills/install.sh
 
 `/flagrare:atdd-plan` produces an implementation plan rooted in acceptance tests. It names design patterns, runs a SOLID audit, identifies gaps, and outputs a structured plan you can execute or hand to `/superpowers:executing-plans`.
 
-`/flagrare:work-prep` orchestrates the full ticket-to-plan workflow. It calls `/flagrare:intake` first for context gathering and clarifying questions, then `/feature-kickoff` for codebase exploration and a TDD-first implementation plan. One command from ticket to plan.
+`/flagrare:work-prep` orchestrates the full ticket-to-plan workflow. It calls `/flagrare:intake` first for context gathering and clarifying questions, then `/flagrare:atdd-plan` which explores the codebase via `/feature-kickoff` and produces a TDD-first implementation plan. One command from ticket to plan.
 
 `/flagrare:tdd-writer` drafts Technical Design Documents for large projects (2+ weeks). It fetches context from Jira, Confluence, Figma, and Notion via MCP, analyzes the actual codebase, and marks every unverified claim explicitly. Nothing is assumed.
 
@@ -54,6 +54,12 @@ git clone git@github.com:Flagrare/agent-skills.git && ./agent-skills/install.sh
 
 `/flagrare:write-docs` guides documentation writing using Pinker's classic style, the Diataxis framework, and concrete examples from React, Stripe, and Anthropic's docs.
 
+### Maintenance
+
+`/flagrare:update` pulls the latest skills from GitHub by refreshing the marketplace cache. Run it whenever you want the newest version of any skill.
+
+`/flagrare:uninstall` removes the flagrare plugin and marketplace registration. Run it to cleanly disable all skills.
+
 ## Workflow
 
 A typical feature cycle:
@@ -61,7 +67,8 @@ A typical feature cycle:
 ```
 /flagrare:work-prep [ticket]     you have a ticket, need context + plan
   /flagrare:intake                 (context gathering, called by work-prep)
-  /flagrare:atdd-plan              (plan generation, called by work-prep)
+  /flagrare:atdd-plan              (codebase exploration + plan, called by work-prep)
+    /feature-kickoff               (codebase exploration, called by atdd-plan)
 [implementation]                 you have a plan, write code
 /flagrare:figma-matcher          UI work done, verify against Figma
 /flagrare:wrap-up                code done, full quality gate
@@ -71,7 +78,7 @@ git commit                       everything passes, commit
 /flagrare:release-check          committed, decide if a release ships
 ```
 
-`/flagrare:research-catalog` slots in wherever external research happens. `/flagrare:pr-reviewer` runs when reviewing someone else's PR. `/flagrare:tdd-writer` and `/flagrare:ticket-creator` run during planning phases for larger projects.
+`/flagrare:research-catalog` slots in wherever external research happens. `/flagrare:pr-reviewer` runs when reviewing someone else's PR. `/flagrare:tdd-writer` and `/flagrare:ticket-creator` run during planning phases for larger projects. `/flagrare:update` refreshes skills from GitHub; `/flagrare:uninstall` removes everything cleanly.
 
 ## Developing skills locally
 
