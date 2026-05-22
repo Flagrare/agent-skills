@@ -1,6 +1,6 @@
 ---
 name: work-prep
-description: "Orchestrates the full preparation workflow for a ticket. Calls /flagrare:intake to gather context from Jira/Notion/Figma and resolve ambiguities, then calls /feature-kickoff to explore the codebase and produce a TDD-first implementation plan. Use when the user shares a ticket key (e.g. SKU-123), says 'start work on', 'pick up ticket', 'plan this feature', 'work prep', or provides a Jira URL."
+description: "Orchestrates the full preparation workflow for a ticket. Calls /flagrare:intake to gather context from Jira/Notion/Figma and resolve ambiguities, then calls /flagrare:atdd-plan to explore the codebase and produce a TDD-first implementation plan. Use when the user shares a ticket key (e.g. SKU-123), says 'start work on', 'pick up ticket', 'plan this feature', 'work prep', or provides a Jira URL."
 ---
 
 # Work Prep
@@ -35,16 +35,13 @@ Call `/flagrare:intake` with the ticket reference. This skill will:
 
 **Wait for `/flagrare:intake` to complete before proceeding.** The context brief must be finalized and open questions resolved.
 
-### Step 2: Invoke `/feature-kickoff`
+### Step 2: Invoke `/flagrare:atdd-plan`
 
-Once `/flagrare:intake` has produced a complete context brief, invoke `/feature-kickoff`. Pass the context brief as opening context. This skill will:
+Once `/flagrare:intake` has produced a complete context brief, invoke `/flagrare:atdd-plan`. Pass the context brief as opening context. This skill will:
 
-1. Retrieve the ticket and walk the parent chain (if not already covered by intake)
-2. Follow every reference (Confluence, Figma, Notion, Slack, PRs)
-3. Check existing branches and PRs for prior attempts
-4. Explore the codebase to understand conventions and reusable pieces
-5. Write a TDD-first implementation plan (saved as `plan-<TICKET-KEY>.md`)
-6. Present the plan for user review
+1. Explore the codebase via `/feature-kickoff` to understand conventions and reusable pieces
+2. Produce an ATDD-first implementation plan with acceptance tests, named design patterns, SOLID audit, and gap review
+3. Present the plan for user review
 
 ### Step 3: Confirm readiness
 
@@ -57,7 +54,7 @@ After the plan is presented:
 ## Anti-patterns
 
 - Don't skip `/flagrare:intake` and jump to planning. Context gaps turn into rework.
-- Don't invoke `/feature-kickoff` before clarifying questions are resolved.
+- Don't invoke `/flagrare:atdd-plan` before clarifying questions are resolved.
 - Don't start implementation before the plan is reviewed and approved.
 - Don't re-fetch context that `/flagrare:intake` already gathered. Pass the brief forward.
 
@@ -72,7 +69,7 @@ After the plan is presented:
 /flagrare:intake          <- context gathering, reference following, clarifying questions
      |
      v
-/feature-kickoff <- codebase exploration, TDD-first plan
+/flagrare:atdd-plan       <- codebase exploration via /feature-kickoff, then TDD-first plan
      |
      v
 [user reviews plan]

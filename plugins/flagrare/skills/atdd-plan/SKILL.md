@@ -9,7 +9,19 @@ Produce a structured ATDD-first implementation plan. Acceptance tests define "do
 
 ---
 
-## Step 1 — Understand before planning
+## Step 1 — Explore the codebase via `/feature-kickoff`
+
+Before writing the plan, invoke `/feature-kickoff` to explore the codebase. Pass it the context brief (from `/flagrare:intake`) or the user's description. `/feature-kickoff` will:
+
+1. Check existing branches and PRs for prior attempts
+2. Explore relevant source files to understand conventions and reusable pieces
+3. Map dependencies, data flows, and integration points
+
+Wait for `/feature-kickoff` to complete. Use its findings to inform every subsequent step.
+
+---
+
+## Step 2 — Understand before planning
 
 Before writing anything, answer:
 - What is the feature/fix/refactor in one sentence?
@@ -20,7 +32,7 @@ If the feature is ambiguous, ask. Planning a misunderstood requirement is worse 
 
 ---
 
-## Step 2 — Acceptance Tests (written before implementation)
+## Step 3 — Acceptance Tests (written before implementation)
 
 Each AT must:
 - Exercise the **public API only** — no private methods, no internal state, no `_inner` fields
@@ -49,7 +61,7 @@ Write 3–7 ATs per feature. Too few leaves behavior undefined. Too many creates
 
 ---
 
-## Step 3 — Name the design patterns
+## Step 4 — Name the design patterns
 
 Don't ad-hoc the structure. For every significant architectural decision, name the pattern and explain why it fits this specific problem — not just what the pattern is.
 
@@ -70,7 +82,7 @@ Forcing a pattern where it does not fit is worse than no pattern. Only name it w
 
 ---
 
-## Step 4 — SOLID audit
+## Step 5 — SOLID audit
 
 For each principle, one sentence on how the design honors it — or documents a conscious tradeoff:
 
@@ -84,7 +96,7 @@ A documented tradeoff ("S is softened here because X justifies it") is acceptabl
 
 ---
 
-## Step 5 — Clean Code checklist
+## Step 6 — Clean Code checklist
 
 Apply these before calling any phase complete:
 
@@ -96,7 +108,7 @@ Apply these before calling any phase complete:
 
 ---
 
-## Step 6 — Implementation phases
+## Step 7 — Implementation phases
 
 Order phases so each one can be merged independently. Each phase must include:
 
@@ -108,7 +120,7 @@ A phase that can't stand alone without a follow-up is too large.
 
 ---
 
-## Step 7 — Gap review (never empty)
+## Step 8 — Gap review (never empty)
 
 Before declaring the plan done, work through:
 
