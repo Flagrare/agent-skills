@@ -32,13 +32,13 @@ After this one-time bootstrap, `/flagrare:update` works for all future versions 
 
 ### Planning and context
 
-`/flagrare:intake` reads a ticket (via Jira MCP, Linear, GitHub CLI, or a pasted URL), dispatches parallel subagents to follow every linked doc and PR, and assembles a context brief. It asks clarifying questions, then hands off to `/flagrare:atdd-plan`.
+`/flagrare:intake` reads a ticket (via Jira MCP, Linear, GitHub CLI, or a pasted URL), dispatches parallel subagents to follow every linked doc and PR, and assembles a context brief. Before asking clarifying questions, it grounds the brief in the actual code via `/flagrare:codebase-explore` — so questions reference specific files (`src/x.ts:84`) instead of abstract architecture. Hands off to `/flagrare:atdd-plan`.
 
 `/flagrare:atdd-plan` produces an implementation plan rooted in acceptance tests. It invokes `/flagrare:codebase-explore` for codebase understanding, names design patterns, runs a SOLID audit, identifies gaps, and outputs a structured plan.
 
-`/flagrare:work-prep` orchestrates the full ticket-to-plan workflow. It calls `/flagrare:intake` first for context gathering and clarifying questions, then `/flagrare:atdd-plan` which explores the codebase via `/flagrare:codebase-explore` and produces an ATDD-first implementation plan. One command from ticket to plan.
+`/flagrare:work-prep` orchestrates the full ticket-to-plan workflow. It calls `/flagrare:intake` first (which now grounds the brief in code before asking codebase-aware clarifying questions), then `/flagrare:atdd-plan` (which runs its own thorough exploration pass and produces an ATDD-first plan). One command from ticket to plan.
 
-`/flagrare:codebase-explore` maps conventions, reusable utilities, analogous features, and data flows for a planned change. Returns raw findings only (no plan, no tests). Used by `/flagrare:atdd-plan` as its codebase understanding step, or standalone when you need to understand a feature area.
+`/flagrare:codebase-explore` maps conventions, reusable utilities, analogous features, and data flows for a planned change. Returns raw findings only (no plan, no tests). Used as the codebase grounding step by `/flagrare:intake`, `/flagrare:atdd-plan`, and `/flagrare:ticket-creator`, or standalone when you need to understand a feature area.
 
 `/flagrare:tdd-writer` drafts Technical Design Documents for large projects (2+ weeks). It fetches context from Jira, Confluence, Figma, and Notion via MCP, analyzes the actual codebase, and marks every unverified claim explicitly. Nothing is assumed.
 
@@ -79,8 +79,9 @@ A typical feature cycle:
 ```
 /flagrare:work-prep [ticket]     you have a ticket, need context + plan
   /flagrare:intake                 (context gathering, called by work-prep)
+    /flagrare:codebase-explore       (ground brief in code, then ask codebase-aware questions)
   /flagrare:atdd-plan              (codebase exploration + plan, called by work-prep)
-    /flagrare:codebase-explore       (codebase exploration, called by atdd-plan)
+    /flagrare:codebase-explore       (atdd-plan's own pass — stays self-sufficient for standalone use)
 [implementation]                 you have a plan, write code
 /flagrare:figma-matcher          UI work done, verify against Figma
 /flagrare:wrap-up                code done, full quality gate
