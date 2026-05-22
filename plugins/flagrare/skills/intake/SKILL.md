@@ -1,6 +1,6 @@
 ---
 name: intake
-description: "Pre-planning ticket ingestion. Given a ticket ID or URL, reads the full ticket via MCP or CLI, follows all referenced links (Notion, Figma, GitHub, articles, etc.) using parallel subagents, synthesises a context brief, asks targeted clarifying questions, then hands off to /flagrare:atdd-plan. Works with Linear, Jira, Asana, Shortcut, Trello."
+description: "Pre-planning ticket ingestion. Given a ticket ID or URL, reads the full ticket via MCP or CLI, follows all referenced links (Notion, Figma, GitHub, articles, etc.) using parallel subagents, synthesises a context brief, grounds it in the actual codebase via /flagrare:codebase-explore, then asks codebase-informed clarifying questions before handing off to /flagrare:atdd-plan. Works with Linear, Jira, Asana, Shortcut, Trello."
 ---
 
 # Intake
@@ -90,7 +90,7 @@ Collect all results. If a resource is inaccessible (auth wall, 404, private), no
 
 ---
 
-## Step 4 — Synthesise the context brief
+## Step 4 — Synthesise the context brief (without questions yet)
 
 Merge ticket + all reference content into this structure:
 
@@ -114,22 +114,49 @@ Platform: [Linear / Jira / …]    Priority: [P0–P3 / Critical / …]    Assig
 ## Referenced Material
 [One line per followed reference: what it contributed]
 
+## Codebase Findings
+[Populated by Step 4.5 below — leave empty for now]
+
 ## Open Questions
 [Everything underspecified, contradictory, or missing from the above]
 ```
 
 ---
 
-## Step 5 — Ask targeted clarifying questions
+## Step 4.5 — Ground the brief in the codebase
+
+Before asking questions, see what the code actually says. Questions asked without codebase grounding are abstract; questions asked *after* exploration are specific and unblock real ambiguities ("the utility you'd want already exists at `src/x.ts` — extend it or replace it?").
+
+### When to skip
+
+Skip codebase grounding when any of these is true:
+
+- `git rev-parse --show-toplevel` fails — not in a repo
+- The repo has no source files (docs-only, empty, pre-code project). Heuristic: `git ls-files | grep -vE '\.(md|txt|json|ya?ml|toml|gitignore|cff)$' | head -1` returns nothing
+- The user explicitly says "skip exploration" / "rough intake only"
+- The ticket is purely process (e.g. `[INFRA] rotate AWS keys`) and exploration adds no value
+
+### Otherwise
+
+Invoke `/flagrare:codebase-explore` with the `## What` section as input plus a one-paragraph summary derived from the brief. Capture the returned findings — file paths with line numbers, existing utilities, prior branches/PRs, related patterns.
+
+Populate the brief's `## Codebase Findings` section with the most planning-relevant items (≤8 bullets — full exploration output is fine for the consuming skill but the brief stays scannable).
+
+If the exploration surfaces new ambiguities (e.g., "two utilities do similar things — which is canonical?"), add them to `## Open Questions`.
+
+---
+
+## Step 5 — Ask codebase-informed clarifying questions
 
 From Open Questions, select the **3–5 most blocking** — things that, if unanswered, would force the plan to make assumptions or revisit scope mid-build.
 
-Ask them directly. Do not ask about things inferable from the ticket. Do not ask for information already in the brief.
+Now that the brief is codebase-grounded, prefer concrete questions over abstract ones:
 
-Good question forms:
-- "The acceptance criteria say X, but the Figma spec shows Y — which is correct?"
-- "There is no mention of error handling for [case] — is it in scope?"
-- "The ticket depends on [INT-41] which is not merged yet — do we plan against the current API or the incoming one?"
+- "I see `src/billing/quote.ts:84` already handles the discount math — should the new flow extend it or fork it?" (not: "where should the discount logic live?")
+- "The Figma spec shows a 3-step wizard but `src/onboarding/wizard.tsx` is currently 2 steps — adapt the existing component or build new?"
+- "`INT-41` (which this depends on) is not merged yet — plan against current API or the incoming one in branch `feat/int-41`?"
+
+Do not ask about things inferable from the ticket. Do not ask for information already in the brief or codebase findings.
 
 After the user answers, fold answers into the brief and clear Open Questions.
 
@@ -141,7 +168,7 @@ When the brief is complete and Open Questions is empty (or residuals are explici
 
 > Context complete. Invoking `/flagrare:atdd-plan` with the brief above.
 
-Then invoke `/flagrare:atdd-plan`, passing the full context brief as opening context. `/flagrare:atdd-plan` does not re-read the ticket or references — all context is already in the brief.
+Then invoke `/flagrare:atdd-plan`, passing the full context brief as opening context. `/flagrare:atdd-plan` does not re-read the ticket or references — those are already in the brief. It WILL run its own `/flagrare:codebase-explore` pass (atdd-plan stays self-sufficient for standalone use); intake's findings in the brief are additional input, not a substitute.
 
 ---
 
@@ -162,11 +189,12 @@ Then invoke `/flagrare:atdd-plan`, passing the full context brief as opening con
 /flagrare:intake [ticket ID or URL]
      ↓ subagents read ticket + all references in parallel
      ↓ /flagrare:research-catalog  ← log every external source before synthesising
-     ↓ context brief synthesised
-     ↓ clarifying questions answered
+     ↓ context brief synthesised (without questions)
+     ↓ /flagrare:codebase-explore  ← ground the brief in actual code
+     ↓ codebase-informed clarifying questions answered
      ↓
-/flagrare:atdd-plan  ← receives the context brief as input
-     ↓ /flagrare:codebase-explore  ← codebase exploration
+/flagrare:atdd-plan  ← receives the codebase-grounded context brief
+     ↓ /flagrare:codebase-explore  ← runs its own thorough pass (stays standalone-callable)
      ↓ ATDD plan produced
      ↓
 [implementation]

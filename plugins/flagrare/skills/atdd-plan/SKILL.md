@@ -20,6 +20,8 @@ Before writing the plan, invoke `/flagrare:codebase-explore`. Pass it the contex
 
 Wait for `/flagrare:codebase-explore` to complete. Use its findings to inform every subsequent step. Do NOT write acceptance tests or implementation phases until you have the exploration output.
 
+**Note on work-prep flows:** when atdd-plan is invoked via `/flagrare:work-prep`, the incoming brief already carries a `## Codebase Findings` section that `/flagrare:intake` produced. You may treat that as additional input alongside (not a substitute for) your own exploration — intake's findings were scoped to inform clarifying questions, and the plan needs a thorough pass of its own.
+
 ---
 
 ## Step 2 — Understand before planning
