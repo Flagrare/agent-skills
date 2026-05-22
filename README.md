@@ -108,9 +108,16 @@ After this, edits in `~/Dev/agent-skills` take effect on `/reload-plugins`. To s
 
 Run `/doctor`. It names the specific plugin and the specific failure.
 
+For most issues, run the canonical heal script — it fixes stale marketplace names, half-installed plugins, missing settings entries, and obsolete caches in one pass:
+
+```bash
+bash <(curl -sL https://raw.githubusercontent.com/Flagrare/agent-skills/main/update.sh)
+```
+
 | Symptom | Fix |
 |---|---|
 | `N errors during load` | Run `/doctor` for the exact plugin and error |
-| `Plugin X not found in marketplace flagrare-skills` | Re-run `claude plugin marketplace add Flagrare/agent-skills` |
-| Slash commands missing, 0 errors | Check `~/.claude/settings.json` has `"flagrare@flagrare-skills": true` |
-| Marketplace operation hangs | `claude plugin marketplace remove flagrare-skills`, then re-add |
+| `Plugin X not found in marketplace flagrare-skills` | Run the heal script above |
+| Slash commands missing, 0 errors | Run the heal script above — most often the plugin is enabled but not installed |
+| Marketplace operation hangs | Run the heal script above — it cleans the marketplace and re-clones from GitHub |
+| `/flagrare:update` runs old logic | You're on a pre-1.3 cached skill. Run the heal script above once; future `/flagrare:update` calls work correctly |
