@@ -1,8 +1,8 @@
 # agent-skills
 
-Sixteen skills that wrap around your development cycle in Claude Code. They turn tickets into ATDD plans, guard commits against doc drift, run six-axis code review, draft changelogs that read like patch notes, and review PRs with full context from your tracker and design tools.
+Seventeen skills that wrap around your development cycle in Claude Code. They turn tickets into ATDD plans, guard commits against doc drift, run six-axis code review, draft changelogs that read like patch notes, and review PRs with full context from your tracker and design tools.
 
-All skills are namespaced under `flagrare:*` to avoid collisions with other plugins. Installing this marketplace adds `/flagrare:intake`, `/flagrare:work-prep`, `/flagrare:wrap-up`, `/flagrare:pr-reviewer`, and twelve more to every Claude Code session.
+All skills are namespaced under `flagrare:*` to avoid collisions with other plugins. Installing this marketplace adds `/flagrare:intake`, `/flagrare:work-prep`, `/flagrare:wrap-up`, `/flagrare:pr-reviewer`, and thirteen more to every Claude Code session.
 
 ## Install
 
@@ -10,7 +10,7 @@ All skills are namespaced under `flagrare:*` to avoid collisions with other plug
 bash <(curl -sL https://raw.githubusercontent.com/Flagrare/agent-skills/main/install.sh)
 ```
 
-One command. It registers the marketplace, installs the `flagrare` plugin, and makes all sixteen skills available. Restart Claude Code or run `/reload-plugins` afterward.
+One command. It registers the marketplace, installs the `flagrare` plugin, and makes all seventeen skills available. Restart Claude Code or run `/reload-plugins` afterward.
 
 If you prefer to clone first:
 
@@ -58,6 +58,8 @@ After this one-time bootstrap, `/flagrare:update` works for all future versions 
 
 `/flagrare:pr-reviewer` fetches linked Jira tickets, Figma designs, and Notion docs via MCP, spawns five parallel subagents for systematic code review (correctness, security, tests, SOLID, clean code), then drafts friendly, humanized GitHub-ready comments you can paste directly.
 
+`/flagrare:open-pr` creates a pull request that follows the repo's PR template. It reads `.github/PULL_REQUEST_TEMPLATE.md`, fetches linked tickets for context (tracker-agnostic), and fills each section with narrative prose (not file enumerations). Descriptions explain what changed from both a product and code perspective, link relevant tickets, and include specific testing notes.
+
 ### Implementation support
 
 `/flagrare:figma-matcher` enforces pixel-perfect implementation of Figma designs. It extracts every visual property from Figma, spins up Chrome DevTools to measure the current implementation, builds a comparison checklist, and fixes all discrepancies in a single pass.
@@ -88,10 +90,11 @@ A typical feature cycle:
   /flagrare:implementation-review  (six-axis review, called by wrap-up)
 /flagrare:staleness-audit        docs didn't drift
 git commit                       everything passes, commit
+/flagrare:open-pr                push and open a PR with proper context
 /flagrare:release-check          committed, decide if a release ships
 ```
 
-`/flagrare:research-catalog` slots in wherever external research happens. `/flagrare:pr-reviewer` runs when reviewing someone else's PR. `/flagrare:tdd-writer` and `/flagrare:ticket-creator` run during planning phases for larger projects. `/flagrare:update` refreshes skills from GitHub; `/flagrare:uninstall` removes everything cleanly.
+`/flagrare:research-catalog` slots in wherever external research happens. `/flagrare:pr-reviewer` runs when reviewing someone else's PR. `/flagrare:open-pr` runs when you're ready to push and get reviewed. `/flagrare:tdd-writer` and `/flagrare:ticket-creator` run during planning phases for larger projects. `/flagrare:update` refreshes skills from GitHub; `/flagrare:uninstall` removes everything cleanly.
 
 ## Developing skills locally
 

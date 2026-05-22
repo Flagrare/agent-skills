@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.6.0 — 2026-05-22
+
+New skill: `/flagrare:open-pr`. Creates pull requests that follow the repo's PR template with contextualized descriptions instead of file-by-file enumerations.
+
+### New
+
+- **`/flagrare:open-pr`**: reads `.github/PULL_REQUEST_TEMPLATE.md`, fetches linked tickets via any available MCP/CLI (tracker-agnostic), and fills the template with narrative prose. Descriptions explain what changed from both a product and code perspective, testing notes are specific, and checklist items are checked appropriately. Sits between `/flagrare:wrap-up` and `/flagrare:release-check` in the workflow.
+
+### Documentation
+
+- **README**: skill count updated (sixteen to seventeen), open-pr description added to the Review section, workflow diagram updated.
+
 ## 1.5.1 — 2026-05-22
 
 The work-prep flow no longer ends mid-conversation when a tool-driven prompt would close the loop. Every gate now uses interactive button-prompts — the same UX as plan-mode's accept tool — instead of prose questions the model would narrate and then stop on.
