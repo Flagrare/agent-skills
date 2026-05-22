@@ -179,16 +179,14 @@ Once the brief is complete (Open Questions resolved, or explicitly deferred by t
 Present:
 
 1. **Overview** — 4–6 lines: what the ticket is, the codebase context the plan will work within, and what's now resolved. Skip if the user just answered clarifying questions (they have the context fresh; don't repeat it).
-2. **Next-step prompt** — issue an `AskUserQuestion` tool call. This is the same interaction shape as plan-mode's accept-plan tool: the user gets a discrete set of buttons, picks one, and the flow continues without freeform typing. Do NOT phrase this as a prose question ("So, would you like me to...") — that produces ambiguity and frequently ends the turn with no answer captured.
+2. **Next-step prompt** — issue an `AskUserQuestion` tool call. This is the same interaction shape as plan-mode's accept-plan tool: the user gets a discrete set of buttons, picks one, and the flow continues without freeform typing. Do NOT phrase this as a prose question — that produces ambiguity and frequently ends the turn with no answer captured.
 
-   Default option set (adjust if the brief suggests a different continuation is more likely):
+   Intake's natural successor is `/flagrare:atdd-plan`. The brief is built specifically to be planning input, so the prompt is a simple two-way:
 
-   - **Proceed to planning** (recommended first option): invokes `/flagrare:atdd-plan` with the brief as opening context. The plan skill runs its own `/flagrare:codebase-explore` pass (it stays self-sufficient for standalone use); intake's findings are additive input.
-   - **Create tickets first**: invokes `/flagrare:ticket-creator` to decompose the brief into a backlog before planning.
-   - **Write a TDD**: invokes `/flagrare:tdd-writer` for larger projects (2+ weeks) that need a full Technical Design Document before planning.
+   - **Proceed to `/flagrare:atdd-plan`** (Recommended): pass the brief as opening context. The plan skill runs its own `/flagrare:codebase-explore` pass; intake's findings are additive input.
    - **Stop here**: return control to the user with the brief saved/printed for later use.
 
-   Mark the first option `(Recommended)` in the label so the user can press through the default quickly.
+   Do NOT offer `/flagrare:ticket-creator` or `/flagrare:tdd-writer` here — those run *before* intake in different workflows (decomposing specs into tickets, drafting design docs for new multi-week projects). They are not downstream of a single-ticket intake.
 
 If invoked through `/flagrare:work-prep`, skip the prompt and proceed directly to `/flagrare:atdd-plan` — work-prep already decided the next step. (Detect this by checking whether the prior message indicated work-prep orchestration.)
 
