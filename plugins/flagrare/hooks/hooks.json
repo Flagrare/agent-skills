@@ -1,6 +1,17 @@
 {
-  "description": "Reminds Claude to invoke /flagrare:research-catalog after any Agent / WebFetch / WebSearch call that may have pulled in external sources, before the synthesis is returned to the user.",
+  "description": "Skill orchestration hooks: (1) research-catalog reminder after external fetches, (2) PostToolUse chains (intake→atdd-plan, wrap-up→implementation-review, staleness-audit→release-check), (3) PreToolUse gate (atdd-plan requires codebase-explore first).",
   "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Skill",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/pre_atdd_plan_gate.sh"
+          }
+        ]
+      }
+    ],
     "PostToolUse": [
       {
         "matcher": "Agent|WebFetch|WebSearch",
@@ -8,6 +19,15 @@
           {
             "type": "command",
             "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/research_catalog_reminder.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Skill",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/post_skill_chain.sh"
           }
         ]
       }

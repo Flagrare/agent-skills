@@ -1,13 +1,13 @@
 ---
 name: pr-reviewer
-description: "Review pull requests with full context. Fetches linked Jira tickets, Figma designs, and Notion docs via MCP, invokes pr-review-toolkit:review-pr for systematic code review, then drafts friendly, humanized GitHub-ready comments. Use when reviewing PRs, examining code changes, or when the user asks for a code review."
+description: "Review pull requests with full context. Fetches linked Jira tickets, Figma designs, and Notion docs via MCP, spawns parallel subagents for systematic code review (correctness, security, tests, SOLID, clean code), then drafts friendly, humanized GitHub-ready comments. Use when reviewing PRs, examining code changes, or when the user asks for a code review."
 ---
 
 # PR Reviewer
 
 Reviews pull requests systematically with full context awareness and humanized feedback.
 
-This skill fetches linked resources via MCP, delegates the core review to `pr-review-toolkit:review-pr`, then refines the output into friendly, GitHub-ready comment drafts.
+This skill fetches linked resources via MCP, spawns parallel review subagents for systematic analysis, then synthesises findings into friendly, GitHub-ready comment drafts.
 
 ---
 
@@ -66,18 +66,86 @@ Extract URLs matching `*.notion.so/...` or `*.notion.site/...`
 
 Note it in the review: "Could not fetch Jira ticket CORE-3211 (Atlassian MCP unavailable). Review based on PR description only." Proceed with available context.
 
-### Step 3: Invoke `pr-review-toolkit:review-pr`
+### Step 3: Systematic Code Review (parallel subagents)
 
-Delegate the core systematic review to `pr-review-toolkit:review-pr`. This covers:
+Spawn **five review subagents in parallel**. Each receives the full PR diff and returns findings.
 
-- Correctness and logic
-- Security vulnerabilities
-- Test coverage
-- Code quality
-- Maintainability
-- Project conventions
+Do not run these checks sequentially. Spawn all five simultaneously, collect results, then synthesise.
 
-**Wait for it to complete.** Collect all findings.
+---
+
+#### Subagent 1: Correctness & Logic
+
+**Inputs:** full PR diff, PR description, linked ticket acceptance criteria.
+
+For every changed function/method:
+- Does the logic match the stated intent (from PR description and ticket)?
+- Are there off-by-one errors, missing null checks, unhandled branches?
+- Are edge cases covered: empty input, boundary values, error paths?
+- Are there race conditions or ordering assumptions?
+- Does the change break any existing callers?
+
+---
+
+#### Subagent 2: Security
+
+**Inputs:** full PR diff, file list.
+
+Scan for OWASP Top 10 patterns:
+- Injection (SQL, command, XSS, template)
+- Broken authentication / authorization checks
+- Sensitive data exposure (logging secrets, hardcoded keys)
+- Missing input validation at system boundaries
+- Insecure deserialization
+- Overly permissive CORS or CSP
+- Dependencies with known vulnerabilities (if lockfile changed)
+
+Only flag issues with concrete exploit paths, not theoretical risks.
+
+---
+
+#### Subagent 3: Test Coverage & Quality
+
+**Inputs:** full PR diff (test files and non-test files).
+
+For every behavior introduced or changed:
+- Is there at least one test that exercises it through the public API?
+- Do tests assert on observable behavior or implementation internals?
+- Are test names descriptive of the behavior being tested?
+- Missing scenarios: happy path, empty/nil, boundary, error path, idempotency?
+- Do tests mock only at genuine external boundaries (network, clock, OS)?
+- Testing Trophy shape: more integration tests than unit tests for cross-unit behavior?
+
+---
+
+#### Subagent 4: SOLID & Architecture
+
+**Inputs:** non-test source files from the PR diff.
+
+- **S**: Does any new class/module have more than one reason to change?
+- **O**: Does adding a new variant require modifying existing code?
+- **L**: Does any subtype violate its base type's contract?
+- **I**: Are there fat interfaces forcing unused method implementations?
+- **D**: Are concrete dependencies hardcoded where abstractions would be natural?
+
+Also check: does the change follow the repository's existing architectural patterns, or does it introduce a novel pattern without justification?
+
+---
+
+#### Subagent 5: Clean Code & Conventions
+
+**Inputs:** full PR diff, project CLAUDE.md / DEVELOPMENT_GUIDELINES.md (if they exist).
+
+- Magic values without named constants
+- Functions doing more than one thing
+- Generic unqualified names (`data`, `info`, `handler`, `manager`)
+- Comments that restate the code (keep only "why" comments)
+- Half-finished surfaces (TODOs, stub bodies, "implement later")
+- Long parameter lists (>3-4 positional params)
+- Style violations against project guidelines (if documented)
+- Inconsistency with patterns used elsewhere in the same codebase
+
+---
 
 ### Step 4: Contextual Review (from MCP-fetched resources)
 
@@ -100,7 +168,7 @@ Layer additional review based on the fetched context:
 
 ### Step 5: Draft Humanized GitHub Comments
 
-For every finding (from both the toolkit review and contextual review), produce a GitHub-ready comment draft.
+For every finding (from both systematic review and contextual review), produce a GitHub-ready comment draft.
 
 **Severity scale:**
 
@@ -176,7 +244,7 @@ GitHub comment: Worth adding a test for the cancelled path.
 - Don't nitpick formatting if tooling handles it.
 - Don't sound like a checklist or a formal audit.
 - Don't post comments to the PR without explicit user approval. Always draft first.
-- Don't duplicate findings that `pr-review-toolkit:review-pr` already surfaced cleanly. Layer on context-aware findings.
+- Don't run subagents sequentially. The whole point is parallel dispatch.
 
 ---
 
@@ -186,9 +254,9 @@ GitHub comment: Worth adding a test for the cancelled path.
 [PR created or shared]
      |
      v
-/pr-reviewer
+/flagrare:pr-reviewer
      |--- Step 1-2: fetch PR + linked resources (Jira, Figma, Notion)
-     |--- Step 3: /pr-review-toolkit:review-pr (systematic code review)
+     |--- Step 3: 5 parallel subagents (correctness, security, tests, SOLID, clean code)
      |--- Step 4: contextual review (ticket/design/doc alignment)
      |--- Step 5: humanize all findings into GitHub comment drafts
      |--- Step 6: present combined review

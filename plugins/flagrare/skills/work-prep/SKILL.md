@@ -39,7 +39,7 @@ Call `/flagrare:intake` with the ticket reference. This skill will:
 
 Once `/flagrare:intake` has produced a complete context brief, invoke `/flagrare:atdd-plan`. Pass the context brief as opening context. This skill will:
 
-1. Explore the codebase via `/feature-kickoff` to understand conventions and reusable pieces
+1. Explore the codebase via `/flagrare:codebase-explore` to understand conventions and reusable pieces
 2. Produce an ATDD-first implementation plan with acceptance tests, named design patterns, SOLID audit, and gap review
 3. Present the plan for user review
 
@@ -69,7 +69,7 @@ After the plan is presented:
 /flagrare:intake          <- context gathering, reference following, clarifying questions
      |
      v
-/flagrare:atdd-plan       <- codebase exploration via /feature-kickoff, then TDD-first plan
+/flagrare:atdd-plan       <- codebase exploration via /flagrare:codebase-explore, then ATDD-first plan
      |
      v
 [user reviews plan]
