@@ -1,0 +1,16 @@
+{
+  "description": "Reminds Claude to invoke /flagrare:research-catalog after any Agent / WebFetch / WebSearch call that may have pulled in external sources, before the synthesis is returned to the user.",
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Agent|WebFetch|WebSearch",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/research_catalog_reminder.sh"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,8 +1,0 @@
-{
-  "name": "staleness-audit",
-  "description": "Pre-commit audit. Diffs staged changes against the repo's canary files (README, decision log, roadmap, public entry point, doc comments, release notes, test names) and surfaces drift before it lands in history.",
-  "author": {
-    "name": "Yuri Flagrare",
-    "email": "yuri.flagrare@gmail.com"
-  }
-}
