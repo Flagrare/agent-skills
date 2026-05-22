@@ -44,11 +44,15 @@ Once `/flagrare:intake` has produced a complete, codebase-grounded context brief
 2. Produce an ATDD-first implementation plan with acceptance tests, named design patterns, SOLID audit, and gap review
 3. Present the plan for user review
 
-### Step 3: Confirm readiness
+### Step 3: Confirm readiness — use the AskUserQuestion tool
 
-After the plan is presented:
+After the plan is presented, issue an `AskUserQuestion` tool call — same interaction shape as intake's next-step prompt and plan-mode's accept tool. Do NOT phrase this as prose; that lets the turn end ambiguously.
 
-> Plan complete. Review it and let me know if you want to adjust anything, or say "go" to start implementation.
+Options:
+
+- **Start implementation** (Recommended): proceed to write code against the plan.
+- **Adjust the plan**: collect specific changes from the user, re-run the relevant atdd-plan steps, then re-present.
+- **Stop here**: return control with the plan saved/printed for later.
 
 ---
 
@@ -60,6 +64,7 @@ After the plan is presented:
 - Don't re-fetch context that `/flagrare:intake` already gathered. Pass the brief forward.
 - Don't ask clarifying questions before codebase grounding. Questions asked without knowing what exists are abstract and frequently miss the real ambiguity. intake handles this by calling `/flagrare:codebase-explore` before Step 5.
 - Don't be surprised that `/flagrare:codebase-explore` runs twice in this flow — once in intake (scoped to inform questions) and once in atdd-plan (scoped to anchor the plan). atdd-plan stays standalone-callable; that requires it to do its own pass.
+- **Don't end work-prep with a prose "what next?" question.** After the plan is presented, close with a tool-driven `AskUserQuestion` prompt — same UX contract as plan-mode's accept tool. A button, not a typing prompt.
 
 ---
 
