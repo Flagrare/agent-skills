@@ -1,0 +1,13 @@
+{
+  "name": "flagrare",
+  "displayName": "Flagrare",
+  "description": "Development lifecycle skills: planning, quality gates, review, documentation, and design verification.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Yuri Flagrare",
+    "email": "yuri.flagrare@gmail.com"
+  },
+  "repository": "https://github.com/Flagrare/agent-skills",
+  "license": "MIT",
+  "skills": "./skills/"
+}

@@ -1,8 +1,0 @@
-{
-  "name": "write-docs",
-  "description": "Write documentation that reads like a person wrote it for another person. Teaches the craft layer first (curse of knowledge, classic style, voice vs tone, context where it lands not in a glossary, prose where causality matters) and the structural conventions second (Diátaxis modes, README landing-page arc). Built on Pinker's Sense of Style, the Heath brothers' Made to Stick, Mailchimp's voice and tone guide, and the celebrated landing pages of React, Stripe, Anthropic, SpacetimeDB, Tokio.",
-  "author": {
-    "name": "Yuri Flagrare",
-    "email": "yuri.flagrare@gmail.com"
-  }
-}

@@ -1,8 +1,0 @@
-{
-  "name": "implementation-review",
-  "description": "Pre-commit quality gate. Six checks: plan gaps, use-case coverage, missing test scenarios, test philosophy (Kent Dodds Testing Trophy), SOLID violations, Clean Code violations.",
-  "author": {
-    "name": "Yuri Flagrare",
-    "email": "yuri.flagrare@gmail.com"
-  }
-}
