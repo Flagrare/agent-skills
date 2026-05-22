@@ -1,6 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
-  "name": "personal",
+  "name": "agent-skills",
   "version": "1.0.0",
   "description": "Flagrare development lifecycle skills: planning, quality gates, review, documentation, and design verification.",
   "owner": {

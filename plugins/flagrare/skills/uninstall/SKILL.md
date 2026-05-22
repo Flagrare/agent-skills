@@ -23,8 +23,8 @@ bash "${CLAUDE_PLUGIN_ROOT}/../../uninstall.sh"
 If the script is not found at that path (e.g. running from a remote install), run these commands directly:
 
 ```bash
-claude plugin disable "flagrare@personal"
-claude plugin marketplace remove personal
+claude plugin disable "flagrare@agent-skills"
+claude plugin marketplace remove agent-skills
 ```
 
 After running, tell the user:
