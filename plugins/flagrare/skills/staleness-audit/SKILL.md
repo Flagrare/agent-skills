@@ -156,6 +156,12 @@ When you're done, give the user a concise audit line for each check — `✓` if
 
 If any check found a real issue, *fix it before committing* unless the user explicitly opted out of fixing this round.
 
+## Invoke `/flagrare:write-docs` for documentation drift
+
+If any of checks 1, 2, 4, 5, or 6 surfaced drift (README staleness, decision log issues, missing doc comments, missing release notes, contributor guide hygiene), invoke `/flagrare:write-docs` to rewrite the affected sections. Pass it the specific files and the nature of the drift so it can apply craft-level prose rather than mechanical patching.
+
+Skip this step only when the fix is purely mechanical (e.g. ticking a checkbox, updating a number). If the fix requires rewriting prose, descriptions, or explanations, `/flagrare:write-docs` owns the quality of that output.
+
 ## Anti-patterns (what this skill is not)
 
 - It is not a substitute for the project's test/lint/build gate. That gate still runs.
