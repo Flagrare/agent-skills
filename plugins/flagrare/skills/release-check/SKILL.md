@@ -257,17 +257,24 @@ Action plan:
      them as duplicates. (See the "GitHub Release vs tag commit"
      section below for why this matters.)
   7. Push: git push origin <main-branch> --follow-tags
-  8. If the project has a publish workflow (npm publish, cargo publish, PyPI, CI release action),
+  8. **Create a GitHub Release.** A tag without a release is invisible
+     to users who watch the repo's Releases page, and workflows
+     triggered by `on: release: [published]` won't fire.
+       gh release create vX.Y.Z --title "vX.Y.Z" --notes "<CHANGELOG entry for this version>"
+     Use the value-focused CHANGELOG entry as the release notes body.
+     If the project has release-note conventions (e.g. linking to a
+     full changelog diff), follow them.
+  9. If the project has a publish workflow (npm publish, cargo publish, PyPI, CI release action),
      trigger it — or note that it runs automatically on tag push or
      release publish.
-  9. **Verify the publish actually succeeded.** Tagging is not shipping.
+ 10. **Verify the publish actually succeeded.** Tagging is not shipping.
      For GitHub Actions release workflows:
        gh run list --workflow=<publish-workflow>.yml --limit 1
      If status is `failure` or `cancelled`, inspect with `gh run view
      <id> --log-failed` and surface the root cause before declaring
      the release done. Common failure: wheel filename version doesn't
      match the tag (see "GitHub Release vs tag commit" below).
- 10. **Confirm the artifact actually landed in the index.** Tooling
+ 11. **Confirm the artifact actually landed in the index.** Tooling
      can succeed-then-silently-skip. For PyPI:
        curl -s https://pypi.org/pypi/<package>/json | jq -r .info.version
      For crates.io:
@@ -355,7 +362,11 @@ For the CHANGELOG rewrite specifically:
    not whatever HEAD happens to be — see "GitHub Release vs tag commit"
    in step 7.
 6. Push with `--follow-tags`.
-7. Verify the publish workflow succeeded (`gh run list --workflow=<…>
+7. Create a GitHub Release (`gh release create vX.Y.Z --title "vX.Y.Z"
+   --notes "<changelog entry>"`). A pushed tag without a release is
+   invisible on the Releases page and won't trigger `on: release`
+   workflows.
+8. Verify the publish workflow succeeded (`gh run list --workflow=<…>
    --limit 1`) and that the artifact landed in the registry (PyPI /
    crates.io / npm) before declaring done. A green tag-push is not a
    green release.
@@ -367,7 +378,8 @@ For the CHANGELOG rewrite specifically:
 - **Don't ship the auto-generated CHANGELOG without rewriting.** Tooling output is a starting point, not a final product.
 - **Don't bypass the user's approval for the actual release.** Propose, wait, then act. Releases are public and hard to reverse.
 - **Don't add a section that's empty.** Skip `## Bug Fixes` if there are no fixes.
-- **Don't declare a release done at the tag push.** Tagging is necessary, not sufficient. Verify the publish workflow ran green AND the artifact actually appears in the registry. A "tag pushed, must be live" assumption is how multi-release publish failures stack up unnoticed — the only signal that something's wrong is when a downstream consumer reports `pip install <name>` returns the version-before-last.
+- **Don't declare a release done at the tag push.** Tagging is necessary, not sufficient. Create the GitHub Release, verify the publish workflow ran green, AND confirm the artifact actually appears in the registry. A "tag pushed, must be live" assumption is how multi-release publish failures stack up unnoticed — the only signal that something's wrong is when a downstream consumer reports `pip install <name>` returns the version-before-last.
+- **Don't skip the GitHub Release.** A pushed tag without a corresponding GitHub Release is invisible on the repo's Releases page and won't trigger `on: release: [published]` workflows. Always create it via `gh release create`.
 - **Don't assume one manifest is the only version source.** On multi-build-system projects (maturin/PyO3, setuptools-rust, scikit-build, NAPI-RS, multi-module monorepos), each build tool reads its own manifest and stamps that version into its own artifact. The wheel filename comes from `pyproject.toml`'s `[project] version`, NOT from `Cargo.toml`. If you bump only one of them, the artifact name and the tag will disagree, the registry will reject the upload, and the workflow will fail with a confusing "file already exists" error against the previous version's filename. See step 6a for the full list of manifest pairs by project shape, and grep for `^version\s*=` across every manifest before tagging.
 
 ## Cross-references
