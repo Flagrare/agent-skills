@@ -19,11 +19,11 @@ Run:
 ```bash
 # Refresh the marketplace cache if it exists; otherwise add it.
 # Either path leaves other plugins untouched.
-claude plugin marketplace update agent-skills 2>/dev/null \
-  || claude plugin marketplace add Flagrare/agent-skills
+claude plugin marketplace update flagrare-skills 2>/dev/null \
+  || claude plugin marketplace add Flagrare/flagrare-skills
 
 # Ensure flagrare is enabled (idempotent)
-claude plugin enable "flagrare@agent-skills" 2>/dev/null || true
+claude plugin enable "flagrare@flagrare-skills" 2>/dev/null || true
 ```
 
 After running, tell the user:
