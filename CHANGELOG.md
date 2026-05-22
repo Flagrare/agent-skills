@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.6.1 — 2026-05-22
+
+`/flagrare:release-check` now creates a GitHub Release after tagging. Previously the skill stopped at pushing the tag, leaving the Releases page empty and `on: release` workflows untriggered.
+
+### Behaviour
+
+- **`/flagrare:release-check`**: adds `gh release create` as an explicit step between pushing tags and verifying publish workflows. The action plan, execution checklist, and anti-patterns all reflect this.
+
 ## 1.6.0 — 2026-05-22
 
 New skill: `/flagrare:open-pr`. Creates pull requests that follow the repo's PR template with contextualized descriptions instead of file-by-file enumerations.
