@@ -179,6 +179,22 @@ No phase is complete until naming, duplication, structure, and SOLID adherence h
 
 ---
 
+## Step 9 — Hand off via `AskUserQuestion`
+
+After the plan is printed, do NOT end with a prose question like "Want me to start executing Phase 0, or hold for review?". Prose closes leave the turn ambiguous and frequently end with no answer captured.
+
+Instead, issue an `AskUserQuestion` tool call — same interaction shape as intake's next-step prompt, work-prep's Step 3, and plan-mode's accept tool. A button, not a typing prompt.
+
+Options:
+
+- **Start implementation** (Recommended): proceed to build Phase 1 (or Phase 0 if a prerequisite phase exists) against the plan.
+- **Adjust the plan**: collect specific changes from the user, re-run the relevant atdd-plan steps (typically Step 3 ATs, Step 7 phases, or Step 8 gaps), then re-present.
+- **Stop here**: return control with the plan kept in the transcript for later.
+
+This is the close regardless of how atdd-plan was invoked (directly, via `/flagrare:work-prep`, or chained from another skill). When invoked via work-prep, work-prep's Step 3 prompt is the same call shape — do not double-prompt; one AskUserQuestion at the hand-off boundary is enough.
+
+---
+
 ## Anti-patterns — refuse these
 
 - ATs that assert on internal state (`_inner`, mock call counts on types you own, private fields)
@@ -186,3 +202,4 @@ No phase is complete until naming, duplication, structure, and SOLID adherence h
 - Pattern names with no rationale ("we'll use a Strategy" with no explanation of what it replaces or why)
 - An empty gap review
 - Coverage targets stated as a goal — coverage is a side effect of testing the right behaviors
+- **Closing with a prose question.** Step 9 uses `AskUserQuestion`. A button, not a typing prompt.
