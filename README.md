@@ -10,7 +10,7 @@ All skills are namespaced under `flagrare:*` to avoid collisions with other plug
 bash <(curl -sL https://raw.githubusercontent.com/Flagrare/agent-skills/main/install.sh)
 ```
 
-One command. It registers the marketplace, installs the `flagrare` plugin, and makes all seventeen skills available. Restart Claude Code or run `/reload-plugins` afterward.
+One command. It registers the marketplace, installs the `flagrare` plugin, and makes all eighteen skills available. Restart Claude Code or run `/reload-plugins` afterward.
 
 If you prefer to clone first:
 
