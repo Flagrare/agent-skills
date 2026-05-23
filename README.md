@@ -1,8 +1,8 @@
 # agent-skills
 
-Seventeen skills that wrap around your development cycle in Claude Code. They turn tickets into ATDD plans, guard commits against doc drift, run six-axis code review, draft changelogs that read like patch notes, and review PRs with full context from your tracker and design tools.
+Eighteen skills that wrap around your development cycle in Claude Code. They turn tickets into ATDD plans, smoke-test features against a running app or service, guard commits against doc drift, run six-axis code review, draft changelogs that read like patch notes, and review PRs with full context from your tracker and design tools.
 
-All skills are namespaced under `flagrare:*` to avoid collisions with other plugins. Installing this marketplace adds `/flagrare:intake`, `/flagrare:work-prep`, `/flagrare:wrap-up`, `/flagrare:pr-reviewer`, and thirteen more to every Claude Code session.
+All skills are namespaced under `flagrare:*` to avoid collisions with other plugins. Installing this marketplace adds `/flagrare:intake`, `/flagrare:work-prep`, `/flagrare:smoke-test`, `/flagrare:wrap-up`, `/flagrare:pr-reviewer`, and thirteen more to every Claude Code session.
 
 ## Install
 
@@ -46,6 +46,8 @@ After this one-time bootstrap, `/flagrare:update` works for all future versions 
 
 ### Quality gates
 
+`/flagrare:smoke-test` validates the feature you just implemented against a running instance. For UI work it drives a browser via Playwright MCP and diagnoses failures with Chrome DevTools MCP; for backend work it hits the running service through the project's existing test framework. Auto-detects domain from the diff (UI, backend, or full-stack). Tests every acceptance criterion plus exploratory edges (long inputs, slow network, auth matrix, idempotency, observability spans, the 403/404 tenant-leak), fixes every gap or bug found, then captures the working trajectory as a permanent Playwright spec or test file before declaring done. Ten-minute budget.
+
 `/flagrare:staleness-audit` diffs your staged changes against the repo's documentation surfaces (README, ADRs, public exports, doc comments, test names, changesets) and flags drift before it lands in history.
 
 `/flagrare:implementation-review` launches six parallel subagents: plan-gap detection, use-case coverage, missing test scenarios, test philosophy (Kent Dodds Testing Trophy), SOLID violations, and Clean Code violations.
@@ -86,6 +88,7 @@ A typical feature cycle:
     /flagrare:codebase-explore       (atdd-plan's own pass — stays self-sufficient for standalone use)
 [implementation]                 you have a plan, write code
 /flagrare:figma-matcher          UI work done, verify against Figma
+/flagrare:smoke-test             feature done, validate behaviour against a running app or service
 /flagrare:wrap-up                code done, full quality gate
   /flagrare:implementation-review  (six-axis review, called by wrap-up)
 /flagrare:staleness-audit        docs didn't drift

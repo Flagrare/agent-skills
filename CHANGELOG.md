@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.7.0 — 2026-05-23
+
+New skill: `/flagrare:smoke-test`. Validates the feature you just implemented against a running instance — UI, backend, or both. Tests every acceptance criterion plus exploratory edges, fixes every gap or bug found, then captures the working trajectory as a permanent test before declaring done.
+
+### New
+
+- **`/flagrare:smoke-test`**: goal-driven validation pass. Auto-detects domain (UI / backend / full-stack) from the diff. For UI, drives the browser via Playwright MCP (semantic accessibility-tree selectors only) and uses Chrome DevTools MCP for failure diagnosis. For backend, hits the running service through the project's existing test framework. Priority-ordered loop: P0 preconditions → P1 acceptance criteria → P2 cross-cutting (console / network / a11y / keyboard / focus on UI; contract / auth-matrix / error-shape / boundaries / idempotency / observability on backend) → P3 exploratory. Fix-and-retest loop until every scenario passes. Captures successful trajectory as a permanent Playwright spec (UI) or test file (backend) — every smoke pass either reveals a bug or leaves a regression test behind, never a throwaway run. Bakes in 2026 best practices including the `403 vs 404` tenant-leak check, observability-driven testing assertions, `retries: 0` policy (flake is a defect), and an under-ten-minute budget.
+
+### Documentation
+
+- **README**: skill count updated (seventeen to eighteen), `/flagrare:smoke-test` description added to Quality Gates, workflow diagram now shows the smoke-test step between figma-matcher and wrap-up.
+- **Research catalogs**: `docs/research/2026-05-23-ui-smoke-test-best-practices.md` and `docs/research/2026-05-23-backend-smoke-test-best-practices.md` — the sourced findings the skill is built on (Playwright + Chrome DevTools MCP split, axe + keyboard walk, observability-driven testing, RFC 9457 Problem Details, JWT algorithm-confusion checks).
+
 ## 1.6.1 — 2026-05-22
 
 `/flagrare:release-check` now creates a GitHub Release after tagging. Previously the skill stopped at pushing the tag, leaving the Releases page empty and `on: release` workflows untriggered.
