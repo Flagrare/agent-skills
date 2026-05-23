@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.7.1 — 2026-05-23
+
+`/flagrare:atdd-plan` now closes with a button-prompt instead of a prose "want me to start?" question — same UX contract intake and work-prep already follow. The turn no longer ends ambiguously after the plan is presented. Also catches up `install.sh` and the README skill count to what shipped in 1.7.0.
+
+### Bug Fixes
+
+- **`/flagrare:atdd-plan`** hand-off: adds Step 9 — after the plan is printed, issues an `AskUserQuestion` call with **Start implementation (Recommended)** / **Adjust the plan** / **Stop here**. Was: prose "Want me to start executing Phase 0, or hold for review?" which let the turn end with no answer captured. Anti-patterns now refuse the prose close explicitly.
+
+### Documentation
+
+- **`install.sh`**: now lists `/flagrare:smoke-test` (new in 1.7.0) and `/flagrare:open-pr` (carried over from 1.6.0). Previously these were installed but not echoed.
+- **README**: skill count corrected (seventeen → eighteen) to match the eighteen skill directories.
+
 ## 1.7.0 — 2026-05-23
 
 New skill: `/flagrare:smoke-test`. Validates the feature you just implemented against a running instance — UI, backend, or both. Tests every acceptance criterion plus exploratory edges, fixes every gap or bug found, then captures the working trajectory as a permanent test before declaring done.
