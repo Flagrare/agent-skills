@@ -84,7 +84,17 @@ Produce a flat list of URLs to visit. Note which are auth-gated. If you don't kn
 
 Use **Chrome DevTools MCP** for this skill — not Playwright. Chrome DevTools gives you the accessibility tree (`take_snapshot`), screenshots (`take_screenshot`), console messages, network requests, and direct click/fill/navigate. Playwright is for converting findings into permanent specs later (out of scope here).
 
-Set the viewport. Default to **mobile-first** (390×844, iPhone 14) unless the user explicitly says desktop or the app has no responsive layout. Most modern apps are used on a phone; auditing only at desktop misses the entire mobile experience.
+### Make the browser visible to the user
+
+The user must be able to see what you are doing. After connecting to Chrome DevTools:
+
+1. **Open a new tab or window** dedicated to the audit (don't reuse an existing tab with unrelated content).
+2. **Bring the window to the front** on every navigation. Use `bringToFront: true` or the equivalent option on every `navigate_page` call. The user should be watching the audit happen in real time -- if they can't see it, something is wrong.
+3. **Confirm with the user** after the first navigation that they can see the browser window. One sentence: "Can you see Chrome showing [URL]?" If they say no, debug the connection before continuing.
+
+### Set the viewport and output folder
+
+Set the viewport. Default to **mobile-first** (390x844, iPhone 14) unless the user explicitly says desktop or the app has no responsive layout. Most modern apps are used on a phone; auditing only at desktop misses the entire mobile experience.
 
 Create the output folder:
 
@@ -92,7 +102,7 @@ Create the output folder:
 mkdir -p .ux-audit
 ```
 
-All screenshots and the findings file live here. Numbered prefixes (`01-landing.png`, `02-register.png`, …) so they sort chronologically.
+All screenshots and the findings file live here. Numbered prefixes (`01-landing.png`, `02-register.png`, ...) so they sort chronologically.
 
 Open the start URL and `take_snapshot` to confirm the page rendered. Capture the title and visible structure. If the page is blank or 500s, stop — fix the server before continuing.
 
