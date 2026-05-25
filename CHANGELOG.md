@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.9.2 — 2026-05-25
+
+`/flagrare:ux-audit` no longer stalls when Chrome DevTools MCP isn't immediately available. The prerequisite section now walks through a structured A/B/C troubleshooting checklist with exact commands, so the model resolves the issue itself instead of asking the user what to do.
+
+### Behaviour
+
+- **`/flagrare:ux-audit`**: prerequisite check is now a structured checklist. Step A: install the plugin (multiple fallback methods). Step B: connect to Chrome (exact `--remote-debugging-port=9222` command for macOS and Linux). Step C: full restart if needed. Models work through all three before stopping.
+
 ## 1.9.1 — 2026-05-25
 
 The UX audit now installs its own tooling and keeps the browser visible throughout.
