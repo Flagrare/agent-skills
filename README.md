@@ -10,7 +10,7 @@ All skills are namespaced under `flagrare:*` to avoid collisions with other plug
 bash <(curl -sL https://raw.githubusercontent.com/Flagrare/agent-skills/main/install.sh)
 ```
 
-One command. It registers the marketplace, installs the `flagrare` plugin, and makes all eighteen skills available. Restart Claude Code or run `/reload-plugins` afterward.
+One command. It registers the marketplace, installs the `flagrare` plugin, and makes all twenty skills available. Restart Claude Code or run `/reload-plugins` afterward.
 
 If you prefer to clone first:
 
@@ -55,6 +55,10 @@ After this one-time bootstrap, `/flagrare:update` works for all future versions 
 `/flagrare:wrap-up` runs automated checks (tests, lint, types), invokes `/flagrare:implementation-review`, then layers additional SOLID and Clean Code review for anything not covered. The combined report tells you whether to commit or fix first.
 
 `/flagrare:release-check` detects the project's release mechanism, decides whether a release is due, and drafts a semver bump with a value-focused changelog entry.
+
+`/flagrare:ux-audit` drives the running app via Chrome DevTools MCP through every reachable route and every visible affordance, screenshots each state, and writes a severity-ranked findings table (`.ux-audit/FINDINGS.md`) with location, why-it's-painful, and recommended fix. Pretends to be a first-time user — surfaces jargon, mystery glyphs, dead-end empty states, choice paralysis, color-only signals, jarring tone, mobile-first violations. Goal-locked so it can't exit before coverage is complete.
+
+`/flagrare:five-lens-review` spawns five parallel persona subagents — Senior PM, Senior Product Engineer, Senior Product Designer, Senior Design Engineer, and a realistic end user — each examining the same product-direction question through their discipline's lens, then synthesizes convergent themes, disagreements, and a single actionable recommendation. Use when a user-facing decision has multiple competing constraints (lifecycle behaviour, data-model trade-offs, destructive actions, UX choices that touch retention) and a single-perspective answer would silently lock in the wrong default.
 
 ### Review
 
