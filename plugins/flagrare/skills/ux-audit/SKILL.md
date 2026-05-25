@@ -25,11 +25,22 @@ This skill is the cheap, consistent, written-down version of that walk. The outp
 
 **Hard requirement.** Before any other tool call, you MUST call `/goal` yourself. This is not a suggestion to the user. You, the executing model, must invoke the goal tool directly. Without it, context compaction and turn limits will cause early termination -- the audit visits 15-40 routes and the model will quit by route 5 without a durable goal holding it in place.
 
-Call `/goal` with exactly this text (adapt the app name if known):
+### Determine scope
 
+The user may specify a scope when invoking the skill:
+
+- **No scope given** (e.g. "run a UX audit") -- scope is ALL routes. The goal text says "every reachable route."
+- **Scope given** (e.g. "UX audit the onboarding flow", "audit /settings and /profile") -- scope is only the routes/flows specified. The goal text names those routes explicitly.
+
+Call `/goal` with text adapted to the scope:
+
+**Full scope (default):**
 > Drive the running app from a first-time user's perspective. Exhaust every reachable route and every visible affordance on those routes. Produce a severity-ranked findings table in `.ux-audit/FINDINGS.md` along with numbered screenshots. Do not stop until coverage is complete.
 
-After setting the goal, also create a Todo list (one item per route, populated in Step 2). The Todo list tracks coverage; the goal prevents the harness from letting you stop. Both are required. Neither is optional.
+**Scoped:**
+> Drive the running app from a first-time user's perspective. Exhaust every route and affordance within: [user's specified scope]. Produce a severity-ranked findings table in `.ux-audit/FINDINGS.md` along with numbered screenshots. Do not stop until coverage of the specified scope is complete.
+
+After setting the goal, also create a Todo list (one item per route within scope, populated in Step 2). The Todo list tracks coverage; the goal prevents the harness from letting you stop. Both are required. Neither is optional.
 
 ### Prerequisites -- do not skip, do not degrade
 
@@ -40,7 +51,9 @@ After setting the goal, also create a Todo list (one item per route, populated i
 
 ## Step 2 — Enumerate routes from the source
 
-The app's filesystem is the source of truth for "every reachable page." Scan it before opening a browser. Detect the framework from the project layout:
+The app's filesystem is the source of truth for reachable pages. Scan it before opening a browser. If a scope was specified in Step 1, filter the route list to only routes within that scope (but still enumerate from source to ensure nothing is missed within the scoped area).
+
+Detect the framework from the project layout:
 
 | Layout | Framework | Where routes live |
 |---|---|---|
