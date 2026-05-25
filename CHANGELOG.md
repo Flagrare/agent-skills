@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.9.0 — 2026-05-25
+
+`/flagrare:ux-audit` now accepts a scope. Say "UX audit the onboarding flow" and only those routes are walked; omit the scope and the full app is audited as before. The skill also stops pretending the browser requirement and `/goal` are optional -- both are now hard gates that prevent the executing model from shortcutting.
+
+### Behaviour
+
+- **`/flagrare:ux-audit`**: the executing model now calls `/goal` itself as its first action. Previous wording suggested the user do it; models read that as optional and skipped it every time.
+- **`/flagrare:ux-audit`**: Chrome DevTools MCP is a hard prerequisite. If unavailable, the skill stops and asks the user to enable it instead of silently falling back to code-level analysis. Playwright MCP remains an acceptable fallback; static analysis is explicitly prohibited.
+- **`/flagrare:ux-audit`**: supports scoped audits. Pass a scope ("audit /settings and /profile") and only those routes are walked; the `/goal` text and Todo list adapt to the specified scope. No scope → all routes (unchanged default).
+
 ## 1.8.3 — 2026-05-25
 
 Skills now explain *why* their tool choices are requirements vs. suggestions, so the executing model stops shortcutting past them.
