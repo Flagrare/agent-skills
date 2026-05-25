@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.8.3 — 2026-05-25
+
+Skills now explain *why* their tool choices are requirements vs. suggestions, so the executing model stops shortcutting past them.
+
+### Behaviour
+
+- **`/flagrare:intake` Step 2**: direct MCP call is now the documented preferred path when the tool is available in-session. Subagent path remains as fallback for large responses or unavailable MCPs.
+- **`/flagrare:intake` Step 4.5 + `/flagrare:atdd-plan` Step 1**: carry a "hard requirement" callout explaining why `/flagrare:codebase-explore` must not be substituted with a generic Explore agent -- the skill encodes a specific methodology and structured output that downstream steps depend on.
+
+### Documentation
+
+- **README**: skill count `eighteen → twenty`, `thirteen more → fifteen more`.
+
 ## 1.8.2 — 2026-05-25
 
 `/flagrare:update` no longer crashes when the local marketplace cache directory can't be renamed. The script now self-heals: removes the stale directory and re-adds from scratch.
