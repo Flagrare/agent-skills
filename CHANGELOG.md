@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.9.1 — 2026-05-25
+
+The UX audit now installs its own tooling and keeps the browser visible throughout.
+
+### Behaviour
+
+- **`/flagrare:ux-audit`**: installs `chrome-devtools-mcp` automatically if the tools are missing. No longer asks the user for permission or offers alternatives -- just installs, verifies, and continues.
+- **`/flagrare:ux-audit`**: opens a dedicated tab, brings the Chrome window to front on every navigation, and confirms with the user they can see it before proceeding. The user watches the audit happen in real time.
+
+### Documentation
+
+- **README**: ux-audit description updated to mention scope support and auto-install.
+- **Skill frontmatter**: description field updated to match.
+
 ## 1.9.0 — 2026-05-25
 
 `/flagrare:ux-audit` now accepts a scope. Say "UX audit the onboarding flow" and only those routes are walked; omit the scope and the full app is audited as before. The skill also stops pretending the browser requirement and `/goal` are optional -- both are now hard gates that prevent the executing model from shortcutting.
