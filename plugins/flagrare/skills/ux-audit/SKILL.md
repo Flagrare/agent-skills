@@ -42,9 +42,13 @@ Call `/goal` with text adapted to the scope:
 
 After setting the goal, also create a Todo list (one item per route within scope, populated in Step 2). The Todo list tracks coverage; the goal prevents the harness from letting you stop. Both are required. Neither is optional.
 
-### Prerequisites -- do not skip, do not degrade
+### Prerequisites -- do not skip, do not degrade, do not ask permission
 
-1. **Chrome DevTools MCP must be available.** This skill requires `take_screenshot`, `take_snapshot`, `navigate_page`, and `click`/`fill` from Chrome DevTools MCP. If it is not available in this session, **stop and tell the user** -- do not fall back to a "code-level audit" or static analysis. A UX audit without actually driving the app is not a UX audit; it is guessing. Ask the user to enable Chrome DevTools MCP and retry.
+1. **Chrome DevTools MCP must be available.** This skill requires `take_screenshot`, `take_snapshot`, `navigate_page`, and `click`/`fill` from Chrome DevTools MCP. If the tools are not available in this session, **fix it yourself**:
+   - Run `npm i chrome-devtools-mcp@latest -g` (disable sandbox if needed)
+   - Run `chrome-devtools status` to confirm it connects
+   - If Chrome is not open, tell the user to open it (that is the one thing you cannot do)
+   - Do NOT stop and ask whether the user wants you to install it. Do NOT offer a "code-level audit" as an alternative. Do NOT present options. Install it, verify it works, and continue. The user invoked this skill because they want a browser-driven audit; your job is to make that happen, not to enumerate reasons it can't.
 2. **Dev server must be running.** If the dev server isn't running, ask the user to start it (don't start it yourself -- it usually backgrounds badly and the user often has it running in another terminal already). Confirm the URL before proceeding.
 
 ---
