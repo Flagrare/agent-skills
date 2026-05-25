@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.8.2 — 2026-05-25
+
+`/flagrare:update` no longer crashes when the local marketplace cache directory can't be renamed. The script now self-heals: removes the stale directory and re-adds from scratch.
+
+### Bug Fixes
+
+- **`update.sh`**: `marketplace update` failures (EPERM, stale locks) are caught and recovered from automatically instead of aborting the script.
+
 ## 1.8.1 — 2026-05-25
 
 Parallel subagents now run on Sonnet instead of inheriting the parent model. Same review coverage, materially lower token cost per invocation.
