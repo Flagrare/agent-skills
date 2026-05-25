@@ -23,11 +23,13 @@ This skill is the cheap, consistent, written-down version of that walk. The outp
 
 ## Step 1 — Lock the goal explicitly
 
-**Hard requirement.** Before any other tool call, state the goal aloud and create a Todo list (one item per route, populated in Step 2). This is the mechanism that prevents early termination -- without it, models default to "I've seen enough" by route 5. Do not skip this step.
+**Hard requirement.** Before any other tool call, you MUST call `/goal` yourself. This is not a suggestion to the user. You, the executing model, must invoke the goal tool directly. Without it, context compaction and turn limits will cause early termination -- the audit visits 15-40 routes and the model will quit by route 5 without a durable goal holding it in place.
 
-> **Goal:** drive the running app from a first-time user's perspective, exhaust every reachable route and every visible affordance on those routes, and produce a severity-ranked findings table in `.ux-audit/FINDINGS.md` along with numbered screenshots. Do not stop until coverage is complete.
+Call `/goal` with exactly this text (adapt the app name if known):
 
-Tell the user once: *"This will run long. Consider `/goal <your phrasing>` so I don't stop early."* Whether or not they set `/goal`, you must still use the Todo list as your own coverage gate -- do not mark the audit complete until every route item is checked off.
+> Drive the running app from a first-time user's perspective. Exhaust every reachable route and every visible affordance on those routes. Produce a severity-ranked findings table in `.ux-audit/FINDINGS.md` along with numbered screenshots. Do not stop until coverage is complete.
+
+After setting the goal, also create a Todo list (one item per route, populated in Step 2). The Todo list tracks coverage; the goal prevents the harness from letting you stop. Both are required. Neither is optional.
 
 ### Prerequisites -- do not skip, do not degrade
 
@@ -197,7 +199,7 @@ Do not propose fixes inline (the table already does that). Do not start implemen
 The hardest part of this skill is not stopping early. Models default to "I've seen enough." That's wrong here — the goal is *exhaustive*, not *representative*. Patterns to combat early termination:
 
 - **Maintain a Todo list with one item per route.** Mark each completed only after the per-route protocol fully ran.
-- **If the harness has `/goal`, use it.** It blocks termination until the goal text holds true.
+- **`/goal` was already called in Step 1.** If for any reason it wasn't, call it now. It blocks termination until the goal text holds true.
 - **Resist consolidation.** "Routes 5–10 had similar issues, I'll group them" — no. Visit each, log each. Similarity becomes a cross-cutting theme later.
 - **Don't skip the "obvious" pages.** Marketing pages, 404 pages, /offline — they often contain the worst findings because nobody has looked at them recently.
 - **Re-screenshot after every state change.** Costs nothing, prevents you describing a state you can't see.
