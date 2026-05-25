@@ -49,7 +49,7 @@ If the platform is ambiguous, ask before proceeding.
 
 ## Step 2 — Read the ticket
 
-Spawn a **Ticket Reader** subagent with this brief:
+Spawn a **Ticket Reader** subagent with `model: "sonnet"` and this brief:
 
 > Read the full ticket [ID/URL] and return: title, description, acceptance criteria, labels/tags, priority, assignee, linked issues, attached files, and every URL mentioned in the body or comments.
 >
@@ -66,7 +66,7 @@ Wait for the subagent. If it returns an error (no MCP, no CLI, auth required), s
 
 ## Step 3 — Follow all references in parallel
 
-Parse the ticket output for every linked resource. Spawn one **Reference Reader** subagent per resource, all in parallel. Each subagent uses the best tool from the capability map built in Step 0:
+Parse the ticket output for every linked resource. Spawn one **Reference Reader** subagent per resource, all in parallel, using `model: "sonnet"`. Each subagent uses the best tool from the capability map built in Step 0:
 
 | Resource type | Preferred tool | Fallback |
 |---|---|---|
