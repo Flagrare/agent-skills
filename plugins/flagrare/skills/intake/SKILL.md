@@ -49,6 +49,14 @@ If the platform is ambiguous, ask before proceeding.
 
 ## Step 2 — Read the ticket
 
+**When to call directly vs. spawn a subagent:** If the platform MCP is available in your session (e.g. you can call `mcp__jira__getIssue` yourself), call it directly -- there is no benefit to adding a subagent layer for a single tool call you already have access to. The subagent path exists for two cases: (1) the ticket has a large comment history that would bloat your context, or (2) the MCP is unavailable and the agent needs to walk a fallback chain (CLI, then WebFetch). Use judgement: small ticket + MCP available = call directly; large ticket or no MCP = subagent.
+
+### Direct path (when MCP is available)
+
+Call the platform MCP tool directly. Extract: title, description, acceptance criteria, labels/tags, priority, assignee, linked issues, attached files, and every URL mentioned in the body or comments. Keep the raw structured output for Steps 3-4.
+
+### Subagent path (when MCP is unavailable or response would be very large)
+
 Spawn a **Ticket Reader** subagent with `model: "sonnet"` and this brief:
 
 > Read the full ticket [ID/URL] and return: title, description, acceptance criteria, labels/tags, priority, assignee, linked issues, attached files, and every URL mentioned in the body or comments.
@@ -138,7 +146,9 @@ Skip codebase grounding when any of these is true:
 
 ### Otherwise
 
-Invoke `/flagrare:codebase-explore` with the `## What` section as input plus a one-paragraph summary derived from the brief. Capture the returned findings — file paths with line numbers, existing utilities, prior branches/PRs, related patterns.
+Invoke `/flagrare:codebase-explore` with the `## What` section as input plus a one-paragraph summary derived from the brief. Capture the returned findings -- file paths with line numbers, existing utilities, prior branches/PRs, related patterns.
+
+**Hard requirement: use the skill, not a substitute.** Do not replace this with a generic Explore agent or manual grep commands. `/flagrare:codebase-explore` encodes a specific methodology (prior-branch check, convention mapping, utility inventory, dependency tracing) and produces output in the structure that `/flagrare:atdd-plan` expects downstream. A custom Explore prompt may cover similar ground but skips steps and produces findings in an unpredictable shape, which degrades plan quality.
 
 Populate the brief's `## Codebase Findings` section with the most planning-relevant items (≤8 bullets — full exploration output is fine for the consuming skill but the brief stays scannable).
 
