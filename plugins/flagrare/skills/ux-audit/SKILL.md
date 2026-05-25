@@ -1,6 +1,6 @@
 ---
 name: ux-audit
-description: "Goal-locked UX audit. Drives a real browser through every reachable route and every visible affordance, screenshots each state, and ships a severity-ranked findings table (High/Medium/Low) with location, why-it's-painful, and recommended fix. Pretends to be a first-time user — surfaces jargon, mystery glyphs, dead-ends, choice paralysis, color-only signals, jarring tone, broken empty states. Use when the user says 'UX audit', 'test all paths', 'click through everything', 'pretend to be a user', 'find painful flows', 'find UX issues', 'usability pass', 'walk through the app', or after a feature lands and before a release. Triggers even if 'audit' isn't in the request — any phrasing about exhaustively trying the app from a user's perspective qualifies."
+description: "Goal-locked UX audit. Drives a real browser through every reachable route (or a user-specified scope) and every visible affordance, screenshots each state, and ships a severity-ranked findings table (High/Medium/Low) with location, why-it's-painful, and recommended fix. Installs Chrome DevTools MCP automatically if missing. Pretends to be a first-time user — surfaces jargon, mystery glyphs, dead-ends, choice paralysis, color-only signals, jarring tone, broken empty states. Use when the user says 'UX audit', 'test all paths', 'click through everything', 'pretend to be a user', 'find painful flows', 'find UX issues', 'usability pass', 'walk through the app', or after a feature lands and before a release. Triggers even if 'audit' isn't in the request — any phrasing about exhaustively trying the app from a user's perspective qualifies."
 ---
 
 # UX Audit
@@ -239,7 +239,7 @@ This skill is intentionally rigid about *coverage* but flexible about *technique
 
 - **Viewport** — desktop apps audit at 1440×900; tablet at 834×1194. Confirm with the user once.
 - **Persona** — default is "first-time user." If the user asks for "power-user audit" or "returning-user audit," shift the lens — the findings change.
-- **Tooling** — Chrome DevTools MCP is required (see Step 1 prerequisites). If it is genuinely unavailable and cannot be enabled, Playwright MCP is an acceptable fallback (you lose console diagnostics and the accessibility tree but retain screenshots and navigation). If neither is available, **do not run the audit** -- tell the user what's missing and stop. Never fall back to a "code-level audit" or static analysis; that is a different activity entirely.
+- **Tooling** — Chrome DevTools MCP is required. Step 1 says to install it yourself if missing. Only if installation genuinely fails (npm not available, network down, permission denied after sandbox bypass) is Playwright MCP an acceptable fallback (you lose console diagnostics and the accessibility tree but retain screenshots and navigation). If neither works, **do not run the audit** -- tell the user what failed and stop. Never fall back to a "code-level audit" or static analysis; that is a different activity entirely.
 - **Auth** — if the app has no self-serve registration, ask for test creds. If credentials are sensitive, ask whether to test the auth-gated half at all.
 
 ---
