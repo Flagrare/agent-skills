@@ -43,9 +43,16 @@ for old in "${LEGACY_NAMES[@]}"; do
 done
 
 # 2. Refresh the marketplace cache; add it if missing.
+MARKETPLACE_DIR="$HOME/.claude/plugins/marketplaces/${CURRENT_NAME}"
+
 if claude plugin marketplace list 2>/dev/null \
     | grep -qE "^[[:space:]]*❯[[:space:]]+${CURRENT_NAME}\$"; then
-  claude plugin marketplace update "$CURRENT_NAME"
+  if ! claude plugin marketplace update "$CURRENT_NAME" 2>/dev/null; then
+    echo "Marketplace update failed — removing stale cache and re-adding."
+    rm -rf "$MARKETPLACE_DIR" "${MARKETPLACE_DIR}.bak"
+    claude plugin marketplace remove "$CURRENT_NAME" 2>/dev/null || true
+    claude plugin marketplace add "$REPO_SOURCE"
+  fi
 else
   claude plugin marketplace add "$REPO_SOURCE"
 fi
