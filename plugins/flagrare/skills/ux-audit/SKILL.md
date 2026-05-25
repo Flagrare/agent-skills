@@ -23,13 +23,16 @@ This skill is the cheap, consistent, written-down version of that walk. The outp
 
 ## Step 1 — Lock the goal explicitly
 
-Before any tool call, state the goal in one sentence and surface it back to the user. Recommend the user run `/goal` (or whatever durable-goal mechanism the harness provides) so the audit cannot exit early.
+**Hard requirement.** Before any other tool call, state the goal aloud and create a Todo list (one item per route, populated in Step 2). This is the mechanism that prevents early termination -- without it, models default to "I've seen enough" by route 5. Do not skip this step.
 
 > **Goal:** drive the running app from a first-time user's perspective, exhaust every reachable route and every visible affordance on those routes, and produce a severity-ranked findings table in `.ux-audit/FINDINGS.md` along with numbered screenshots. Do not stop until coverage is complete.
 
-If the harness offers `/goal` (Claude Code does), say so once: *"This will run long. Consider `/goal <your phrasing>` so I don't stop early."* If they don't want the goal mechanism, fine — proceed and self-discipline by tracking coverage in a Todo list.
+Tell the user once: *"This will run long. Consider `/goal <your phrasing>` so I don't stop early."* Whether or not they set `/goal`, you must still use the Todo list as your own coverage gate -- do not mark the audit complete until every route item is checked off.
 
-If the dev server isn't running, ask the user to start it (don't start it yourself — it usually backgrounds badly and the user often has it running in another terminal already). Confirm the URL.
+### Prerequisites -- do not skip, do not degrade
+
+1. **Chrome DevTools MCP must be available.** This skill requires `take_screenshot`, `take_snapshot`, `navigate_page`, and `click`/`fill` from Chrome DevTools MCP. If it is not available in this session, **stop and tell the user** -- do not fall back to a "code-level audit" or static analysis. A UX audit without actually driving the app is not a UX audit; it is guessing. Ask the user to enable Chrome DevTools MCP and retry.
+2. **Dev server must be running.** If the dev server isn't running, ask the user to start it (don't start it yourself -- it usually backgrounds badly and the user often has it running in another terminal already). Confirm the URL before proceeding.
 
 ---
 
@@ -207,7 +210,7 @@ This skill is intentionally rigid about *coverage* but flexible about *technique
 
 - **Viewport** — desktop apps audit at 1440×900; tablet at 834×1194. Confirm with the user once.
 - **Persona** — default is "first-time user." If the user asks for "power-user audit" or "returning-user audit," shift the lens — the findings change.
-- **Tooling** — if Chrome DevTools MCP isn't available, fall back to Playwright MCP (lose console diagnostics) or ask the user to drive manually and paste back. Do not pretend you walked the app when you didn't.
+- **Tooling** — Chrome DevTools MCP is required (see Step 1 prerequisites). If it is genuinely unavailable and cannot be enabled, Playwright MCP is an acceptable fallback (you lose console diagnostics and the accessibility tree but retain screenshots and navigation). If neither is available, **do not run the audit** -- tell the user what's missing and stop. Never fall back to a "code-level audit" or static analysis; that is a different activity entirely.
 - **Auth** — if the app has no self-serve registration, ask for test creds. If credentials are sensitive, ask whether to test the auth-gated half at all.
 
 ---
