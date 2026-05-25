@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.9.3 — 2026-05-25
+
+`/flagrare:ux-audit` is now fully autonomous. It launches Chrome with remote debugging, starts the dev server, and begins route enumeration in parallel -- never stops to ask the user for setup help.
+
+### Behaviour
+
+- **`/flagrare:ux-audit`**: launches Chrome with `--remote-debugging-port=9222` itself (kills existing Chrome first if needed). No longer asks the user to run commands in their terminal.
+- **`/flagrare:ux-audit`**: starts the dev server itself (`npm run dev` / `pnpm dev`) if not already running, instead of asking the user to do it.
+- **`/flagrare:ux-audit`**: begins route enumeration (Step 2) in parallel while waiting for MCP reconnection, so no time is wasted blocking.
+
 ## 1.9.2 — 2026-05-25
 
 `/flagrare:ux-audit` no longer stalls when Chrome DevTools MCP isn't immediately available. The prerequisite section now walks through a structured A/B/C troubleshooting checklist with exact commands, so the model resolves the issue itself instead of asking the user what to do.
