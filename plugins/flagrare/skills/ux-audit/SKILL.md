@@ -44,34 +44,34 @@ After setting the goal, also create a Todo list (one item per route within scope
 
 ### Prerequisites -- do not skip, do not degrade, do not ask permission
 
-1. **Chrome DevTools MCP must be available.** This skill requires `take_screenshot`, `take_snapshot`, `navigate_page`, and `click`/`fill` from Chrome DevTools MCP. If the tools are not available in this session, **fix it yourself**. Work through this checklist top-to-bottom until the tools appear:
+1. **Chrome DevTools MCP must be available.** This skill requires `take_screenshot`, `take_snapshot`, `navigate_page`, and `click`/`fill` from Chrome DevTools MCP. If the tools are not available in this session, **fix it yourself without blocking**. Be fully autonomous -- do not stop and wait for the user at any point in this checklist.
 
    **A. Is the chrome-devtools-mcp plugin installed?**
    - Check: look for `chrome-devtools-mcp:chrome-devtools` in the available skills list
    - If missing: install it. Try in order: `npm i -g chrome-devtools-mcp@latest` (disable sandbox) → `npm i -g chrome-devtools-mcp@latest --prefix ~/.local` (if EACCES) → `pnpm add -g chrome-devtools-mcp@latest`
-   - After install, tell the user to run `/reload-plugins` (you cannot reload plugins yourself)
 
-   **B. Is the MCP server connected? (most common failure)**
-   - The plugin registers an MCP server that connects to Chrome. If Chrome DevTools skills appear in the skills list BUT the MCP tools (`take_screenshot`, `navigate_page`, etc.) do NOT appear in your deferred tools list, the server is not connected to Chrome.
-   - Fix: tell the user to open Chrome with remote debugging. Give them this exact command to run in their terminal:
-     ```
-     /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --remote-debugging-port=9222
-     ```
-     On Linux: `google-chrome --remote-debugging-port=9222`
-   - After Chrome is open with debugging, invoke the `chrome-devtools-mcp:chrome-devtools-cli` skill if available, or run `chrome-devtools status` to verify connection.
-   - If the user already has Chrome open without the debugging flag, they need to quit Chrome fully and reopen with the flag. Say this clearly.
+   **B. Is Chrome running with remote debugging?**
+   - Launch Chrome yourself. Run this command (disable sandbox):
+     - macOS: `open -a "Google Chrome" --args --remote-debugging-port=9222`
+     - Linux: `google-chrome --remote-debugging-port=9222 &`
+   - If Chrome is already running without the flag, kill it first: `pkill -f "Google Chrome"` (macOS) or `pkill chrome` (Linux), wait 2 seconds, then launch with the flag.
+   - Do NOT ask the user to do this. Do it yourself. You CAN launch Chrome from a bash command.
 
-   **C. Still no tools after A and B?**
-   - The user may need to restart Claude Code entirely (not just `/reload-plugins`) for the MCP server to initialize its connection.
-   - Tell them: "Quit Claude Code, open Chrome with `--remote-debugging-port=9222`, then restart Claude Code."
+   **C. Are the MCP tools appearing?**
+   - After launching Chrome, invoke the `chrome-devtools-mcp:chrome-devtools-cli` skill if available, or run `chrome-devtools status` to verify connection.
+   - If tools still don't appear in your deferred tools list after Chrome is running, tell the user: "Run `/reload-plugins` -- Chrome is now running with debugging, but Claude Code needs to reconnect its MCP server." This is the ONE thing that may require user action.
+
+   **D. While waiting for reload (if needed), start Step 2.**
+   - Do NOT block. Begin enumerating routes from source (Step 2) in parallel. The route list doesn't require Chrome. By the time you finish enumeration, the tools should be available.
 
    **Rules:**
-   - Do NOT stop at the first failure. Work through A → B → C.
-   - Do NOT ask whether the user wants you to install or configure. Just do it / instruct it.
-   - Do NOT offer a "code-level audit" as an alternative. Do NOT present options.
-   - The user invoked this skill because they want a browser-driven audit; your job is to make that happen.
-   - Only if the user explicitly refuses to open Chrome or restart, stop the audit and explain why it cannot proceed.
-2. **Dev server must be running.** If the dev server isn't running, ask the user to start it (don't start it yourself -- it usually backgrounds badly and the user often has it running in another terminal already). Confirm the URL before proceeding.
+   - Be fully autonomous. Launch Chrome, install tools, configure -- do everything yourself.
+   - The ONLY user action that may be needed is `/reload-plugins` or restarting Claude Code if the MCP server won't connect after Chrome is running.
+   - Do NOT stop and describe what needs to happen. Just do it.
+   - Do NOT offer alternatives. Do NOT present options. Do NOT ask questions about setup.
+   - If after all of A-C the tools genuinely cannot appear (e.g., the user is on a headless server with no display), then and only then explain why it cannot proceed.
+
+2. **Dev server must be running.** Check if it's already running (`lsof -i :3000` or similar for common ports, or check the project's `package.json` scripts for the dev port). If not running, start it yourself in the background. If it requires specific env vars or setup you can't determine, ask the user for the start command -- but try `npm run dev` or `pnpm dev` first.
 
 ---
 
