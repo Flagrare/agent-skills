@@ -31,7 +31,7 @@ If no plan is findable, say so explicitly and skip Checks 1–2 in the subagent 
 
 ## Step 2 — Dispatch six subagents in parallel
 
-Spawn all six subagents simultaneously. Each subagent receives the relevant slice of inputs (described in each brief below) and returns findings in the format `Check N · [name] — ✓ clean | ⚠ [finding] | ✗ [blocking finding]`.
+Spawn all six subagents simultaneously using `model: "sonnet"`. Each subagent receives the relevant slice of inputs (described in each brief below) and returns findings in the format `Check N · [name] — ✓ clean | ⚠ [finding] | ✗ [blocking finding]`.
 
 Do not run checks sequentially in the main agent. Spawn → collect → synthesise.
 

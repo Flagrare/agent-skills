@@ -68,7 +68,7 @@ Note it in the review: "Could not fetch Jira ticket CORE-3211 (Atlassian MCP una
 
 ### Step 3: Systematic Code Review (parallel subagents)
 
-Spawn **five review subagents in parallel**. Each receives the full PR diff and returns findings.
+Spawn **five review subagents in parallel** using `model: "sonnet"`. Each receives the full PR diff and returns findings.
 
 Do not run these checks sequentially. Spawn all five simultaneously, collect results, then synthesise.
 

@@ -44,7 +44,7 @@ If the question is ambiguous, ask the user to clarify before spawning. A vague b
 
 ## Step 2 — Spawn five subagents in parallel
 
-In a **single message**, dispatch five subagent calls using the `Agent` tool (or `Task` tool / whatever the runtime exposes). All five receive the **same decision context** plus a persona-specific lens. They run concurrently and notify on completion.
+In a **single message**, dispatch five subagent calls using the `Agent` tool (or `Task` tool / whatever the runtime exposes) with `model: "sonnet"`. All five receive the **same decision context** plus a persona-specific lens. They run concurrently and notify on completion.
 
 Each persona's brief should follow this shape:
 
