@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.8.0 — 2026-05-24
+
+Two new skills land together: one audits the user's app like a first-time user would; the other interrogates a product decision through five expert lenses before you commit to it.
+
+### New
+
+- **`/flagrare:ux-audit`**: drives the running app through every reachable route and every visible affordance via Chrome DevTools MCP, screenshots each state, and ships a severity-ranked findings table at `.ux-audit/FINDINGS.md` with location, why-it's-painful, and a one-line recommended fix. Pretends to be a first-time user — surfaces jargon the team has stopped noticing, mystery glyphs in the nav, dead-end empty states, choice paralysis on dense screens, color-only status signals, tone mismatches between affirming and operational copy, mobile-first violations (Drawer-vs-Dialog, sub-44pt tap targets), and premature alarms fired against fresh entities. Goal-locked via the harness's durable-goal mechanism so it can't exit before coverage is complete. Auto-detects route layouts for SvelteKit, Next.js (App + Pages), Nuxt, Rails, and Django; falls back to asking when the framework isn't recognised. Output is one markdown file + numbered screenshots — drop straight into Slack / Notion / PR review.
+
+- **`/flagrare:five-lens-review`**: spawns five parallel persona subagents — Senior PM, Senior Product Engineer, Senior Product Designer, Senior Design Engineer, and a realistic end user — each examining the same product-direction question through their discipline's lens, then synthesises convergent themes, surfaces disagreements, and produces a single actionable recommendation. Use whenever a user-facing decision has multiple competing constraints (lifecycle behaviour, data-model trade-offs, destructive actions, UX choices that touch retention) and a single-perspective answer would silently lock in the wrong default. Especially valuable mid-implementation when an edge case the spec didn't cover surfaces — that's the exact moment one-perspective reasoning ships the wrong choice. (Skill shipped in 1.7.x but was never wired into README or `install.sh`; from this release it's actually reachable.)
+
+### Documentation
+
+- **README**: skill count `eighteen → twenty`. `/flagrare:ux-audit` added under Quality Gates; `/flagrare:five-lens-review` added under Quality Gates (catching up its 1.7.x debut).
+- **`install.sh`**: now echoes `/flagrare:ux-audit` and `/flagrare:five-lens-review` so the post-install summary tells users about every skill they actually got.
+
 ## 1.7.1 — 2026-05-23
 
 `/flagrare:atdd-plan` now closes with a button-prompt instead of a prose "want me to start?" question — same UX contract intake and work-prep already follow. The turn no longer ends ambiguously after the plan is presented. Also catches up `install.sh` and the README skill count to what shipped in 1.7.0.
