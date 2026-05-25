@@ -44,15 +44,33 @@ After setting the goal, also create a Todo list (one item per route within scope
 
 ### Prerequisites -- do not skip, do not degrade, do not ask permission
 
-1. **Chrome DevTools MCP must be available.** This skill requires `take_screenshot`, `take_snapshot`, `navigate_page`, and `click`/`fill` from Chrome DevTools MCP. If the tools are not available in this session, **fix it yourself**. Try each method in order until one works:
-   - `npm i -g chrome-devtools-mcp@latest` (disable sandbox if needed)
-   - If global install fails (EACCES, no sudo): `npm i -g chrome-devtools-mcp@latest --prefix ~/.local` then ensure `~/.local/bin` is in PATH
-   - If npm is not available: `pnpm add -g chrome-devtools-mcp@latest` or `yarn global add chrome-devtools-mcp@latest`
-   - After install, run `chrome-devtools status` (or `~/.local/bin/chrome-devtools status`) to confirm it connects
-   - If the MCP tools still don't appear as available tools after install, check if the chrome-devtools-mcp plugin's MCP server is registered. Look at the plugin's configuration and ensure the server is connected. You may need to tell the user to restart Claude Code or run `/reload-plugins`.
-   - If Chrome is not open, tell the user to open it (that is the one thing you cannot do)
-   - Do NOT stop at the first failure. Try every method above. Do NOT ask whether the user wants you to install it. Do NOT offer a "code-level audit" as an alternative. Do NOT present options. The user invoked this skill because they want a browser-driven audit; your job is to make that happen, not to enumerate reasons it can't.
-   - Only if ALL installation methods fail AND the user cannot resolve it, stop the audit and explain what failed. This should be extremely rare.
+1. **Chrome DevTools MCP must be available.** This skill requires `take_screenshot`, `take_snapshot`, `navigate_page`, and `click`/`fill` from Chrome DevTools MCP. If the tools are not available in this session, **fix it yourself**. Work through this checklist top-to-bottom until the tools appear:
+
+   **A. Is the chrome-devtools-mcp plugin installed?**
+   - Check: look for `chrome-devtools-mcp:chrome-devtools` in the available skills list
+   - If missing: install it. Try in order: `npm i -g chrome-devtools-mcp@latest` (disable sandbox) → `npm i -g chrome-devtools-mcp@latest --prefix ~/.local` (if EACCES) → `pnpm add -g chrome-devtools-mcp@latest`
+   - After install, tell the user to run `/reload-plugins` (you cannot reload plugins yourself)
+
+   **B. Is the MCP server connected? (most common failure)**
+   - The plugin registers an MCP server that connects to Chrome. If Chrome DevTools skills appear in the skills list BUT the MCP tools (`take_screenshot`, `navigate_page`, etc.) do NOT appear in your deferred tools list, the server is not connected to Chrome.
+   - Fix: tell the user to open Chrome with remote debugging. Give them this exact command to run in their terminal:
+     ```
+     /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --remote-debugging-port=9222
+     ```
+     On Linux: `google-chrome --remote-debugging-port=9222`
+   - After Chrome is open with debugging, invoke the `chrome-devtools-mcp:chrome-devtools-cli` skill if available, or run `chrome-devtools status` to verify connection.
+   - If the user already has Chrome open without the debugging flag, they need to quit Chrome fully and reopen with the flag. Say this clearly.
+
+   **C. Still no tools after A and B?**
+   - The user may need to restart Claude Code entirely (not just `/reload-plugins`) for the MCP server to initialize its connection.
+   - Tell them: "Quit Claude Code, open Chrome with `--remote-debugging-port=9222`, then restart Claude Code."
+
+   **Rules:**
+   - Do NOT stop at the first failure. Work through A → B → C.
+   - Do NOT ask whether the user wants you to install or configure. Just do it / instruct it.
+   - Do NOT offer a "code-level audit" as an alternative. Do NOT present options.
+   - The user invoked this skill because they want a browser-driven audit; your job is to make that happen.
+   - Only if the user explicitly refuses to open Chrome or restart, stop the audit and explain why it cannot proceed.
 2. **Dev server must be running.** If the dev server isn't running, ask the user to start it (don't start it yourself -- it usually backgrounds badly and the user often has it running in another terminal already). Confirm the URL before proceeding.
 
 ---
