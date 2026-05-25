@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.8.1 — 2026-05-25
+
+Parallel subagents now run on Sonnet instead of inheriting the parent model. Same review coverage, materially lower token cost per invocation.
+
+### Behaviour
+
+- **`/flagrare:implementation-review`**: six parallel check agents now spawn with `model: "sonnet"`.
+- **`/flagrare:pr-reviewer`**: five review subagents now spawn with `model: "sonnet"`.
+- **`/flagrare:five-lens-review`**: five persona subagents now spawn with `model: "sonnet"`.
+- **`/flagrare:intake`**: Ticket Reader and Reference Reader subagents now spawn with `model: "sonnet"`.
+- **`/flagrare:ticket-creator`**: parallel codebase-explore agents now spawn with `model: "sonnet"`.
+
 ## 1.8.0 — 2026-05-24
 
 Two new skills land together: one audits the user's app like a first-time user would; the other interrogates a product decision through five expert lenses before you commit to it.
