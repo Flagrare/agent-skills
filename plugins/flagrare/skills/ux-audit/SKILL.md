@@ -44,11 +44,15 @@ After setting the goal, also create a Todo list (one item per route within scope
 
 ### Prerequisites -- do not skip, do not degrade, do not ask permission
 
-1. **Chrome DevTools MCP must be available.** This skill requires `take_screenshot`, `take_snapshot`, `navigate_page`, and `click`/`fill` from Chrome DevTools MCP. If the tools are not available in this session, **fix it yourself**:
-   - Run `npm i chrome-devtools-mcp@latest -g` (disable sandbox if needed)
-   - Run `chrome-devtools status` to confirm it connects
+1. **Chrome DevTools MCP must be available.** This skill requires `take_screenshot`, `take_snapshot`, `navigate_page`, and `click`/`fill` from Chrome DevTools MCP. If the tools are not available in this session, **fix it yourself**. Try each method in order until one works:
+   - `npm i -g chrome-devtools-mcp@latest` (disable sandbox if needed)
+   - If global install fails (EACCES, no sudo): `npm i -g chrome-devtools-mcp@latest --prefix ~/.local` then ensure `~/.local/bin` is in PATH
+   - If npm is not available: `pnpm add -g chrome-devtools-mcp@latest` or `yarn global add chrome-devtools-mcp@latest`
+   - After install, run `chrome-devtools status` (or `~/.local/bin/chrome-devtools status`) to confirm it connects
+   - If the MCP tools still don't appear as available tools after install, check if the chrome-devtools-mcp plugin's MCP server is registered. Look at the plugin's configuration and ensure the server is connected. You may need to tell the user to restart Claude Code or run `/reload-plugins`.
    - If Chrome is not open, tell the user to open it (that is the one thing you cannot do)
-   - Do NOT stop and ask whether the user wants you to install it. Do NOT offer a "code-level audit" as an alternative. Do NOT present options. Install it, verify it works, and continue. The user invoked this skill because they want a browser-driven audit; your job is to make that happen, not to enumerate reasons it can't.
+   - Do NOT stop at the first failure. Try every method above. Do NOT ask whether the user wants you to install it. Do NOT offer a "code-level audit" as an alternative. Do NOT present options. The user invoked this skill because they want a browser-driven audit; your job is to make that happen, not to enumerate reasons it can't.
+   - Only if ALL installation methods fail AND the user cannot resolve it, stop the audit and explain what failed. This should be extremely rare.
 2. **Dev server must be running.** If the dev server isn't running, ask the user to start it (don't start it yourself -- it usually backgrounds badly and the user often has it running in another terminal already). Confirm the URL before proceeding.
 
 ---
