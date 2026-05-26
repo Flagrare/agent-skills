@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.10.0 — 2026-05-26
+
+A new skill, `/flagrare:daily-code-review`, reports on your team's open pull requests so you know what to look at before you open GitHub.
+
+### Behaviour
+
+- **`/flagrare:daily-code-review`**: queries GitHub for every open PR across a configured team roster, classifies each by staleness (>24h pod-wide, >12h yours-to-touch) and review state, and renders three sections — stale PRs needing action, items needing your attention (yours to review or yours to merge), and parked drafts. First run prompts for the GitHub org and team members; subsequent runs reuse the saved config under the skill directory. Triggers on phrases like "what should I review", "daily PR check", "show me stale PRs", or a saved pod name.
+
+### Documentation
+
+- **README**: new entry under the Review section; skill count bumped from twenty to twenty-one in the header, install line, and intro paragraph.
+
 ## 1.9.3 — 2026-05-25
 
 `/flagrare:ux-audit` is now fully autonomous. It launches Chrome with remote debugging, starts the dev server, and begins route enumeration in parallel -- never stops to ask the user for setup help.
