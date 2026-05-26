@@ -248,15 +248,28 @@ Action plan:
      SECURITY.md supported-versions, README status line, etc.).
   4. Run the project's verification gate (tests, lint, build).
   5. Commit with message matching the project's convention (e.g. "🔖 release: vX.Y.Z").
-  6. Tag the release commit explicitly (NOT main):
-       git tag vX.Y.Z <release-commit-sha>
+  6. Tag the release commit explicitly (NOT main), using an
+     **annotated** tag so `--follow-tags` will push it:
+       git tag -a vX.Y.Z -m "release vX.Y.Z" <release-commit-sha>
      The tag MUST point at the commit that bumped the version manifest.
      If you tag main and main has moved past the release commit, the
      publish workflow will check out the wrong tree and build wheels
      with the previous version — PyPI / crates.io will then reject
      them as duplicates. (See the "GitHub Release vs tag commit"
      section below for why this matters.)
+
+     Why annotated, not lightweight: `git push --follow-tags` only
+     pushes annotated tags (created with `-a` or `-s`). Lightweight
+     tags (`git tag vX.Y.Z <sha>` with no `-a`) are silently skipped
+     by `--follow-tags`, and you have to remember to push them
+     explicitly with `git push origin vX.Y.Z`. Annotated tags also
+     carry the tagger identity, date, and message — which is what
+     "this is a release" semantically means, and what `gh release`
+     and `git describe` expect.
   7. Push: git push origin <main-branch> --follow-tags
+     Verify the tag actually landed on the remote — `--follow-tags`
+     is a silent no-op for lightweight tags, so don't assume:
+       git ls-remote --tags origin | grep vX.Y.Z
   8. **Create a GitHub Release.** A tag without a release is invisible
      to users who watch the repo's Releases page, and workflows
      triggered by `on: release: [published]` won't fire.
@@ -358,10 +371,13 @@ For the CHANGELOG rewrite specifically:
 2. Replace that block with the value-focused rewrite.
 3. Run the project's verification gate.
 4. Stage and commit.
-5. Tag the release commit explicitly (`git tag vX.Y.Z <release-sha>`),
-   not whatever HEAD happens to be — see "GitHub Release vs tag commit"
-   in step 7.
-6. Push with `--follow-tags`.
+5. Tag the release commit explicitly with an annotated tag
+   (`git tag -a vX.Y.Z -m "release vX.Y.Z" <release-sha>`), not
+   whatever HEAD happens to be — see "GitHub Release vs tag commit"
+   in step 7. Use `-a` so `--follow-tags` will actually push it;
+   lightweight tags are silently skipped.
+6. Push with `--follow-tags`, then verify the tag landed:
+   `git ls-remote --tags origin | grep vX.Y.Z`.
 7. Create a GitHub Release (`gh release create vX.Y.Z --title "vX.Y.Z"
    --notes "<changelog entry>"`). A pushed tag without a release is
    invisible on the Releases page and won't trigger `on: release`
@@ -381,6 +397,7 @@ For the CHANGELOG rewrite specifically:
 - **Don't declare a release done at the tag push.** Tagging is necessary, not sufficient. Create the GitHub Release, verify the publish workflow ran green, AND confirm the artifact actually appears in the registry. A "tag pushed, must be live" assumption is how multi-release publish failures stack up unnoticed — the only signal that something's wrong is when a downstream consumer reports `pip install <name>` returns the version-before-last.
 - **Don't skip the GitHub Release.** A pushed tag without a corresponding GitHub Release is invisible on the repo's Releases page and won't trigger `on: release: [published]` workflows. Always create it via `gh release create`.
 - **Don't assume one manifest is the only version source.** On multi-build-system projects (maturin/PyO3, setuptools-rust, scikit-build, NAPI-RS, multi-module monorepos), each build tool reads its own manifest and stamps that version into its own artifact. The wheel filename comes from `pyproject.toml`'s `[project] version`, NOT from `Cargo.toml`. If you bump only one of them, the artifact name and the tag will disagree, the registry will reject the upload, and the workflow will fail with a confusing "file already exists" error against the previous version's filename. See step 6a for the full list of manifest pairs by project shape, and grep for `^version\s*=` across every manifest before tagging.
+- **Don't use lightweight tags for releases.** `git tag vX.Y.Z <sha>` (no `-a`) creates a lightweight tag — just a ref, no tagger metadata, no message. `git push --follow-tags` deliberately skips these, so the tag won't reach the remote in your release push and you have to remember to push it explicitly with `git push origin vX.Y.Z`. Use `git tag -a vX.Y.Z -m "release vX.Y.Z" <sha>` instead — annotated tags carry tagger identity, date, and message (which is what "this is a release" semantically means), get pushed by `--follow-tags`, and are what `gh release` and `git describe` expect.
 
 ## Cross-references
 
