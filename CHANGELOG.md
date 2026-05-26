@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.12.1 — 2026-05-26
+
+`/flagrare:atdd-plan` now produces an actual plan-mode plan instead of a wall of enumerated sections. The old form filled in eight forced subsections (SOLID audit, Clean Code checklist, gap-review-by-category, design-patterns table, implementation-phases table, refactor reminder, etc.) and ended without interaction; modern Claude filled every subsection exhaustively, producing 500+ word plans with no approve/edit/reject UX. The skill now delegates the plan's shape to Claude Code's native plan mode.
+
+### Behaviour
+
+- **`/flagrare:atdd-plan`**: enters plan mode via `EnterPlanMode` at skill start, runs `/flagrare:codebase-explore` to ground the plan in real files, posts a 3-5 sentence synthesis with an `AskUserQuestion` confirmation gate (one button click in the common case), produces a plan-mode plan, and closes with `ExitPlanMode` so the user gets the native approve/edit/reject button UI. Two inclusions are enforced on top of plan mode's default shape: 3-5 ATDD acceptance tests (behavior-first, public-API-only, Testing Trophy shape) and named design patterns with one-line rationale (or explicitly "none needed" when no non-trivial structural decisions exist).
+- **Removed from the output** so the model can't fall back into them: SOLID audit, Clean Code checklist, gap review enumerated by seven categories, Design Patterns table, Implementation Phases table, Refactor Pass Reminder. Specific risks anchored in what exploration found stay — listed inline in the prose, not as a separate forced section.
+
+### Documentation
+
+- **README**: `/flagrare:atdd-plan` entry rewritten to drop the no-longer-true "SOLID audit / gap review / structured plan" framing; replaced with the plan-mode + ATDD + named-patterns framing matching the new skill.
+
 ## 1.12.0 — 2026-05-26
 
 A new skill, `/flagrare:brag-doc`, generates a long-arc, impact-framed retrospective for any time window you pick. It's the journaling and self-review counterpart to `/flagrare:standup-report` — same data sources, inverted output: themed by impact instead of chronological, accomplishment-framed instead of conversational, durable instead of ephemeral.
