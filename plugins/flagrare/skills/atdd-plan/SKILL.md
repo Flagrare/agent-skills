@@ -1,74 +1,38 @@
 ---
 name: atdd-plan
-description: "Produce an ATDD-first implementation plan with named design patterns, SOLID audit, and gap review. Use whenever the user wants to plan a feature, fix, or refactor — 'how should we implement X', 'plan this', 'let's design X', 'where do we start on Y'. Tests follow Kent Dodds Testing Trophy: behavior over implementation, integration-heavy, public-API-only, refactor-proof. Never start writing implementation until the plan is agreed and the acceptance tests are defined."
+description: "Produce an ATDD-first implementation plan in Claude Code's native plan mode, with named design patterns called out where they earn their keep. The skill enters plan mode automatically (via the EnterPlanMode tool), runs /flagrare:codebase-explore to ground the plan in the actual codebase, then produces a plan-mode plan that MUST include both: (1) 3-5 acceptance tests in plain English defining 'done' before any implementation, written behavior-first against the public API only; and (2) any non-trivial structural decisions named as design patterns with a one-line rationale. Plan mode's native approve/edit/reject button UI is the close — ExitPlanMode is how the skill ends. Use whenever the user wants to plan a feature, fix, or refactor — 'how should we implement X', 'plan this', 'let's design X', 'where do we start on Y'. Tests follow Kent Dodds Testing Trophy: behavior over implementation, integration-heavy, public-API-only, refactor-proof. The skill stops at the plan; it does not write implementation code."
 ---
 
-# Plan
+# ATDD Plan
 
-Produce a structured ATDD-first implementation plan. Acceptance tests define "done" before a single line of implementation exists. Design patterns are named and justified. SOLID is audited. The gap review is never empty.
+This skill produces an implementation plan in **Claude Code's native plan mode**. It does not reinvent plan mode's output shape — Claude already knows how to write a plan-mode plan. The skill exists to enforce three things plan mode alone won't:
 
----
+1. **Plan mode is actually used** — `EnterPlanMode` at skill start, `ExitPlanMode` at skill end. The user gets the native approve/edit/reject button UI, not a wall of markdown.
+2. **The plan is grounded in the real codebase** — `/flagrare:codebase-explore` runs before any planning, so the plan references the actual files, conventions, and reusable pieces that exist.
+3. **The plan contains the two non-negotiables below.**
 
-## Step 1 — Explore the codebase via `/flagrare:codebase-explore`
-
-Before writing the plan, invoke `/flagrare:codebase-explore`. Pass it the context brief (from `/flagrare:intake`) or the user's description. It will:
-
-1. Check existing branches and PRs for prior attempts
-2. Explore relevant source files to understand conventions and reusable pieces
-3. Map dependencies, data flows, and integration points
-4. Inventory reusable utilities and shared components
-
-Wait for `/flagrare:codebase-explore` to complete. Use its findings to inform every subsequent step. Do NOT write acceptance tests or implementation phases until you have the exploration output.
-
-**Hard requirement: invoke the skill, not a substitute.** Do not replace this with a generic Explore agent, a `subagent_type: "Explore"` call, or manual grep/find commands. The skill encodes a specific methodology (prior-branch discovery, convention mapping, utility inventory, dependency tracing) and produces structured output that Steps 3-8 depend on. A custom agent prompt may cover similar ground but will skip steps (especially the prior-branch check) and produce findings in an unpredictable format. The skill exists precisely so the exploration is consistent regardless of which model or session runs it.
-
-**Note on work-prep flows:** when atdd-plan is invoked via `/flagrare:work-prep`, the incoming brief already carries a `## Codebase Findings` section that `/flagrare:intake` produced. You may treat that as additional input alongside (not a substitute for) your own exploration — intake's findings were scoped to inform clarifying questions, and the plan needs a thorough pass of its own.
+Everything else about the plan's form — length, section ordering, tone — follows plan mode's defaults. Don't impose extra structure on top.
 
 ---
 
-## Step 2 — Understand before planning
+## The two non-negotiables
 
-Before writing anything, answer:
-- What is the feature/fix/refactor in one sentence?
-- Who calls it and what do they observe when it works?
-- What are the hard failure modes?
+Every plan this skill produces **must include** both:
 
-If the feature is ambiguous, ask. Planning a misunderstood requirement is worse than not planning.
+### 1. Acceptance Tests (ATDD)
 
----
+3 to 5 acceptance tests, written in plain English, that define "done" before implementation begins. Each test must:
 
-## Step 3 — Acceptance Tests (written before implementation)
+- **Exercise the public API only** — no private methods, no internal state, no `_inner` fields. A test that breaks on a behavior-preserving rename is a broken test, not a broken refactor.
+- **Describe behavior, not method names** — `"returns an empty Scene when the story has ended"` not `"test_advance_flag"`.
+- **Use real collaborators where cheap; mock only at external/network/clock/process/OS boundaries.**
+- **Follow Kent Dodds' Testing Trophy** — integration-heavy is the default, because most regressions live between units, not inside them. Unit tests are reserved for pure functions with complex logic. E2E is for one or two critical paths, not one per scenario.
 
-Each AT must:
-- Exercise the **public API only** — no private methods, no internal state, no `_inner` fields
-- Describe behavior in English: `"returns an empty Scene when the story has ended"` not `"test_advance_flag"`
-- Use **real collaborators** where cheap; mock only at external/network/clock/process/OS boundaries
-- Be **refactor-proof**: a test that breaks on a behavior-preserving rename is a broken test, not a broken refactor
-- Be written **and run to observe the failure** before any implementation begins — a test that passes on first run is a smell
+Write 3-5 ATs. Too few leaves behavior undefined; too many creates a brittle harness.
 
-### Testing Trophy (this is the shape, not a guideline to ignore)
+### 2. Design Patterns (named, with rationale)
 
-```
-         /‾‾‾‾‾‾‾\
-        /  E2E (few) \
-       /‾‾‾‾‾‾‾‾‾‾‾‾‾\
-      / Integration    \   ← the bulk; most bugs hide between units
-     /‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\
-    /   Unit (targeted)  \
-   /‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\
-  /   Static (types/lint)  \  ← free, catches the most bugs per dollar
- /‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\
-```
-
-Integration tests are the bulk. Most regressions live between units, not inside them. Unit tests are reserved for pure functions with complex logic (quantization, scoring math, parsers). E2E tests are expensive — one or two per critical path, not one per scenario.
-
-Write 3–7 ATs per feature. Too few leaves behavior undefined. Too many creates a brittle harness.
-
----
-
-## Step 4 — Name the design patterns
-
-Don't ad-hoc the structure. For every significant architectural decision, name the pattern and explain why it fits this specific problem — not just what the pattern is.
+For every **non-trivial structural decision**, name the pattern and give a one-line rationale that explains why it fits *this* problem — not what the pattern is in the abstract.
 
 | Problem shape | Pattern to consider |
 |---|---|
@@ -81,127 +45,77 @@ Don't ad-hoc the structure. For every significant architectural decision, name t
 | One algorithm, pluggable steps | Template Method |
 | Encapsulate a request as an object | Command |
 | Wrap incompatible interfaces | Adapter |
-| One instance shared across the system | Singleton (use sparingly) |
 
-Forcing a pattern where it does not fit is worse than no pattern. Only name it when it genuinely solves the stated problem.
-
----
-
-## Step 5 — SOLID audit
-
-For each principle, one sentence on how the design honors it — or documents a conscious tradeoff:
-
-- **S** — Single Responsibility: each class/module has one reason to change
-- **O** — Open/Closed: extend behavior without modifying existing code
-- **L** — Liskov: every subtype is fully substitutable for its base type
-- **I** — Interface Segregation: no client forced to depend on an interface it doesn't use
-- **D** — Dependency Inversion: depend on abstractions, not concretions
-
-A documented tradeoff ("S is softened here because X justifies it") is acceptable. An unexamined violation is not.
+Only name a pattern when it genuinely solves the stated problem. Forcing a pattern where it doesn't fit is worse than no pattern. If a plan's structural decisions are all trivial (one obvious file change, no abstraction needed), say so explicitly — *"No design patterns needed; this is a single-function fix in `path/to/file`"* — rather than inventing one.
 
 ---
 
-## Step 6 — Clean Code checklist
+## Procedure
 
-Apply these before calling any phase complete:
+### Step 1 — Enter plan mode
 
-- No magic values — every meaningful literal is a named constant
-- Functions do one thing — if "and" is needed to describe it, split it
-- Names are self-documenting — no `data`, `info`, `manager`, `handler` without qualification
-- Comments explain *why*, never *what* — the code already says what; only write a comment for a non-obvious invariant, a workaround for a specific bug, or a hidden constraint
-- No half-finished implementations — every public surface is complete, or explicitly behind a flag
+Call `EnterPlanMode` immediately. Do not preface with a summary or ask for confirmation first — the user invoked a planning skill, plan mode is the right posture, just enter it. Plan mode restricts the session to read-only tools, which is exactly what planning needs.
 
----
+If `EnterPlanMode`'s schema isn't loaded, use `ToolSearch` with `select:EnterPlanMode,ExitPlanMode` to load both before proceeding.
 
-## Step 7 — Implementation phases
+### Step 2 — Explore the codebase
 
-Order phases so each one can be merged independently. Each phase must include:
+Invoke `/flagrare:codebase-explore`. Pass it the user's description (or the brief from `/flagrare:intake` if the skill was chained through `/flagrare:work-prep`).
 
-- What gets built
-- Which ATs gate this phase (must pass before moving on)
-- Which patterns are introduced or extended
+**Hard requirement: invoke the skill, not a substitute.** Do not replace it with a generic `Explore` agent or manual grep — the skill encodes a specific methodology (prior-branch discovery, convention mapping, utility inventory, dependency tracing) and produces structured findings the plan depends on.
 
-A phase that can't stand alone without a follow-up is too large.
+Wait for it to complete. Do not start writing the plan until you have its output.
 
----
+### Step 3 — Confirm scope (lightweight gate)
 
-## Step 8 — Gap review (never empty)
+Before writing the plan, post a 3-5 sentence synthesis of what you understood:
 
-Before declaring the plan done, work through:
+- One-sentence framing of the feature/fix/refactor
+- The 2-3 most relevant locations exploration surfaced (with `path/to/file.ts:42`-style references)
+- 1-2 explicit assumptions you're planning around
 
-- What happens on empty / nil / zero input?
-- What happens at the boundary (first item, last item, exactly one item)?
-- What is the error path for every success path?
-- Are there concurrent access concerns?
-- Is there a state machine? Are all transitions covered, including invalid ones?
-- What does a hostile or careless caller do to break this?
-- Are there any implicit ordering assumptions that need to be enforced?
+Then call `AskUserQuestion` with three options:
 
-An empty gap review means you did not look.
+- **Looks right, write the plan** (Recommended)
+- **I want to adjust direction first** — user describes the adjustment, you re-run Step 3
+- **Different direction entirely** — user provides new framing, you may need to re-run Step 2
 
----
+This gate is light by design — it's one button click when the synthesis is correct, which is the common case. Its purpose is to prevent committing to a wrong direction before producing a full plan, not to interrogate the user.
 
-## Output format
+### Step 4 — Write the plan
 
-Always produce the plan in this exact structure:
+Write a plan-mode plan. Follow Claude Code's normal plan-mode conventions for shape, length, and tone — narrative + targeted lists, scannable, no padding.
 
-```
-## [Feature / fix in one sentence]
+**Two requirements layered on top of plan mode's defaults:**
 
-## Acceptance Tests
-1. `describe("X") > it("Y")` — [what makes this pass]
-2. …
+1. Include the **Acceptance Tests** section described above (3-5 ATs).
+2. **Name the design patterns** for any non-trivial structural decisions, with one-line rationale each. Or explicitly state none are needed.
 
-## Design Patterns
-| Problem | Pattern | Rationale |
-|---|---|---|
+**Do NOT add**:
 
-## Implementation Phases
-### Phase 1 — [name]
-- Builds: …
-- Gates: AT #1, #2
-- Patterns introduced: …
+- A separate SOLID audit section
+- A separate Clean Code checklist
+- An enumerated Gap Review by category (empty/boundary/error/concurrent/state-machine/hostile/ordering)
+- A Design Patterns table separate from the prose
+- A Refactor Pass Reminder
+- An Implementation Phases section with builds/gates/patterns columns
 
-### Phase 2 — [name]
-…
+Those were artifacts of an older form that produced deliverable documents. Plan mode plans don't need them — they make the plan long without making it better. If something genuinely matters to the design (a real concurrency risk, a real boundary issue), call it out inline in the prose where it lives. A plan that surfaces 2-3 *specific* risks based on what exploration found is far more useful than one that enumerates every theoretical category.
 
-## SOLID Audit
-- S: …
-- O: …
-- L: …
-- I: …
-- D: …
+### Step 5 — Exit plan mode
 
-## Gap Review
-- …
+Call `ExitPlanMode` with the plan as the `plan` argument. This gives the user the native button-driven approve/edit/reject UI — which is what they invoked the skill to get.
 
-## Refactor Pass Reminder
-No phase is complete until naming, duplication, structure, and SOLID adherence have been reviewed.
-```
-
----
-
-## Step 9 — Hand off via `AskUserQuestion`
-
-After the plan is printed, do NOT end with a prose question like "Want me to start executing Phase 0, or hold for review?". Prose closes leave the turn ambiguous and frequently end with no answer captured.
-
-Instead, issue an `AskUserQuestion` tool call — same interaction shape as intake's next-step prompt, work-prep's Step 3, and plan-mode's accept tool. A button, not a typing prompt.
-
-Options:
-
-- **Start implementation** (Recommended): proceed to build Phase 1 (or Phase 0 if a prerequisite phase exists) against the plan.
-- **Adjust the plan**: collect specific changes from the user, re-run the relevant atdd-plan steps (typically Step 3 ATs, Step 7 phases, or Step 8 gaps), then re-present.
-- **Stop here**: return control with the plan kept in the transcript for later.
-
-This is the close regardless of how atdd-plan was invoked (directly, via `/flagrare:work-prep`, or chained from another skill). When invoked via work-prep, work-prep's Step 3 prompt is the same call shape — do not double-prompt; one AskUserQuestion at the hand-off boundary is enough.
+Do not follow `ExitPlanMode` with a prose question or summary. The button UI is the close.
 
 ---
 
 ## Anti-patterns — refuse these
 
-- ATs that assert on internal state (`_inner`, mock call counts on types you own, private fields)
-- Phase ordering that puts implementation before acceptance tests
-- Pattern names with no rationale ("we'll use a Strategy" with no explanation of what it replaces or why)
-- An empty gap review
-- Coverage targets stated as a goal — coverage is a side effect of testing the right behaviors
-- **Closing with a prose question.** Step 9 uses `AskUserQuestion`. A button, not a typing prompt.
+- **Acceptance tests that assert on internal state** (`_inner`, mock call counts on types you own, private fields). Refactor-proof or it's not an AT.
+- **Pattern names with no rationale** — "we'll use a Strategy" with no explanation of what it replaces or why this problem needs one.
+- **A SOLID / Clean Code / Gap Review / Phases section** in the plan output. Those were the old form; plan mode does not need them.
+- **Skipping `EnterPlanMode`** and producing a markdown plan in the regular conversation. The user wants the native plan-mode UX; that means the actual tool, not an approximation.
+- **Skipping `/flagrare:codebase-explore`.** The plan must be grounded in the real codebase; references to actual `path/to/file.ts:42` locations are what separate this from a generic chatbot plan.
+- **Coverage targets as a goal.** Coverage is a side effect of testing the right behaviors, not something the plan aims at.
+- **Closing with a prose question after `ExitPlanMode`.** The button UI is the close. Don't double-prompt.
