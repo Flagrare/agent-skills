@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.11.0 — 2026-05-26
+
+A new skill, `/flagrare:standup-report`, writes your daily standup the way a Staff Engineer would deliver it — impact first, root cause named, judgment calls owned. No more verb-first task lists pretending to be a recap.
+
+### Behaviour
+
+- **`/flagrare:standup-report`**: pulls your authored PRs, reviews given, comments addressed, merges, deploys, and linked tickets across GitHub, local git (configured repo roots), the project's release automation, and any tracker MCP (Linear, Jira, Notion, Asana, Shortcut, Trello). On first install, also asks which additional MCPs to feed narrative context (Slack DMs, calendar). Names work in human terms — *fixed the image cache eviction*, not *merged PR #481* — and resolves "yesterday" as your last working day, so Monday standups cover Friday. Output is a 2-3 sentence impact paragraph, a journal-style recap grouped by thread (not by source), a slack-pasteable bullet list, and a refs footnote with the actual identifiers.
+- **Synthesis voice**: the skill includes an explicit before/after example showing the junior-recap-as-todo-list vs the staff-recap-as-system-status framings. Bullets carry impact even when compressed ("Pushed back on Carol's cache-benchmark methodology — workload doesn't match prod"), not the naked "Approved X" / "Reviewed Y" cadence.
+
+### Documentation
+
+- **README**: new entry under the Review section; skill count bumped from twenty-one to twenty-two in the header, install line, and intro paragraph.
+
 ## 1.10.0 — 2026-05-26
 
 A new skill, `/flagrare:daily-code-review`, reports on your team's open pull requests so you know what to look at before you open GitHub.
