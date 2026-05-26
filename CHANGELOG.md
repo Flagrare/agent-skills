@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.12.0 — 2026-05-26
+
+A new skill, `/flagrare:brag-doc`, generates a long-arc, impact-framed retrospective for any time window you pick. It's the journaling and self-review counterpart to `/flagrare:standup-report` — same data sources, inverted output: themed by impact instead of chronological, accomplishment-framed instead of conversational, durable instead of ephemeral.
+
+### Behaviour
+
+- **`/flagrare:brag-doc`**: asks for a window (today, this week, last week, last 2 weeks, this month, last month, or any free-form range like "since 2026-05-01"), collects authored PRs, reviews given, comments, commits, deploys, and linked tickets across GitHub, local git, release automation, and tracker/extra MCPs. Clusters the activity into 3-6 impact themes (not per-PR bullets) and renders a brag-doc-formatted markdown document — headline, themed shipped work leading with outcomes, IC contributions separated from amplification, learnings, open threads, refs. The synthesis enforces a Staff-Engineer voice (lead with what got better and by how much; quantify; own in first-person active voice; name judgment, not just shipping) with a before/after example showing the same five events as bland enumeration vs brag-doc voice.
+- **`/flagrare:brag-doc resumancer`**: same synthesis pipeline, different render. Emits a bash code block of ready-to-paste `resumancer` CLI commands (`resumancer impact "..." --branch ... --commit ... --public`), one per theme/unblock/reflection, with command type mapped from theme shape (quantified outcomes → `impact`, shipped capability → `build`, learning → `reflection`, open thread → `goal`).
+
+### Documentation
+
+- **README**: new entry under the Review section; skill count bumped from twenty-two to twenty-three in the header, install line, and intro paragraph.
+
 ## 1.11.1 — 2026-05-26
 
 `/flagrare:release-check` now insists on annotated tags so `git push --follow-tags` actually pushes them. Lightweight tags (the default for `git tag <name> <sha>` with no `-a`) are silently skipped by `--follow-tags`, which means the tag sits on your machine while the rest of the release looks green. v1.10.0 of this plugin hit exactly that — the lesson now lives in the skill.
