@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.11.1 — 2026-05-26
+
+`/flagrare:release-check` now insists on annotated tags so `git push --follow-tags` actually pushes them. Lightweight tags (the default for `git tag <name> <sha>` with no `-a`) are silently skipped by `--follow-tags`, which means the tag sits on your machine while the rest of the release looks green. v1.10.0 of this plugin hit exactly that — the lesson now lives in the skill.
+
+### Behaviour
+
+- **`/flagrare:release-check`**: action plan now prescribes `git tag -a vX.Y.Z -m "release vX.Y.Z" <sha>` instead of the lightweight form, and adds `git ls-remote --tags origin | grep vX.Y.Z` as a post-push verification so a silent-skip can't slip past. The anti-patterns list gains an entry explaining why lightweight tags are the trap, so the lesson is searchable from the failure-mode angle too.
+
 ## 1.11.0 — 2026-05-26
 
 A new skill, `/flagrare:standup-report`, writes your daily standup the way a Staff Engineer would deliver it — impact first, root cause named, judgment calls owned. No more verb-first task lists pretending to be a recap.
