@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.12.2 — 2026-05-26
+
+`/flagrare:standup-report` no longer guesses what day of the week it is.
+
+### Bug Fixes
+
+- **`/flagrare:standup-report` time window**: the skill now runs `date '+%A %Y-%m-%d %H:%M'` explicitly instead of inferring the weekday from the date string. Previously, a wrong inference meant the entire report covered the wrong day's activity.
+- **Same-day work captured**: the window now extends through the current time (not midnight of the previous day), so commits and PRs landed earlier today appear in the standup.
+
 ## 1.12.1 — 2026-05-26
 
 `/flagrare:atdd-plan` now produces an actual plan-mode plan instead of a wall of enumerated sections. The old form filled in eight forced subsections (SOLID audit, Clean Code checklist, gap-review-by-category, design-patterns table, implementation-phases table, refactor reminder, etc.) and ended without interaction; modern Claude filled every subsection exhaustively, producing 500+ word plans with no approve/edit/reject UX. The skill now delegates the plan's shape to Claude Code's native plan mode.
