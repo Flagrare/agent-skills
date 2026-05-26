@@ -34,7 +34,7 @@ After this one-time bootstrap, `/flagrare:update` works for all future versions 
 
 `/flagrare:intake` reads a ticket (via Jira MCP, Linear, GitHub CLI, or a pasted URL), dispatches parallel subagents to follow every linked doc and PR, and assembles a context brief. Before asking clarifying questions, it grounds the brief in the actual code via `/flagrare:codebase-explore` — so questions reference specific files (`src/x.ts:84`) instead of abstract architecture. Hands off to `/flagrare:atdd-plan`.
 
-`/flagrare:atdd-plan` produces an implementation plan rooted in acceptance tests. It invokes `/flagrare:codebase-explore` for codebase understanding, names design patterns, runs a SOLID audit, identifies gaps, and outputs a structured plan.
+`/flagrare:atdd-plan` produces an implementation plan in Claude Code's native plan mode. It enters plan mode via `EnterPlanMode`, runs `/flagrare:codebase-explore` to ground the plan in real files, and produces a plan-mode plan that must include 3-5 behavior-first acceptance tests defining "done" before implementation and any non-trivial structural decisions named as design patterns with a one-line rationale. `ExitPlanMode` closes with the native approve/edit/reject button UI. The skill stops at the plan; it does not write implementation code.
 
 `/flagrare:work-prep` orchestrates the full ticket-to-plan workflow. It calls `/flagrare:intake` first (which now grounds the brief in code before asking codebase-aware clarifying questions), then `/flagrare:atdd-plan` (which runs its own thorough exploration pass and produces an ATDD-first plan). One command from ticket to plan.
 
