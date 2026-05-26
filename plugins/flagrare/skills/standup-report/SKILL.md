@@ -49,19 +49,29 @@ If `config.json` exists, use it. If the user says "reconfigure" or "edit setup",
 
 ## Resolve the time window
 
-"Yesterday" at standup means **last working day**, not literal yesterday.
+**First, determine today's date and current time by running:**
+
+```bash
+date '+%A %Y-%m-%d %H:%M'
+```
+
+Do NOT guess the day of the week from context or the current date string. LLMs are unreliable at day-of-week calculations. Always run the command above and use its output.
+
+"Yesterday" at standup means **last working day**, not literal yesterday. Apply this logic to the output of the `date` command:
 
 ```
-today = Mon → yesterday window = Friday (00:00 → 23:59 local time)
-today = Tue–Fri → yesterday window = previous calendar day
-today = Sat/Sun → yesterday window = most recent Friday (you're probably catching up)
+today = Mon → window starts Friday 00:00
+today = Tue–Fri → window starts previous calendar day 00:00
+today = Sat/Sun → window starts most recent Friday 00:00
 ```
+
+The window always **ends at the current time** (now), not at midnight of the previous day. Work done earlier today (before the skill is invoked) is part of the standup. For example, if it's Tuesday 9:30am, the window is Monday 00:00 through Tuesday 09:30.
 
 If the user specifies a window in the prompt ("since Friday", "last 3 days", "this week"), honor it. Otherwise apply the rule above. State the resolved window in the report header so the reader knows what's covered.
 
 ## Data collection
 
-Run the following queries **in parallel** — they're independent and slow if serialized. Use ISO 8601 dates (`YYYY-MM-DD`) for the window boundaries.
+Run the following queries **in parallel** — they're independent and slow if serialized. Use ISO 8601 dates (`YYYY-MM-DD`) for the window boundaries. `{FROM}` is the start of the window (last working day). `{TO}` is **today's date** (so that any work done between midnight and now is captured).
 
 ### 1. GitHub: your authored PR activity
 
