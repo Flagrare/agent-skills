@@ -1,8 +1,8 @@
 # agent-skills
 
-Twenty-one skills that wrap around your development cycle in Claude Code. They turn tickets into ATDD plans, smoke-test features against a running app or service, guard commits against doc drift, run six-axis code review, draft changelogs that read like patch notes, and review PRs with full context from your tracker and design tools.
+Twenty-two skills that wrap around your development cycle in Claude Code. They turn tickets into ATDD plans, smoke-test features against a running app or service, guard commits against doc drift, run six-axis code review, draft changelogs that read like patch notes, and review PRs with full context from your tracker and design tools.
 
-All skills are namespaced under `flagrare:*` to avoid collisions with other plugins. Installing this marketplace adds `/flagrare:intake`, `/flagrare:work-prep`, `/flagrare:smoke-test`, `/flagrare:wrap-up`, `/flagrare:pr-reviewer`, and sixteen more to every Claude Code session.
+All skills are namespaced under `flagrare:*` to avoid collisions with other plugins. Installing this marketplace adds `/flagrare:intake`, `/flagrare:work-prep`, `/flagrare:smoke-test`, `/flagrare:wrap-up`, `/flagrare:pr-reviewer`, and seventeen more to every Claude Code session.
 
 ## Install
 
@@ -10,7 +10,7 @@ All skills are namespaced under `flagrare:*` to avoid collisions with other plug
 bash <(curl -sL https://raw.githubusercontent.com/Flagrare/agent-skills/main/install.sh)
 ```
 
-One command. It registers the marketplace, installs the `flagrare` plugin, and makes all twenty-one skills available. Restart Claude Code or run `/reload-plugins` afterward.
+One command. It registers the marketplace, installs the `flagrare` plugin, and makes all twenty-two skills available. Restart Claude Code or run `/reload-plugins` afterward.
 
 If you prefer to clone first:
 
@@ -67,6 +67,8 @@ After this one-time bootstrap, `/flagrare:update` works for all future versions 
 `/flagrare:open-pr` creates a pull request that follows the repo's PR template. It reads `.github/PULL_REQUEST_TEMPLATE.md`, fetches linked tickets for context (tracker-agnostic), and fills each section with narrative prose (not file enumerations). Descriptions explain what changed from both a product and code perspective, link relevant tickets, and include specific testing notes.
 
 `/flagrare:daily-code-review` reports on your team's open PRs. It queries GitHub for every open PR across a configured roster, classifies each by staleness (>24h pod-wide, >12h yours-to-touch) and review state, and renders three sections: stale PRs needing action, PRs needing your attention (yours to review or yours to merge), and parked drafts. First run prompts for the GitHub org and team members, then saves the config under the skill for future runs.
+
+`/flagrare:standup-report` writes your daily standup as a Staff Engineer would deliver it — impact-driven, root-cause-aware, and honest about judgment calls. It pulls from GitHub (your PRs, reviews left, comments addressed, merges, deploys), local git across configured repo roots, the project's release automation, and any tracker MCP you've configured (Linear, Jira, Notion, etc.). The output is a short narrative paragraph plus a journal-style recap plus a slack-pasteable bullet list. Names work in human terms — "fixed the image cache eviction" not "PR #481" — and resolves "yesterday" as your last working day, so Monday standups cover Friday. On first install, prompts for additional MCPs (Slack, calendar) that can feed narrative context.
 
 ### Implementation support
 
