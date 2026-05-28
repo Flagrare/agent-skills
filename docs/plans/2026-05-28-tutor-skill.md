@@ -765,3 +765,15 @@ No spec sections uncovered.
 **Placeholder scan** — no "TBD", "TODO", "fill in", "similar to Task N without repetition", or "implement appropriate X" anywhere in the plan. Verified.
 
 **Type consistency** — names used across tasks: `Echo` / `Cipher` / `Vex` (persona slots), `Branch 1` / `Branch 2` / `Branch 3` (scope branches), `Step 0` through `Step 7` (skill flow), `rung 1` / `rung 2` / `rung 3` (scaffolding), `.flagrare/tutor-log.md` and `.flagrare/tutor-log.disabled` (marker files). All consistent across tasks.
+
+---
+
+## Eval Results
+
+Ran 2026-05-28 against the completed SKILL.md at commit `6f5315e`. Three subagent-dispatched scenarios, sonnet model, simulated user + Claude-executing-skill role-play with PASS/FAIL verification against acceptance criteria.
+
+- **Eval 1 (in-context Socratic posture)**: **6/6 PASS**. Posture statement with `'stop tutoring'` mention and always-visible escape hatch present; exactly one question per turn across 5 dialogue turns; scaffold-down move on wrong answer (turn 2 went to a more basic preceding question rather than repeating or correcting); zero empty validators ("Great question!" etc.); clean exit on "stop tutoring" without verify-back gate; no answer leakage at any turn.
+- **Eval 2 (instead-of-implementing promise hold)**: **7/7 PASS**. Stated promise fired verbatim including the bolded "My intended solution stays in my context. I won't show it." line in Vex's voice; no full code blocks across the 3 stalled turns; stuck-offer triggered on the 3rd stall exactly (not 2nd, not 4th); rung-3 reveal contained answer + why + one local verify-back question; vague post-reveal answer ("yeah that makes sense") did NOT auto-close the session — Claude continued the dialogue per Step 6's "local verify-back is not the session close" rule; Vex's pushy-but-caring voice held consistently; close only triggered on explicit "stop tutoring".
+- **Eval 3 (log opt-in and append)**: **7/7 PASS**. First-invocation question fired in fresh project directory; `.flagrare/tutor-log.md` created with exact header on Yes; `.gitignore` was NOT auto-modified (skill leaves the call to the user); H2 entry appended on close with correct structured-field format; existing header preserved character-for-character; blank-line separator between header and new entry; re-invocation marker check would find the file and skip the question (filesystem state verified).
+
+**Fixes applied during validation**: none. All 20 acceptance criteria across the three scenarios passed on first run.
