@@ -1,6 +1,6 @@
 ---
 name: standup-report
-description: Generate a narrative standup report covering everything code-related you shipped, reviewed, or addressed during your last working day — PRs merged, reviews left and answered, comments addressed, deploys that fired, tickets closed. Pulls from GitHub, local git across all your repos, release automation, and any installed tracker/Slack MCPs. The output is a short narrative paragraph plus a journal-style recap plus a slack-pasteable bullet list, written in human terms (the *thing* you fixed, not "PR #481"). Use whenever the user says "standup", "standup report", "what did I do yesterday", "yesterday recap", "daily recap", "what did I ship", "morning standup", "give me my standup", "summarize yesterday's work", or any variation. Also trigger right before a known standup time when the user opens a session.
+description: Generate a two-part standup report: Yesterday (everything code-related you shipped, reviewed, or addressed since your last working day — PRs merged, reviews left and answered, comments addressed, deploys that fired, tickets closed) and Today (carry-over threads plus priority-ordered queue items, framed as "likely working today"). Pulls from GitHub, local git, release automation, and any installed tracker/Slack MCPs. Output is a narrative paragraph, a journal-style recap, a Today section, and a slack-pasteable bullet list — written in human terms (the *thing* you fixed, not "PR #481"). Use whenever the user says "standup", "standup report", "what did I do yesterday", "yesterday recap", "daily recap", "what did I ship", "morning standup", "give me my standup", "summarize yesterday's work", or any variation. Also trigger right before a known standup time when the user opens a session.
 ---
 
 # Standup Report
@@ -159,6 +159,34 @@ For each opted-in extra MCP (from setup), pull anything from the time window tha
 
 Treat MCP results as *narrative seasoning*, not primary data. If an MCP errors out or returns nothing, skip silently — the standup still works without it.
 
+### 8. Today's queue
+
+Run these queries in parallel with steps 1–7. Their output feeds the **Today** section only — they do not affect the Yesterday narrative.
+
+#### Carry-over threads (derived from steps 1–4, no new queries needed)
+
+After collecting yesterday's data, flag any of these as carry-over candidates:
+
+- Authored PRs still `open` and not merged — especially those with `changes_requested` reviews or no approvals yet
+- Authored PRs still in `draft` state
+- Local branches with commits not yet in any PR (from step 4 — commits with no matching SHA in the GitHub results)
+
+Order carry-overs by recency of last push (most recently active first). These are the highest-signal "likely working today" items because work was already in motion.
+
+#### Assigned ticket queue (tracker MCP, if configured)
+
+Fetch tickets assigned to the user in a not-yet-started state:
+
+- **Linear**: `assignee: me` with state type in `[triage, backlog, unstarted]`, ordered by `priority ASC`
+- **Jira**: `assignee = currentUser() AND status in ("To Do", "Open", "Backlog") ORDER BY priority ASC`
+- **Notion**: query the tasks database for rows where Assignee = user, Status not in Done/Cancelled, sorted by Priority property
+
+Normalize priority to a consistent scale for ranking: **Urgent → High → Medium → Low → No priority** (no-priority sorts last). Limit to 10 results; note "and N more" if the queue is longer.
+
+Cross-reference against carry-overs: if an open PR or local branch references a ticket that also appears in the queue, treat them as the same item — list it once, under the carry-over heading, with the ticket title as the label.
+
+If the tracker MCP is unavailable or returns nothing, omit the queue silently. Carry-overs from GitHub/local git are always shown.
+
 ## Naming work in human terms
 
 For every PR, commit cluster, or ticket, derive a **human phrase** that names the work. Priority order:
@@ -233,6 +261,24 @@ Use connective tissue that conveys rhythm without literal timestamps: *most of t
 
 Avoid the word "PR" in prose if you can substitute the work-name. "Shipped the image cache fix" beats "Merged the image-cache PR". Avoid "addressed feedback" without saying what the feedback *was* — "addressed the back-pressure concerns from Tuesday" tells the reader something; "addressed feedback" doesn't.
 
+### Synthesizing Today
+
+The Today section is the forward-looking half of the standup. Its job is to answer *"where are you putting your energy today?"* without overpromising.
+
+**These are inferences, not commitments.** Frame everything as "likely working today" — the report is a prediction based on what's in motion, not a schedule the user will be held to. The reader should walk away with a reasonable picture of where the day is headed, not a list they expect to be checked off.
+
+**Ordering logic — carry-overs before queue items:**
+
+1. **Active carry-overs first** — threads already in motion (open PRs awaiting review, PRs with changes-requested, draft PRs close to ready, local branches not yet PR'd). These have the highest prior probability of being worked today. Order by how close they are to done: a PR with one approval short of merge ranks higher than a draft with no reviews yet.
+2. **Priority queue items second** — assigned tickets in To Do / Backlog / Unstarted state, ordered by tracker priority (Urgent → High → Medium → Low → No priority). If the tracker has no priority field, order by creation date descending.
+3. **Omit** tickets that have a matching carry-over — don't list the same work twice. The carry-over entry wins because it's more specific.
+
+**Cap at 5 items total.** If there are more, pick the 5 with the strongest signal (active carry-overs first, then highest-priority queue items) and note "queue has N more" in the Refs footnote.
+
+**When a carry-over is close to done, say so.** "One review away from merge" or "waiting on CI" is more useful than just the work name.
+
+**When the queue is empty and no carry-overs exist**, omit the Today section entirely rather than speculating. An honest "nothing lined up" is better than invented filler.
+
 ## Report format
 
 ```markdown
@@ -261,6 +307,25 @@ the morning..."), or the surprise ("One thing that took longer than
 expected..."). Pure verb-first openers across every paragraph is the
 junior tell.}
 
+## Today
+
+{Inferences about where the day is headed — not a schedule, not a
+commitment. Based on carry-overs and the tracker queue. Frame each
+item as "likely working on" or similar hedged language.
+
+Carry-overs (still-open threads from yesterday) appear first, ordered
+by proximity to done. Then priority-ordered ticket queue items, up to
+5 total. Omit this section entirely if no carry-overs exist and the
+tracker has no assigned items.}
+
+**Carry-overs:**
+- {work name} — {status, e.g. "one approval short of merge", "waiting on CI", "changes requested"}
+- …
+
+**Up next (from queue):**
+- {ticket title} — {priority, e.g. "high priority"}
+- …
+
 ## For the channel
 
 {One opening line — the **big picture** of the day in plain English.
@@ -272,6 +337,7 @@ someone who wasn't there. Examples:
   "All reviews day — three PRs, design review for the new API surface."
 If the day had no clear theme, lead with the most impactful item.}
 
+**Yesterday:**
 {Tight bullet list, 4-8 lines, slack-pasteable. Each bullet still
 carries impact framing — what changed, what's unblocked, what's
 flagged. Naked "Reviewed X" / "Approved Y" bullets are a regression
@@ -292,23 +358,36 @@ name what was *found* and *fixed*, not the method used.}
 - Unblocked Daniel on auth refactor (approved after working through the rollback path inline)
 - Pushed back on Carol's cache-benchmark methodology — workload doesn't match prod
 - Queue refactor back in review after addressing the back-pressure concerns
-- Spiked queue-sharding, parked it — bottleneck is upstream, refocusing today
+
+**Today:**
+{1-3 lines max. Lead with the highest-priority carry-over or queue
+item. Don't list more than 3 — the team only needs to know where
+you're pointing, not the full queue. Hedged: "likely", "plan to",
+"continuing", "starting on". If nothing is lined up, omit this block.}
+
+- Continuing queue refactor — one approval away from merge
+- Starting on auth token expiry edge case (high priority)
 
 ## Refs
 
 {Compact footnote with the actual identifiers, for anyone who wants to
-chase a link. One line per work item.}
+chase a link. One line per work item. Include today's queue items
+at the end with their ticket IDs.}
 
 - image cache eviction — PR acme-corp/api#481, ENG-142, deployed
 - auth refactor (Daniel) — PR acme-corp/api#478 (reviewed)
 - LRU cache benchmarks — PR acme-corp/api#479 (reviewed, changes requested)
+- queue refactor — PR acme-corp/api#483 (carry-over, awaiting review)
+- auth token expiry edge case — ENG-145 (High, in queue)
 ```
 
 ### Length rule of thumb
 
 - **Yesterday paragraph**: 2-3 sentences, never more than 4. If the day was busy, summarize at a higher level rather than running long.
 - **Recap section**: aim for 3 paragraphs. If you have only one beat for the day, the recap collapses into one paragraph and that's fine.
-- **For the channel**: 4-8 bullets. If you have more than 8 items, you're probably listing commits as separate items when they belong grouped under one PR/thread.
+- **Today section**: 2-5 items total across carry-overs and queue. If both are empty, omit the section.
+- **For the channel — Yesterday bullets**: 4-8 lines. More than 8 means commits are listed individually when they should be grouped under one thread.
+- **For the channel — Today bullets**: 1-3 lines. The team needs the headline, not the full queue.
 
 ### When there's nothing to report
 
@@ -322,9 +401,16 @@ If the window contains no activity (PTO, sick day, all-meetings day):
 
 Quiet day — nothing landed in code. {If MCPs surfaced context: "Spent the day in meetings — design review for X, planning for Y." Otherwise omit this clause.}
 
+## Today
+
+{Still show the Today section if there are carry-overs or queue items —
+a quiet day doesn't mean there's nothing lined up next.}
+
 ## For the channel
 
-- No code shipped yesterday
+No code shipped yesterday.
+
+**Today:** {highest-priority carry-over or queue item, or omit if nothing}
 ```
 
 Don't fabricate activity. An honest "quiet day" beats invented bullets.
