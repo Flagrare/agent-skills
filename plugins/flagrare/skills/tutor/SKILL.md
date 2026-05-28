@@ -245,3 +245,50 @@ Seed list of 10 rules. Per the Boots research, this is where iteration will conc
 10. **In Branch 3: never let the canonical solution into the turn.** It stays in Claude's context. The user has to produce their own version. The skill made a stated promise — breaking it is the worst failure mode.
 
 ---
+
+## Step 7 — Close
+
+**Explicit user action only.** No verify-back gate at session end.
+
+Listen for any of these close phrases from the user:
+
+- `stop tutoring`
+- `stop tutor`
+- `end tutor`
+- `exit tutor mode`
+- `we're done tutoring`
+- `close tutor`
+
+On any of those, exit the engine cleanly. No comprehension check, no recap **unless the user explicitly asks for one** (e.g., "give me a quick recap before we wrap" — in which case respond with a single paragraph summary, then close).
+
+The trade-off is intentional: users can exit thinking they understand when they don't. That risk is on the user, not on a flaky model-side gate.
+
+### Log append (only if `.flagrare/tutor-log.md` exists)
+
+If — and only if — `.flagrare/tutor-log.md` exists at the project root (the user opted into logging in Step 0), append a structured H2 entry before exiting:
+
+```markdown
+## [YYYY-MM-DD] — Branch [N] ([branch name]) — [Persona]
+**Topic**: [scope name]
+**Covered**: [1–3 short phrases naming the concepts the dialogue actually traversed]
+**Stuck on**: [1 short phrase, or "none" if no stalls were hit; note how many stuck-offers were accepted and at what rung]
+**Reveal level reached**: [rung number reached, or "none" if no reveal was triggered]
+```
+
+Real example:
+
+```markdown
+## 2026-05-28 — Branch 3 (instead-of-implementing) — Vex
+**Topic**: `handleSessionTimeout()` design
+**Covered**: optional chaining behavior with undefined sessions; the `?? null` vs `&& null` distinction
+**Stuck on**: when session.userId is `0` vs `undefined` (1 stuck-offer accepted at rung 2)
+**Reveal level reached**: rung 2 (near-reveal accepted, rung 3 not needed)
+```
+
+Append to the file with a blank line separator before the new H2. Do not modify the file's existing entries or header.
+
+After appending, print: "Session logged to `.flagrare/tutor-log.md`."
+
+If the log file does **not** exist (user chose "No" or "Skip" in Step 0), exit silently without printing.
+
+---
