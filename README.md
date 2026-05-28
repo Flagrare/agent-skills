@@ -1,8 +1,8 @@
 # agent-skills
 
-Twenty-three skills that wrap around your development cycle in Claude Code. They turn tickets into ATDD plans, smoke-test features against a running app or service, guard commits against doc drift, run six-axis code review, draft changelogs that read like patch notes, and review PRs with full context from your tracker and design tools.
+Twenty-four skills that wrap around your development cycle in Claude Code. They turn tickets into ATDD plans, smoke-test features against a running app or service, hunt down bugs with runtime evidence, guard commits against doc drift, run six-axis code review, draft changelogs that read like patch notes, and review PRs with full context from your tracker and design tools.
 
-All skills are namespaced under `flagrare:*` to avoid collisions with other plugins. Installing this marketplace adds `/flagrare:intake`, `/flagrare:work-prep`, `/flagrare:smoke-test`, `/flagrare:wrap-up`, `/flagrare:pr-reviewer`, and eighteen more to every Claude Code session.
+All skills are namespaced under `flagrare:*` to avoid collisions with other plugins. Installing this marketplace adds `/flagrare:intake`, `/flagrare:work-prep`, `/flagrare:smoke-test`, `/flagrare:wrap-up`, `/flagrare:pr-reviewer`, and nineteen more to every Claude Code session.
 
 ## Install
 
@@ -10,7 +10,7 @@ All skills are namespaced under `flagrare:*` to avoid collisions with other plug
 bash <(curl -sL https://raw.githubusercontent.com/Flagrare/agent-skills/main/install.sh)
 ```
 
-One command. It registers the marketplace, installs the `flagrare` plugin, and makes all twenty-three skills available. Restart Claude Code or run `/reload-plugins` afterward.
+One command. It registers the marketplace, installs the `flagrare` plugin, and makes all twenty-four skills available. Restart Claude Code or run `/reload-plugins` afterward.
 
 If you prefer to clone first:
 
@@ -57,6 +57,8 @@ After this one-time bootstrap, `/flagrare:update` works for all future versions 
 `/flagrare:release-check` detects the project's release mechanism, decides whether a release is due, and drafts a semver bump with a value-focused changelog entry.
 
 `/flagrare:ux-audit` drives the running app via Chrome DevTools MCP through every reachable route and every visible affordance, screenshots each state, and writes a severity-ranked findings table (`.ux-audit/FINDINGS.md`) with location, why-it's-painful, and recommended fix. Accepts an optional scope ("UX audit the onboarding flow") to restrict to specific routes; defaults to all routes when no scope is given. Pretends to be a first-time user — surfaces jargon, mystery glyphs, dead-end empty states, choice paralysis, color-only signals, jarring tone, mobile-first violations. Goal-locked so it can't exit before coverage is complete. Installs Chrome DevTools MCP automatically if not already available.
+
+`/flagrare:debug` is evidence-first debugging for bugs that are hard to reproduce, intermittent, or where previous static-analysis fixes have failed. It sets an explicit `/goal` (the bug no longer reproduces), then loops through Hypothesis → Instrument → Reproduce → Analyze → Fix until that goal is met. In Phase 1 it offers to invoke `/flagrare:smoke-test` to surface evidence from a live instance before touching code. When the repo has tests, Phase 4 invokes `/flagrare:atdd-plan` to write a failing acceptance test before the fix — so the bug is captured before it's killed. All instrumentation is tagged `[DEBUG-HUNT]` for clean removal once the fix is verified.
 
 `/flagrare:five-lens-review` spawns five parallel persona subagents — Senior PM, Senior Product Engineer, Senior Product Designer, Senior Design Engineer, and a realistic end user — each examining the same product-direction question through their discipline's lens, then synthesizes convergent themes, disagreements, and a single actionable recommendation. Use when a user-facing decision has multiple competing constraints (lifecycle behaviour, data-model trade-offs, destructive actions, UX choices that touch retention) and a single-perspective answer would silently lock in the wrong default.
 

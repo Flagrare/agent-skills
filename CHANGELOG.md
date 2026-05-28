@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.13.0 — 2026-05-28
+
+A new skill, `/flagrare:debug`, brings evidence-first debugging into the flagrare workflow. It ports the "Evidence Over Speculation" philosophy from runtime-oriented debugging agents into Claude Code, enforcing a scientific loop that doesn't let you commit to a fix until runtime data confirms the root cause.
+
+### Behaviour
+
+- **`/flagrare:debug`**: sets an explicit `/goal` at the start (the bug no longer reproduces, root cause confirmed by evidence, all instrumentation removed, codebase clean) and works until every condition holds. Phase 1 offers to invoke `/flagrare:smoke-test` to explore the bug against a live instance before reading any code — useful for UI glitches, wrong API responses, and timing issues that are invisible in static analysis. Phase 2 adds surgical, tagged instrumentation (`[DEBUG-HUNT]` prefix) so cleanup is a grep, not a memory exercise. Phase 3 waits for real log output before proceeding — no guessing from code shape. Phase 4 conditionally invokes `/flagrare:atdd-plan` when the codebase has tests: the fix must be preceded by a failing acceptance test that captures the bug in its pre-fix state, making the regression proof permanent. Phase 5 verifies the fix with instrumentation still in place (so a partial fix doesn't hide under removed logs), then removes all `[DEBUG-HUNT]` lines and confirms the test suite is clean.
+
+### Documentation
+
+- **README**: new entry under the Quality gates section; skill count bumped from twenty-three to twenty-four in the header, install line, and intro paragraph.
+
 ## 1.12.2 — 2026-05-26
 
 `/flagrare:standup-report` no longer guesses what day of the week it is.
