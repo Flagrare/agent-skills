@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.13.3 — 2026-05-28
+
+`/flagrare:debug-hunt` gains a Pattern Analysis phase before instrumentation: if a working implementation of the same pattern exists elsewhere in the codebase, a side-by-side diff often reveals the root cause without writing a single log line.
+
+### Behaviour
+
+- **`/flagrare:debug-hunt` — Phase 2 (Pattern Analysis)**: new phase inserted between Context & Hypotheses and Instrumentation. Searches for working implementations of the same pattern elsewhere in the codebase, then diffs working vs. broken. If the diff is conclusive, the skill skips directly to Resolution (Phase 5) — no instrumentation needed. If inconclusive, it proceeds to Instrumentation (Phase 3) carrying any hypotheses the comparison generated. All subsequent phases renumbered.
+
 ## 1.13.2 — 2026-05-28
 
 `/flagrare:standup-report` no longer surfaces skill invocations or process steps in its output, and the "For the channel" section now opens with a big-picture line before the bullets.
