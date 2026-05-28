@@ -47,7 +47,25 @@ Hold all of them. Do not commit to one.
 
 ---
 
-## Phase 2 — Instrumentation
+## Phase 2 — Pattern Analysis
+
+Before writing a single log line, check whether the codebase already contains a **working implementation** of the same pattern. A large class of bugs — wrong argument order, missing option, skipped step — is visible in a side-by-side comparison without any runtime evidence.
+
+Search for:
+- Similar code paths that produce the expected output
+- The same API, method, or data structure used correctly elsewhere
+
+Compare working vs. broken:
+- List every difference, however small — don't dismiss anything as "that can't matter"
+- Pay attention to argument order, default values, call sequence, and missing guards
+
+**If the diff reveals the root cause directly:** skip to Phase 5 — Resolution. No instrumentation needed.
+
+**If no working examples exist, or the comparison is inconclusive:** carry any hypotheses the comparison generated into Phase 3.
+
+---
+
+## Phase 3 — Instrumentation
 
 Design a logging strategy that proves or disproves each hypothesis. The goal is surgical: high-signal, low-noise, temporary.
 
@@ -56,7 +74,7 @@ For each hypothesis, decide:
 - Where in the execution path to place the log
 - What output format makes the evidence easy to read at a glance
 
-Apply the instrumentation. Route logs to wherever the user can see them: console, file, stderr, a debug flag. Tag every inserted log line with `[DEBUG-HUNT]` — this prefix exists solely so cleanup in Phase 5 is fast and complete.
+Apply the instrumentation. Route logs to wherever the user can see them: console, file, stderr, a debug flag. Tag every inserted log line with `[DEBUG-HUNT]` — this prefix exists solely so cleanup in Phase 6 is fast and complete.
 
 **Instrumentation principles:**
 - One targeted log per hypothesis — not a spray of print statements
@@ -66,7 +84,7 @@ Apply the instrumentation. Route logs to wherever the user can see them: console
 
 ---
 
-## Phase 3 — Reproduction & Analysis
+## Phase 4 — Reproduction & Analysis
 
 Tell the user exactly how to trigger the bug with the new instrumentation in place. Be specific: what to do, in what order, and — for intermittent bugs — how many attempts to make.
 
@@ -77,13 +95,13 @@ Analyze the logs against the hypothesis list:
 - Which does it eliminate?
 - Are there surprises — state that wasn't expected at all?
 
-If the logs are **inconclusive**: do not guess. Re-enter Phase 2 with refined instrumentation. Before adding more logs, state explicitly what the previous round failed to reveal and why — this keeps the instrumentation from growing into noise.
+If the logs are **inconclusive**: do not guess. Re-enter Phase 3 with refined instrumentation. Before adding more logs, state explicitly what the previous round failed to reveal and why — this keeps the instrumentation from growing into noise.
 
 If the bug **does not reproduce** even with instrumentation: document the exact conditions under which it failed to fire. That is evidence too — adjust the hypothesis list and try again under different conditions or with instrumentation placed earlier in the path.
 
 ---
 
-## Phase 4 — Resolution
+## Phase 5 — Resolution
 
 Root cause is now confirmed by evidence. Fix it.
 
@@ -106,13 +124,13 @@ Apply the smallest possible fix targeted at the confirmed root cause. Do not ref
 
 ---
 
-## Phase 5 — Verify & Cleanup
+## Phase 6 — Verify & Cleanup
 
 **Verify first — before removing any instrumentation.**
 
 Ask the user to trigger the same scenario again with the fix applied. The `[DEBUG-HUNT]` logs should still be present so you can see what the runtime state looks like after the fix.
 
-If the bug **still reproduces**: do not remove instrumentation. The hypothesis was incomplete. Re-enter Phase 1 with the new evidence from the failed fix attempt as additional input.
+If the bug **still reproduces**: do not remove instrumentation. The hypothesis was incomplete. Re-enter Phase 1 with the new evidence from the failed fix attempt as additional input. If Phase 2 pattern analysis was skipped, run it now — the fix attempt may have surfaced a comparison worth making.
 
 If the bug **no longer reproduces**: proceed to cleanup.
 
