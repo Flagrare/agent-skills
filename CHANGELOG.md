@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.13.5 — 2026-05-28
+
+`/flagrare:standup-report` Today section now includes pending review requests — open PRs where a teammate explicitly requested the user's review and no review has been submitted yet.
+
+### Behaviour
+
+- **`/flagrare:standup-report` — Today: pending reviews**: a new second tier between carry-overs and the priority queue. Fetches open, non-draft PRs where `review-requested:{LOGIN}` is set and the user hasn't submitted a review yet. Ordered by `updated_at` descending (most recently active first). Each entry names the author ("Daniel's auth service changes") so the user knows who's waiting. Excluded: PRs already reviewed in the window, draft PRs, PRs authored by the user.
+- **`/flagrare:standup-report` — Today ordering**: carry-overs → pending review requests → priority queue. Review requests sit between the two because they're explicit external asks — someone is blocked — but carry-overs (work already in motion) take precedence.
+- **`/flagrare:standup-report` — For the channel Today block**: example updated to show all three tiers in compact form.
+
 ## 1.13.4 — 2026-05-28
 
 `/flagrare:standup-report` now generates a two-part report: a Yesterday section covering the last working day, and a Today section that infers what's likely on deck — carry-over threads first (open PRs, draft PRs, local branches not yet PR'd), then priority-ordered assigned tickets from the configured tracker.

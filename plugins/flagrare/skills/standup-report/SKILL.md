@@ -187,6 +187,20 @@ Cross-reference against carry-overs: if an open PR or local branch references a 
 
 If the tracker MCP is unavailable or returns nothing, omit the queue silently. Carry-overs from GitHub/local git are always shown.
 
+#### Pending review requests (GitHub)
+
+```bash
+gh api "search/issues?q={SCOPE}+is:pr+is:open+review-requested:{LOGIN}&per_page=50" \
+  --jq '[.items[] | select(.draft == false) | {number, title, html_url, repo: (.repository_url | split("/") | last), author: .user.login, updated_at}]'
+```
+
+These are open, non-draft PRs where the user is an explicitly requested reviewer and has not yet submitted a review. Exclude:
+- PRs already in step 2 results (reviewed-by — already acted on)
+- PRs authored by the user (already in carry-overs)
+- Draft PRs (`.draft == true`) — the author isn't ready for review
+
+For each result, note the PR author — "Daniel's auth refactor" is more useful than a bare title in the Today context. If the PR body or title references a linked ticket, resolve its title via the tracker MCP (same logic as step 6).
+
 ## Naming work in human terms
 
 For every PR, commit cluster, or ticket, derive a **human phrase** that names the work. Priority order:
@@ -267,11 +281,12 @@ The Today section is the forward-looking half of the standup. Its job is to answ
 
 **These are inferences, not commitments.** Frame everything as "likely working today" — the report is a prediction based on what's in motion, not a schedule the user will be held to. The reader should walk away with a reasonable picture of where the day is headed, not a list they expect to be checked off.
 
-**Ordering logic — carry-overs before queue items:**
+**Ordering logic — three tiers:**
 
 1. **Active carry-overs first** — threads already in motion (open PRs awaiting review, PRs with changes-requested, draft PRs close to ready, local branches not yet PR'd). These have the highest prior probability of being worked today. Order by how close they are to done: a PR with one approval short of merge ranks higher than a draft with no reviews yet.
-2. **Priority queue items second** — assigned tickets in To Do / Backlog / Unstarted state, ordered by tracker priority (Urgent → High → Medium → Low → No priority). If the tracker has no priority field, order by creation date descending.
-3. **Omit** tickets that have a matching carry-over — don't list the same work twice. The carry-over entry wins because it's more specific.
+2. **Pending review requests second** — open PRs where a teammate explicitly requested the user's review and no review has been submitted yet. Someone is blocked waiting; these are the highest-urgency *external* asks. Order by `updated_at` descending (most recently active first — the author may be waiting on this right now). Name both the work and the author: "Daniel's auth refactor" not just the PR title.
+3. **Priority queue items third** — assigned tickets in To Do / Backlog / Unstarted state, ordered by tracker priority (Urgent → High → Medium → Low → No priority). If the tracker has no priority field, order by creation date descending.
+4. **Omit** tickets that have a matching carry-over — don't list the same work twice. The carry-over entry wins because it's more specific.
 
 **Cap at 5 items total.** If there are more, pick the 5 with the strongest signal (active carry-overs first, then highest-priority queue items) and note "queue has N more" in the Refs footnote.
 
@@ -310,20 +325,20 @@ junior tell.}
 ## Today
 
 {Inferences about where the day is headed — not a schedule, not a
-commitment. Based on carry-overs and the tracker queue. Frame each
-item as "likely working on" or similar hedged language.
-
-Carry-overs (still-open threads from yesterday) appear first, ordered
-by proximity to done. Then priority-ordered ticket queue items, up to
-5 total. Omit this section entirely if no carry-overs exist and the
-tracker has no assigned items.}
+commitment. Frame each item with hedged language. Three tiers:
+carry-overs → pending review requests → priority queue.
+Omit this section entirely if all three are empty.}
 
 **Carry-overs:**
-- {work name} — {status, e.g. "one approval short of merge", "waiting on CI", "changes requested"}
+- {work name} — {status: "one approval short of merge" / "waiting on CI" / "changes requested"}
+- …
+
+**Pending reviews:**
+- {author}'s {work name} — {context, e.g. "requested Tuesday, auth service"}
 - …
 
 **Up next (from queue):**
-- {ticket title} — {priority, e.g. "high priority"}
+- {ticket title} — {priority}
 - …
 
 ## For the channel
@@ -360,12 +375,14 @@ name what was *found* and *fixed*, not the method used.}
 - Queue refactor back in review after addressing the back-pressure concerns
 
 **Today:**
-{1-3 lines max. Lead with the highest-priority carry-over or queue
-item. Don't list more than 3 — the team only needs to know where
-you're pointing, not the full queue. Hedged: "likely", "plan to",
-"continuing", "starting on". If nothing is lined up, omit this block.}
+{1-3 lines max. Priority order: carry-overs first, then pending
+review requests, then queue items. Don't list more than 3 — the
+team needs the headline, not the full picture. Hedged language:
+"likely", "plan to", "continuing", "reviewing", "starting on".
+If nothing is lined up, omit this block entirely.}
 
 - Continuing queue refactor — one approval away from merge
+- Reviewing Daniel's auth service changes (requested Tuesday)
 - Starting on auth token expiry edge case (high priority)
 
 ## Refs
@@ -378,6 +395,7 @@ at the end with their ticket IDs.}
 - auth refactor (Daniel) — PR acme-corp/api#478 (reviewed)
 - LRU cache benchmarks — PR acme-corp/api#479 (reviewed, changes requested)
 - queue refactor — PR acme-corp/api#483 (carry-over, awaiting review)
+- auth service refactor (Daniel) — PR acme-corp/api#485 (review requested)
 - auth token expiry edge case — ENG-145 (High, in queue)
 ```
 
@@ -385,7 +403,7 @@ at the end with their ticket IDs.}
 
 - **Yesterday paragraph**: 2-3 sentences, never more than 4. If the day was busy, summarize at a higher level rather than running long.
 - **Recap section**: aim for 3 paragraphs. If you have only one beat for the day, the recap collapses into one paragraph and that's fine.
-- **Today section**: 2-5 items total across carry-overs and queue. If both are empty, omit the section.
+- **Today section**: 2-5 items total across carry-overs, pending review requests, and queue. If all three are empty, omit the section.
 - **For the channel — Yesterday bullets**: 4-8 lines. More than 8 means commits are listed individually when they should be grouped under one thread.
 - **For the channel — Today bullets**: 1-3 lines. The team needs the headline, not the full queue.
 
