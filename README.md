@@ -1,8 +1,8 @@
 # agent-skills
 
-Twenty-four skills that wrap around your development cycle in Claude Code. They turn tickets into ATDD plans, smoke-test features against a running app or service, hunt down bugs with runtime evidence, guard commits against doc drift, run six-axis code review, draft changelogs that read like patch notes, and review PRs with full context from your tracker and design tools.
+Twenty-five skills that wrap around your development cycle in Claude Code. They turn tickets into ATDD plans, smoke-test features against a running app or service, hunt down bugs with runtime evidence, guard commits against doc drift, run six-axis code review, draft changelogs that read like patch notes, and review PRs with full context from your tracker and design tools.
 
-All skills are namespaced under `flagrare:*` to avoid collisions with other plugins. Installing this marketplace adds `/flagrare:intake`, `/flagrare:work-prep`, `/flagrare:smoke-test`, `/flagrare:wrap-up`, `/flagrare:pr-reviewer`, and nineteen more to every Claude Code session.
+All skills are namespaced under `flagrare:*` to avoid collisions with other plugins. Installing this marketplace adds `/flagrare:intake`, `/flagrare:work-prep`, `/flagrare:smoke-test`, `/flagrare:wrap-up`, `/flagrare:pr-reviewer`, and twenty more to every Claude Code session.
 
 ## Install
 
@@ -10,7 +10,7 @@ All skills are namespaced under `flagrare:*` to avoid collisions with other plug
 bash <(curl -sL https://raw.githubusercontent.com/Flagrare/agent-skills/main/install.sh)
 ```
 
-One command. It registers the marketplace, installs the `flagrare` plugin, and makes all twenty-four skills available. Restart Claude Code or run `/reload-plugins` afterward.
+One command. It registers the marketplace, installs the `flagrare` plugin, and makes all twenty-five skills available. Restart Claude Code or run `/reload-plugins` afterward.
 
 If you prefer to clone first:
 
@@ -43,6 +43,10 @@ After this one-time bootstrap, `/flagrare:update` works for all future versions 
 `/flagrare:tdd-writer` drafts Technical Design Documents for large projects (2+ weeks). It fetches context from Jira, Confluence, Figma, and Notion via MCP, analyzes the actual codebase, and marks every unverified claim explicitly. Nothing is assumed.
 
 `/flagrare:ticket-creator` writes well-structured tickets as reviewable markdown files, then pushes to any tracker (Jira, Linear, GitHub Issues, Shortcut, Asana, Trello) via MCP or CLI after you review and approve. Before drafting, it calls `/flagrare:codebase-explore` to find specific file paths, conventions, and prior attempts — so the ticket points at `path/to/file.ts:42` instead of gesturing at "the relevant area". For spec/TDD-to-backlog flows it dispatches the explorations in parallel. After drafting, it polishes the Context section via `/flagrare:write-docs` so the prose reads like a senior engineer wrote it, not a template.
+
+### Learning
+
+`/flagrare:tutor` is on-demand Socratic tutoring mode. Claude switches from doing the work to teaching you how to do it — questions instead of answers. You pick scope per call (tutor against current context, against a named topic, or instead of implementing the thing Claude was about to build) and persona in ascending intensity (Echo for calm/observational, Cipher for puzzle-handler, Vex for pushes-hard). Refuses to reveal the answer until you explicitly ask or accept a stuck-offer at three consecutive stalls. Exits only on explicit close phrase ("stop tutoring") — no model-side mastery gate. On first invocation in a repo, asks whether to record per-session summaries to `.flagrare/tutor-log.md` as a learning-path log.
 
 ### Quality gates
 
