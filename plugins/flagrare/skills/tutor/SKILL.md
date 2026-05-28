@@ -292,3 +292,19 @@ After appending, print: "Session logged to `.flagrare/tutor-log.md`."
 If the log file does **not** exist (user chose "No" or "Skip" in Step 0), exit silently without printing.
 
 ---
+
+## Cross-skill integration
+
+Deliberately minimal. Three integration points only:
+
+1. **Branch 2 → `/flagrare:codebase-explore`** (optional) — invoke when the topic intersects local code. Use the findings to ground the opening question. Skip for purely conceptual topics.
+2. **Branch 3 starting context** — pure read of the current conversation for implementation candidates. No skill call.
+3. **At close: no automatic handoff.** Do not suggest `/flagrare:smoke-test`, `/flagrare:implementation-review`, or any other skill. The user decides what to do next.
+
+---
+
+## Re-entry and interruption
+
+- **Stateless across invocations.** Re-invoking `/flagrare:tutor` mid-session is a **fresh start**. No resume of prior dialogue, no carry-over of stall counters or persona choice.
+- **Tutor takes over inside other skills.** If the user is inside `/flagrare:atdd-plan`, `/flagrare:intake`, or any other flagrare skill and invokes `/flagrare:tutor`, this skill takes over. No graceful resume of the prior skill. The user can re-invoke the prior skill manually after the tutor session closes.
+- The `.flagrare/tutor-log.md` file is the only cross-session persistence in the design.
