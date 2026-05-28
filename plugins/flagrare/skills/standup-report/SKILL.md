@@ -214,6 +214,17 @@ Before writing, scan the collected data for these patterns. They're the raw mate
 - **A merged PR that *didn't* deploy, or deployed and failed** → its own beat, surface explicitly. A "merged" PR that didn't reach prod is the kind of detail standup exists to catch.
 - **Tickets that closed without your PR closing them** → maybe a review of yours unblocked the close; cross-reference.
 
+### What never appears in output
+
+Across all sections — paragraph, recap, bullets, refs — these categories are always excluded:
+
+- **AI/skill invocations**: "ran debug-hunt", "invoked standup skill", "used the TDD writer", slash commands, skill names, evaluation runs
+- **Pure process steps** that produced no observable outcome: "read the docs", "grepped the codebase", "ran evals", "researched X"
+- **Ticket-column moves** with no associated code or review ("moved ENG-142 to In Review")
+- **Tooling churn** that is self-evident from the outcome ("set up the dev environment", "ran the test suite locally")
+
+If an activity produced a real outcome (a bug found, a risk surfaced, a decision made) — write the outcome, not the activity that led to it. A debugging session is worth one standup line: the root cause, not the method.
+
 ### Tone
 
 Write in past tense. First-person if `first_person: true`, otherwise use the configured display name in the third person.
@@ -252,12 +263,30 @@ junior tell.}
 
 ## For the channel
 
+{One opening line — the **big picture** of the day in plain English.
+What was the day *about*? Not a list of things done, but the
+single sentence a teammate would use to summarize your day to
+someone who wasn't there. Examples:
+  "Mostly heads-down on the image cache — root cause found, fix shipped, on-call relieved."
+  "Split between unblocking the auth refactor and spiking the queue-sharding approach."
+  "All reviews day — three PRs, design review for the new API surface."
+If the day had no clear theme, lead with the most impactful item.}
+
 {Tight bullet list, 4-8 lines, slack-pasteable. Each bullet still
 carries impact framing — what changed, what's unblocked, what's
 flagged. Naked "Reviewed X" / "Approved Y" bullets are a regression
 to the junior format; even compressed, the bullets should say *why
 it mattered*. Names work in human terms. Deploy state inlined only
-when it's notable.}
+when it's notable.
+
+**NEVER include in bullets or prose:**
+- Skills invoked, slash commands run, or AI tooling used ("ran debug-hunt", "used standup skill", etc.)
+- Process steps ("grepped the codebase", "ran evals", "read the docs")
+- Ticket-column moves that produced no code change
+- Self-reviews, bot-authored PRs handled individually (collapse to "approved N dependency bumps")
+
+These are process, not outcome. If a debugging session is worth mentioning,
+name what was *found* and *fixed*, not the method used.}
 
 - Image-cache regression shipped — on-call rotation should stop paging
 - Unblocked Daniel on auth refactor (approved after working through the rollback path inline)
