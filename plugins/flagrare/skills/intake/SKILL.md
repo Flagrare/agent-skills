@@ -198,7 +198,7 @@ Present:
 
    Do NOT offer `/flagrare:ticket-creator` or `/flagrare:tdd-writer` here — those run *before* intake in different workflows (decomposing specs into tickets, drafting design docs for new multi-week projects). They are not downstream of a single-ticket intake.
 
-If invoked through `/flagrare:work-prep`, skip the prompt and proceed directly to `/flagrare:atdd-plan` — work-prep already decided the next step. (Detect this by checking whether the prior message indicated work-prep orchestration.)
+If invoked through `/flagrare:work-prep`, skip the prompt and proceed directly to `/flagrare:atdd-plan` — work-prep already decided the next step. Detect this by checking whether the args passed to this skill started with `[work-prep]`. If so, do NOT issue an AskUserQuestion — instead, immediately invoke `/flagrare:atdd-plan` via the Skill tool, passing the complete context brief as the args parameter.
 
 Never end intake with a context dump and silence. The user should always know what happens next and have a button to direct it — same UX contract as the plan-mode accept tool.
 

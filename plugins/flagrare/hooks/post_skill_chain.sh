@@ -9,16 +9,6 @@ skill_name=$(echo "$input" | jq -r '.tool_input.skill // empty')
 
 case "$skill_name" in
 
-  flagrare:intake)
-    cat >&2 <<'EOF'
-MANDATORY: /flagrare:intake has completed. You MUST now invoke
-/flagrare:atdd-plan via the Skill tool, passing the full context brief
-as the args parameter. Do NOT ask for user approval first. Do NOT call
-ExitPlanMode. Do NOT proceed to implementation. The next action you take
-MUST be invoking /flagrare:atdd-plan.
-EOF
-    ;;
-
   flagrare:wrap-up)
     cat >&2 <<'EOF'
 MANDATORY: /flagrare:wrap-up has completed. You MUST now invoke
