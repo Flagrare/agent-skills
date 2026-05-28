@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.14.0 — 2026-05-28
+
+`/flagrare:tutor` is a new Socratic tutoring mode that switches Claude from doing the work to teaching the user how to do it, via questions instead of answers. User picks scope and persona per call. Closes only on explicit phrase. Optional per-repo learning-path log.
+
+### Behaviour
+
+- **`/flagrare:tutor` — three scope modes**: in-context (against current file/PR/function/error), topic (user names what to learn), or instead-of-implementing (Claude was about to build something; user opts to learn how to build it instead and writes the code themselves).
+- **`/flagrare:tutor` — three personas, ascending intensity**: Echo (calm, observational), Cipher (knowing, puzzle-handler), Vex (pushy, leading). Persona affects voice only — same Socratic engine underneath.
+- **`/flagrare:tutor` — Socratic guardrails**: refuses to reveal the answer unless the user explicitly asks. Stuck-detection at three consecutive stalls offers a sharper-hint, show-me, or keep-going escape. Reveal mode has a 3-rung scaffolding ladder ending in a local verify-back question.
+- **`/flagrare:tutor` — explicit-phrase close only**: exits on "stop tutoring", "end tutor", "exit tutor mode", or similar. No model-side mastery gate.
+- **`/flagrare:tutor` — per-repo learning-path log (opt-in)**: on first invocation in a project directory, asks whether to record per-session summaries to `.flagrare/tutor-log.md`. Opt-out is per-repo and silent on subsequent calls. Non-project directories skip logging entirely.
+- **`/flagrare:tutor` — explicit-trigger only**: fires only on phrases like "tutor me on X", "tutor mode", "be my tutor", "Socratic me", or "/flagrare:tutor". Does NOT auto-trigger on colloquial "teach me X" or "explain this" — those usually mean the user wants a quick answer.
+
 ## 1.13.6 — 2026-05-28
 
 `/flagrare:work-prep` now reliably hands off to `/flagrare:atdd-plan` after intake completes its full workflow.
