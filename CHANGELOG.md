@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.13.4 — 2026-05-28
+
+`/flagrare:standup-report` now generates a two-part report: a Yesterday section covering the last working day, and a Today section that infers what's likely on deck — carry-over threads first (open PRs, draft PRs, local branches not yet PR'd), then priority-ordered assigned tickets from the configured tracker.
+
+### Behaviour
+
+- **`/flagrare:standup-report` — Today section**: new section between Recap and For the channel. Carry-overs (open/draft PRs and unpushed branches still in motion) appear first, ordered by proximity to merge. Assigned tracker tickets in To Do / Backlog / Unstarted state follow, ordered by priority (Urgent → High → Medium → Low → No priority). Items shared between carry-overs and the queue are deduplicated — the carry-over entry wins. Section is omitted entirely when both lists are empty.
+- **`/flagrare:standup-report` — For the channel Today block**: the channel section now has a Yesterday sub-block (yesterday bullets unchanged) and a Today sub-block (1-3 lines, hedged as "likely", "continuing", "starting on"). Cap of 3 items — the team needs the headline, not the full queue.
+- **`/flagrare:standup-report` — data collection step 8**: new parallel query collects carry-overs from already-fetched GitHub data (no extra API calls for carry-overs) and fetches assigned To Do tickets from the configured tracker MCP.
+
 ## 1.13.3 — 2026-05-28
 
 `/flagrare:debug-hunt` gains a Pattern Analysis phase before instrumentation: if a working implementation of the same pattern exists elsewhere in the codebase, a side-by-side diff often reveals the root cause without writing a single log line.
