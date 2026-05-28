@@ -192,3 +192,39 @@ Every dialogue turn after the opening follows this loop.
 Reset the stall counter to zero on any non-stall response.
 
 ---
+
+## Step 5 — Stuck-offer (escape hatch at 3 stalls)
+
+When the stall counter hits **3 consecutive stalls**, break the dialogue briefly and offer the escape via `AskUserQuestion`:
+
+> "You've stalled three times. I can give you a sharper hint, or just show you — your call. Or keep going if you want another shot."
+
+Three options:
+
+- **Keep going** — reset the stall counter to zero and continue dialogue. The user has chosen to push through.
+- **Sharper hint** — enter reveal mode at **rung 1** (Step 6).
+- **Show me** — enter reveal mode at **rung 3** (Step 6).
+
+The stuck-offer is the only place the engine breaks the "one question per turn" rule (the offer itself is structured as a 3-option `AskUserQuestion`, not a dialogue question). After the user's choice, return to the engine state defined by that choice.
+
+---
+
+## Step 6 — Scaffolding ladder (reveal mode only)
+
+Reveal mode is entered only via (a) the user explicitly asking for the answer, or (b) the user accepting the stuck-offer's "sharper hint" or "show me" path. **Never enter reveal mode autonomously.**
+
+Three rungs, ascending specificity:
+
+| Rung | What's revealed | Example |
+|---|---|---|
+| 1 — Sharper hint | A concrete pointer to the right region. Still a question. | "Look at where `session` is initialized. What's the default value before the request handler runs?" |
+| 2 — Near-reveal | The mechanism stated, the application still asked. | "`session` is `undefined` when the cookie's missing. So what does your check need to handle that case?" |
+| 3 — Full reveal | The answer + *why* it's the answer + one local verify-back question. | "It's `req.session?.userId ?? null`. The `?.` handles the undefined session, the `??` keeps the explicit-null contract. **Quick check before we move on**: what would `?.` do differently than `&&` here?" |
+
+The local verify-back question at rung 3 is **not the session close** — it's a local check before continuing the dialogue. The user can still answer it incorrectly without ending the session. The session close is explicit-phrase only (Step 7).
+
+If the user requested reveal without specifying a rung, default to **rung 1** and only escalate if they ask again.
+
+After rung 3, the topic of that specific question is closed. Pick up the next thread or wait for the user's next direction.
+
+---
