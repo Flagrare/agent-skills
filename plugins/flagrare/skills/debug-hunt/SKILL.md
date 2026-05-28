@@ -1,6 +1,6 @@
 ---
-name: debug
-description: "Evidence-first debugging for bugs that are hard to reproduce, intermittent, performance-related, or where previous static-analysis fixes have failed. Declares an explicit goal via /goal (the bug no longer reproduces), then loops through Hypothesis → Instrument → Reproduce → Analyze → Fix until that goal is met. Uses ATDD via /flagrare:atdd-plan to write the fix when the codebase has tests. Triggers when the user reports a difficult bug, says 'this only happens sometimes', 'my fix didn't work', 'I can't reproduce this consistently', 'what's causing this crash', 'debug this', 'there's a weird bug', 'something is broken intermittently', or describes runtime behaviour that diverges from what the code says should happen."
+name: debug-hunt
+description: "Evidence-first debugging for bugs that are hard to reproduce, intermittent, performance-related, or where previous static-analysis fixes have failed. Declares an explicit goal via /goal (the bug no longer reproduces), then loops through Hypothesis → Instrument → Reproduce → Analyze → Fix until that goal is met. Uses ATDD via /flagrare:atdd-plan to write the fix when the codebase has tests. Triggers when the user reports a difficult bug, says 'this only happens sometimes', 'my fix didn't work', 'I can't reproduce this consistently', 'what's causing this crash', 'hunt this bug down', 'there's a weird bug', 'something is broken intermittently', 'debug-hunt', or describes runtime behaviour that diverges from what the code says should happen."
 ---
 
 # Debug
