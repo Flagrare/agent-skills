@@ -86,3 +86,59 @@ Persona affects **voice only** — not branch logic, not guardrails, not the Soc
 **Vex voice example:** "Sure, you checked `userId`. Now think harder: where does `session` come from, and why are you assuming it's there?"
 
 ---
+
+## Step 3 — Enter the chosen scope branch
+
+Dispatch on the Step 1 choice. Each branch confirms scope, loads context, then hands off to the Socratic engine in Step 4.
+
+### Branch 1 — In-context
+
+Identify what's currently in focus from the conversation: most recently read file, current PR if referenced, last named function, last error or stack trace. Pick the single most-likely candidate.
+
+Confirm with the user via **free text** (not `AskUserQuestion` — open-ended rename is more useful here):
+
+> "Tutoring you against `[identified scope]` — the [file/function/PR/error] we were just looking at. Confirm scope, or name something different."
+
+On confirmation (or rename) → Step 4.
+
+If nothing is in focus (fresh session, no prior reads), ask the user directly: "I don't see anything in context to tutor against. Name a file, function, or error to focus on."
+
+---
+
+### Branch 2 — Topic
+
+Ask the user to name the topic via free text. Enforce specificity:
+
+> "What topic? Be specific — 'React Suspense' or 'how async iterators work in Python' is good. 'JavaScript' or 'databases' is too broad and the session will go in circles."
+
+If the user names a too-broad topic, push back once: "Too broad. Narrow down — pick a sub-topic or one concrete question." Do not start the dialogue against a too-broad topic.
+
+**Optional codebase grounding.** If the topic intersects with the local codebase ("teach me how auth works *here*", "Socratic me on the way we handle migrations in this repo"), invoke `/flagrare:codebase-explore` first to gather concrete file paths and patterns. Use those findings to ground the opening question. If the topic is purely conceptual ("teach me how async iterators work"), skip codebase-explore and proceed.
+
+Hand off to Step 4.
+
+---
+
+### Branch 3 — Instead-of-implementing
+
+Scan the **current conversation** for what Claude was about to implement. Look for: an active plan (recent `EnterPlanMode` / `ExitPlanMode` artifact), a recent `TaskCreate` list, an "I'll build X" / "let me implement X" statement, or a pending refactor.
+
+**If one or more candidates are detected**, present them via `AskUserQuestion` with each candidate as an option. `AskUserQuestion` always includes an implicit "Other" — the user can type a custom task there.
+
+> "What should I be teaching you to build?"
+>
+> - Implement `[detected candidate 1]` (auto-detected from this conversation)
+> - Implement `[detected candidate 2]` (if found)
+> - Other (you'll type it)
+
+**If nothing was auto-detected**, ask via free text: "I don't see anything I was about to implement. What should I be teaching you to build?"
+
+**Stated promise on entry (load-bearing).** Before the first Socratic question, say this verbatim (adapted to the persona's voice):
+
+> "I was about to implement `[task]`. Switching to teaching you how to build it instead. **My intended solution stays in my context. I won't show it.** You'll write the code. I'll ask questions until you do."
+
+This is the prompt-level commitment that holds the Branch 3 guardrail. Breaking it is the worst failure mode in the entire skill (rule #10 in the negative-examples list).
+
+Hand off to Step 4.
+
+---
