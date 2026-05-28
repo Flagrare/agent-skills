@@ -1,5 +1,5 @@
 {
-  "description": "Skill orchestration hooks: (1) research-catalog reminder after external fetches, (2) PostToolUse chains (intake→atdd-plan, wrap-up→implementation-review, staleness-audit→release-check), (3) PreToolUse gate (atdd-plan requires codebase-explore first).",
+  "description": "Skill orchestration hooks: (1) research-catalog reminder after external fetches, (2) PostToolUse chains (wrap-up→implementation-review, staleness-audit→release-check), (3) PreToolUse gate (atdd-plan requires codebase-explore first). Note: intake→atdd-plan handoff is handled inside intake's Step 6 via the [work-prep] prefix convention, not by a hook.",
   "hooks": {
     "PreToolUse": [
       {

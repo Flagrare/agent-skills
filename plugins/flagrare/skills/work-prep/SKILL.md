@@ -24,7 +24,7 @@ This skill orchestrates two existing skills in sequence. It does not duplicate t
 
 ### Step 1: Invoke `/flagrare:intake`
 
-Call `/flagrare:intake` with the ticket reference. This skill will:
+Call `/flagrare:intake` with the ticket reference prefixed by `[work-prep] ` (e.g., args: `[work-prep] SKU-123`). This prefix tells intake to skip its Step 6 next-step prompt and return control directly. This skill will:
 
 1. Parse the ticket ID/URL and identify the platform
 2. Read the full ticket via MCP (Jira, Linear, etc.)
@@ -68,17 +68,29 @@ Options:
 
 ---
 
+## Critical: The handoff mechanism
+
+The `[work-prep]` prefix in intake's args is the signal. When intake sees it, intake skips its next-step prompt and immediately invokes `/flagrare:atdd-plan` itself. This means:
+
+- Work-prep invokes intake (with prefix) → intake runs its full workflow → intake invokes atdd-plan → atdd-plan produces plan → work-prep resumes at Step 3.
+- Work-prep does NOT need to invoke atdd-plan itself. Intake handles the handoff when it sees the `[work-prep]` prefix.
+
+If you are executing work-prep and intake finishes WITHOUT invoking atdd-plan (e.g., it returned with just the brief), you MUST invoke `/flagrare:atdd-plan` yourself before proceeding to Step 3.
+
+---
+
 ## Flow position
 
 ```
 /flagrare:work-prep [ticket ID or URL]
      |
      v
-/flagrare:intake          <- 1. read ticket + follow references in parallel
-                             2. synthesise brief (no questions yet)
-                             3. /flagrare:codebase-explore  <- ground brief in code
-                             4. ask codebase-informed clarifying questions
-                             5. resolve, finalize brief
+/flagrare:intake [work-prep] <- 1. read ticket + follow references in parallel
+                                2. synthesise brief (no questions yet)
+                                3. /flagrare:codebase-explore  <- ground brief in code
+                                4. ask codebase-informed clarifying questions
+                                5. resolve, finalize brief
+                                6. detect [work-prep] prefix → invoke atdd-plan directly
      |
      v
 /flagrare:atdd-plan       <- runs its own /flagrare:codebase-explore pass
