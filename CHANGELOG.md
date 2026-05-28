@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.13.2 — 2026-05-28
+
+`/flagrare:standup-report` no longer surfaces skill invocations or process steps in its output, and the "For the channel" section now opens with a big-picture line before the bullets.
+
+### Behaviour
+
+- **`/flagrare:standup-report` — channel section**: opens with a one-sentence big-picture framing of the day before the bullet list, so the reader gets the theme before the detail.
+- **`/flagrare:standup-report` — output filtering**: skill invocations, slash commands, AI tooling used, and pure process steps (`ran debug-hunt`, `grepped the codebase`, `ran evals`) are now explicitly excluded from all output sections. Engineering outcomes are reported; the methods used to reach them are not.
+
 ## 1.13.1 — 2026-05-28
 
 Renamed `/flagrare:debug` → `/flagrare:debug-hunt` to avoid collision with Claude Code's built-in `/debug` command.
