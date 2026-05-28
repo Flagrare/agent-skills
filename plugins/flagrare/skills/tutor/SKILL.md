@@ -10,3 +10,41 @@ Socratic tutoring mode. Claude switches from doing the work to teaching the user
 This skill is **explicit-invocation only**. It does not auto-fire on colloquial phrases like "teach me X" or "explain this" — those usually mean the user wants a quick answer, not a 20-turn dialogue. Trigger phrases are listed in the frontmatter description above.
 
 ---
+
+## Step 0 — Learning-path log check (per-repo, opt-in)
+
+Before entering the mode-selection flow, check whether this repo opts into session logging.
+
+**Project-directory detection.** A directory counts as a project directory if any of these is present at or above the current path: `.git/`, `package.json`, `pyproject.toml`, `Cargo.toml`, `go.mod`, `pom.xml`, `build.gradle`, `build.gradle.kts`, `Gemfile`, `composer.json`, or `mix.exs`. If none of those are found, **skip this entire step**. Do not create `.flagrare/`. Do not ask.
+
+**Marker check.** In a project directory, check `.flagrare/` for:
+
+| Marker present | Behavior |
+|---|---|
+| `.flagrare/tutor-log.md` | Opt-in confirmed. Will append session summary on close. Skip to Step 1. |
+| `.flagrare/tutor-log.disabled` | Opt-out confirmed. Won't log. Skip to Step 1. |
+| Neither | First invocation in this repo. Ask the question below. |
+
+**First-invocation question.** Use `AskUserQuestion` with these three options:
+
+- **Yes, log to `.flagrare/tutor-log.md`** — creates the file with a header, appends future sessions
+- **No, don't ask again** — creates `.flagrare/tutor-log.disabled` marker
+- **Skip for now, ask next time** — neither marker created
+
+If the user chooses **Yes**:
+1. Create `.flagrare/tutor-log.md` with this header:
+   ```markdown
+   # Tutor Learning Path
+
+   Per-session summaries appended by `/flagrare:tutor`. Each H2 entry is one session.
+   ```
+2. Print: "Created `.flagrare/tutor-log.md`. Add to `.gitignore` if you want it personal — I'm leaving that call to you."
+3. Do **not** modify `.gitignore` automatically.
+
+If the user chooses **No, don't ask again**:
+1. Create `.flagrare/tutor-log.disabled` as an empty file.
+2. Print: "Got it — won't ask again in this repo."
+
+If the user chooses **Skip for now**: do nothing, proceed to Step 1.
+
+---
