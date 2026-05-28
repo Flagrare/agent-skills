@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.13.6 — 2026-05-28
+
+`/flagrare:work-prep` now reliably hands off to `/flagrare:atdd-plan` after intake completes its full workflow.
+
+### Bug Fixes
+
+- **`/flagrare:work-prep` → `/flagrare:atdd-plan` handoff**: the PostToolUse hook fired when intake's SKILL.md loaded (before the model read it), not when intake's multi-step workflow finished — so the model received contradictory "do intake steps 0–6" and "skip to atdd-plan NOW" directives simultaneously. Replaced hook-based chaining with a `[work-prep]` prefix convention: intake detects the prefix at Step 6 completion and invokes atdd-plan itself.
+
 ## 1.13.5 — 2026-05-28
 
 `/flagrare:standup-report` Today section now includes pending review requests — open PRs where a teammate explicitly requested the user's review and no review has been submitted yet.
