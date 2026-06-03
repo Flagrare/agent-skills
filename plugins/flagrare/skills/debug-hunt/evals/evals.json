@@ -1,0 +1,23 @@
+{
+  "skill_name": "debug-hunt",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "Our checkout flow crashes maybe 1 in 10 times when a user applies a coupon. We've tried reading the code and added a null check last week but it still happens. We're on a Node.js/Express backend with a React frontend.",
+      "expected_output": "Agent sets an explicit goal, gathers facts before reading code, generates 2-4 specific falsifiable hypotheses, designs targeted [DEBUG-HUNT]-tagged instrumentation for each hypothesis, and explicitly waits for runtime reproduction data before proposing any fix.",
+      "files": []
+    },
+    {
+      "id": 1,
+      "prompt": "The user avatar isn't loading on profile pages for accounts created before 2024. I tried fixing the URL builder in avatar.service.ts last week but it's still broken for legacy accounts.",
+      "expected_output": "Agent recognizes that a previous static fix failed (the classic debug-mode trigger), refuses to guess at another patch, sets a goal, designs instrumentation to prove where the URL is going wrong at runtime, and waits for evidence before proposing a new fix.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "The dashboard takes 8 seconds to load since last Thursday's deploy. The query looks fine to me when I read it. Users are complaining.",
+      "expected_output": "Agent sets a goal, offers smoke-test as an exploration option (since this is a performance issue visible in a running instance), generates timing-focused hypotheses (N+1 query, missing index, cache eviction, new code path), designs instrumentation with timestamps to isolate the slow segment.",
+      "files": []
+    }
+  ]
+}
