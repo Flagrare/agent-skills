@@ -181,11 +181,64 @@ For every finding (from both systematic review and contextual review), produce a
 **Comment requirements:**
 - 1-2 sentences max for inline comments
 - Copy-paste ready for GitHub
-- Sound like a friendly teammate, not a bot or a gatekeeper
 - No AI-isms: avoid "consider", "it would be beneficial", "enhance", "leverage", "crucial", "pivotal"
 - Use "you" when it fits
 - Frame suggestions as options: "One option:", "Worth adding:", "Might be cleaner to..."
 - Reserve firm language for actual blockers only
+
+**Voice and examples:**
+
+Voice setup. Think of the author as a teammate you respect, someone who's going to read this tomorrow morning before they've had coffee. They already shipped a draft, which took real effort. Write the way you'd actually talk to them at lunch. Usually that means starting from what we noticed rather than what we want done, and asking instead of telling when we're not sure. Use "we" where it fits, since the code is something we share.
+
+Concrete before-and-after pairs. The envelope around each comment (severity, file, line) stays the same; only the comment text shifts. Eight pairs, ordered by severity, then by finding type.
+
+**1. Null check (Critical, correctness)**
+- Cold: `` `venue` can be null here. Add a safe call or null check. ``
+- Friendly: `` I think `venue` can come back as null here, in the case where the search doesn't find a match. We hit something similar in BookingRepo a little while ago. Should we add a guard for it? ``
+- *What changed: opens with the observation rather than the instruction, frames the codebase as shared, asks instead of commanding.*
+
+**2. SQL injection (Critical, security)**
+- Cold: `SQL injection risk. Use parameterized queries.`
+- Friendly: `` Heads up, looks like `userId` is going straight into the query string here. Should we switch this over to a parameterized version? It's an easy thing to miss in review. ``
+- *What changed: warmer opener, asks rather than commands, "easy to miss" removes blame.*
+
+**3. Test coverage (Suggestion, tests)**
+- Cold: `Missing test for the cancelled path.`
+- Friendly: `Looks like we're already covering the success and reschedule paths, but not cancel. Would be good to lock that one down too if we get a chance.`
+- *What changed: credits existing work first, uses "we" throughout, "if we get a chance" softens the suggestion.*
+
+**4. Single responsibility (Suggestion, SOLID)**
+- Cold: `This method has too many responsibilities. Extract validation.`
+- Friendly: `I noticed this one's doing both validation and persistence. Pulling validation out into its own function might make the tests easier for us down the line. Totally up to you, though.`
+- *What changed: names the two responsibilities specifically, explains why with "us", explicit "up to you" defuses authority.*
+
+**5. Missing edge case (Suggestion, correctness)**
+- Cold: `` What happens when `items` is empty? Add handling. ``
+- Friendly: `` I was wondering what happens here if `items` comes through empty. Does the totals calc just zero out, or do we want to throw? Either way is fine, just wanted to make sure whatever we end up with is intentional. ``
+- *What changed: poses as a genuine question, offers both options so the author isn't cornered, "we want to" instead of "you should".*
+
+**6. Generic naming (Suggestion, clean code)**
+- Cold: `` `data` is too generic. Rename. ``
+- Friendly: `` I think this `data` could probably use a more specific name, maybe something like `customerLoyaltyRecord` or whatever fits the actual shape. Future-us would probably thank us when we're grepping for it in six months. ``
+- *What changed: "Future-us" is the small but real win. Concrete alternative offered, future-pain rationale frames it as shared.*
+
+**7. Magic number (Nice, clean code)**
+- Cold: `` Replace magic number `86400` with a named constant. ``
+- Friendly: `` Small thing, but `86400` would probably read more clearly as `SECONDS_PER_DAY`. Takes a beat to recognize it otherwise. Worth pulling out into a constant? ``
+- *What changed: "small thing" calibrates severity, admits the inference ("takes a beat"), asks instead of instructs.*
+
+**8. Convention match (Nice, clean code)**
+- Cold: `Use early return.`
+- Friendly: `` Heads up, the rest of `BookingService` is going with early-returns on validation failures. Might be worth doing the same here, just for consistency. ``
+- *What changed: references the local convention without claiming authority, "might be worth" hedges.*
+
+What the pairs are showing:
+- Open with what we noticed, not what we want done.
+- First-person voice when we're guessing ("I think", "looks like", "wondering if").
+- "We" instead of "you" when the codebase is the subject.
+- One short clause of "why" attached to suggestions, not a paragraph.
+- Hedges: "probably", "might be worth", "totally up to you", "if we get a chance".
+- Severity in the opener: "Heads up" for must-fix, "small thing" or "would be good" for nice-to-haves.
 
 **Humanization rules (apply to every comment):**
 - No em dashes. Use commas, periods, or parentheses.
@@ -193,19 +246,18 @@ For every finding (from both systematic review and contextual review), produce a
 - No "Additionally", "Furthermore", "Moreover".
 - No sycophancy ("Great approach!", "Excellent work!").
 - Be specific. "Add a null check here" beats "It might be worth considering adding a null check to improve robustness."
-- Sound conversational. "Pretty sure this is a typo" beats "Table name typo: it is X everywhere else in this repo."
 
 **Format per finding:**
 
 ```
 CRITICAL - `path/to/File.kt` L45
-GitHub comment: `venue` can be null here. Add a safe call or null check.
+GitHub comment: I think `venue` can come back as null here when the search doesn't find a match. Should we add a guard for it?
 
 SUGGESTION - `reservations/BookingService.kt` L32
-GitHub comment: This method's doing a lot. Might be cleaner to pull the validation into its own function.
+GitHub comment: I noticed this method's doing a fair bit. Pulling validation out into its own function might make the tests easier for us. Totally up to you.
 
 NICE - `reservations/BookingServiceTest.kt` (file-level)
-GitHub comment: Worth adding a test for the cancelled path.
+GitHub comment: Would be good to add a test for the cancelled path too, if we get a chance.
 ```
 
 ### Step 6: Present the Review

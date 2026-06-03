@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.15.0 — 2026-06-03
+
+`/flagrare:pr-reviewer` drafts warmer, more conversational inline GitHub comments. The previous abstract "be friendly" rule is replaced by eight concrete cold→friendly example pairs the model can imitate.
+
+### Behaviour
+
+- **`/flagrare:pr-reviewer` — comment voice**: opens with observations rather than instructions, uses first-person hedges when guessing ("I think", "looks like"), uses "we" rather than "you" when the codebase is the subject, and calibrates severity through the opener ("Heads up" for must-fix, "small thing" for nice-to-haves).
+- **`/flagrare:pr-reviewer` — Voice and examples sub-section**: new in Step 5, contains a persona framing, eight before-and-after pairs across the severity × finding-type matrix, and a six-bullet patterns list. Replaces the two abstract rules "Sound like a friendly teammate" and "Sound conversational" with concrete examples the model imitates more reliably, following the pattern from boot.dev research catalogued at `docs/research/2026-05-28-boots-ai-tutor-design.md`.
+
 ## 1.14.0 — 2026-05-28
 
 `/flagrare:tutor` is a new Socratic tutoring mode that switches Claude from doing the work to teaching the user how to do it, via questions instead of answers. User picks scope and persona per call. Closes only on explicit phrase. Optional per-repo learning-path log.
