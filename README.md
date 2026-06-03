@@ -1,8 +1,8 @@
 # agent-skills
 
-Twenty-five skills that wrap around your development cycle in Claude Code. They turn tickets into ATDD plans, smoke-test features against a running app or service, hunt down bugs with runtime evidence, guard commits against doc drift, run six-axis code review, draft changelogs that read like patch notes, and review PRs with full context from your tracker and design tools.
+Twenty-six skills that wrap around your development cycle in Claude Code. They turn tickets into ATDD plans, smoke-test features against a running app or service, hunt down bugs with runtime evidence, guard commits against doc drift, run six-axis code review, draft changelogs that read like patch notes, and review PRs with full context from your tracker and design tools.
 
-All skills are namespaced under `flagrare:*` to avoid collisions with other plugins. Installing this marketplace adds `/flagrare:intake`, `/flagrare:work-prep`, `/flagrare:smoke-test`, `/flagrare:wrap-up`, `/flagrare:pr-reviewer`, and twenty more to every Claude Code session.
+All skills are namespaced under `flagrare:*` to avoid collisions with other plugins. Installing this marketplace adds `/flagrare:intake`, `/flagrare:work-prep`, `/flagrare:smoke-test`, `/flagrare:wrap-up`, `/flagrare:pr-reviewer`, and twenty-one more to every Claude Code session.
 
 ## Install
 
@@ -10,7 +10,7 @@ All skills are namespaced under `flagrare:*` to avoid collisions with other plug
 bash <(curl -sL https://raw.githubusercontent.com/Flagrare/agent-skills/main/install.sh)
 ```
 
-One command. It registers the marketplace, installs the `flagrare` plugin, and makes all twenty-five skills available. Restart Claude Code or run `/reload-plugins` afterward.
+One command. It registers the marketplace, installs the `flagrare` plugin, and makes all twenty-six skills available. Restart Claude Code or run `/reload-plugins` afterward.
 
 If you prefer to clone first:
 
@@ -51,6 +51,8 @@ After this one-time bootstrap, `/flagrare:update` works for all future versions 
 ### Quality gates
 
 `/flagrare:smoke-test` validates the feature you just implemented against a running instance. For UI work it drives a browser via Playwright MCP and diagnoses failures with Chrome DevTools MCP; for backend work it hits the running service through the project's existing test framework. Auto-detects domain from the diff (UI, backend, or full-stack). Tests every acceptance criterion plus exploratory edges (long inputs, slow network, auth matrix, idempotency, observability spans, the 403/404 tenant-leak), fixes every gap or bug found, then captures the working trajectory as a permanent Playwright spec or test file before declaring done. Ten-minute budget.
+
+`/flagrare:bug-bash` runs a prescribed test plan against a real running system with evidence at every step. Ingests test cases from Notion (via the Notion MCP), markdown files, PR descriptions, or pasted text. Drives the UI via Chrome DevTools MCP or Playwright MCP; hits backend endpoints via Postman CLI, curl, or HTTP MCPs. Walks every prescribed case (the strict pass), then layers a five-lens exploratory pass: viewports, edge inputs, multi-actor flows in isolated browser contexts, codebase-driven concerns, and extra context the user provides (meeting transcripts, follow-up Slack threads). Lands results in a local markdown audit file by default, then optionally writes back to the source of truth, filling Eng QA columns and adding entries to the linked bug database in the team's own voice. Strict rule throughout: never claims a bug it didn't itself reproduce. Distinct from `/flagrare:smoke-test`, which is narrower and scoped to the feature the author just implemented; bug-bash is wider, longer-running, and often runs against features other people built.
 
 `/flagrare:staleness-audit` diffs your staged changes against the repo's documentation surfaces (README, ADRs, public exports, doc comments, test names, changesets) and flags drift before it lands in history.
 

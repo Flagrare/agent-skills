@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.16.0 — 2026-06-03
+
+`/flagrare:bug-bash` is a new skill for running a prescribed test plan against a real running system with evidence. Walks every test case the team wrote, then explores beyond it with a five-lens pass. Never claims a bug it didn't itself reproduce.
+
+### Behaviour
+
+- **`/flagrare:bug-bash` — strict pass plus five-lens exploratory**: ingests test cases from Notion (via the Notion MCP), markdown, PR descriptions, or pasted text. Walks every prescribed case in order, capturing evidence per result (screenshots for UI, request/response bodies for backend). After the strict pass, runs five exploratory lenses: viewports, edge inputs, multi-actor flows in isolated browser contexts, codebase-driven concerns, and extra context the user provides (meeting transcripts, Slack threads).
+- **`/flagrare:bug-bash` — reproduce-or-skip discipline**: every bug recorded is one the skill reproduced itself. Meeting transcripts, PR comments, and Slack quotes are treated as test targets, never as results. A case that can't be run from this seat is `skip-external`, not `pass`. The line between "I reproduced this" and "someone mentioned this" is what makes the output trustworthy.
+- **`/flagrare:bug-bash` — write back to source-of-truth (opt-in)**: lands results in a local markdown audit file by default, then asks via `AskUserQuestion` whether to also update the original Notion test cases, bug database, or wiki — filling Eng QA columns and adding bug entries in the team's own voice. Reads surrounding rows to match tone before composing.
+- **`/flagrare:bug-bash` — UI and backend tooling**: UI via Chrome DevTools MCP (preferred for bashing — snapshots, isolated contexts, native network capture) or Playwright MCP. Backend via Postman CLI, curl, or HTTP MCPs. Asks via `AskUserQuestion` when neither browser MCP is connected: install one, or have the user drive the browser while the skill narrates.
+
 ## 1.15.0 — 2026-06-03
 
 `/flagrare:pr-reviewer` drafts warmer, more conversational inline GitHub comments. The previous abstract "be friendly" rule is replaced by eight concrete cold→friendly example pairs the model can imitate.
