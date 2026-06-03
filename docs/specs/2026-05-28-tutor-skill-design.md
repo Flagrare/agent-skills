@@ -8,7 +8,7 @@
 
 There's no on-demand "teach me how to do this, don't do it for me" mode in the flagrare skill set today. The closest existing prior art — the Anthropic Learning and Explanatory output-style plugins — runs *always-on* via SessionStart hooks, which means it pays a token tax on every session and can't be scoped to a topic, file, or single decision point. A skill is a better fit: invoked explicitly, scoped per call, exits cleanly.
 
-The reference implementation we modelled against is **Boots** (boot.dev's AI tutor). Three findings from the Boots research are load-bearing for this spec:
+The reference implementation we modelled against is **Boots** (boot.dev's AI tutor). The full research catalog with sources and credit lives at [`docs/research/2026-05-28-boots-ai-tutor-design.md`](../research/2026-05-28-boots-ai-tutor-design.md); three findings from it are load-bearing for this spec:
 
 1. The Socratic posture is held by the prompt, nothing else — Sonnet/Opus will leak the answer unless explicitly and repeatedly told not to.
 2. Context curation beats context volume — Boots's team found that injecting 100k tokens of lesson history *hurt* quality vs. a small curated slice.
