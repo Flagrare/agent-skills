@@ -1,0 +1,33 @@
+{
+  "skill_name": "bug-bash",
+  "evals": [
+    {
+      "id": 1,
+      "name": "notion-source-with-writeback",
+      "prompt": "Hey, can you bash the Workspace Invites feature for me? Test cases are in our Notion page: https://www.notion.so/myteam/Workspace-Invites-3646a78f120780b0a945c0a07a32e698. I'm logged in to staging at app.example.com already. When you find stuff, please write the results back to Notion — fill the Eng QA columns and add bug entries to the database.",
+      "expected_behavior": "Triggers bug-bash. States the goal explicitly. Asks about feature flag / preconditions. Plans strict pass before exploratory. Plans to write back to Notion only after user confirms. Does not invent bugs or claim outcomes without testing.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "name": "paste-plan-with-transcript-trap",
+      "prompt": "QA the new checkout flow on staging. Here are the test cases:\n\n1. Add item to cart → cart count goes up\n2. Click checkout → opens payment modal\n3. Submit valid payment → order confirmation page\n\nAlso, in the standup yesterday Bob mentioned that the discount code field doesn't validate properly and the address autocomplete is broken on mobile. Make sure to log those bugs too.",
+      "expected_behavior": "Triggers bug-bash. Ingests the pasted test plan. CRITICALLY: does NOT file Bob's claims as bugs — treats them as test targets to be reproduced. Plans to reproduce, then file based on what was seen. The mobile autocomplete should likely be a skip-external since this seat is desktop.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "name": "backend-api-bash",
+      "prompt": "Run a bug bash on the new /v1/orders endpoint we just shipped. Spec is at our wiki under 'Orders API'. Help me find issues — focus on the API itself, not the UI.",
+      "expected_behavior": "Triggers bug-bash. Detects backend target. Asks where the spec lives in concrete terms. Plans auth matrix testing (401/403/200). Plans contract assertions (response shape, status codes). Mentions observability check. Does not assume browser tooling.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "name": "adjacent-not-a-bash",
+      "prompt": "Can you help me debug why this React component re-renders constantly? It's the OrderSummary in our checkout flow — I added a useMemo but it didn't help. Here's the code: ...",
+      "expected_behavior": "Does NOT trigger bug-bash. This is debug-hunt territory (a specific runtime bug, not a feature-level QA pass). The skill description explicitly mentions 'bug bash', 'QA this feature', 'run the test cases' — none of which apply here.",
+      "files": []
+    }
+  ]
+}
