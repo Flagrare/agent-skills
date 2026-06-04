@@ -9,7 +9,28 @@ Generate a team-wide pull request status report focused on actionable next steps
 
 ## Setup (first run only)
 
-Check for config files matching `{skill_directory}/teams/*.json`. If none exist, run the setup flow.
+Team configs live at **`~/.claude/skills/flagrare/daily-code-review/teams/*.json`** — one file per team, outside the plugin tree so they survive plugin updates and reinstalls.
+
+In Bash, expand `~` explicitly: `"$HOME/.claude/skills/flagrare/daily-code-review/teams"`. The directory may not exist yet — `mkdir -p "$HOME/.claude/skills/flagrare/daily-code-review/teams"` before writing.
+
+### Step 1 — Migrate legacy configs (one-time)
+
+If the new dir has no team files but the legacy per-plugin dir does, migrate them:
+
+```bash
+LEGACY="{skill_directory}/teams"   # old location, lost on plugin reinstall
+NEW="$HOME/.claude/skills/flagrare/daily-code-review/teams"
+if [ -d "$LEGACY" ] && [ ! -d "$NEW" ]; then
+  mkdir -p "$NEW"
+  cp "$LEGACY"/*.json "$NEW"/ 2>/dev/null || true
+fi
+```
+
+Tell the user once: "Migrated your team configs from the old per-plugin location to `~/.claude/skills/flagrare/daily-code-review/teams/` so they survive plugin updates."
+
+### Step 2 — Check for existing configs
+
+Check for config files matching `~/.claude/skills/flagrare/daily-code-review/teams/*.json`. If none exist, run the first-time setup flow.
 
 ### First-time setup
 
@@ -19,7 +40,7 @@ Use `AskUserQuestion` to collect:
 2. **Team name** — a human label for the report header (e.g., `Platform Team`)
 3. **Team members** — for each person, their GitHub login and display name. Ask in a single prompt, one member per line, format: `github_login / Display Name`
 
-Save to `{skill_directory}/teams/{team-name-slug}.json`:
+Save to `~/.claude/skills/flagrare/daily-code-review/teams/{team-name-slug}.json`:
 
 ```json
 {

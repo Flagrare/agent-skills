@@ -11,9 +11,30 @@ The single rule that shapes everything below: **work is named by what it was, no
 
 ## Setup (first run only)
 
-Check `{skill_directory}/config.json`. If missing, run setup.
+Config lives at **`~/.claude/skills/flagrare/config.json`** — a single file shared across all flagrare skills, outside the plugin tree so it survives plugin updates and reinstalls. Skill-agnostic keys (GitHub login, display name, repo scope, local roots) sit at the top level; skill-specific keys nest under `skills.<name>`.
 
-### First-time setup
+In Bash, expand `~` explicitly: `"$HOME/.claude/skills/flagrare/config.json"`. The directory may not exist yet — `mkdir -p "$HOME/.claude/skills/flagrare"` before writing.
+
+### Step 1 — Migrate legacy config (one-time)
+
+If `~/.claude/skills/flagrare/config.json` does **not** exist but a legacy per-skill config does, migrate it:
+
+```bash
+LEGACY="{skill_directory}/config.json"   # old location, lost on plugin reinstall
+NEW="$HOME/.claude/skills/flagrare/config.json"
+if [ ! -f "$NEW" ] && [ -f "$LEGACY" ]; then
+  mkdir -p "$(dirname "$NEW")"
+  # Wrap legacy keys: standup-specific ones (extra_mcps) move under skills.standup-report
+  jq '{
+    github_login, display_name, first_person, repo_scope, local_repo_roots, tracker_mcp,
+    skills: { "standup-report": { extra_mcps: .extra_mcps } }
+  } | with_entries(select(.value != null))' "$LEGACY" > "$NEW"
+fi
+```
+
+Tell the user once: "Migrated your config from the old per-plugin location to `~/.claude/skills/flagrare/config.json` so it survives plugin updates."
+
+### Step 2 — First-time setup (if no config exists at the new path)
 
 Use `AskUserQuestion` to collect:
 
@@ -27,7 +48,7 @@ Use `AskUserQuestion` to collect:
 5. **Tracker MCP** — detect which is installed in the session (Linear, Jira, Notion, Asana, Shortcut, Trello). If multiple, ask which one this user actually files tickets in. If none, skip.
 6. **Additional MCPs to query** — after the above is filled in, list the *other* MCPs currently available in the session (Slack, Discord, Google Calendar, PostHog, etc.) and ask if any should feed context into the recap. Example: Slack DMs/channels might surface conversations that explain *why* a PR was opened. Save which ones the user opts in to.
 
-Save to `{skill_directory}/config.json`:
+Save the shared keys at the top level and the standup-specific `extra_mcps` under `skills["standup-report"]`:
 
 ```json
 {
@@ -37,15 +58,19 @@ Save to `{skill_directory}/config.json`:
   "repo_scope": { "type": "org", "value": "acme-corp" },
   "local_repo_roots": ["~/Dev", "~/work"],
   "tracker_mcp": "linear",
-  "extra_mcps": ["slack"]
+  "skills": {
+    "standup-report": {
+      "extra_mcps": ["slack"]
+    }
+  }
 }
 ```
 
-Confirm with the user before saving.
+Confirm with the user before saving. Preserve any pre-existing `skills.*` blocks from other flagrare skills — merge, don't overwrite.
 
 ### Returning user
 
-If `config.json` exists, use it. If the user says "reconfigure" or "edit setup", re-run the setup flow.
+If `~/.claude/skills/flagrare/config.json` exists, read the top-level keys plus `skills["standup-report"]`. If only some top-level keys exist (e.g. brag-doc was set up but not standup-report), reuse what's there and only ask for `extra_mcps`. If the user says "reconfigure" or "edit setup", re-run the setup flow — but only rewrite the `skills["standup-report"]` block plus any top-level keys the user changes; leave other skills' blocks untouched.
 
 ## Resolve the time window
 

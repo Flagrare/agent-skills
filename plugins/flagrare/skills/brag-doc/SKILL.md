@@ -39,9 +39,31 @@ Other repurposings (performance-review packet grouped by competency, append to a
 
 ## Setup (first run only)
 
-Check `{skill_directory}/config.json`. If missing, run setup.
+Config lives at **`~/.claude/skills/flagrare/config.json`** — a single file shared across all flagrare skills, outside the plugin tree so it survives plugin updates and reinstalls. Skill-agnostic keys (GitHub login, display name, repo scope, local roots) sit at the top level; brag-doc–specific keys nest under `skills["brag-doc"]`.
 
-Setup is identical in shape to `/flagrare:standup-report` — if that skill's config exists at a sibling path, offer to copy it as a starting point rather than asking the same questions twice. Otherwise collect via `AskUserQuestion`:
+In Bash, expand `~` explicitly: `"$HOME/.claude/skills/flagrare/config.json"`. The directory may not exist yet — `mkdir -p "$HOME/.claude/skills/flagrare"` before writing.
+
+### Step 1 — Migrate legacy config (one-time)
+
+If the new path doesn't exist but a legacy per-skill config does, migrate it:
+
+```bash
+LEGACY="{skill_directory}/config.json"   # old location, lost on plugin reinstall
+NEW="$HOME/.claude/skills/flagrare/config.json"
+if [ ! -f "$NEW" ] && [ -f "$LEGACY" ]; then
+  mkdir -p "$(dirname "$NEW")"
+  # Brag-doc had no skill-specific keys in the old shape; carry over top-level only.
+  jq '{
+    github_login, display_name, first_person, repo_scope, local_repo_roots, tracker_mcp
+  } | with_entries(select(.value != null))' "$LEGACY" > "$NEW"
+fi
+```
+
+Tell the user once: "Migrated your config from the old per-plugin location to `~/.claude/skills/flagrare/config.json` so it survives plugin updates."
+
+### Step 2 — First-time setup (if no config exists at the new path)
+
+If the file already exists from another flagrare skill (e.g. `standup-report`), reuse the top-level keys silently — no re-prompting. Otherwise collect via `AskUserQuestion`:
 
 1. **GitHub login** — for `author:`, `commenter:`, `reviewed-by:` searches. Run `gh api user --jq '.login'` to detect and confirm.
 2. **Display name** — how to refer to the user. Default to first-person ("I").
@@ -50,9 +72,35 @@ Setup is identical in shape to `/flagrare:standup-report` — if that skill's co
 5. **Tracker MCP** — detect Linear / Jira / Notion / Asana / Shortcut / Trello in the session; ask which is in use.
 6. **Optional extra MCPs** — Slack, calendar, etc., for narrative context (a meeting that produced a decision, a thread that explained a regression).
 
-Save to `{skill_directory}/config.json` in the same shape as `standup-report`. Confirm before saving.
+Brag-doc may also carry skill-specific keys under `skills["brag-doc"]`:
 
-If the user says "reconfigure" or "edit setup", re-run.
+- `journal_path` — where to append the rendered brag doc (set on first save)
+- `resumancer_branches` — a map of theme → branch name to avoid re-guessing in Resumancer mode
+
+These are written lazily as the user answers follow-up prompts (e.g. "save to `~/notes/brag.md`" → persist `journal_path`); don't ask up front.
+
+Save shape:
+
+```json
+{
+  "github_login": "aturing",
+  "display_name": "Alan",
+  "first_person": true,
+  "repo_scope": { "type": "org", "value": "acme-corp" },
+  "local_repo_roots": ["~/Dev", "~/work"],
+  "tracker_mcp": "linear",
+  "skills": {
+    "brag-doc": {
+      "journal_path": "~/notes/brag.md",
+      "resumancer_branches": { "reliability": "reliability", "reviews": "reviews" }
+    }
+  }
+}
+```
+
+Confirm with the user before saving. Preserve any pre-existing `skills.*` blocks from other flagrare skills — merge, don't overwrite.
+
+If the user says "reconfigure" or "edit setup", re-run — but only rewrite the `skills["brag-doc"]` block plus any top-level keys the user changes.
 
 ## Resolve the time window
 
@@ -287,7 +335,7 @@ Use the report template above (`# Brag Doc — {window} / ## Headline / ## What 
 
 After rendering, two natural follow-ups the user might ask for:
 
-- **Append to journal / running brag sheet.** If the user has a configured journal or brag-sheet path in `config.json`, offer to append under a dated heading. If they request a save without a path, default to `./brag-{YYYY-MM-DD}.md`.
+- **Append to journal / running brag sheet.** If the user has a configured journal or brag-sheet path under `skills["brag-doc"].journal_path` in `~/.claude/skills/flagrare/config.json`, offer to append under a dated heading. If they request a save without a path, default to `./brag-{YYYY-MM-DD}.md` and offer to persist that choice under `journal_path` so the next run defaults to it.
 - **Performance-review packet framing.** Same content, regrouped by competency axes (ownership, technical depth, collaboration, growth) instead of by chronology. If the user provides their company's review rubric, map themes to the rubric's axes; otherwise default to the standard four.
 
 ### Resumancer mode — CLI commands
@@ -310,7 +358,7 @@ For each entry, populate:
 
 - **Message** — the impact-framed sentence (use the same outcome-first vocabulary as the markdown mode). One concrete claim per entry, not a paragraph.
 - **`--commit <sha>`** — when a single commit anchors the work, surface it. For multi-commit themes, pick the most representative (usually the merge commit or the final fix).
-- **`--branch <name>`** — use the configured Resumancer branch if known (the skill's `config.json` may carry one). Otherwise default to a plausible name based on the theme (e.g. `reliability`, `reviews`, `reflections`) and tell the user to swap if it doesn't match their setup.
+- **`--branch <name>`** — use the configured Resumancer branch if known (the shared config may carry one under `skills["brag-doc"].resumancer_branches`). Otherwise default to a plausible name based on the theme (e.g. `reliability`, `reviews`, `reflections`) and tell the user to swap if it doesn't match their setup.
 - **`--public`** — add for headline-worthy shipped impact (likely to surface in a profile / portfolio). Omit for reflections and internal-only work.
 
 Example output for the same five-event week shown in the before/after:
@@ -325,7 +373,7 @@ resumancer reflection "half-day spike on queue-sharding revealed the bottleneck 
 
 Map themes to entries thoughtfully. One theme may produce two entries (the `build` + the `impact`), or one `impact` that subsumes both. Resist the urge to emit one entry per PR — that's the bland-enumeration trap the markdown mode also warns against.
 
-When the user's `config.json` doesn't carry Resumancer branch names, output reasonable defaults and add a one-line note at the top of the code block: `# Branches are guesses — swap to your own if they don't match.`
+When `skills["brag-doc"].resumancer_branches` is missing from the shared config, output reasonable defaults and add a one-line note at the top of the code block: `# Branches are guesses — swap to your own if they don't match.` After the user confirms the branches they actually use, offer to persist them.
 
 ## Edge cases
 
@@ -342,4 +390,4 @@ Render the full brag doc inline in the conversation.
 
 If the user asks to save it, default to `./brag-{YYYY-MM-DD}.md` in the current working directory, with the date being the *end* of the window.
 
-If the user has a configured journal/brag-doc path (in `config.json`), offer to append there instead.
+If the user has a configured journal/brag-doc path (in `~/.claude/skills/flagrare/config.json` under `skills["brag-doc"].journal_path`), offer to append there instead.
