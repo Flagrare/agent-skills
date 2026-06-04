@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.16.1 — 2026-06-04
+
+Skill configs now survive plugin updates. Previously, settings for `/flagrare:standup-report`, `/flagrare:brag-doc`, and `/flagrare:daily-code-review` lived inside the plugin install directory — so every `flagrare:update` wiped them and the setup flow re-ran from scratch.
+
+### Bug Fixes
+
+- **`/flagrare:standup-report`, `/flagrare:brag-doc` — shared config at `~/.claude/skills/flagrare/config.json`**: outside the plugin tree, so it survives updates and reinstalls. Skill-agnostic keys (GitHub login, display name, repo scope, local repo roots, tracker MCP) sit at the top level and are shared between both skills; skill-specific keys nest under `skills.<name>`. A one-time migration runs silently on first invocation after upgrade — existing setup carries over, no re-prompting.
+- **`/flagrare:daily-code-review` — team configs at `~/.claude/skills/flagrare/daily-code-review/teams/`**: same shape (one file per team), new persistent location. Legacy team files at the old path are migrated on first run.
+
 ## 1.16.0 — 2026-06-03
 
 `/flagrare:bug-bash` is a new skill for running a prescribed test plan against a real running system with evidence. Walks every test case the team wrote, then explores beyond it with a five-lens pass. Never claims a bug it didn't itself reproduce.
