@@ -53,10 +53,10 @@ Before drafting any ticket, ground it in the actual codebase if one exists. An e
 
 Skip codebase grounding when any of these is true:
 
-- `git rev-parse --show-toplevel` fails — not in a repo
+- `git rev-parse --show-toplevel` fails, not in a repo
 - The repo has no source files (docs-only, empty, pre-code project). Heuristic: `git ls-files | grep -vE '\.(md|txt|json|ya?ml|toml|gitignore|cff)$' | head -1` returns nothing
 - The user explicitly says "rough draft", "skip exploration", "no code yet"
-- The ticket is purely process (e.g. `[INFRA] add CODEOWNERS file`, `[DEVOPS] rotate AWS keys`) and exploration would add no value — use judgement
+- The ticket is purely process (e.g. `[INFRA] add CODEOWNERS file`, `[DEVOPS] rotate AWS keys`) and exploration would add no value, use judgement
 
 ### How to ground (single ticket)
 
@@ -66,9 +66,9 @@ These findings populate a new ticket subsection (see template updates below).
 
 ### How to ground (backlog / spec → tickets)
 
-For multi-ticket flows (spec/TDD decomposition), dispatch N parallel `/flagrare:codebase-explore` agents — one per candidate ticket — in a **single message** with multiple `Agent` tool calls using `model: "sonnet"`. Each agent gets that candidate's `{title, summary}` and returns its findings independently. Wall-clock stays bounded regardless of backlog size.
+For multi-ticket flows (spec/TDD decomposition), dispatch N parallel `/flagrare:codebase-explore` agents, one per candidate ticket, in a **single message** with multiple `Agent` tool calls using `model: "sonnet"`. Each agent gets that candidate's `{title, summary}` and returns its findings independently. Wall-clock stays bounded regardless of backlog size.
 
-Do NOT run codebase-explore sequentially for backlog flows. The parallelism is the whole point — emit all `Agent` calls in one message so the runtime can execute them concurrently.
+Do NOT run codebase-explore sequentially for backlog flows. The parallelism is the whole point, emit all `Agent` calls in one message so the runtime can execute them concurrently.
 
 ---
 
@@ -168,10 +168,10 @@ Each template has an optional grounding subsection populated from `/flagrare:cod
 ## Context
 [Assume zero prior context. Explain what part of the project, what needs to change, end result. Link TDD/spec if available.]
 
-## Existing Patterns (optional — from codebase-explore)
-- `path/to/file.ts:42` — the function this touches today
-- `path/to/utility.ts` — existing helper to reuse instead of writing fresh
-- `prior-branch/feat-x` — abandoned approach, see PR #142 for why
+## Existing Patterns (optional: from codebase-explore)
+- `path/to/file.ts:42`, the function this touches today
+- `path/to/utility.ts`, existing helper to reuse instead of writing fresh
+- `prior-branch/feat-x`, abandoned approach, see PR #142 for why
 
 ## What needs to happen (optional, if implementation is known)
 [Bullet list of specific changes: files, components, endpoints.]
@@ -187,9 +187,9 @@ Each template has an optional grounding subsection populated from `/flagrare:cod
 ## Context
 [What is happening vs what should happen. How discovered. Include IDs, threads, screenshots.]
 
-## Suspect Code (optional — from codebase-explore)
-- `path/to/file.ts:128` — handler where the bad behavior originates
-- `path/to/validator.ts:64` — likely missing the guard for this input shape
+## Suspect Code (optional: from codebase-explore)
+- `path/to/file.ts:128`, handler where the bad behavior originates
+- `path/to/validator.ts:64`, likely missing the guard for this input shape
 
 ## Steps to Reproduce (if known)
 1. Step 1
@@ -220,9 +220,9 @@ Each template has an optional grounding subsection populated from `/flagrare:cod
 ## Context
 [Background on why the spike is needed.]
 
-## Prior Work (optional — from codebase-explore)
-- `path/to/experimental.ts` — partial attempt from Q1
-- `feat/spike-x` branch — abandoned, see PR #87 discussion for blockers
+## Prior Work (optional: from codebase-explore)
+- `path/to/experimental.ts`, partial attempt from Q1
+- `feat/spike-x` branch, abandoned, see PR #87 discussion for blockers
 
 ## Acceptance Criteria
 * Document findings in [location]
@@ -241,11 +241,11 @@ After the draft is assembled with codebase findings, polish the **Context sectio
 
 The polish applies write-docs's craft layer to the Context: reader-situation-first opening, concrete file references inline (drawn from the grounding subsection), prose over bullets where causality matters, voice consistent across tickets.
 
-Sections NOT polished — they stay mechanical:
+Sections NOT polished, they stay mechanical:
 
-- Metadata block — fixed format
-- Acceptance criteria — testable bullets; prose would blur them
-- Environment, References, Steps to Reproduce — factual lists
+- Metadata block, fixed format
+- Acceptance criteria, testable bullets; prose would blur them
+- Environment, References, Steps to Reproduce, factual lists
 
 **Skip polish when:** the user says "rough draft" / "skip polish" / `--rough`, or codebase grounding was skipped (without code references, there is little for write-docs to humanize).
 
@@ -269,11 +269,11 @@ Specific and testable:
 
 1. Determine issue type, prefix, parent, and tracker.
 2. Ask for the backlog folder path if not obvious from context.
-3. **Ground in code** — if conditions allow (see Step 0.5), call `/flagrare:codebase-explore` with the ticket's working title and description. Capture findings.
+3. **Ground in code**: if conditions allow (see Step 0.5), call `/flagrare:codebase-explore` with the ticket's working title and description. Capture findings.
 4. Write the `.md` file with the next available sequence number, including the grounding subsection if applicable.
-5. **Polish the Context** — if grounding ran and polish wasn't opted out, call `/flagrare:write-docs` on the Context section. Replace the draft Context with the polished version. **Do not end your turn here** — a polished ticket file looks finished, but steps 6–7 still remain. Continue in the same turn.
+5. **Polish the Context**: if grounding ran and polish wasn't opted out, call `/flagrare:write-docs` on the Context section. Replace the draft Context with the polished version. **Do not end your turn here**: a polished ticket file looks finished, but steps 6-7 still remain. Continue in the same turn.
 6. If an `INDEX.md` exists, update it.
-7. Present the result — see *Presenting the result* below (tool-driven close, not prose).
+7. Present the result, see *Presenting the result* below (tool-driven close, not prose).
 
 ## Workflow: Spec/TDD to Backlog
 
@@ -282,13 +282,13 @@ Specific and testable:
    - Technical layers (BE, FE, Database, Infra)
    - Dependencies and sequencing
    - Sizing (2-3 days each)
-3. **Parallel codebase grounding** — if conditions allow (Step 0.5), dispatch N parallel `/flagrare:codebase-explore` agents (one per candidate ticket) by emitting N `Agent` tool calls with `model: "sonnet"` in a single message. Wait for all results before drafting.
-4. **Draft and polish each ticket** — for each ticket: assemble with grounding findings, then call `/flagrare:write-docs` on the Context section (skip if grounding was skipped or polish opted out).
+3. **Parallel codebase grounding**: if conditions allow (Step 0.5), dispatch N parallel `/flagrare:codebase-explore` agents (one per candidate ticket) by emitting N `Agent` tool calls with `model: "sonnet"` in a single message. Wait for all results before drafting.
+4. **Draft and polish each ticket**: for each ticket: assemble with grounding findings, then call `/flagrare:write-docs` on the Context section (skip if grounding was skipped or polish opted out).
 5. **Write all files:**
    - `00-epic.md` (if creating a new Epic/Project)
    - `NN-slug.md` for each ticket
    - `INDEX.md` with sequencing, summary table, open questions, blockers
-6. Present the result — see *Presenting the result* below (tool-driven close, not prose).
+6. Present the result, see *Presenting the result* below (tool-driven close, not prose).
 
 ---
 
@@ -296,9 +296,9 @@ Specific and testable:
 
 After the file(s) are written and the index updated, **close with a tool, not prose.** A drafted ticket (or backlog) reads as "done," so ending with a prose "here's the ticket, let me know" frequently stops the turn before the user can act (the stall pattern in [`docs/research/2026-06-11-claude-code-goal-anti-stall.md`](../../../../docs/research/2026-06-11-claude-code-goal-anti-stall.md)). Issue an `AskUserQuestion` with options:
 
-- **Push to the tracker** (Recommended when a tracker was detected in Step 0) — proceed to *Workflow: Push to Tracker*.
-- **Revise first** — collect changes, edit the file(s), re-present.
-- **Leave as local files** — stop here; the markdown is the deliverable.
+- **Push to the tracker** (Recommended when a tracker was detected in Step 0), proceed to *Workflow: Push to Tracker*.
+- **Revise first**: collect changes, edit the file(s), re-present.
+- **Leave as local files**: stop here; the markdown is the deliverable.
 
 ---
 
@@ -369,5 +369,5 @@ Present a summary with all created ticket keys/URLs.
 - Don't assume the project/team. Ask if unclear.
 - Don't hard-code a single tracker. Detect from context.
 - Don't skip codebase grounding when a codebase exists. A ticket pointing at `path/to/file.ts:42` is dramatically more useful than one gesturing at "the relevant area".
-- Don't run `/flagrare:codebase-explore` sequentially for a backlog flow. Emit all `Agent` tool calls in a single message — the runtime executes them concurrently. N tickets must take roughly the same wall-clock as 1.
+- Don't run `/flagrare:codebase-explore` sequentially for a backlog flow. Emit all `Agent` tool calls in a single message, the runtime executes them concurrently. N tickets must take roughly the same wall-clock as 1.
 - Don't polish acceptance criteria, environment, or metadata via write-docs. Those sections are mechanical by design; prose-ifying them blurs the testability.

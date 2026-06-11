@@ -5,9 +5,9 @@
 - **Status:** complete
 - **Triggered by:** Designing `/flagrare:tutor`, an on-demand Socratic tutoring skill. The user wanted to understand what makes Boots actually work pedagogically before we built our own version.
 - **Informed:**
-  - [`docs/specs/2026-05-28-tutor-skill-design.md`](../specs/2026-05-28-tutor-skill-design.md) — the tutor skill spec, shipped as v1.14.0
-  - [`plugins/flagrare/skills/tutor/SKILL.md`](../../plugins/flagrare/skills/tutor/SKILL.md) — the skill itself
-  - [`docs/specs/2026-06-03-pr-reviewer-voice.md`](../specs/2026-06-03-pr-reviewer-voice.md) — the pr-reviewer voice spec, which reused the "concrete examples beat abstract rules" insight from this research
+  - [`docs/specs/2026-05-28-tutor-skill-design.md`](../specs/2026-05-28-tutor-skill-design.md), the tutor skill spec, shipped as v1.14.0
+  - [`plugins/flagrare/skills/tutor/SKILL.md`](../../plugins/flagrare/skills/tutor/SKILL.md), the skill itself
+  - [`docs/specs/2026-06-03-pr-reviewer-voice.md`](../specs/2026-06-03-pr-reviewer-voice.md), the pr-reviewer voice spec, which reused the "concrete examples beat abstract rules" insight from this research
 
 ## Question
 
@@ -58,7 +58,7 @@ What makes Boots, the AI tutor on boot.dev, pedagogically effective? Specificall
 - **Published:** 2024 (year inferred from title)
 - **Accessed:** 2026-05-28
 - **Relevance:** high
-- **What this contributed:** Empirical evidence that the friction-with-an-escape-hatch design works. Boots-chat usage is 3–4× more common than solution-view usage per learner, and Boots-usage scales with task difficulty (9% on Learn Python rising to 35.6% on HTTP Servers) rather than with learner weakness. The friction-cost schedule (1 baked salmon or 50% XP for a chat; 1 seer stone or 75% XP for the solution) is documented here. This drove the tutor skill's invocation-gated rather than behavior-gated friction model.
+- **What this contributed:** Empirical evidence that the friction-with-an-escape-hatch design works. Boots-chat usage is 3-4× more common than solution-view usage per learner, and Boots-usage scales with task difficulty (9% on Learn Python rising to 35.6% on HTTP Servers) rather than with learner weakness. The friction-cost schedule (1 baked salmon or 50% XP for a chat; 1 seer stone or 75% XP for the solution) is documented here. This drove the tutor skill's invocation-gated rather than behavior-gated friction model.
 - **Quoted:**
   > "students prefer to be guided using the Socratic method (which is what our AI is prompted to do) than to 'cheat'. However, once a lesson is complete, students like to see how the instructor solved the problem."
 
@@ -72,7 +72,7 @@ What makes Boots, the AI tutor on boot.dev, pedagogically effective? Specificall
 
 ## Sources attempted but inaccessible
 
-- [Class Central review of boot.dev](https://www.classcentral.com/report/review-boot-dev/) — third-party review of the platform. Returned 403, only the title surfaced. Not included as a substantive source because we couldn't actually read it.
+- [Class Central review of boot.dev](https://www.classcentral.com/report/review-boot-dev/), third-party review of the platform. Returned 403, only the title surfaced. Not included as a substantive source because we couldn't actually read it.
 
 ## Synthesis
 
@@ -82,14 +82,14 @@ Boots is pedagogically effective because of three design choices that compound, 
 
 **2. Context is curated, not bulked.** The team learned that more context (a 100k-token lesson history) produced worse output than a focused, smaller slice. Quality came from picking the *right* context for each interaction, not from giving the model everything that might be relevant. For our tutor skill this drove the per-branch context selection discipline (in-context vs. topic vs. instead-of-implementing each load different things).
 
-**3. Friction is gated at the invocation surface, not inside the dialogue.** Users pay before chatting (salmon or XP). Once in the chat, Boots is helpful and patient. This is a different model than "the AI gets harder to use when it thinks you're cheating" — Boots's friction is structural and external. After a lesson is completed, the chat becomes free, modelling a different relationship to the tutor (review vs. struggle-through).
+**3. Friction is gated at the invocation surface, not inside the dialogue.** Users pay before chatting (salmon or XP). Once in the chat, Boots is helpful and patient. This is a different model than "the AI gets harder to use when it thinks you're cheating", Boots's friction is structural and external. After a lesson is completed, the chat becomes free, modelling a different relationship to the tutor (review vs. struggle-through).
 
-The usage data validates the design: students reach for Boots 3–4× more than they reach for solution-reveal, and use Boots more as task difficulty increases. The friction works without trapping people.
+The usage data validates the design: students reach for Boots 3-4× more than they reach for solution-reveal, and use Boots more as task difficulty increases. The friction works without trapping people.
 
-A specific cross-application worth noting: the negative-examples insight, originally absorbed for the tutor skill, turned out to apply directly to a separate design problem six days later. The pr-reviewer skill had abstract warmth rules ("sound like a friendly teammate") that weren't producing the voice we wanted. The pr-reviewer voice spec replaces those rules with concrete before-and-after example pairs, using exactly the pattern Wagner described. We didn't recognise the cross-application until we were already drafting the second spec — that's also a reminder of why this catalog exists. Insights from one domain generalise more often than we expect, but only if they remain findable.
+A specific cross-application worth noting: the negative-examples insight, originally absorbed for the tutor skill, turned out to apply directly to a separate design problem six days later. The pr-reviewer skill had abstract warmth rules ("sound like a friendly teammate") that weren't producing the voice we wanted. The pr-reviewer voice spec replaces those rules with concrete before-and-after example pairs, using exactly the pattern Wagner described. We didn't recognise the cross-application until we were already drafting the second spec, that's also a reminder of why this catalog exists. Insights from one domain generalise more often than we expect, but only if they remain findable.
 
 ## Downstream uses
 
-- [`docs/specs/2026-05-28-tutor-skill-design.md`](../specs/2026-05-28-tutor-skill-design.md) — the tutor skill spec. Cites this research textually in its "Why" section; the 10-item negative-examples list, the Branch 3 stated-promise design, and the curated-per-branch context model all trace back to findings here.
-- [`plugins/flagrare/skills/tutor/SKILL.md`](../../plugins/flagrare/skills/tutor/SKILL.md) — the skill as shipped. The 10 negative-example rules are the concrete embodiment of the "negative examples beat abstract rules" insight.
-- [`docs/specs/2026-06-03-pr-reviewer-voice.md`](../specs/2026-06-03-pr-reviewer-voice.md) — the pr-reviewer voice spec. References "Lane Wagner's research at boot.dev" in its "Why" section. The eight before-and-after pair design comes directly from the negative-examples-beat-rules finding.
+- [`docs/specs/2026-05-28-tutor-skill-design.md`](../specs/2026-05-28-tutor-skill-design.md), the tutor skill spec. Cites this research textually in its "Why" section; the 10-item negative-examples list, the Branch 3 stated-promise design, and the curated-per-branch context model all trace back to findings here.
+- [`plugins/flagrare/skills/tutor/SKILL.md`](../../plugins/flagrare/skills/tutor/SKILL.md), the skill as shipped. The 10 negative-example rules are the concrete embodiment of the "negative examples beat abstract rules" insight.
+- [`docs/specs/2026-06-03-pr-reviewer-voice.md`](../specs/2026-06-03-pr-reviewer-voice.md), the pr-reviewer voice spec. References "Lane Wagner's research at boot.dev" in its "Why" section. The eight before-and-after pair design comes directly from the negative-examples-beat-rules finding.

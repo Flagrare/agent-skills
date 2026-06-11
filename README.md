@@ -20,7 +20,7 @@ git clone git@github.com:Flagrare/agent-skills.git && ./agent-skills/install.sh
 
 ### Already installed on an older version?
 
-If you're on a release before `1.3.1`, the cached version of `/flagrare:update` has obsolete logic baked into its text and can't update itself. Run the canonical updater directly from GitHub once — it will heal any stale marketplace, plugin, or settings state:
+If you're on a release before `1.3.1`, the cached version of `/flagrare:update` has obsolete logic baked into its text and can't update itself. Run the canonical updater directly from GitHub once, it will heal any stale marketplace, plugin, or settings state:
 
 ```bash
 bash <(curl -sL https://raw.githubusercontent.com/Flagrare/agent-skills/main/update.sh)
@@ -32,7 +32,7 @@ After this one-time bootstrap, `/flagrare:update` works for all future versions 
 
 ### Planning and context
 
-`/flagrare:intake` reads a ticket (via Jira MCP, Linear, GitHub CLI, or a pasted URL), dispatches parallel subagents to follow every linked doc and PR, and assembles a context brief. Before asking clarifying questions, it grounds the brief in the actual code via `/flagrare:codebase-explore` — so questions reference specific files (`src/x.ts:84`) instead of abstract architecture. Hands off to `/flagrare:atdd-plan`.
+`/flagrare:intake` reads a ticket (via Jira MCP, Linear, GitHub CLI, or a pasted URL), dispatches parallel subagents to follow every linked doc and PR, and assembles a context brief. Before asking clarifying questions, it grounds the brief in the actual code via `/flagrare:codebase-explore`, so questions reference specific files (`src/x.ts:84`) instead of abstract architecture. Hands off to `/flagrare:atdd-plan`.
 
 `/flagrare:atdd-plan` produces an implementation plan in Claude Code's native plan mode. It enters plan mode via `EnterPlanMode`, runs `/flagrare:codebase-explore` to ground the plan in real files, and produces a plan-mode plan that must include 3-5 behavior-first acceptance tests defining "done" before implementation and any non-trivial structural decisions named as design patterns with a one-line rationale. `ExitPlanMode` closes with the native approve/edit/reject button UI. The skill stops at the plan; it does not write implementation code.
 
@@ -40,13 +40,13 @@ After this one-time bootstrap, `/flagrare:update` works for all future versions 
 
 `/flagrare:codebase-explore` maps conventions, reusable utilities, analogous features, and data flows for a planned change. Returns raw findings only (no plan, no tests). Used as the codebase grounding step by `/flagrare:intake`, `/flagrare:atdd-plan`, and `/flagrare:ticket-creator`, or standalone when you need to understand a feature area.
 
-`/flagrare:tdd-writer` drafts Technical Design Documents for large projects (2+ weeks). It fetches context from Jira, Confluence, Figma, and Notion via MCP, analyzes the actual codebase, and marks every unverified claim explicitly — nothing is assumed. It writes through `/flagrare:write-docs`, so the result reads as narrative a reviewer can follow start to finish (what's proposed, why, and how) rather than a checklist with the prose removed.
+`/flagrare:tdd-writer` drafts Technical Design Documents for large projects (2+ weeks). It fetches context from Jira, Confluence, Figma, and Notion via MCP, analyzes the actual codebase, and marks every unverified claim explicitly, nothing is assumed. It writes through `/flagrare:write-docs`, so the result reads as narrative a reviewer can follow start to finish (what's proposed, why, and how) rather than a checklist with the prose removed.
 
-`/flagrare:ticket-creator` writes well-structured tickets as reviewable markdown files, then pushes to any tracker (Jira, Linear, GitHub Issues, Shortcut, Asana, Trello) via MCP or CLI after you review and approve. Before drafting, it calls `/flagrare:codebase-explore` to find specific file paths, conventions, and prior attempts — so the ticket points at `path/to/file.ts:42` instead of gesturing at "the relevant area". For spec/TDD-to-backlog flows it dispatches the explorations in parallel. After drafting, it polishes the Context section via `/flagrare:write-docs` so the prose reads like a senior engineer wrote it, not a template.
+`/flagrare:ticket-creator` writes well-structured tickets as reviewable markdown files, then pushes to any tracker (Jira, Linear, GitHub Issues, Shortcut, Asana, Trello) via MCP or CLI after you review and approve. Before drafting, it calls `/flagrare:codebase-explore` to find specific file paths, conventions, and prior attempts, so the ticket points at `path/to/file.ts:42` instead of gesturing at "the relevant area". For spec/TDD-to-backlog flows it dispatches the explorations in parallel. After drafting, it polishes the Context section via `/flagrare:write-docs` so the prose reads like a senior engineer wrote it, not a template.
 
 ### Learning
 
-`/flagrare:tutor` is on-demand Socratic tutoring mode. Claude switches from doing the work to teaching you how to do it — questions instead of answers. You pick scope per call (tutor against current context, against a named topic, or instead of implementing the thing Claude was about to build) and persona in ascending intensity (Echo for calm/observational, Cipher for puzzle-handler, Vex for pushes-hard). Refuses to reveal the answer until you explicitly ask or accept a stuck-offer at three consecutive stalls. Exits only on explicit close phrase ("stop tutoring") — no model-side mastery gate. On first invocation in a repo, asks whether to record per-session summaries to `.flagrare/tutor-log.md` as a learning-path log.
+`/flagrare:tutor` is on-demand Socratic tutoring mode. Claude switches from doing the work to teaching you how to do it, questions instead of answers. You pick scope per call (tutor against current context, against a named topic, or instead of implementing the thing Claude was about to build) and persona in ascending intensity (Echo for calm/observational, Cipher for puzzle-handler, Vex for pushes-hard). Refuses to reveal the answer until you explicitly ask or accept a stuck-offer at three consecutive stalls. Exits only on explicit close phrase ("stop tutoring"), no model-side mastery gate. On first invocation in a repo, asks whether to record per-session summaries to `.flagrare/tutor-log.md` as a learning-path log.
 
 ### Quality gates
 
@@ -62,11 +62,11 @@ After this one-time bootstrap, `/flagrare:update` works for all future versions 
 
 `/flagrare:release-check` detects the project's release mechanism, decides whether a release is due, and drafts a semver bump with a value-focused changelog entry.
 
-`/flagrare:ux-audit` drives the running app via Chrome DevTools MCP through every reachable route and every visible affordance, screenshots each state, and writes a severity-ranked findings table (`.ux-audit/FINDINGS.md`) with location, why-it's-painful, and recommended fix. Accepts an optional scope ("UX audit the onboarding flow") to restrict to specific routes; defaults to all routes when no scope is given. Pretends to be a first-time user — surfaces jargon, mystery glyphs, dead-end empty states, choice paralysis, color-only signals, jarring tone, mobile-first violations. Goal-locked so it can't exit before coverage is complete. Installs Chrome DevTools MCP automatically if not already available.
+`/flagrare:ux-audit` drives the running app via Chrome DevTools MCP through every reachable route and every visible affordance, screenshots each state, and writes a severity-ranked findings table (`.ux-audit/FINDINGS.md`) with location, why-it's-painful, and recommended fix. Accepts an optional scope ("UX audit the onboarding flow") to restrict to specific routes; defaults to all routes when no scope is given. Pretends to be a first-time user, surfaces jargon, mystery glyphs, dead-end empty states, choice paralysis, color-only signals, jarring tone, mobile-first violations. Goal-locked so it can't exit before coverage is complete. Installs Chrome DevTools MCP automatically if not already available.
 
-`/flagrare:debug-hunt` is evidence-first debugging for bugs that are hard to reproduce, intermittent, or where previous static-analysis fixes have failed. It sets an explicit `/goal` (the bug no longer reproduces), then loops through Hypothesis → Instrument → Reproduce → Analyze → Fix until that goal is met. In Phase 1 it offers to invoke `/flagrare:smoke-test` to surface evidence from a live instance before touching code. When the repo has tests, Phase 4 invokes `/flagrare:atdd-plan` to write a failing acceptance test before the fix — so the bug is captured before it's killed. All instrumentation is tagged `[DEBUG-HUNT]` for clean removal once the fix is verified.
+`/flagrare:debug-hunt` is evidence-first debugging for bugs that are hard to reproduce, intermittent, or where previous static-analysis fixes have failed. It sets an explicit `/goal` (the bug no longer reproduces), then loops through Hypothesis → Instrument → Reproduce → Analyze → Fix until that goal is met. In Phase 1 it offers to invoke `/flagrare:smoke-test` to surface evidence from a live instance before touching code. When the repo has tests, Phase 4 invokes `/flagrare:atdd-plan` to write a failing acceptance test before the fix, so the bug is captured before it's killed. All instrumentation is tagged `[DEBUG-HUNT]` for clean removal once the fix is verified.
 
-`/flagrare:five-lens-review` spawns five parallel persona subagents — Senior PM, Senior Product Engineer, Senior Product Designer, Senior Design Engineer, and a realistic end user — each examining the same product-direction question through their discipline's lens, then synthesizes convergent themes, disagreements, and a single actionable recommendation. Use when a user-facing decision has multiple competing constraints (lifecycle behaviour, data-model trade-offs, destructive actions, UX choices that touch retention) and a single-perspective answer would silently lock in the wrong default.
+`/flagrare:five-lens-review` spawns five parallel persona subagents, Senior PM, Senior Product Engineer, Senior Product Designer, Senior Design Engineer, and a realistic end user, each examining the same product-direction question through their discipline's lens, then synthesizes convergent themes, disagreements, and a single actionable recommendation. Use when a user-facing decision has multiple competing constraints (lifecycle behaviour, data-model trade-offs, destructive actions, UX choices that touch retention) and a single-perspective answer would silently lock in the wrong default.
 
 ### Review
 
@@ -76,9 +76,9 @@ After this one-time bootstrap, `/flagrare:update` works for all future versions 
 
 `/flagrare:daily-code-review` reports on your team's open PRs. It queries GitHub for every open PR across a configured roster, classifies each by staleness (>24h pod-wide, >12h yours-to-touch) and review state, and renders three sections: stale PRs needing action, PRs needing your attention (yours to review or yours to merge), and parked drafts. First run prompts for the GitHub org and team members, then saves the config under the skill for future runs.
 
-`/flagrare:standup-report` writes your daily standup as a Staff Engineer would deliver it — impact-driven, root-cause-aware, and honest about judgment calls. It pulls from GitHub (your PRs, reviews left, comments addressed, merges, deploys), local git across configured repo roots, the project's release automation, and any tracker MCP you've configured (Linear, Jira, Notion, etc.). The output is a short narrative paragraph plus a journal-style recap plus a slack-pasteable bullet list. Names work in human terms — "fixed the image cache eviction" not "PR #481" — and resolves "yesterday" as your last working day, so Monday standups cover Friday. On first install, prompts for additional MCPs (Slack, calendar) that can feed narrative context.
+`/flagrare:standup-report` writes your daily standup as a Staff Engineer would deliver it, impact-driven, root-cause-aware, and honest about judgment calls. It pulls from GitHub (your PRs, reviews left, comments addressed, merges, deploys), local git across configured repo roots, the project's release automation, and any tracker MCP you've configured (Linear, Jira, Notion, etc.). The output is a short narrative paragraph plus a journal-style recap plus a slack-pasteable bullet list. Names work in human terms, "fixed the image cache eviction" not "PR #481", and resolves "yesterday" as your last working day, so Monday standups cover Friday. On first install, prompts for additional MCPs (Slack, calendar) that can feed narrative context.
 
-`/flagrare:brag-doc` is standup-report's long-arc counterpart. Ask for a day, week, biweek, month, or custom range, and the skill clusters your activity (authored PRs, reviews given, commits, deploys, linked tickets) into 3-6 impact themes, then renders a brag-doc-formatted markdown document — headline, themed sections leading with outcomes, IC contributions separated from amplification, learnings, open threads, refs. The output drops into a dev journal, a personal bragging sheet, or a performance-review packet as-is. Pass `resumancer` as a mode argument (`/flagrare:brag-doc resumancer`) and the skill emits a bash block of ready-to-paste `resumancer` CLI commands instead, with command types (build / impact / reflection / goal) mapped from theme shape.
+`/flagrare:brag-doc` is standup-report's long-arc counterpart. Ask for a day, week, biweek, month, or custom range, and the skill clusters your activity (authored PRs, reviews given, commits, deploys, linked tickets) into 3-6 impact themes, then renders a brag-doc-formatted markdown document, headline, themed sections leading with outcomes, IC contributions separated from amplification, learnings, open threads, refs. The output drops into a dev journal, a personal bragging sheet, or a performance-review packet as-is. Pass `resumancer` as a mode argument (`/flagrare:brag-doc resumancer`) and the skill emits a bash block of ready-to-paste `resumancer` CLI commands instead, with command types (build / impact / reflection / goal) mapped from theme shape.
 
 ### Implementation support
 
@@ -105,7 +105,7 @@ A typical feature cycle:
   /flagrare:intake                 (context gathering, called by work-prep)
     /flagrare:codebase-explore       (ground brief in code, then ask codebase-aware questions)
   /flagrare:atdd-plan              (codebase exploration + plan, called by work-prep)
-    /flagrare:codebase-explore       (atdd-plan's own pass — stays self-sufficient for standalone use)
+    /flagrare:codebase-explore       (atdd-plan's own pass, stays self-sufficient for standalone use)
 [implementation]                 you have a plan, write code
 /flagrare:figma-matcher          UI work done, verify against Figma
 /flagrare:smoke-test             feature done, validate behaviour against a running app or service
@@ -135,7 +135,7 @@ After this, edits in `~/Dev/agent-skills` take effect on `/reload-plugins`. To s
 
 Run `/doctor`. It names the specific plugin and the specific failure.
 
-For most issues, run the canonical heal script — it fixes stale marketplace names, half-installed plugins, missing settings entries, and obsolete caches in one pass:
+For most issues, run the canonical heal script, it fixes stale marketplace names, half-installed plugins, missing settings entries, and obsolete caches in one pass:
 
 ```bash
 bash <(curl -sL https://raw.githubusercontent.com/Flagrare/agent-skills/main/update.sh)
@@ -145,6 +145,6 @@ bash <(curl -sL https://raw.githubusercontent.com/Flagrare/agent-skills/main/upd
 |---|---|
 | `N errors during load` | Run `/doctor` for the exact plugin and error |
 | `Plugin X not found in marketplace flagrare-skills` | Run the heal script above |
-| Slash commands missing, 0 errors | Run the heal script above — most often the plugin is enabled but not installed |
-| Marketplace operation hangs | Run the heal script above — it cleans the marketplace and re-clones from GitHub |
+| Slash commands missing, 0 errors | Run the heal script above, most often the plugin is enabled but not installed |
+| Marketplace operation hangs | Run the heal script above, it cleans the marketplace and re-clones from GitHub |
 | `/flagrare:update` runs old logic | You're on a pre-1.3 cached skill. Run the heal script above once; future `/flagrare:update` calls work correctly |

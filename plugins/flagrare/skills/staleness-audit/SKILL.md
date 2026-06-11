@@ -7,7 +7,7 @@ description: Pre-commit audit. Invoke before every git commit. Diffs the staged 
 
 Run this before every commit. The goal is simple: **a commit should leave the docs, types, and roadmap in a state consistent with the code it ships**. Drift between code and its surrounding narrative is how projects rot.
 
-Don't be lazy — actually run the checks. Each one is a `grep` or a `diff`. The whole audit should take under 30 seconds.
+Don't be lazy, actually run the checks. Each one is a `grep` or a `diff`. The whole audit should take under 30 seconds.
 
 ## How to invoke
 
@@ -15,9 +15,9 @@ You (the model) invoke this skill yourself, before staging the final commit. The
 
 ## Inputs
 
-- `git diff --staged --stat` — what's about to be committed
-- `git diff --staged` — the actual hunks (only read the ones you need)
-- `git status` — what's unstaged or untracked that might also be drift
+- `git diff --staged --stat`, what's about to be committed
+- `git diff --staged`, the actual hunks (only read the ones you need)
+- `git status`, what's unstaged or untracked that might also be drift
 - The repo working tree for the canary files listed below
 
 ## Procedure
@@ -38,7 +38,7 @@ The `README.md` is the project's storefront. After every commit, ask:
 If the project has a decision log (ADRs in `docs/decisions/`, RFCs, or equivalent), check:
 
 - Any new decision file that isn't in the index. Add it.
-- Any decision whose `Status:` says "Accepted" but is actually superseded by a later one — update status on both.
+- Any decision whose `Status:` says "Accepted" but is actually superseded by a later one, update status on both.
 - Cross-references that point at filenames that no longer exist.
 
 If the project has no decision log, skip this check.
@@ -75,8 +75,8 @@ If the commit touches source files, ask: is this user-observable?
   - **Changesets:** a `.changeset/*.md` file (run `pnpm changeset` or `npx changeset` to draft)
   - **towncrier:** a `changelog.d/` fragment
   - **Manual CHANGELOG:** a new entry in `CHANGELOG.md`
-  - **Conventional commits:** the commit message itself is the record — verify it's descriptive enough
-- If no (pure internal refactor / test / docs / tooling), no release note is needed — but note that explicitly.
+  - **Conventional commits:** the commit message itself is the record, verify it's descriptive enough
+- If no (pure internal refactor / test / docs / tooling), no release note is needed, but note that explicitly.
 
 ### 6. Contributor guide hygiene
 
@@ -89,7 +89,7 @@ If the project has a `CONTRIBUTING.md` (or equivalent), after any commit that ad
 
 Test names should describe **behaviour**, not method names. Grep newly added/changed test files for:
 
-- `it("works")`, `test("test 1")`, `it("should work correctly")`, `it("returns the value")` — vague or method-centric. Flag.
+- `it("works")`, `test("test 1")`, `it("should work correctly")`, `it("returns the value")`, vague or method-centric. Flag.
 - Good names: `it("rejects an out-of-range index with a RangeError carrying the attempted value")`.
 
 This applies regardless of framework (Jest, Vitest, pytest, RSpec, Go test, etc.).
@@ -98,7 +98,7 @@ This applies regardless of framework (Jest, Vitest, pytest, RSpec, Go test, etc.
 
 Grep the staged diff for tokens that shouldn't ship:
 
-- `TODO`, `FIXME`, `XXX`, `HACK`, `@todo` — fine if they reference an issue (`TODO(#42)`); not fine if naked.
+- `TODO`, `FIXME`, `XXX`, `HACK`, `@todo`, fine if they reference an issue (`TODO(#42)`); not fine if naked.
 - `console.log`, `debugger`, `.only`, `.skip` in test files.
 - Leftover lint-suppression comments without an explanation.
 
@@ -119,7 +119,7 @@ If the project uses a `~/.claude/projects/<path>/memory/` directory with `[[name
 - Every `[[some-name]]` resolves to a file `some-name.md` in the memory directory for this project.
 - The `MEMORY.md` index has an entry for every `.md` file (other than itself).
 
-To find the memory path: derive it from `pwd` — the project memory dir is `~/.claude/projects/<pwd-with-slashes-replaced-by-dashes>/memory/`. If the directory doesn't exist, skip this check.
+To find the memory path: derive it from `pwd`, the project memory dir is `~/.claude/projects/<pwd-with-slashes-replaced-by-dashes>/memory/`. If the directory doesn't exist, skip this check.
 
 ### 11. Commit message format
 
@@ -140,7 +140,7 @@ Check the relevant config files for the project's CI platform:
 - **GitLab CI:** `.gitlab-ci.yml`, `.gitlab/`
 - **Other:** whatever config files control automated commits
 
-The rule of thumb: if a tool can push a commit, its message template must satisfy the project's commitlint rules — or the merge strategy must ensure a manually-written squash message.
+The rule of thumb: if a tool can push a commit, its message template must satisfy the project's commitlint rules, or the merge strategy must ensure a manually-written squash message.
 
 ### 13. CI config drift
 
@@ -152,7 +152,7 @@ Whenever this commit touches CI config files:
 
 ## Output
 
-When you're done, give the user a concise audit line for each check — `✓` if clean, `→ fixed: …` if you applied a mechanical fix, `⚠ needs decision: …` if it's a judgement call. Don't pad with checks that found nothing.
+When you're done, give the user a concise audit line for each check, `✓` if clean, `→ fixed: …` if you applied a mechanical fix, `⚠ needs decision: …` if it's a judgement call. Don't pad with checks that found nothing.
 
 If any check found a real issue, *fix it before committing* unless the user explicitly opted out of fixing this round.
 
@@ -169,8 +169,8 @@ If neither exception applies and the fix requires rewriting prose, descriptions,
 ## Anti-patterns (what this skill is not)
 
 - It is not a substitute for the project's test/lint/build gate. That gate still runs.
-- It is not a place to add new tests or refactors — those belong in the commit they relate to.
-- It is not a license to chase every TODO across the repo — only the drift caused or revealed by *this* commit.
+- It is not a place to add new tests or refactors, those belong in the commit they relate to.
+- It is not a license to chase every TODO across the repo, only the drift caused or revealed by *this* commit.
 
 ## After this skill: invoke `/flagrare:release-check`
 

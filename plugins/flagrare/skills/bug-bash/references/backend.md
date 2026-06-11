@@ -1,6 +1,6 @@
 # Backend bug-bash reference
 
-Tactics for bashing API-shaped features: REST endpoints, GraphQL ops, background jobs. Same evidence-first discipline as the UI side — capture the request, the response, the status, the observability signal.
+Tactics for bashing API-shaped features: REST endpoints, GraphQL ops, background jobs. Same evidence-first discipline as the UI side, capture the request, the response, the status, the observability signal.
 
 ---
 
@@ -8,11 +8,11 @@ Tactics for bashing API-shaped features: REST endpoints, GraphQL ops, background
 
 Choices, roughly in order of preference for a bash session:
 
-- **Postman CLI** via `postman:send-request` — fast for one-off calls, persistent variables, environment switching, request history retained
-- **`curl` via Bash** — universal, scriptable, no dependency
-- **HTTP MCPs** (if the service has one) — sometimes the cleanest path; check before assuming
+- **Postman CLI** via `postman:send-request`, fast for one-off calls, persistent variables, environment switching, request history retained
+- **`curl` via Bash**: universal, scriptable, no dependency
+- **HTTP MCPs** (if the service has one), sometimes the cleanest path; check before assuming
 
-Use Postman when you'll hit the same endpoint multiple times across the bash — variables let you reuse auth and base URLs without retyping. Use curl for one-shot calls or when scripting a sequence.
+Use Postman when you'll hit the same endpoint multiple times across the bash, variables let you reuse auth and base URLs without retyping. Use curl for one-shot calls or when scripting a sequence.
 
 ---
 
@@ -47,7 +47,7 @@ Most backend bugs hide in the auth dimension. For every endpoint touched by the 
 | Valid auth, right scope | success path |
 | Expired token | `401` with a clear message (not silent 5xx) |
 
-The 403-vs-404 distinction matters: leaking "this resource exists but you can't see it" via 404 vs 403 is a common tenant-leak bug. Some teams intentionally return 404 to hide existence — confirm which philosophy the codebase uses before flagging it.
+The 403-vs-404 distinction matters: leaking "this resource exists but you can't see it" via 404 vs 403 is a common tenant-leak bug. Some teams intentionally return 404 to hide existence, confirm which philosophy the codebase uses before flagging it.
 
 ---
 
@@ -58,7 +58,7 @@ If the spec defines a response shape, assert it strictly:
 - Required fields are present
 - Types match (`id` is a string, `expiresAt` is ISO-8601, not just "some date")
 - Optional fields are either absent or correctly typed (no `null` vs missing inconsistency)
-- Error responses follow RFC 9457 (Problem Details) if the project uses it — `type`, `title`, `status`, `detail`
+- Error responses follow RFC 9457 (Problem Details) if the project uses it, `type`, `title`, `status`, `detail`
 
 When the response is meant to be consumed by a known client, also verify the client's actual usage matches the contract. A field the server includes but the client never reads is fine; a field the client requires but the server omits is a bug.
 
@@ -68,11 +68,11 @@ When the response is meant to be consumed by a known client, also verify the cli
 
 The interesting status codes are not 200 / 500. They're:
 
-- **204 No Content** vs **200 with empty body** — both valid; the client matters
-- **201 Created** vs **200 OK** for `POST` — the spec usually picks one; mixing them is a contract bug
-- **207 Multi-Status** for batch endpoints — partial success is correct; "first failure aborts" is usually wrong
-- **409 Conflict** for "you tried to create something that already exists" — testing this requires creating the resource twice
-- **422 Unprocessable Entity** vs **400 Bad Request** — pick the team's convention and verify consistency
+- **204 No Content** vs **200 with empty body**: both valid; the client matters
+- **201 Created** vs **200 OK** for `POST`, the spec usually picks one; mixing them is a contract bug
+- **207 Multi-Status** for batch endpoints, partial success is correct; "first failure aborts" is usually wrong
+- **409 Conflict** for "you tried to create something that already exists", testing this requires creating the resource twice
+- **422 Unprocessable Entity** vs **400 Bad Request**: pick the team's convention and verify consistency
 
 ---
 
@@ -93,7 +93,7 @@ If the endpoint is *not* idempotent and the spec implies it should be, that's wo
 For every field in the request schema, run at minimum:
 
 - Empty / null / missing
-- Minimum length (often 1, sometimes 2 — Zod's `.min()` lives here)
+- Minimum length (often 1, sometimes 2, Zod's `.min()` lives here)
 - Maximum length (the field validation, then one over)
 - Special characters (unicode, emoji, SQL-injection-shaped strings, XSS-shaped strings)
 
@@ -103,7 +103,7 @@ Server-side validation often differs from client-side validation. The client mig
 
 ## Observability check
 
-Backend features almost always have an observability story — Datadog spans, structured logs, metrics. The spec rarely calls these out as explicit acceptance criteria, but they're part of "is this feature actually ready for production?"
+Backend features almost always have an observability story, Datadog spans, structured logs, metrics. The spec rarely calls these out as explicit acceptance criteria, but they're part of "is this feature actually ready for production?"
 
 For each endpoint touched:
 
@@ -141,7 +141,7 @@ If the endpoint enqueues work rather than doing it inline:
 - The job is idempotent or has dedupe (otherwise replays cause data corruption)
 - Failures are retried with backoff and eventually dead-lettered
 
-You usually can't directly test async work in a single bash session — note what you observed and what you'd need (queue inspection, worker logs) to verify the rest. That's a `skip-external` if the user can't get you there.
+You usually can't directly test async work in a single bash session, note what you observed and what you'd need (queue inspection, worker logs) to verify the rest. That's a `skip-external` if the user can't get you there.
 
 ---
 
@@ -175,7 +175,7 @@ Don't fake it. "Probably correct" is not verification.
 
 ## Capturing as a regression test
 
-When the bash is done, the backend equivalent of "capture as a permanent test" is a test file in the project's framework — pytest / vitest / jest / cargo test / go test — matching the surrounding code. Include:
+When the bash is done, the backend equivalent of "capture as a permanent test" is a test file in the project's framework, pytest / vitest / jest / cargo test / go test, matching the surrounding code. Include:
 
 - Schema assertions (response shape)
 - Status code assertions
@@ -183,4 +183,4 @@ When the bash is done, the backend equivalent of "capture as a permanent test" i
 - Error-shape assertions (the 4xx response format)
 - The observability span / log assertion if the framework supports it
 
-This is opt-in per the same logic as the UI side — only do it when the user is ready to land regression coverage.
+This is opt-in per the same logic as the UI side, only do it when the user is ready to land regression coverage.

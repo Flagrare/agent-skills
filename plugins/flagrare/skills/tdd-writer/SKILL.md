@@ -7,7 +7,7 @@ description: "Draft comprehensive Technical Design Documents. Analyzes codebase,
 
 Draft Technical Design Documents for staging up large or complex projects. A TDD is a communication tool: a reader who has never seen the work should be able to read it start to finish and come away understanding **what** you're proposing, **why**, and **how** it will be built. It is not a form to fill in, and it is not a checklist with the prose removed.
 
-**REQUIRED BACKGROUND:** Invoke `/flagrare:write-docs` before drafting. This skill owns *what a TDD must cover and how to verify it*; write-docs owns *how to make the prose readable*. The single most common failure of an AI-drafted TDD is the "medicine sheet" — every section flattened into terse bullets, no causality, nothing a human wants to read. The craft layer in write-docs is the antidote, and the section "Writing the document" below applies it specifically to TDDs. Read both; do not skip the handoff.
+**REQUIRED BACKGROUND:** Invoke `/flagrare:write-docs` before drafting. This skill owns *what a TDD must cover and how to verify it*; write-docs owns *how to make the prose readable*. The single most common failure of an AI-drafted TDD is the "medicine sheet", every section flattened into terse bullets, no causality, nothing a human wants to read. The craft layer in write-docs is the antidote, and the section "Writing the document" below applies it specifically to TDDs. Read both; do not skip the handoff.
 
 ---
 
@@ -100,7 +100,7 @@ After gathering, explicitly list what could NOT be verified:
 
 ### Phase 2: Draft Structure
 
-The template below is a **coverage checklist for the author, not a layout for the reader**. It lists what a good TDD considers. It does not mean each heading gets three bullets and a code block. As you fill it, follow one rule above all others: **write each section as prose a colleague could read aloud.** Reach for a list or table only when the content is genuinely parallel and order-independent — a roster of endpoints, a t-shirt-size scale, a test matrix. The moment a "list" has bullets that depend on each other (this happens, *then* that, *because* of the other), it's a paragraph wearing a list costume. Write the paragraph.
+The template below is a **coverage checklist for the author, not a layout for the reader**. It lists what a good TDD considers. It does not mean each heading gets three bullets and a code block. As you fill it, follow one rule above all others: **write each section as prose a colleague could read aloud.** Reach for a list or table only when the content is genuinely parallel and order-independent, a roster of endpoints, a t-shirt-size scale, a test matrix. The moment a "list" has bullets that depend on each other (this happens, *then* that, *because* of the other), it's a paragraph wearing a list costume. Write the paragraph.
 
 Drop sections that don't apply rather than filling them with "N/A" noise. Mark ANY unverified information with the markers above.
 
@@ -164,14 +164,14 @@ Drop sections that don't apply rather than filling them with "N/A" noise. Mark A
 
 [Prose. Who else is affected and how? Name the teams that depend on this or whose
 systems you touch, the vendors (with cost) you're adding, the libraries or internal
-services you'll lean on — and the consequence of each. A reader should learn not just
+services you'll lean on, and the consequence of each. A reader should learn not just
 *that* Team X is involved but *what they have to do because of this work*.]
 
 ### Concepts
 
 [Prose. Introduce each new idea or model and, crucially, how they relate. This is
-where causality lives — "an Order owns many LineItems, and a LineItem can't outlive
-its Order" — so resist turning it into a glossary of disconnected terms.]
+where causality lives, "an Order owns many LineItems, and a LineItem can't outlive
+its Order", so resist turning it into a glossary of disconnected terms.]
 
 ### System architecture, data model & APIs
 
@@ -191,10 +191,10 @@ Lead with the decision and its reason, then show the artifact.
 
 ### Testing
 
-[One or two sentences on the testing strategy — what gives you confidence this is
-correct — then the matrix. The table is genuinely parallel data, so a table earns its
+[One or two sentences on the testing strategy, what gives you confidence this is
+correct, then the matrix. The table is genuinely parallel data, so a table earns its
 place here. Follow `/flagrare:testing-philosophy`: integration-heavy, behavior over
-implementation, and — for any user-facing flow — at least one end-to-end test of the
+implementation, and, for any user-facing flow, at least one end-to-end test of the
 critical happy path (a browser journey, a running-service HTTP test, a CLI subprocess,
 or a public-API consumer, depending on the surface). "Mostly integration" is not "skip
 e2e."]
@@ -213,7 +213,7 @@ e2e."]
 the handling, not just "yes".]
 
 ### Observability & alerting
-[Prose. What new signal will exist, and — more importantly — what question each
+[Prose. What new signal will exist, and, more importantly, what question each
 metric/dashboard/alert answers when something goes wrong.]
 
 ### Security
@@ -225,8 +225,8 @@ the mitigation in the same breath.]
 supports.]
 
 ### Rollout strategy
-[Prose. Walk through how this reaches production — dry run, stealth mode, feature
-flags, gradual percentages — as a sequence with reasons, not a checklist of toggles.
+[Prose. Walk through how this reaches production, dry run, stealth mode, feature
+flags, gradual percentages, as a sequence with reasons, not a checklist of toggles.
 The reader should understand the *risk posture*, not just the mechanics.]
 
 ### Post-deployment monitoring
@@ -241,12 +241,12 @@ A risk listed without a mitigation reads as an unanswered worry.]
 [Prose. What docs need to exist or change, and for whom.]
 
 ### Open questions
-- [ ] [Genuinely open question — a real fork, not a placeholder]
+- [ ] [Genuinely open question, a real fork, not a placeholder]
 - [ ] [Another, if any]
 
 ### Alternative solutions
 [Prose. The options you considered and *why you discarded them*. This is one of the
-most-read sections in any TDD — reviewers come here first to check you weren't naive —
+most-read sections in any TDD, reviewers come here first to check you weren't naive, 
 so give each alternative a fair sentence and an honest reason it lost.]
 
 ---
@@ -278,28 +278,28 @@ so give each alternative a fair sentence and an honest reason it lost.]
 
 This is where TDDs live or die. You've gathered verified facts; now you have to turn
 them into a document a busy senior engineer will actually read. The craft layer is in
-`/flagrare:write-docs` — invoke it — but here is how its principles land in a TDD.
+`/flagrare:write-docs`, invoke it, but here is how its principles land in a TDD.
 
 **Lead each section with the reader's situation, not the section's topic.** Compare
-*"This section describes the data model changes."* (metadata — it has done zero work)
+*"This section describes the data model changes."* (metadata, it has done zero work)
 with *"Orders currently can't be partially refunded because the schema models a refund
 as a single boolean. We're replacing that with a refund ledger."* The second sentence
 tells the reader where they are and where you're taking them. The opening line of every
 section should state a conclusion, name a problem, or ask a question.
 
 **Prose carries causality; lists flatten it.** A TDD is mostly *because* and *so that*
-and *before* — exactly the relationships a bullet list erases. When you catch yourself
+and *before*, exactly the relationships a bullet list erases. When you catch yourself
 writing a list whose items depend on each other, you've found a paragraph. Keep lists
 for the genuinely parallel: a roster of endpoints, a t-shirt scale, a test matrix, a
 checklist of sources verified. (This is the single biggest lever against the "medicine
 sheet" feel the operator complained about.)
 
 **Put context at the point of need.** The first time a reader meets `client_secret` or
-`OrderProjection` or a service name, define it inline in the same sentence — not in a
+`OrderProjection` or a service name, define it inline in the same sentence, not in a
 glossary, not three sections up. The reader who knows skips it; the reader who doesn't
 is rescued exactly where they got lost.
 
-**Voice and tone.** Use "We will…" — conversational but precise. Be direct about scope
+**Voice and tone.** Use "We will…", conversational but precise. Be direct about scope
 and limitations; a TDD that hides its gaps loses reviewer trust faster than one that
 names them. Keep the voice the same throughout; let the tone tighten in the dense
 technical sections and warm slightly in the context and vision.
@@ -316,7 +316,7 @@ flowchart TD
     D --> E
 ```
 
-Color-code consistently — yellow/maize for existing architecture, blue for new — so a
+Color-code consistently, yellow/maize for existing architecture, blue for new, so a
 reader can see the boundary of the change at a glance. When you show alternatives in a
 diagram, mark the chosen path. Reference exact, verified file paths and show directory
 layout for new components, but do it in service of the narrative, not as a standalone
@@ -324,9 +324,9 @@ inventory.
 
 ### Phase 4: Review Before Presenting
 
-**Do not end your turn the moment the draft is assembled.** A complete-looking TDD reads as "done," but the craft pass (Phase 3 / `/flagrare:write-docs`) and this review still have to happen before you present it. Drafting and stopping is a stall — continue through review in the same turn. (Same pattern as [`docs/research/2026-06-11-claude-code-goal-anti-stall.md`](../../../../docs/research/2026-06-11-claude-code-goal-anti-stall.md).)
+**Do not end your turn the moment the draft is assembled.** A complete-looking TDD reads as "done," but the craft pass (Phase 3 / `/flagrare:write-docs`) and this review still have to happen before you present it. Drafting and stopping is a stall, continue through review in the same turn. (Same pattern as [`docs/research/2026-06-11-claude-code-goal-anti-stall.md`](../../../../docs/research/2026-06-11-claude-code-goal-anti-stall.md).)
 
-Run the write-docs self-check — read the document aloud; sentences that choke on the
+Run the write-docs self-check, read the document aloud; sentences that choke on the
 tongue usually nominalize a verb or rely on a bullet list to carry a relationship the
 prose should have carried. Then confirm:
 
@@ -340,7 +340,7 @@ prose should have carried. Then confirm:
 - Does every section's opening sentence do work, rather than describe what the section is
   about?
 
-Once the review passes, present the TDD and **close with a tool, not prose** — issue an `AskUserQuestion` (e.g. *Looks good / Revise a section / Mark ready for review*) so the turn ends on a clear next step rather than trailing off after a long document.
+Once the review passes, present the TDD and **close with a tool, not prose**: issue an `AskUserQuestion` (e.g. *Looks good / Revise a section / Mark ready for review*) so the turn ends on a clear next step rather than trailing off after a long document.
 
 ---
 
