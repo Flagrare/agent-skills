@@ -9,6 +9,21 @@ Create tickets as **reviewable markdown files** first. Present them for review. 
 
 ---
 
+## Keep tickets short
+
+A ticket is a pointer, not a document. The reader is an engineer who will open the linked spec and read the code; the ticket's job is to orient them and define done, not to reproduce everything. Aim for a body that fits on one screen (rough target: 40 lines). If a ticket needs more, it is either too big (split it) or it is restating a spec it should just link.
+
+Concretely:
+
+- **Context**: 2 to 4 sentences. Link the spec/TDD; do not paraphrase it.
+- **Grounding**: the 3 to 5 most relevant `file:line` pointers, not the full exploration dump.
+- **What needs to happen**: high-level steps only. The engineer owns the how; do not write the implementation for them.
+- **Acceptance criteria**: a handful of testable lines, not an exhaustive matrix.
+
+Brevity is a feature: a scannable ticket gets picked up; a wall of text gets skipped.
+
+---
+
 ## When to Use
 
 - User asks to create tickets, file a bug, write a story, create tasks
@@ -60,9 +75,11 @@ Skip codebase grounding when any of these is true:
 
 ### How to ground (single ticket)
 
-Call `/flagrare:codebase-explore` with the ticket's working title and a one-paragraph description of what it covers. Capture the returned findings: file paths with line numbers, related patterns, existing utilities that could be reused, prior branches/PRs.
+Call `/flagrare:codebase-explore` with the ticket's working title and a one-paragraph description of what it covers.
 
-These findings populate a new ticket subsection (see template updates below).
+**Distill, do not dump.** codebase-explore returns far more than belongs in a ticket. Keep only the 3 to 5 pointers most relevant to this specific ticket: the file the work touches, the utility to reuse, the prior attempt worth knowing about. A grounding section longer than five lines is a sign you are pasting exploration output instead of curating it.
+
+These distilled pointers populate a new ticket subsection (see template updates below).
 
 ### How to ground (backlog / spec → tickets)
 
@@ -166,7 +183,7 @@ Each template has an optional grounding subsection populated from `/flagrare:cod
 [One-liner: what this delivers and why it matters.]
 
 ## Context
-[Assume zero prior context. Explain what part of the project, what needs to change, end result. Link TDD/spec if available.]
+[2 to 4 sentences. Orient the reader: what part of the project, what needs to change, the end result. Link the TDD/spec instead of restating it, assume the reader opens that link. Do not reproduce the spec here.]
 
 ## Existing Patterns (optional: from codebase-explore)
 - `path/to/file.ts:42`, the function this touches today
@@ -174,7 +191,7 @@ Each template has an optional grounding subsection populated from `/flagrare:cod
 - `prior-branch/feat-x`, abandoned approach, see PR #142 for why
 
 ## What needs to happen (optional, if implementation is known)
-[Bullet list of specific changes: files, components, endpoints.]
+[A few high-level steps, not a line-by-line plan. Name the files/components/endpoints involved and let the engineer own the how. If this runs past ~5 bullets, the detail belongs in the spec, not the ticket.]
 
 ## Acceptance Criteria
 * [Specific, testable criterion]
@@ -240,6 +257,8 @@ Each template has an optional grounding subsection populated from `/flagrare:cod
 After the draft is assembled with codebase findings, polish the **Context section only** by invoking `/flagrare:write-docs` with the draft Context as input.
 
 The polish applies write-docs's craft layer to the Context: reader-situation-first opening, concrete file references inline (drawn from the grounding subsection), prose over bullets where causality matters, voice consistent across tickets.
+
+Polish for clarity, not length. The Context stays 2 to 4 sentences after polishing; write-docs should tighten the prose, never expand it into an essay. If the polished Context is longer than the draft, you have over-written it.
 
 Sections NOT polished, they stay mechanical:
 
@@ -366,6 +385,7 @@ Present a summary with all created ticket keys/URLs.
 - Don't skip acceptance criteria. Every ticket needs them.
 - Don't write tickets larger than 3 days of work. Break them up.
 - Don't use vague summaries. The title alone should remind you what it is about.
+- Don't write essay-length tickets. A ticket is a pointer, not a document: link the spec instead of restating it, distill grounding to a few pointers, and keep the body to roughly one screen.
 - Don't assume the project/team. Ask if unclear.
 - Don't hard-code a single tracker. Detect from context.
 - Don't skip codebase grounding when a codebase exists. A ticket pointing at `path/to/file.ts:42` is dramatically more useful than one gesturing at "the relevant area".
