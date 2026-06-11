@@ -40,7 +40,7 @@ After this one-time bootstrap, `/flagrare:update` works for all future versions 
 
 `/flagrare:codebase-explore` maps conventions, reusable utilities, analogous features, and data flows for a planned change. Returns raw findings only (no plan, no tests). Used as the codebase grounding step by `/flagrare:intake`, `/flagrare:atdd-plan`, and `/flagrare:ticket-creator`, or standalone when you need to understand a feature area.
 
-`/flagrare:tdd-writer` drafts Technical Design Documents for large projects (2+ weeks). It fetches context from Jira, Confluence, Figma, and Notion via MCP, analyzes the actual codebase, and marks every unverified claim explicitly. Nothing is assumed.
+`/flagrare:tdd-writer` drafts Technical Design Documents for large projects (2+ weeks). It fetches context from Jira, Confluence, Figma, and Notion via MCP, analyzes the actual codebase, and marks every unverified claim explicitly — nothing is assumed. It writes through `/flagrare:write-docs`, so the result reads as narrative a reviewer can follow start to finish (what's proposed, why, and how) rather than a checklist with the prose removed.
 
 `/flagrare:ticket-creator` writes well-structured tickets as reviewable markdown files, then pushes to any tracker (Jira, Linear, GitHub Issues, Shortcut, Asana, Trello) via MCP or CLI after you review and approve. Before drafting, it calls `/flagrare:codebase-explore` to find specific file paths, conventions, and prior attempts — so the ticket points at `path/to/file.ts:42` instead of gesturing at "the relevant area". For spec/TDD-to-backlog flows it dispatches the explorations in parallel. After drafting, it polishes the Context section via `/flagrare:write-docs` so the prose reads like a senior engineer wrote it, not a template.
 

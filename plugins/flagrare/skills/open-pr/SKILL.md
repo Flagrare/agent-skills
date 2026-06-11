@@ -9,6 +9,8 @@ Create a pull request that reads like a human wrote it.
 
 The goal is a PR description that a reviewer can scan in 30 seconds and understand: what changed, why, and how to verify it works. No file-by-file enumerations. No bullet-point dumps of every touched line. Context and narrative.
 
+**REQUIRED BACKGROUND:** Invoke `/flagrare:write-docs` before writing the PR body. A PR description is a tiny how-to/explanation doc, and the same craft applies: lead with the reader's situation, let prose carry causality, put context at the point of need. This skill owns *the PR mechanics and the repo's conventions*; write-docs owns *making the prose readable*. The "Writing style" section below applies that craft specifically to PRs — read both.
+
 ---
 
 ## Workflow
@@ -25,13 +27,23 @@ git diff $(git merge-base HEAD main)..HEAD
 
 Also check the branch name for a ticket key (e.g., `SKU-478/fix-menu-disabled`).
 
-### Step 2: Read the repo's PR template
+### Step 2: Learn the repo's conventions
+
+A template tells you the *sections*; recently merged PRs tell you the *house style* — how much detail goes in each section, what the title format really is, whether they link tickets a particular way. Read both. This is the step that fixes "PRs that don't follow codebase patterns."
 
 ```bash
-cat .github/PULL_REQUEST_TEMPLATE.md 2>/dev/null || cat .github/pull_request_template.md 2>/dev/null
+# The template (the section contract — follow it exactly)
+cat .github/PULL_REQUEST_TEMPLATE.md 2>/dev/null \
+  || cat .github/pull_request_template.md 2>/dev/null \
+  || ls .github/PULL_REQUEST_TEMPLATE/ 2>/dev/null
+
+# The lived convention — how this team actually writes PRs
+gh pr list --state merged --limit 5 --json number,title,body 2>/dev/null
 ```
 
-If no template exists, use a minimal structure: title, description, testing notes. But most repos have one, and following it exactly is non-negotiable. The template is the contract between author and reviewer.
+Study the merged PRs for the patterns the template can't encode: title prefix style, how much prose each section gets, how they reference tickets and designs, the tone. Match what you see. If template and recent practice disagree, follow the template's structure but borrow the recent PRs' level of detail and voice.
+
+If no template exists, fall back to a minimal structure (title, description, testing notes) shaped like the recent merged PRs. Most repos have a template, and following it exactly is non-negotiable — it's the contract between author and reviewer.
 
 ### Step 3: Fetch linked context
 
@@ -44,7 +56,9 @@ If a design link (Figma, etc.) appears in the ticket, note it in the PR for visu
 
 ### Step 4: Write the PR body
 
-Fill the template section by section. For each section, the principle is the same: write like you're explaining this to a teammate over coffee, not generating a report.
+Fill the template section by section, applying the write-docs craft from the REQUIRED BACKGROUND above. For each section, the principle is the same: write like you're explaining this to a teammate over coffee, not generating a report. Lead each section with what the reader needs to know, let a sentence carry the *because*, and only use a bullet list when the items are genuinely parallel (a list of independent fixes in one PR, say) rather than a single decision sliced into fragments.
+
+**Anchor to behavior, not coordinates.** Describe *what the code now does* and *why*, never *where the lines moved*. "Line 47", "renamed the variable on line 83", "updated the import block" are all stale the moment you push another commit, and they make the reviewer hunt. The diff already shows the *where*; your job is the *what* and *why*. Likewise, don't transcribe the diff into prose — if a reviewer can get it from the diff, leave it to the diff.
 
 **Title:** Short, imperative. Under 70 characters. Prefixed with ticket key if the repo convention does that.
 
@@ -97,8 +111,11 @@ These principles make the difference between a PR that gets reviewed in 5 minute
 ## Anti-patterns
 
 - Don't skip the template. Even if it feels overkill for a one-line fix, fill it in. Consistency matters more than brevity.
+- Don't enumerate where you should narrate. A description made of five-bullet lists has flattened all the causality out of your change. If the bullets depend on each other, write the paragraph.
+- Don't reference line numbers or file coordinates ("changed line 47"). They go stale on the next push and the diff already shows them. Anchor to behavior.
 - Don't list every changed file. That's what the diff is for.
 - Don't write "various improvements" or "code cleanup." Be specific about what and why.
+- Don't ignore the repo's lived style. Skipping the recent-merged-PR check in Step 2 is how PRs end up not matching house conventions.
 - Don't create the PR without pushing first. Check `git status` for uncommitted work.
 - Don't guess the base branch. Detect it from the repo's default (`main`, `master`, `develop`).
 
