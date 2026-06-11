@@ -298,8 +298,15 @@ Action plan:
      the workflow reports success, something between the workflow and
      the registry broke — escalate, don't move on.
 
-Approve to proceed?
+[Collect the decision via AskUserQuestion — see "Close with a tool" below. Do not type a prose question here.]
 ```
+
+**Close with a tool, not prose.** Do NOT end the proposal with a prose "Approve to proceed?" and wait — a substantial proposal reads as "turn complete," and a trailing prose question frequently ends the turn with no answer captured (the same stall pattern documented in [`docs/research/2026-06-11-claude-code-goal-anti-stall.md`](../../../../docs/research/2026-06-11-claude-code-goal-anti-stall.md)). Issue an `AskUserQuestion` tool call with these options:
+
+- **Proceed with release** (Recommended) — execute the action plan (bump, changelog rewrite, doc-drift fixes, commit, annotated tag, push, GitHub Release, verify publish).
+- **Adjust the changelog** — revise the entry, then re-present.
+- **Adjust the version** — change the proposed bump level, then re-present.
+- **Stop here** — leave the proposal for later; make no changes.
 
 ### GitHub Release vs tag commit — the silent-publish-failure trap
 

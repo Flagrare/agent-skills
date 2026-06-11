@@ -320,6 +320,8 @@ inventory.
 
 ### Phase 4: Review Before Presenting
 
+**Do not end your turn the moment the draft is assembled.** A complete-looking TDD reads as "done," but the craft pass (Phase 3 / `/flagrare:write-docs`) and this review still have to happen before you present it. Drafting and stopping is a stall — continue through review in the same turn. (Same pattern as [`docs/research/2026-06-11-claude-code-goal-anti-stall.md`](../../../../docs/research/2026-06-11-claude-code-goal-anti-stall.md).)
+
 Run the write-docs self-check — read the document aloud; sentences that choke on the
 tongue usually nominalize a verb or rely on a bullet list to carry a relationship the
 prose should have carried. Then confirm:
@@ -333,6 +335,8 @@ prose should have carried. Then confirm:
 - Are diagrams clear, accurate, and consistently color-coded?
 - Does every section's opening sentence do work, rather than describe what the section is
   about?
+
+Once the review passes, present the TDD and **close with a tool, not prose** — issue an `AskUserQuestion` (e.g. *Looks good / Revise a section / Mark ready for review*) so the turn ends on a clear next step rather than trailing off after a long document.
 
 ---
 

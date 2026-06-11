@@ -271,9 +271,9 @@ Specific and testable:
 2. Ask for the backlog folder path if not obvious from context.
 3. **Ground in code** — if conditions allow (see Step 0.5), call `/flagrare:codebase-explore` with the ticket's working title and description. Capture findings.
 4. Write the `.md` file with the next available sequence number, including the grounding subsection if applicable.
-5. **Polish the Context** — if grounding ran and polish wasn't opted out, call `/flagrare:write-docs` on the Context section. Replace the draft Context with the polished version.
+5. **Polish the Context** — if grounding ran and polish wasn't opted out, call `/flagrare:write-docs` on the Context section. Replace the draft Context with the polished version. **Do not end your turn here** — a polished ticket file looks finished, but steps 6–7 still remain. Continue in the same turn.
 6. If an `INDEX.md` exists, update it.
-7. Present the ticket for review.
+7. Present the result — see *Presenting the result* below (tool-driven close, not prose).
 
 ## Workflow: Spec/TDD to Backlog
 
@@ -288,7 +288,17 @@ Specific and testable:
    - `00-epic.md` (if creating a new Epic/Project)
    - `NN-slug.md` for each ticket
    - `INDEX.md` with sequencing, summary table, open questions, blockers
-6. Present the full backlog for user review.
+6. Present the result — see *Presenting the result* below (tool-driven close, not prose).
+
+---
+
+## Presenting the result
+
+After the file(s) are written and the index updated, **close with a tool, not prose.** A drafted ticket (or backlog) reads as "done," so ending with a prose "here's the ticket, let me know" frequently stops the turn before the user can act (the stall pattern in [`docs/research/2026-06-11-claude-code-goal-anti-stall.md`](../../../../docs/research/2026-06-11-claude-code-goal-anti-stall.md)). Issue an `AskUserQuestion` with options:
+
+- **Push to the tracker** (Recommended when a tracker was detected in Step 0) — proceed to *Workflow: Push to Tracker*.
+- **Revise first** — collect changes, edit the file(s), re-present.
+- **Leave as local files** — stop here; the markdown is the deliverable.
 
 ---
 

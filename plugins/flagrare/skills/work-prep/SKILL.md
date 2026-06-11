@@ -22,9 +22,23 @@ This skill orchestrates two existing skills in sequence. It does not duplicate t
 
 ## Workflow
 
+### Step 0: Lock the goal (anti-stall)
+
+**Hard requirement.** Before invoking any sub-skill, you (the executing model) MUST call `/goal` yourself. work-prep is a multi-skill chain (`intake → atdd-plan → confirm`) that emits a large context brief and a large plan mid-flow — both are points where the model tends to read "turn complete" and stop. A `/goal` is a session-scoped Stop-hook: after every turn a fast evaluator checks your condition against the conversation and makes you continue if it is unmet. Set it here, once, spanning the whole chain. (Grounded in [`docs/research/2026-06-11-claude-code-goal-anti-stall.md`](../../../../docs/research/2026-06-11-claude-code-goal-anti-stall.md).)
+
+Phrase the condition as something your own output demonstrates — the evaluator cannot run tools or read files, only judge what you have surfaced:
+
+> A codebase-grounded context brief has been produced; the most blocking clarifying questions have been asked via the `AskUserQuestion` tool and answered (or none were blocking); `/flagrare:atdd-plan` has produced an implementation plan with acceptance tests; and the closing next-step `AskUserQuestion` (Start implementation / Adjust the plan / Stop here) has been presented and answered. Stop after 20 turns if not met.
+
+**One goal per session.** Because work-prep sets this spanning goal, `/flagrare:intake` must NOT set its own — the `[work-prep]` prefix in Step 1 signals it to skip (a second goal would silently replace this one). Likewise do not re-set the goal between steps.
+
+**If `/goal` is unavailable** (untrusted workspace, or `disableAllHooks` / `allowManagedHooksOnly` set): proceed without it and rely on the same-turn handoffs and the sub-skills' own no-yield notes.
+
+Also create a Todo list (TodoWrite) with one item per stage of the chain.
+
 ### Step 1: Invoke `/flagrare:intake`
 
-Call `/flagrare:intake` with the ticket reference prefixed by `[work-prep] ` (e.g., args: `[work-prep] SKU-123`). This prefix tells intake to skip its Step 6 next-step prompt and return control directly. This skill will:
+Call `/flagrare:intake` with the ticket reference prefixed by `[work-prep] ` (e.g., args: `[work-prep] SKU-123`). This prefix tells intake two things: (1) skip setting its own `/goal` — work-prep's Step 0 goal already spans the chain — and (2) skip its Step 6 next-step prompt and hand off directly. This skill will:
 
 1. Parse the ticket ID/URL and identify the platform
 2. Read the full ticket via MCP (Jira, Linear, etc.)
@@ -58,6 +72,8 @@ Options:
 
 ## Anti-patterns
 
+- **Don't skip the Step 0 `/goal`.** It's the forcing function that carries the model across the brief and the plan without stopping. The `[work-prep]` prefix on intake assumes this goal exists.
+- **Don't let a sub-skill set its own goal.** Only one goal is active per session; a second silently replaces work-prep's spanning goal and the chain loses its anti-stall guarantee mid-flow.
 - Don't skip `/flagrare:intake` and jump to planning. Context gaps turn into rework.
 - Don't invoke `/flagrare:atdd-plan` before clarifying questions are resolved.
 - Don't start implementation before the plan is reviewed and approved.
@@ -85,7 +101,11 @@ If you are executing work-prep and intake finishes WITHOUT invoking atdd-plan (e
 /flagrare:work-prep [ticket ID or URL]
      |
      v
-/flagrare:intake [work-prep] <- 1. read ticket + follow references in parallel
+[Step 0: /goal locked — spans the whole chain, anti-stall]
+     |
+     v
+/flagrare:intake [work-prep] <- 0. skip own /goal (work-prep owns it)
+                                1. read ticket + follow references in parallel
                                 2. synthesise brief (no questions yet)
                                 3. /flagrare:codebase-explore  <- ground brief in code
                                 4. ask codebase-informed clarifying questions
