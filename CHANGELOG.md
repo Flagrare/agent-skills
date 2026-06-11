@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.18.0 — 2026-06-11
+
+Long-running skills no longer stop halfway. Several skills used to emit a big artifact — a context brief, a plan, a findings file — then end the turn, leaving you to nudge them to keep going. They now hold themselves to the finish.
+
+### Behaviour
+
+- **`/flagrare:work-prep`, `/flagrare:intake`**: lock a `/goal` before producing the context brief, so intake runs all the way through clarifying questions and the hand-off to `/flagrare:atdd-plan` instead of stopping after the brief. work-prep owns one session goal spanning the whole chain; intake skips its own when nested.
+- **`/flagrare:bug-bash`**: sets an actual `/goal` (not just a stated one) with a per-case todo ledger, so the strict pass, the five-lens exploratory pass, and the write-back all complete before it stops.
+- **`/flagrare:release-check`, `/flagrare:wrap-up`**: close with an `AskUserQuestion` prompt instead of a prose "Approve to proceed?" / "Would you like me to…" that could end the turn with no answer captured.
+- **`/flagrare:ticket-creator`, `/flagrare:tdd-writer`**: don't stop after drafting the artifact — they continue through indexing/review and close with a tool-driven next-step prompt.
+
 ## 1.17.0 — 2026-06-11
 
 `/flagrare:tdd-writer` and `/flagrare:open-pr` now write through `/flagrare:write-docs`, so their output reads as narrative a reviewer can follow start to finish instead of a wall of bullets.
