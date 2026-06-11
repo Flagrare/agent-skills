@@ -68,7 +68,7 @@ Fill the template section by section, applying the write-docs craft from the REQ
 
 - **What changed (code perspective):** Brief technical summary. Which decision did you make and why? Mention the approach, not every file. "Switched the disabled-state derivation from `published` to `enabled` in the dropdown component, since `published` is ClassPass-controlled and shouldn't affect partner-facing status."
 
-- **Testing:** How you verified this works. Be specific: "Ran the full SkuItems test suite (398 tests passing). Added 4 new test cases covering the enabled/published separation." If you tested in a browser or dev environment, say so.
+- **Testing:** What you did to convince yourself it works — the *kind* of verification, not a scoreboard. "Created a new menu in the dashboard and confirmed it shows as active and selectable; checked that an existing ClassPass-disabled menu still greys out. Added tests covering the enabled-vs-published split." Name the behaviors you exercised and any manual/browser check. **Do not include test counts, coverage percentages, or "N tests passing"** — those numbers rot on the next commit, nobody reads them, and CI already reports them.
 
 - **Checklist items:** Check off what applies, leave unchecked what doesn't. Don't delete template items (reviewers use them as a reference).
 
@@ -103,8 +103,18 @@ These principles make the difference between a PR that gets reviewed in 5 minute
 - **Contextualize, don't enumerate.** "Fixed the disabled state logic" beats "Changed line 47, renamed variable on line 83, updated PropTypes on line 131."
 - **Explain decisions.** If you chose approach A over approach B, say why in one sentence. Reviewers wonder about alternatives.
 - **Link, don't repeat.** If the ticket has a detailed root cause analysis, link to it. Don't copy-paste the entire ticket into the PR.
-- **Testing should build confidence.** "All tests pass" is baseline. Add what specifically validates the fix: edge cases covered, manual verification steps, before/after behavior.
+- **Testing should build confidence, not keep score.** Say *what behavior you verified and how* — the edge cases you exercised, the manual/browser steps, the before/after. Skip test counts, coverage %, and "N passing" entirely: they're churn that's stale by the next push and the reader doesn't care; CI is the source of truth for the numbers.
 - **Short paragraphs.** Walls of text don't get read. 2-3 sentences per section is ideal.
+
+A before/after, since the example is what the model imitates:
+
+> ❌ Enumerated, stale, contextless:
+> *"Updated MenuSelector.tsx. Changed line 47 disabled logic. Renamed `pub` to `enabled` on line 83. Updated PropTypes. Ran 398 tests, all passing. Added 4 tests. Coverage 91% → 92%."*
+>
+> ✅ Context-first prose:
+> *"Newly created menus were showing as disabled in the selector even though they were active. The selector was deriving its disabled state from `published`, which ClassPass controls — so a partner's brand-new menu looked unusable until ClassPass flipped a flag. This switches the derivation to `enabled`, the partner-facing field, so a menu is selectable the moment it's created. Verified by creating a menu and confirming it's immediately selectable, and that a genuinely unpublished one still greys out."*
+
+The bad version lists what moved; the good version explains what was wrong, why, what changed, and how it was checked — and it won't rot, because there's not a single coordinate or count in it.
 
 ---
 
@@ -113,6 +123,7 @@ These principles make the difference between a PR that gets reviewed in 5 minute
 - Don't skip the template. Even if it feels overkill for a one-line fix, fill it in. Consistency matters more than brevity.
 - Don't enumerate where you should narrate. A description made of five-bullet lists has flattened all the causality out of your change. If the bullets depend on each other, write the paragraph.
 - Don't reference line numbers or file coordinates ("changed line 47"). They go stale on the next push and the diff already shows them. Anchor to behavior.
+- Don't include churn-y numbers that rot and that nobody reads: test counts ("398 tests passing"), coverage percentages, "N tests added", file-change counts. CI reports the numbers; the PR body is for context. Say *what* you verified, never *how many*.
 - Don't list every changed file. That's what the diff is for.
 - Don't write "various improvements" or "code cleanup." Be specific about what and why.
 - Don't ignore the repo's lived style. Skipping the recent-merged-PR check in Step 2 is how PRs end up not matching house conventions.
