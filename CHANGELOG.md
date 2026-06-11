@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.19.0 — 2026-06-11
+
+New `/flagrare:testing-philosophy` skill defines what a good test is — and the planning and review skills now enforce it. Two long-standing gaps close: user-facing features that shipped without any end-to-end test, and tests that quietly asserted implementation details instead of behavior.
+
+### General
+
+- **`/flagrare:testing-philosophy`**: new shared reference distilling Kent Dodds' testing philosophy, generalized to any language and layer (frontend, backend, CLI, library). One principle (tests resemble how the software is used), behavior over implementation with concrete tells and an acid test, and the Testing Trophy with a hard floor: every user-facing feature needs at least one end-to-end test of its critical happy path.
+
+### Behaviour
+
+- **`/flagrare:atdd-plan`**: acceptance tests now require an end-to-end/full-stack happy-path test for user-facing work (a browser journey, a running-service HTTP test, a CLI subprocess, or a public-API consumer). "Mostly integration" no longer means "skip e2e."
+- **`/flagrare:implementation-review`**: flags a user-facing feature whose critical path has no end-to-end coverage, and catches more implementation-detail tests — spy/mock-call-count assertions on collaborators you own, and any test that breaks under a behavior-preserving refactor.
+- **`/flagrare:tdd-writer`, `/flagrare:wrap-up`**: defer to the shared testing philosophy for test strategy.
+
 ## 1.18.0 — 2026-06-11
 
 Long-running skills no longer stop halfway. Several skills used to emit a big artifact — a context brief, a plan, a findings file — then end the turn, leaving you to nudge them to keep going. They now hold themselves to the finish.
