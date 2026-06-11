@@ -74,6 +74,8 @@ Call `/flagrare:implementation-review`. This runs six parallel subagent checks:
 5. SOLID violations
 6. Clean Code violations
 
+Checks 2–4 apply `/flagrare:testing-philosophy` — behavior over implementation and the e2e necessity floor — so test quality is owned there; don't re-litigate it in Step 3.
+
 **Wait for it to complete.** Collect all findings.
 
 ### Step 3: Additional Review (gaps not covered by /flagrare:implementation-review)

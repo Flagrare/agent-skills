@@ -88,6 +88,8 @@ After this one-time bootstrap, `/flagrare:update` works for all future versions 
 
 `/flagrare:write-docs` guides documentation writing using Pinker's classic style, the Diataxis framework, and concrete examples from React, Stripe, and Anthropic's docs.
 
+`/flagrare:testing-philosophy` is the shared definition of a good test, distilled from Kent Dodds and generalized to any language and layer (frontend, backend, CLI, library): behavior over implementation details, the Testing Trophy, and a hard floor requiring at least one end-to-end test of the critical happy path for user-facing features. It's the required background for `/flagrare:atdd-plan`, `/flagrare:implementation-review`, and `/flagrare:tdd-writer`.
+
 ### Maintenance
 
 `/flagrare:update` pulls the latest skills from GitHub. It runs the canonical `update.sh` from `main` directly, so the update logic is always current even if your locally cached skill is from an older release. It migrates legacy marketplace names, installs the plugin so version refreshes propagate, scrubs stale settings entries, and prunes obsolete caches in a single run.
