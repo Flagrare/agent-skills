@@ -9,6 +9,24 @@ Turn a ticket reference into a planning-ready context brief before `/flagrare:at
 
 ---
 
+## Lock the goal first (anti-stall) — do this before Step 0
+
+**Hard requirement.** Before any other tool call, you (the executing model) MUST call `/goal` yourself — unless you were invoked through `/flagrare:work-prep` (see the skip rule below). This is not a suggestion to the user.
+
+**Why:** intake's most common failure is stopping after it emits the context brief and never reaching the clarifying questions. Emitting a large artifact reads as "turn complete," and the only forcing function downstream (the `AskUserQuestion` call in Step 5) sits two steps past that natural stop. A `/goal` is a session-scoped Stop-hook: after every turn a fast evaluator checks your condition against the conversation and, if unmet, makes you continue instead of yielding. Set it *before* the brief exists, so it is already holding you in place when you emit it. (Grounded in [`docs/research/2026-06-11-claude-code-goal-anti-stall.md`](../../../../docs/research/2026-06-11-claude-code-goal-anti-stall.md).)
+
+Call `/goal` with a condition phrased as something your own output demonstrates — the evaluator cannot run tools or read files, it only judges what you have surfaced in the conversation:
+
+> The ticket and every referenced link have been read; a codebase-grounded context brief has been produced (with `## Codebase Findings` populated); the 3–5 most blocking clarifying questions have been asked via the `AskUserQuestion` tool and answered (or the brief had no blocking ambiguity and a short overview was presented instead); and either `/flagrare:atdd-plan` has been invoked with the brief as input, or the user has explicitly chosen "Stop here". Stop after 12 turns if not met.
+
+After setting the goal, create a Todo list (TodoWrite) — one item per remaining step (read ticket, follow references, synthesise brief, ground in codebase, ask questions, hand off). The todo list tracks coverage; the goal prevents the harness from letting you stop. Both are required.
+
+**Skip rule (nested under work-prep):** if the args passed to this skill start with `[work-prep]`, do NOT call `/goal` — `/flagrare:work-prep` already set a session-spanning goal, and only one goal can be active per session (a second would silently replace the first). Still create the Todo list.
+
+**If `/goal` is unavailable** (it reports the workspace is untrusted, or `disableAllHooks` / `allowManagedHooksOnly` is set): proceed without it, but treat the no-yield notes in Steps 4–5 as mandatory rather than belt-and-suspenders.
+
+---
+
 ## Step 0 — Inventory available tools
 
 Before anything else, check what tools and MCPs are available in this session. List every MCP whose name contains any of: `linear`, `jira`, `asana`, `shortcut`, `trello`, `notion`, `figma`, `drive`, `github`, `gitlab`, `confluence`, `browser`, `playwright`, `puppeteer`, `fetch`, `web`, `obsidian`.
@@ -125,9 +143,11 @@ Platform: [Linear / Jira / …]    Priority: [P0–P3 / Critical / …]    Assig
 ## Codebase Findings
 [Populated by Step 4.5 below — leave empty for now]
 
-## Open Questions
-[Everything underspecified, contradictory, or missing from the above]
+## Open Questions  (internal working list — NOT a deliverable)
+[Everything underspecified, contradictory, or missing. These feed Step 5's AskUserQuestion call. Do NOT print them to the user as a prose list and then wait — listing them reads as "asked" and is the exact behaviour that stalls intake.]
 ```
+
+**Do not end your turn after emitting the brief.** The brief is internal scaffolding, not a finished deliverable — continue straight into Step 4.5 in the same turn. Emitting the brief and stopping is this skill's single most common failure; the `/goal` set at the top exists to catch it, but do not rely on the goal alone.
 
 ---
 
@@ -206,6 +226,8 @@ Never end intake with a context dump and silence. The user should always know wh
 
 ## Anti-patterns
 
+- **Don't skip the `/goal` step** (unless nested under `/flagrare:work-prep`, which owns the goal). Without a durable goal, intake reliably stalls after the brief and never asks the clarifying questions — the exact failure this skill is built to avoid.
+- **Don't set a second `/goal` when invoked with the `[work-prep]` prefix.** Only one goal can be active per session; a second silently replaces work-prep's session-spanning goal and breaks the downstream handoff.
 - Don't summarise the ticket without reading it — "I assume this means X" is not intake.
 - Don't spawn a subagent per sentence — one per distinct resource (ticket, Notion page, Figma frame, article).
 - Don't skip inaccessible references silently — note them, they may be critical.
@@ -221,6 +243,7 @@ Never end intake with a context dump and silence. The user should always know wh
 
 ```
 /flagrare:intake [ticket ID or URL]
+     ↓ /goal locked (anti-stall; skipped when nested under work-prep)
      ↓ subagents read ticket + all references in parallel
      ↓ /flagrare:research-catalog  ← log every external source before synthesising
      ↓ context brief synthesised (without questions)

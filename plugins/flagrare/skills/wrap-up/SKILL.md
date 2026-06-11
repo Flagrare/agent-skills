@@ -137,15 +137,14 @@ Merge automated check results, `/flagrare:implementation-review` findings, and s
 
 ### Step 5: Offer Fixes
 
-If issues were found:
+If issues were found, **close with a tool, not prose.** The Step 4 report is a large artifact; ending with a prose "Would you like me to…" frequently reads as turn-complete and stops before the user can answer (the stall pattern in [`docs/research/2026-06-11-claude-code-goal-anti-stall.md`](../../../../docs/research/2026-06-11-claude-code-goal-anti-stall.md)). Immediately after the report, issue an `AskUserQuestion` tool call with options:
 
-```
-Would you like me to:
-1. Fix the automated check errors (lint/type)
-2. Apply the review suggestions
-3. Both
-4. Skip for now
-```
+- **Fix the automated check errors** (lint/type)
+- **Apply the review suggestions**
+- **Both** (Recommended when both surfaced findings)
+- **Skip for now**
+
+Do not render these as a numbered prose list and wait — use the tool so the user gets buttons and the turn doesn't end ambiguously.
 
 ---
 

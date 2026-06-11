@@ -21,13 +21,17 @@ The second reason this skill exists: the source-of-truth (a Notion test case dat
 
 ---
 
-## Step 1 — Set the goal explicitly
+## Step 1 — Lock the goal explicitly
 
-State the goal in one sentence and surface it to the user so they can correct scope before the loop starts.
+**Hard requirement.** Before any other tool call, you (the executing model) MUST call `/goal` yourself — not merely state a goal in prose. A bash walks many cases across many turns and emits a large findings file partway through; without a durable goal, the model tends to stop after the strict pass or after writing the findings file, before the exploratory pass and the write-back. `/goal` is a session-scoped Stop-hook: a fast evaluator checks your condition against the conversation after every turn and makes you continue until it holds. (Grounded in [`docs/research/2026-06-11-claude-code-goal-anti-stall.md`](../../../../docs/research/2026-06-11-claude-code-goal-anti-stall.md).)
 
-> **Goal:** bash `[feature / ticket / PR]`. Every prescribed test case is run against the live system with evidence. Every exploratory pass (viewports, multi-actor, edge inputs, codebase-driven concerns) is completed. Every bug recorded is one I reproduced — no second-hand claims. Results land in `[user's chosen sink]`.
+Surface the goal to the user first so they can correct scope, then call `/goal` with a condition phrased as something your own output demonstrates (the evaluator cannot run tools or read files):
 
-The goal owns the session. The bash is not done until each clause holds.
+> Bash `[feature / ticket / PR]`: every prescribed test case has been run against the live system with captured evidence and a recorded status (pass / fail / skip-blocked / skip-external); the five-lens exploratory pass is complete; every bug recorded is one I reproduced myself (no second-hand claims); results have landed in `[user's chosen sink]`; and the close has been confirmed via the Step 8 AskUserQuestion. Stop after 30 turns if not met.
+
+After setting the goal, create a Todo list (TodoWrite) — one item per prescribed test case plus one per exploratory lens — so coverage is tracked while the goal keeps the harness from letting you stop early.
+
+**If `/goal` is unavailable** (untrusted workspace, or `disableAllHooks` / `allowManagedHooksOnly` set): proceed without it, but treat each step's completion as mandatory and do not yield the turn until Step 8.
 
 ---
 

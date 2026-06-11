@@ -6,6 +6,7 @@ External research conducted for this project. Each entry credits the sources it 
 
 | Date | Topic | Triggered by | Informed |
 |------|-------|--------------|----------|
+| 2026-06-11 | [Claude Code `/goal` as an anti-stall mechanism for multi-step skills](./2026-06-11-claude-code-goal-anti-stall.md) | Diagnosing why `/flagrare:work-prep` / `/flagrare:intake` stop before clarifying questions | intake & work-prep `/goal` step |
 | 2026-05-28 | [Boots (boot.dev's AI tutor) as a reference for Socratic-mode skill design](./2026-05-28-boots-ai-tutor-design.md) | Designing `/flagrare:tutor`, an on-demand Socratic tutoring skill | tutor skill spec, tutor `SKILL.md`, pr-reviewer voice spec |
 | 2026-05-23 | [UI smoke testing best practices](./2026-05-23-ui-smoke-test-best-practices.md) | Designing the UI half of `/flagrare:smoke-test` | smoke-test skill (UI branch) |
 | 2026-05-23 | [Backend smoke testing best practices](./2026-05-23-backend-smoke-test-best-practices.md) | Designing the backend half of `/flagrare:smoke-test` | smoke-test skill (backend branch) |
