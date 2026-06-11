@@ -193,7 +193,11 @@ Lead with the decision and its reason, then show the artifact.
 
 [One or two sentences on the testing strategy — what gives you confidence this is
 correct — then the matrix. The table is genuinely parallel data, so a table earns its
-place here.]
+place here. Follow `/flagrare:testing-philosophy`: integration-heavy, behavior over
+implementation, and — for any user-facing flow — at least one end-to-end test of the
+critical happy path (a browser journey, a running-service HTTP test, a CLI subprocess,
+or a public-API consumer, depending on the surface). "Mostly integration" is not "skip
+e2e."]
 
 | Scenario | Type | Data Considerations |
 |----------|------|---------------------|

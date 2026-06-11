@@ -13,6 +13,8 @@ This skill produces an implementation plan in **Claude Code's native plan mode**
 
 Everything else about the plan's form — length, section ordering, tone — follows plan mode's defaults. Don't impose extra structure on top.
 
+**REQUIRED BACKGROUND:** Invoke `/flagrare:testing-philosophy` before writing the Acceptance Tests. It defines, layer-agnostically, what a good test is — behavior over implementation, the Testing Trophy, and the e2e necessity floor below. The AT rules here are its application to planning; read both.
+
 ---
 
 ## The two non-negotiables
@@ -23,10 +25,11 @@ Every plan this skill produces **must include** both:
 
 3 to 5 acceptance tests, written in plain English, that define "done" before implementation begins. Each test must:
 
-- **Exercise the public API only** — no private methods, no internal state, no `_inner` fields. A test that breaks on a behavior-preserving rename is a broken test, not a broken refactor.
-- **Describe behavior, not method names** — `"returns an empty Scene when the story has ended"` not `"test_advance_flag"`.
-- **Use real collaborators where cheap; mock only at external/network/clock/process/OS boundaries.**
-- **Follow Kent Dodds' Testing Trophy** — integration-heavy is the default, because most regressions live between units, not inside them. Unit tests are reserved for pure functions with complex logic. E2E is for one or two critical paths, not one per scenario.
+- **Exercise the public API only** — no private methods, no internal state, no `_inner` fields. A test that breaks on a behavior-preserving rename is a broken test, not a broken refactor. (Apply the acid test from `/flagrare:testing-philosophy`: would this break under a behavior-preserving refactor? Does it assert what a real user observes?)
+- **Describe behavior, not method names** — `"returns an empty Scene when the story has ended"` not `"test_advance_flag"`. A name that describes a mechanism (`"calls advanceFlag"`) is the tell of an implementation-detail test.
+- **Use real collaborators where cheap; mock only at external/network/clock/process/OS boundaries.** Never assert on spy/mock call-counts for a collaborator you own — that asserts the mechanism, not the behavior.
+- **Follow the Testing Trophy** — integration-heavy is the default, because most regressions live between units, not inside them. Unit tests are reserved for pure functions with complex logic.
+- **Include the e2e floor for user-facing work** — if the feature is user-facing, at least one AT must exercise the critical happy path end-to-end through the real, assembled system (browser journey for a UI; running-service-over-HTTP-against-a-real-DB for a backend; subprocess for a CLI; public-API-as-a-consumer for a library). "Mostly integration" is not "skip e2e": one or two critical paths, not one per scenario, but never zero for a user-facing feature.
 
 Write 3-5 ATs. Too few leaves behavior undefined; too many creates a brittle harness.
 
@@ -118,4 +121,5 @@ Do not follow `ExitPlanMode` with a prose question or summary. The button UI is 
 - **Skipping `EnterPlanMode`** and producing a markdown plan in the regular conversation. The user wants the native plan-mode UX; that means the actual tool, not an approximation.
 - **Skipping `/flagrare:codebase-explore`.** The plan must be grounded in the real codebase; references to actual `path/to/file.ts:42` locations are what separate this from a generic chatbot plan.
 - **Coverage targets as a goal.** Coverage is a side effect of testing the right behaviors, not something the plan aims at.
+- **A user-facing feature whose ATs never prove the layers connect.** Unit + integration coverage with no e2e/full-stack happy-path test is a gap, even when it looks complete. The e2e floor is non-optional for user-facing work — see `/flagrare:testing-philosophy`.
 - **Closing with a prose question after `ExitPlanMode`.** The button UI is the close. Don't double-prompt.

@@ -9,6 +9,8 @@ Run this before every commit, after `/flagrare:staleness-audit`. The goal: **wha
 
 Each of the six checks is run by a dedicated subagent. Spawn all six in parallel, collect their reports, then synthesise into the output format below.
 
+**REQUIRED BACKGROUND for Checks 2–4:** the test-related checks apply `/flagrare:testing-philosophy` (behavior over implementation, the Testing Trophy, the e2e necessity floor). Pass that skill's content into the Check 2, 3, and 4 subagent briefs so they judge against the same definition of "good test" the planning side uses.
+
 ---
 
 ## Step 1 — Gather inputs (main agent)
@@ -61,10 +63,11 @@ Flag every gap. A deferred item is not a gap — but it must be explicitly defer
 For every **user-facing capability** in scope for this commit:
 - Is there at least one test that exercises it through the public API?
 - Is there a code path that implements it?
+- **Is the critical happy path covered end-to-end through the real, assembled system?** Per the e2e necessity floor in `/flagrare:testing-philosophy`, a user-facing feature with unit + integration coverage but no e2e/full-stack proof that the layers connect is a gap. E2e generalizes by surface: a browser journey for a UI, running-service-over-HTTP-against-a-real-DB for a backend, a subprocess invocation for a CLI, public-API-as-a-consumer for a library. One or two critical paths suffice — but zero is a finding.
 
 This is different from Check 1 — use cases can be implicit in the product scope even if the plan did not spell them out. Ask: "what would a consumer of this code reasonably expect to be able to do?"
 
-Flag any use case that has an implementation but no test, or a test but no implementation.
+Flag any use case that has an implementation but no test, a test but no implementation, or a user-facing happy path with no end-to-end coverage.
 
 ---
 
@@ -93,7 +96,7 @@ Flag missing scenarios. Not every category applies to every change — exercise 
 
 **Inputs:** full content of changed test files only (do not check non-test files here).
 
-For each test in the staged diff, check against the following rules. A violation is a finding.
+For each test in the staged diff, check against the following rules. A violation is a finding. Apply the two acid tests from `/flagrare:testing-philosophy` to every test: **(1)** would it break under a behavior-preserving refactor (internal rename / restructure with the public contract unchanged)? **(2)** does it assert what a real user observes, or how the result was produced? A "yes" to (1) or a "no" to (2) is an implementation-detail test.
 
 **Behavior over implementation**
 - Does the test name describe a behavior ("rejects an out-of-range choice index with StoryChoiceRangeError") or an implementation detail ("calls ChooseChoiceIndex with the given index")?
@@ -101,6 +104,7 @@ For each test in the staged diff, check against the following rules. A violation
 
 **Public API only**
 - Does the test access private fields, `_inner` objects, unexported functions, or internal state? → violation
+- Does the test assert that an internal function/method *was called* — a spy or mock-call-count on a collaborator the code owns? → violation (asserts the mechanism, not the behavior)
 - Does the test mock types it owns (its own classes, its own modules)? → violation
 - Does it mock only at genuine external boundaries (network, disk, clock, OS process, third-party API)? → ✓
 
@@ -112,10 +116,11 @@ For each test in the staged diff, check against the following rules. A violation
 - Would this test break if you renamed an internal method while keeping the public contract identical? → violation
 - Would it break if you changed the internal data structure while keeping the return value identical? → violation
 
-**Testing Trophy shape**
+**Testing Trophy shape** — check *both* directions (most reviews only catch overuse):
 - Does the commit add more unit tests than integration tests for behavior that crosses multiple units? → flag
-- Is anything tested only at E2E level that could be tested cheaper at integration level? → flag
-- Does any test reach for a snapshot that will be rubber-stamped on update? → flag
+- Is anything tested only at E2E level that could be tested cheaper at integration level? → flag (overuse)
+- Conversely, is a user-facing critical path missing any e2e/full-stack test entirely? → flag (the e2e necessity floor — this is the quieter, more common gap; coordinate with Check 2 which has the scope inputs to confirm the feature is user-facing).
+- Does any test reach for a snapshot that will be rubber-stamped on update? → flag (it asserts "it changed," not "it's correct")
 
 **Test names**
 - `it("works")`, `it("test 1")`, `it("should work correctly")`, `it("handles the case")` → violation
