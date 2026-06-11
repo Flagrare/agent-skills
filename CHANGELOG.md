@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.17.0 — 2026-06-11
+
+`/flagrare:tdd-writer` and `/flagrare:open-pr` now write through `/flagrare:write-docs`, so their output reads as narrative a reviewer can follow start to finish instead of a wall of bullets.
+
+### Behaviour
+
+- **`/flagrare:tdd-writer` — narrative over enumeration**: the design-doc template is now a coverage checklist for the author, not a layout for the reader. Architecture, data model, API, rollout, risk, and alternatives sections prompt for prose that carries the *why*; lists and tables are reserved for genuinely parallel data (LOE scale, endpoint roster, test matrix). Verification rigor is unchanged.
+- **`/flagrare:open-pr` — matches your repo's house style**: reads your last few merged PRs (not just `PULL_REQUEST_TEMPLATE.md`) to pick up title format, detail level, and tone. Anchors descriptions to behaviour and decisions rather than line numbers or file coordinates, which go stale on the next push.
+- **Both skills — shared craft layer**: each opens with a required handoff to `/flagrare:write-docs` plus a self-contained craft section, so they produce readable output whether or not write-docs is separately loaded.
+
 ## 1.16.1 — 2026-06-04
 
 Skill configs now survive plugin updates. Previously, settings for `/flagrare:standup-report`, `/flagrare:brag-doc`, and `/flagrare:daily-code-review` lived inside the plugin install directory — so every `flagrare:update` wiped them and the setup flow re-ran from scratch.
