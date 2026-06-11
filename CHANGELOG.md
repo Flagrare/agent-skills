@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.20.0: 2026-06-11
+
+Generated documentation is now clean of em-dashes, and PR descriptions lead with context instead of a scoreboard.
+
+### Behaviour
+
+- **All doc-writing skills**: no longer emit em-dashes. `/flagrare:write-docs` carries a hard no-em-dash rule, the prose-emitting skills (release-check, standup-report, brag-doc, daily-code-review, pr-reviewer, research-catalog) restate it, and a repo hook flags any em-dash that reaches a generated `.md`. Commas, colons, and parentheses do the work instead.
+- **`/flagrare:open-pr`**: descriptions lead with what changed and why, and drop data that rots, test counts, coverage percentages, "N tests passing", and line-number references. A before/after example shows context-first prose so the model imitates the right thing.
+
 ## 1.19.0: 2026-06-11
 
 New `/flagrare:testing-philosophy` skill defines what a good test is, and the planning and review skills now enforce it. Two long-standing gaps close: user-facing features that shipped without any end-to-end test, and tests that quietly asserted implementation details instead of behavior.
