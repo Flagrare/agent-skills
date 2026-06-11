@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.20.1: 2026-06-11
+
+### Bug Fixes
+
+- **`/flagrare:ticket-creator`**: tickets are no longer essay-length. A one-screen budget now caps the body, Context stays 2 to 4 sentences and links the spec instead of restating it, codebase grounding is distilled to a few `file:line` pointers, and the Context polish tightens prose instead of expanding it.
+
 ## 1.20.0: 2026-06-11
 
 Generated documentation is now clean of em-dashes, and PR descriptions lead with context instead of a scoreboard.
