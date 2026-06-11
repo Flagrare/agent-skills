@@ -5,7 +5,9 @@ description: "Draft comprehensive Technical Design Documents. Analyzes codebase,
 
 # TDD Writer
 
-Draft Technical Design Documents for staging up large or complex projects. TDDs are communication tools for aligning stakeholders and providing high-level execution plans.
+Draft Technical Design Documents for staging up large or complex projects. A TDD is a communication tool: a reader who has never seen the work should be able to read it start to finish and come away understanding **what** you're proposing, **why**, and **how** it will be built. It is not a form to fill in, and it is not a checklist with the prose removed.
+
+**REQUIRED BACKGROUND:** Invoke `/flagrare:write-docs` before drafting. This skill owns *what a TDD must cover and how to verify it*; write-docs owns *how to make the prose readable*. The single most common failure of an AI-drafted TDD is the "medicine sheet" — every section flattened into terse bullets, no causality, nothing a human wants to read. The craft layer in write-docs is the antidote, and the section "Writing the document" below applies it specifically to TDDs. Read both; do not skip the handoff.
 
 ---
 
@@ -98,7 +100,9 @@ After gathering, explicitly list what could NOT be verified:
 
 ### Phase 2: Draft Structure
 
-Use this template. Mark ANY unverified information with the markers above.
+The template below is a **coverage checklist for the author, not a layout for the reader**. It lists what a good TDD considers. It does not mean each heading gets three bullets and a code block. As you fill it, follow one rule above all others: **write each section as prose a colleague could read aloud.** Reach for a list or table only when the content is genuinely parallel and order-independent — a roster of endpoints, a t-shirt-size scale, a test matrix. The moment a "list" has bullets that depend on each other (this happens, *then* that, *because* of the other), it's a paragraph wearing a list costume. Write the paragraph.
+
+Drop sections that don't apply rather than filling them with "N/A" noise. Mark ANY unverified information with the markers above.
 
 ```markdown
 # TDD: [Initiative Title]
@@ -156,76 +160,90 @@ Use this template. Mark ANY unverified information with the markers above.
 
 **This phase:** [SIZE]
 
-### External Dependencies / Impact
+### External dependencies & impact
 
-**Teams:** [Dependent teams, BI impact]
-**Vendors:** [New vendors, cost analysis]
-**Libraries:** [Open source, internal services]
+[Prose. Who else is affected and how? Name the teams that depend on this or whose
+systems you touch, the vendors (with cost) you're adding, the libraries or internal
+services you'll lean on — and the consequence of each. A reader should learn not just
+*that* Team X is involved but *what they have to do because of this work*.]
 
 ### Concepts
 
-[Describe each idea/model and how they relate to each other.]
+[Prose. Introduce each new idea or model and, crucially, how they relate. This is
+where causality lives — "an Order owns many LineItems, and a LineItem can't outlive
+its Order" — so resist turning it into a glossary of disconnected terms.]
 
-### System Architecture / Data Model / API Endpoints
+### System architecture, data model & APIs
 
-**Database Changes:**
-- New tables? Updated tables? Migrations?
-- Schema naming and structure
+[The technical heart. Walk the reader through the design as a story: the shape of the
+data, what flows where, and the one or two decisions that everything else hangs on.
+Lead with the decision and its reason, then show the artifact.
 
-**API Changes:**
-- New/updated endpoints, payloads
-- Schema changes (GraphQL, protobuf, REST)
-
-**Business Logic:**
-- Non-trivial logic added or altered
-- Response and load considerations
-- Caching strategy
+- **Data model:** Describe in prose what's changing and why, then show the actual
+  schema/migration. A reader should understand the *semantics* before they read the
+  column list. Reserve tables for the column inventory itself.
+- **APIs:** Say what the client experiences differently and why you chose this shape,
+  then include the real endpoint/proto/GraphQL definition inline (verified against
+  source). A list is right for the *roster* of endpoints; prose is right for the *why*.
+- **Business logic:** Explain non-trivial logic as a narrative of what happens and
+  when. Number the steps only when they're a true sequence. Call out load, response,
+  and caching considerations where they bite, not as a trailing bullet dump.]
 
 ### Testing
+
+[One or two sentences on the testing strategy — what gives you confidence this is
+correct — then the matrix. The table is genuinely parallel data, so a table earns its
+place here.]
 
 | Scenario | Type | Data Considerations |
 |----------|------|---------------------|
 | [scenario] | unit/integration/e2e/manual | [special data] |
 
-**What Won't Be Tested:**
-[Explicit exclusions]
+**What won't be tested:** [Prose. State the exclusions and *why* they're acceptable.]
 
 ### Localization
-[Translation strategy if applicable]
+[Prose, if applicable. Translation strategy and what triggers it.]
 
 ### PII
-[New PII fields? PII persisted outside databases?]
+[Prose. New PII fields? PII persisted outside the primary database? Name the field and
+the handling, not just "yes".]
 
-### Observability and Alerting
-[New metrics, dashboards, alerts]
+### Observability & alerting
+[Prose. What new signal will exist, and — more importantly — what question each
+metric/dashboard/alert answers when something goes wrong.]
 
 ### Security
-[Auth, permissions, vulnerabilities]
+[Prose. Auth, permissions, and any vulnerability surface this opens or closes, with
+the mitigation in the same breath.]
 
 ### Analytics
-[New/modified events, destinations]
+[Prose. New or modified events and where they land, framed by what decision the data
+supports.]
 
-### Rollout Strategy
-- Dry run?
-- Stealth mode?
-- Feature flags?
-- Gradual rollout percentage?
+### Rollout strategy
+[Prose. Walk through how this reaches production — dry run, stealth mode, feature
+flags, gradual percentages — as a sequence with reasons, not a checklist of toggles.
+The reader should understand the *risk posture*, not just the mechanics.]
 
-### Post-Deployment Monitoring
-[How will we know it's working? Queries, dashboards, who monitors?]
+### Post-deployment monitoring
+[Prose. How will we know it's working? Name the queries/dashboards and who watches
+them, so a reader could verify success themselves.]
 
 ### Risks
-[Known risks and mitigations]
+[Prose. Each known risk paired with its mitigation in the same sentence or paragraph.
+A risk listed without a mitigation reads as an unanswered worry.]
 
 ### Documentation
-[New docs needed?]
+[Prose. What docs need to exist or change, and for whom.]
 
-### Open Questions
-- [ ] Question 1?
-- [ ] Question 2?
+### Open questions
+- [ ] [Genuinely open question — a real fork, not a placeholder]
+- [ ] [Another, if any]
 
-### Alternative Solutions
-[Other options considered and why they were discarded]
+### Alternative solutions
+[Prose. The options you considered and *why you discarded them*. This is one of the
+most-read sections in any TDD — reviewers come here first to check you weren't naive —
+so give each alternative a fair sentence and an honest reason it lost.]
 
 ---
 
@@ -252,14 +270,38 @@ Use this template. Mark ANY unverified information with the markers above.
 - [TBD: pending decisions]
 ```
 
-### Phase 3: Writing Style
+### Phase 3: Writing the document
 
-**Voice:**
-- Use "We will..." language (conversational but precise)
-- Be direct about scope and limitations
+This is where TDDs live or die. You've gathered verified facts; now you have to turn
+them into a document a busy senior engineer will actually read. The craft layer is in
+`/flagrare:write-docs` — invoke it — but here is how its principles land in a TDD.
 
-**Diagrams:**
-Always use Mermaid for flowcharts and graphs when possible:
+**Lead each section with the reader's situation, not the section's topic.** Compare
+*"This section describes the data model changes."* (metadata — it has done zero work)
+with *"Orders currently can't be partially refunded because the schema models a refund
+as a single boolean. We're replacing that with a refund ledger."* The second sentence
+tells the reader where they are and where you're taking them. The opening line of every
+section should state a conclusion, name a problem, or ask a question.
+
+**Prose carries causality; lists flatten it.** A TDD is mostly *because* and *so that*
+and *before* — exactly the relationships a bullet list erases. When you catch yourself
+writing a list whose items depend on each other, you've found a paragraph. Keep lists
+for the genuinely parallel: a roster of endpoints, a t-shirt scale, a test matrix, a
+checklist of sources verified. (This is the single biggest lever against the "medicine
+sheet" feel the operator complained about.)
+
+**Put context at the point of need.** The first time a reader meets `client_secret` or
+`OrderProjection` or a service name, define it inline in the same sentence — not in a
+glossary, not three sections up. The reader who knows skips it; the reader who doesn't
+is rescued exactly where they got lost.
+
+**Voice and tone.** Use "We will…" — conversational but precise. Be direct about scope
+and limitations; a TDD that hides its gaps loses reviewer trust faster than one that
+names them. Keep the voice the same throughout; let the tone tighten in the dense
+technical sections and warm slightly in the context and vision.
+
+**Diagrams.** A good diagram replaces three paragraphs of prose, so prefer Mermaid for
+any non-trivial flow or architecture:
 
 ```mermaid
 flowchart TD
@@ -270,27 +312,27 @@ flowchart TD
     D --> E
 ```
 
-Use color coding:
-- Yellow/Maize: existing architecture
-- Blue: new architecture
-
-**Structure patterns:**
-- List entry points with subscripts matching diagrams
-- Show both alternatives and mark the chosen one
-- Reference exact file paths
-- Show directory layout for new components
-- Document UI states with conditions
-- Use numbered steps for complex business logic flows
-- Include full proto/schema definitions inline
+Color-code consistently — yellow/maize for existing architecture, blue for new — so a
+reader can see the boundary of the change at a glance. When you show alternatives in a
+diagram, mark the chosen path. Reference exact, verified file paths and show directory
+layout for new components, but do it in service of the narrative, not as a standalone
+inventory.
 
 ### Phase 4: Review Before Presenting
 
-Before presenting the TDD:
+Run the write-docs self-check — read the document aloud; sentences that choke on the
+tongue usually nominalize a verb or rely on a bullet list to carry a relationship the
+prose should have carried. Then confirm:
+
+- Could a new team member read this start to finish and understand what's proposed, why,
+  and how? (If they'd have to reassemble the argument from bullets, rewrite those bullets
+  as prose.)
 - Is every technical claim backed by code you actually read?
-- Are all unknowns marked explicitly?
+- Are all unknowns marked explicitly with the markers from the No Assumptions Policy?
 - Does the verification summary list every source?
-- Are diagrams clear and accurate?
-- Could a new team member follow this document?
+- Are diagrams clear, accurate, and consistently color-coded?
+- Does every section's opening sentence do work, rather than describe what the section is
+  about?
 
 ---
 
@@ -321,6 +363,13 @@ Before presenting the TDD:
 
 ## Anti-patterns
 
+**Craft (the "medicine sheet"):**
+- Don't flatten sections into terse bullets where prose should carry the causality. If a "list" has items that depend on each other, it's a paragraph.
+- Don't open a section with metadata ("This section describes…"). Open with the reader's situation, a conclusion, or a question.
+- Don't defer every definition to a glossary. Define terms inline at first use.
+- Don't ship a document that can't be read start to finish. A reader should never have to reassemble your argument from disconnected bullets.
+
+**Verification:**
 - Don't invent service names that might not exist
 - Don't assume API payload structures
 - Don't guess database column names or types
