@@ -1,4 +1,4 @@
-# Finding triggers — the heuristic checklist
+# Finding triggers: the heuristic checklist
 
 This is the long version of the "what to flag" list in SKILL.md. Read once at the start of a long audit; skim whenever you feel the audit going thin.
 
@@ -10,7 +10,7 @@ The triggers are ordered roughly by how often they fire in practice. The first t
 
 ## 1. Jargon the user hasn't earned
 
-The app uses an internal term — entity name, branded feature, technical acronym — without ever defining it in context. Examples from real audits:
+The app uses an internal term, entity name, branded feature, technical acronym, without ever defining it in context. Examples from real audits:
 
 - `Set Your Light` as a button label (metaphor with no prior reference)
 - `Calibrating · day 0 of 14` on a fresh item (technical state name + opaque countdown)
@@ -107,7 +107,7 @@ Interactive controls smaller than 44×44pt on mobile. Common offenders:
 - Tab triggers in narrow tab strips
 - "Cancel" text links sized like body text
 
-Apple HIG and Material both put 44pt as the floor for the same reason — fingers aren't pixel-precise.
+Apple HIG and Material both put 44pt as the floor for the same reason, fingers aren't pixel-precise.
 
 ---
 
@@ -127,9 +127,9 @@ A destructive or important action completes with no toast, no banner, no inline 
 
 - "Save" on a settings page reloads silently
 - Form submits, page state changes, no acknowledgement
-- "Delete" succeeds with the item disappearing — but the user wasn't sure it was their tap or a glitch
+- "Delete" succeeds with the item disappearing, but the user wasn't sure it was their tap or a glitch
 
-The fix is a brief toast: "Saved ✓" / "Deleted — undo".
+The fix is a brief toast: "Saved ✓" / "Deleted, undo".
 
 ## 13. Vocabulary drift
 
@@ -164,7 +164,7 @@ Form interactions that feel sloppy even when "working":
 
 ## 16. IA gaps
 
-Major features are reachable only via deep-links — not surfaced in primary navigation. A new user will never find them.
+Major features are reachable only via deep-links, not surfaced in primary navigation. A new user will never find them.
 
 - The app's central concept (e.g. "The Light") has no nav entry
 - A reports/analytics page is reachable only via a small text link on a settings sub-page
@@ -181,7 +181,7 @@ The app fires a follow-up notification or state that contradicts what the user j
 - Empty state shown after a successful create (because the list query stale-cached)
 - Toast that names a different entity than the user just touched
 
-These are bugs as much as UX issues — log them both ways.
+These are bugs as much as UX issues, log them both ways.
 
 ## 18. Onboarding crimes
 
@@ -199,10 +199,10 @@ Onboarding-specific patterns that bite first-time users hardest:
 
 Some things look like findings but aren't. Resist:
 
-- **"I would have designed it differently"** — design preference is not a UX defect. Stick to user-impact.
-- **"It's not how Stripe does it"** — apps are allowed to be different. Only flag if the difference creates user-side friction.
-- **Minor brand/style nits on internal-only screens** — admin tools have looser polish bars; respect the context.
-- **Things you'd need a contract change to fix** — e.g. "the entire data model should be different." Out of scope for a UX audit. Recommend a separate architectural conversation.
-- **Performance issues that aren't visible to the user** — load times, bundle size, etc. belong in a different audit.
+- **"I would have designed it differently"**: design preference is not a UX defect. Stick to user-impact.
+- **"It's not how Stripe does it"**: apps are allowed to be different. Only flag if the difference creates user-side friction.
+- **Minor brand/style nits on internal-only screens**: admin tools have looser polish bars; respect the context.
+- **Things you'd need a contract change to fix**: e.g. "the entire data model should be different." Out of scope for a UX audit. Recommend a separate architectural conversation.
+- **Performance issues that aren't visible to the user**: load times, bundle size, etc. belong in a different audit.
 
 The audit's value comes from being trustworthy. Every clear false-positive in the table erodes that trust, even if the rest of the findings are gold.

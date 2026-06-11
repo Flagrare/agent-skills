@@ -5,6 +5,8 @@ description: "Review pull requests with full context. Fetches linked Jira ticket
 
 # PR Reviewer
 
+> **No em-dashes.** Nothing this skill writes may contain an em-dash; use a comma, colon, or parentheses instead. Enforced by a repo hook that flags em-dashes in generated `.md`. See `/flagrare:write-docs`.
+
 Reviews pull requests systematically with full context awareness and humanized feedback.
 
 This skill fetches linked resources via MCP, spawns parallel review subagents for systematic analysis, then synthesises findings into friendly, GitHub-ready comment drafts.

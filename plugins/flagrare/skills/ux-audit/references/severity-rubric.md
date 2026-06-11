@@ -1,6 +1,6 @@
 # Severity rubric
 
-Three values: `High`, `Medium`, `Low`. The point of a small ladder is forcing real prioritisation — the team will not act on a 47-row Medium list, but they will act on 4 Highs.
+Three values: `High`, `Medium`, `Low`. The point of a small ladder is forcing real prioritisation, the team will not act on a 47-row Medium list, but they will act on 4 Highs.
 
 ## High
 
@@ -27,7 +27,7 @@ The finding meets at least one of:
 - **Wastes premium screen real estate** (e.g. content vertically centered on the most important page)
 - **Visual collisions** that aren't blocking but look unfinished (FAB overlapping a card, toast covering a button)
 
-Most findings will be Medium. That's correct — Medium is where the actual product work lives.
+Most findings will be Medium. That's correct, Medium is where the actual product work lives.
 
 ## Low
 
@@ -39,7 +39,7 @@ The finding is real but cosmetic, easy to fix, and unlikely to cost a user the f
 - Polish on first-time states that returning users won't see often
 - Empty space that's not ugly, just inefficient
 
-Low findings still go in the table — they're free wins. But they should not dominate the top of the executive summary.
+Low findings still go in the table, they're free wins. But they should not dominate the top of the executive summary.
 
 ---
 

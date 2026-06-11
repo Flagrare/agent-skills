@@ -8,7 +8,7 @@
 
 ## Question
 
-What does Kent Dodds actually argue about (a) the role and necessity of end-to-end tests within the Testing Trophy, and (b) testing behavior over implementation details — and how do those arguments translate, without loss, into languages and layers other than the JavaScript/React frontend context he writes from?
+What does Kent Dodds actually argue about (a) the role and necessity of end-to-end tests within the Testing Trophy, and (b) testing behavior over implementation details, and how do those arguments translate, without loss, into languages and layers other than the JavaScript/React frontend context he writes from?
 
 ## Sources
 
@@ -17,7 +17,7 @@ What does Kent Dodds actually argue about (a) the role and necessity of end-to-e
 - **Type:** engineering blog (primary)
 - **Published:** 2018 (updated since); **Accessed:** 2026-06-11
 - **Relevance:** high
-- **What this contributed:** The core of the "behavior over implementation" pillar — the definition of an implementation detail, the two concrete failure modes (false negatives on refactor, false positives that pass while the app is broken), the "tests as an unwanted third user" framing, and a concrete list of what counts as an implementation detail.
+- **What this contributed:** The core of the "behavior over implementation" pillar, the definition of an implementation detail, the two concrete failure modes (false negatives on refactor, false positives that pass while the app is broken), the "tests as an unwanted third user" framing, and a concrete list of what counts as an implementation detail.
 - **Quoted:**
   > "Implementation details are things which users of your code will not typically use, see, or even know about."
 
@@ -38,7 +38,7 @@ What does Kent Dodds actually argue about (a) the role and necessity of end-to-e
 
 ### [Write tests. Not too many. Mostly integration.](https://kentcdodds.com/blog/write-tests) (via on-site search summary)
 - **Authors / Org:** Kent C. Dodds (phrase originated in a tweet by Guillermo Rauch)
-- **Type:** engineering blog (secondary here — used the search summary, not a full fetch)
+- **Type:** engineering blog (secondary here, used the search summary, not a full fetch)
 - **Published:** 2019; **Accessed:** 2026-06-11
 - **Relevance:** medium
 - **What this contributed:** The headline doctrine and the reason integration is the default tier (best confidence-per-effort trade-off). Confirmed the Test Pyramid has given way to integration-over-unit as conventional wisdom.
@@ -47,11 +47,11 @@ What does Kent Dodds actually argue about (a) the role and necessity of end-to-e
 
 Two pillars, both reducible to one principle.
 
-**The one principle:** *"The more your tests resemble the way your software is used, the more confidence they can give you."* Every other rule is a corollary. It is intrinsically language- and layer-agnostic — "the way your software is used" just resolves to a different surface per context.
+**The one principle:** *"The more your tests resemble the way your software is used, the more confidence they can give you."* Every other rule is a corollary. It is intrinsically language- and layer-agnostic, "the way your software is used" just resolves to a different surface per context.
 
-### Pillar 1 — Behavior over implementation details
+### Pillar 1: Behavior over implementation details
 
-An **implementation detail** is anything the users of your code will not use, see, or know about. Tests that bind to implementation details fail in two ways at once: they cry wolf when you refactor without changing behavior (false negative), and they stay green when you actually break the behavior (false positive). A test coupled to internals is a *third user* of your code that nobody asked for — you now have to keep the end user, the calling developer, and the test all happy.
+An **implementation detail** is anything the users of your code will not use, see, or know about. Tests that bind to implementation details fail in two ways at once: they cry wolf when you refactor without changing behavior (false negative), and they stay green when you actually break the behavior (false positive). A test coupled to internals is a *third user* of your code that nobody asked for, you now have to keep the end user, the calling developer, and the test all happy.
 
 The fix is to assert only on what a real user can observe, and to drive the code only through the surface a real user touches. "User" generalizes cleanly:
 
@@ -69,15 +69,15 @@ Concrete tells of an implementation-detail test, regardless of stack:
 - It would break under a behavior-preserving rename or internal restructure. (The acid test: "if I refactor internals but keep the contract, does this test break? If yes, it's testing the wrong thing.")
 - Its name describes a mechanism (`calls setIndex with 0`) rather than a behavior (`shows the first slide on load`).
 
-### Pillar 2 — The Testing Trophy, and where e2e is genuinely necessary
+### Pillar 2: The Testing Trophy, and where e2e is genuinely necessary
 
-Four layers, bottom to top: **static** (types + lint — free correctness), **unit** (a piece in isolation, dependencies mocked), **integration** (several units working together — the default, best confidence-per-effort), **e2e** (the whole system with as little mocking as possible). Height = confidence; height also = cost/time. The doctrine "write tests, not too many, mostly integration" is about spending most effort in the middle.
+Four layers, bottom to top: **static** (types + lint, free correctness), **unit** (a piece in isolation, dependencies mocked), **integration** (several units working together, the default, best confidence-per-effort), **e2e** (the whole system with as little mocking as possible). Height = confidence; height also = cost/time. The doctrine "write tests, not too many, mostly integration" is about spending most effort in the middle.
 
 Crucially, "mostly integration" is **not** "skip e2e." The operator's complaint is the common misreading. Two failure directions exist and both are violations:
-- **Too much e2e** — every scenario duplicated as a slow, flaky full-stack test that could be an integration test. (atdd-plan/implementation-review already guard this direction.)
-- **No e2e at all for the critical path** — a user-facing flow where every layer is tested in isolation but nothing proves they connect. This is the under-guarded direction and the one the operator flagged.
+- **Too much e2e**: every scenario duplicated as a slow, flaky full-stack test that could be an integration test. (atdd-plan/implementation-review already guard this direction.)
+- **No e2e at all for the critical path**: a user-facing flow where every layer is tested in isolation but nothing proves they connect. This is the under-guarded direction and the one the operator flagged.
 
-The generalized rule: **every user-facing application should have at least one end-to-end (or as-high-as-practical) test that exercises its most critical happy path through the real, assembled system.** "E2e" itself generalizes — it does not require a browser:
+The generalized rule: **every user-facing application should have at least one end-to-end (or as-high-as-practical) test that exercises its most critical happy path through the real, assembled system.** "E2e" itself generalizes, it does not require a browser:
 - Frontend app → browser-driven test of the critical user journey (load → act → see result).
 - Backend service → a test that hits the real running service over HTTP against a real (test) database, asserting on the response and persisted state.
 - CLI → invoke the built binary as a subprocess, assert on stdout/exit code/filesystem effects.
@@ -88,15 +88,15 @@ How many: one or two critical paths, not one per scenario. The e2e tier proves t
 ### Bottom line for the skills
 
 Test-proposing and test-reviewing skills should enforce, language- and layer-agnostically:
-1. **Necessity of e2e** — flag any user-facing/critical feature that lacks at least one full-stack/e2e (or highest-practical) test of its happy path; keep the existing guard against e2e *overuse* so both directions are covered.
-2. **Behavior over implementation** — flag the concrete tells above (private-state assertions, spy-on-owned-collaborator, mock-call-count, refactor-fragile, mechanism-named tests), framed as "would this break under a behavior-preserving refactor?" and "does this assert what a real user observes?".
+1. **Necessity of e2e**: flag any user-facing/critical feature that lacks at least one full-stack/e2e (or highest-practical) test of its happy path; keep the existing guard against e2e *overuse* so both directions are covered.
+2. **Behavior over implementation**: flag the concrete tells above (private-state assertions, spy-on-owned-collaborator, mock-call-count, refactor-fragile, mechanism-named tests), framed as "would this break under a behavior-preserving refactor?" and "does this assert what a real user observes?".
 3. Anchor both to the single principle: *tests should resemble how the software is actually used.*
 
 ## Downstream uses
 
-- `/flagrare:testing-philosophy` — new shared reference skill; the single, layer-agnostic source of truth (the one principle, both pillars, the per-layer user table, the e2e generalization table).
-- `/flagrare:atdd-plan` — REQUIRED-BACKGROUND cross-ref; Acceptance Tests now require an e2e/full-stack happy-path test for user-facing work; refuse-list sharpened with the implementation-detail tells and acid test.
-- `/flagrare:implementation-review` — Check 2 gains the e2e-coverage gap check; Check 4 gains the two acid tests, the spy/mock-call-count tell, and both-direction Trophy-shape checks.
-- `/flagrare:tdd-writer` — Testing-section guidance points to the philosophy and the e2e floor.
-- `/flagrare:wrap-up` — notes that test quality is owned by the philosophy via implementation-review Checks 2–4.
-- `smoke-test` / `bug-bash` — not wired: they already *are* e2e/behavior verification (driving a real running system as a user), so they embody the philosophy rather than propose/review tests.
+- `/flagrare:testing-philosophy`, new shared reference skill; the single, layer-agnostic source of truth (the one principle, both pillars, the per-layer user table, the e2e generalization table).
+- `/flagrare:atdd-plan`, REQUIRED-BACKGROUND cross-ref; Acceptance Tests now require an e2e/full-stack happy-path test for user-facing work; refuse-list sharpened with the implementation-detail tells and acid test.
+- `/flagrare:implementation-review`, Check 2 gains the e2e-coverage gap check; Check 4 gains the two acid tests, the spy/mock-call-count tell, and both-direction Trophy-shape checks.
+- `/flagrare:tdd-writer`, Testing-section guidance points to the philosophy and the e2e floor.
+- `/flagrare:wrap-up`, notes that test quality is owned by the philosophy via implementation-review Checks 2-4.
+- `smoke-test` / `bug-bash`, not wired: they already *are* e2e/behavior verification (driving a real running system as a user), so they embody the philosophy rather than propose/review tests.

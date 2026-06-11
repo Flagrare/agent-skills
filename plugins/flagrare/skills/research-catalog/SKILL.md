@@ -5,9 +5,11 @@ description: Whenever you do real external research (WebFetch, WebSearch, or Exp
 
 # Research catalog and credit
 
+> **No em-dashes.** Nothing this skill writes may contain an em-dash; use a comma, colon, or parentheses instead. Enforced by a repo hook that flags em-dashes in generated `.md`. See `/flagrare:write-docs`.
+
 External research is someone else's work. The papers, blog posts, vendor docs, and open-source projects we lean on were written by named humans (or named orgs), and the project owes them three things: visible credit, a usable citation back, and a record of which decision their work informed. This skill is the way the project pays that debt.
 
-It also pays a second debt — to the project's own future. ADRs say *what* was decided. Without a catalog of the research behind those decisions, the *why* drifts out of reach within months. This skill captures the evidence base alongside the decision, in a stable in-repo location, so a contributor six months from now can trace any non-obvious choice back to the work that justified it.
+It also pays a second debt, to the project's own future. ADRs say *what* was decided. Without a catalog of the research behind those decisions, the *why* drifts out of reach within months. This skill captures the evidence base alongside the decision, in a stable in-repo location, so a contributor six months from now can trace any non-obvious choice back to the work that justified it.
 
 ## When to invoke
 
@@ -23,12 +25,12 @@ It does **not** apply to:
 - Re-stating prior research without re-fetching anything.
 - Trivial single-query lookups like "what's the latest version of X" or "is package Y on npm".
 - Internal reasoning that doesn't lean on a citable external source.
-- **Research that informed the project's dev tooling or workflow rather than the project's subject matter.** A catalog entry in `docs/research/` documents *why the product is built the way it is*, not *how the team chose to build it*. If you researched a commit-message convention, a testing framework's idioms, a changelog-formatting style, a build tool's options, or an agent-skill's calibration — that research belongs with the tooling it informed (a doc in the tool's own repo, a comment in the relevant config, a memory entry in the agent's working files). It does not belong in the project's research log alongside research about the project's actual domain.
+- **Research that informed the project's dev tooling or workflow rather than the project's subject matter.** A catalog entry in `docs/research/` documents *why the product is built the way it is*, not *how the team chose to build it*. If you researched a commit-message convention, a testing framework's idioms, a changelog-formatting style, a build tool's options, or an agent-skill's calibration, that research belongs with the tooling it informed (a doc in the tool's own repo, a comment in the relevant config, a memory entry in the agent's working files). It does not belong in the project's research log alongside research about the project's actual domain.
 
 The trigger is the conjunction of two things:
 
 1. *Did external work inform the answer the user is about to read?* If no, don't catalog.
-2. *Is the work the user is about to read part of the project's premise — its subject matter, the problem domain it tackles, the design decisions about what it does for its users?* If no, don't catalog *here* — catalog with the tooling instead, or skip cataloging entirely if the tooling lives elsewhere with its own provenance.
+2. *Is the work the user is about to read part of the project's premise, its subject matter, the problem domain it tackles, the design decisions about what it does for its users?* If no, don't catalog *here*, catalog with the tooling instead, or skip cataloging entirely if the tooling lives elsewhere with its own provenance.
 
 The rule of thumb: if a stranger reading `docs/research/` learns something about *what the product is and why it's designed this way*, the entry belongs. If they only learn *how the team built it*, it doesn't.
 
@@ -57,7 +59,7 @@ If this file does not exist, create it using the index template below. Add a row
 
 ### 5. Cross-link in the consuming artifact
 
-Wherever the findings actually land — an ADR, a memory file, a code comment, a TSDoc block — reference the catalog file. The cross-link is what closes the loop. If a decision can't point at the research that justified it, the catalog isn't doing its job.
+Wherever the findings actually land, an ADR, a memory file, a code comment, a TSDoc block, reference the catalog file. The cross-link is what closes the loop. If a decision can't point at the research that justified it, the catalog isn't doing its job.
 
 A typical cross-link looks like:
 
@@ -71,8 +73,8 @@ A typical cross-link looks like:
 - **Slug:** `<YYYY-MM-DD-topic>`
 - **Date:** YYYY-MM-DD
 - **Status:** complete | in-progress
-- **Triggered by:** <what prompted this — a task #, an ADR draft, a question raised in chat>
-- **Informed:** <where the findings landed — link to ADRs, src files, memory entries, etc. Fill in as cross-links are made.>
+- **Triggered by:** <what prompted this, a task #, an ADR draft, a question raised in chat>
+- **Informed:** <where the findings landed, link to ADRs, src files, memory entries, etc. Fill in as cross-links are made.>
 
 ## Question
 
@@ -86,7 +88,7 @@ A typical cross-link looks like:
 - **Published:** <YYYY-MM-DD if known, else "unknown" or "ongoing">
 - **Accessed:** YYYY-MM-DD
 - **Relevance:** high | medium | low
-- **What this contributed:** <2–4 sentences. What did this source give us that the synthesis depends on? Not a summary of the source — a description of its contribution to OUR answer.>
+- **What this contributed:** <2-4 sentences. What did this source give us that the synthesis depends on? Not a summary of the source, a description of its contribution to OUR answer.>
 - **Quoted:** (optional, when a finding hinges on specific phrasing)
   > "<verbatim quote>"
 
@@ -95,7 +97,7 @@ A typical cross-link looks like:
 
 ## Synthesis
 
-<The distilled answer to the question. This is the work product. It should be readable on its own — someone landing here cold should learn what was concluded and why. Cite source entries by linking back to them inline where they support a specific claim.>
+<The distilled answer to the question. This is the work product. It should be readable on its own, someone landing here cold should learn what was concluded and why. Cite source entries by linking back to them inline where they support a specific claim.>
 
 ## Downstream uses
 
@@ -125,7 +127,7 @@ When you research something external (vendor docs, papers, blog posts, open-sour
 
 The point of the catalog is utility for a human reader who didn't do the research. Optimise for that.
 
-- **Credit named humans where the source names them.** Author lists matter; first-author + et al. is fine when the list is long. If the source is anonymous or uncredited (a random blog post with no byline), say "uncredited author" — don't fudge.
+- **Credit named humans where the source names them.** Author lists matter; first-author + et al. is fine when the list is long. If the source is anonymous or uncredited (a random blog post with no byline), say "uncredited author", don't fudge.
 - **Be honest about source quality.** Tag every source with `Type`. Don't quietly smooth over the difference between "Anthropic's official prompt-engineering guide" and "a Medium post by someone with three followers". Reader needs to know.
 - **Quote where the finding hinges on phrasing.** If the source says something with specific weight ("Anthropic recommends X"), put the verbatim quote in the entry. Paraphrasing a quote and then claiming the source supports your paraphrase is how citations rot.
 - **Distinguish primary from secondary.** If you read a blog post that cites a paper, the primary is the paper and the secondary is the blog. Cite both; mark which is which. Go to primary whenever possible.
@@ -137,11 +139,11 @@ The point of the catalog is utility for a human reader who didn't do the researc
 - **Catalog as a receipt.** A wall of links with no per-source contribution sentence is just a fetch log. The whole point is to make the bibliography useful, not present.
 - **Padding for credibility.** Citing ten sources to make the answer look researched when only three actually drove the conclusions. Cite the three.
 - **Citing only the convenient sources.** If the research surfaced a contradicting view (e.g., persona prompting *hurts* factual accuracy on knowledge tasks), include it. Honest research has dissent.
-- **Bare-URL citations.** `[Anthropic prompt engineering](https://platform.claude.com/…)` — not just the URL. Without a title the link is invisible to anyone scanning.
+- **Bare-URL citations.** `[Anthropic prompt engineering](https://platform.claude.com/…)`, not just the URL. Without a title the link is invisible to anyone scanning.
 - **Forgetting the index.** A new file with no row in `docs/research/README.md` is unfindable.
 - **Forgetting the cross-link.** The research catalog without a back-link from the consuming artifact (ADR, code, memory) is one half of a bridge.
 
 ## Cross-references
 
-- `/flagrare:staleness-audit` — pre-commit check that includes a "if research was conducted, was it cataloged?" step.
-- `/flagrare:release-check` — post-commit, separate concern.
+- `/flagrare:staleness-audit`, pre-commit check that includes a "if research was conducted, was it cataloged?" step.
+- `/flagrare:release-check`, post-commit, separate concern.

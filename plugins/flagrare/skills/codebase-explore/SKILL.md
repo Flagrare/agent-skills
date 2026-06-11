@@ -1,6 +1,6 @@
 ---
 name: codebase-explore
-description: "Explore the codebase to map conventions, reusable utilities, analogous features, and data flows relevant to a planned change. Returns raw findings (file paths, patterns, code snippets) — does NOT produce a plan. Used by /flagrare:atdd-plan as its codebase understanding step."
+description: "Explore the codebase to map conventions, reusable utilities, analogous features, and data flows relevant to a planned change. Returns raw findings (file paths, patterns, code snippets), does NOT produce a plan. Used by /flagrare:atdd-plan as its codebase understanding step."
 ---
 
 # Codebase Explore
@@ -26,7 +26,7 @@ Receive one of:
 
 ---
 
-## Step 1 — Check for prior attempts
+## Step 1: Check for prior attempts
 
 Search for branches, PRs, and commits related to this work:
 
@@ -40,7 +40,7 @@ If found, read them. They reveal: abandoned approaches, partial implementations,
 
 ---
 
-## Step 2 — Identify the feature area
+## Step 2: Identify the feature area
 
 From the context brief or description, determine which directories and files the change will touch. Start broad, narrow fast:
 
@@ -50,7 +50,7 @@ From the context brief or description, determine which directories and files the
 
 ---
 
-## Step 3 — Find analogous features
+## Step 3: Find analogous features
 
 The strongest predictor of how new code should look is how the codebase already solved a similar problem.
 
@@ -64,7 +64,7 @@ Read 1-2 complete analogous files. These become the template.
 
 ---
 
-## Step 4 — Map conventions
+## Step 4: Map conventions
 
 For the feature area, identify:
 
@@ -80,7 +80,7 @@ For the feature area, identify:
 
 ---
 
-## Step 5 — Inventory reusable pieces
+## Step 5: Inventory reusable pieces
 
 Find utilities, helpers, shared components, and abstractions that the implementation should use instead of creating from scratch:
 
@@ -95,7 +95,7 @@ For each, note the import path and a one-line description of what it does.
 
 ---
 
-## Step 6 — Check constraints
+## Step 6: Check constraints
 
 - **Linting / formatting:** Read `.eslintrc`, `prettier.config`, or equivalent
 - **Type system:** What type definitions exist for this area?
@@ -111,7 +111,7 @@ Return findings in this structure (no headers beyond these, no plan, no steps):
 
 ```
 ## Prior Attempts
-[branches, PRs, commits found — or "none found"]
+[branches, PRs, commits found, or "none found"]
 
 ## Feature Area Map
 [entry point → data flow → dependencies, with file paths]
