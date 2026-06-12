@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.20.2: 2026-06-11
+
+### Bug Fixes
+
+- **`/flagrare:open-pr`**: stops producing file-by-file, implementation-detail PR descriptions. The skill was reading your repo's recent merged PRs and copying their level of detail, so when those PRs were enumerated changelogs, the output was too. It now borrows only the structure (section names, title format, ticket-linking) from existing PRs and writes context-first prose regardless of how enumerated the house style is.
+
 ## 1.20.1: 2026-06-11
 
 ### Bug Fixes
