@@ -29,7 +29,7 @@ Also check the branch name for a ticket key (e.g., `SKU-478/fix-menu-disabled`).
 
 ### Step 2: Learn the repo's conventions
 
-A template tells you the *sections*; recently merged PRs tell you the *house style*, how much detail goes in each section, what the title format really is, whether they link tickets a particular way. Read both. This is the step that fixes "PRs that don't follow codebase patterns."
+A template tells you the *sections*; recently merged PRs tell you the *structural conventions* the template can't encode, the title prefix format, which section headings the team uses, how they link tickets and designs, what labels they apply. Read both for that skeleton only.
 
 ```bash
 # The template (the section contract, follow it exactly)
@@ -41,9 +41,11 @@ cat .github/PULL_REQUEST_TEMPLATE.md 2>/dev/null \
 gh pr list --state merged --limit 5 --json number,title,body 2>/dev/null
 ```
 
-Study the merged PRs for the patterns the template can't encode: title prefix style, how much prose each section gets, how they reference tickets and designs, the tone. Match what you see. If template and recent practice disagree, follow the template's structure but borrow the recent PRs' level of detail and voice.
+Borrow the team's **skeleton**: section names, title format, ticket-linking convention, labels. Match those exactly.
 
-If no template exists, fall back to a minimal structure (title, description, testing notes) shaped like the recent merged PRs. Most repos have a template, and following it exactly is non-negotiable, it's the contract between author and reviewer.
+**Do NOT imitate their level of detail, and do NOT copy enumeration.** This is the trap that produces bad PR descriptions. Most teams' merged PRs are file-by-file changelogs, a `## Changes` section with a bullet per file, per function, or per internal symbol (`Added getFooHelper`, `Migration 0011`, `service now returns shipId`). That is exactly the style to avoid. The existing PRs being enumerated does not make enumeration the house style you should match, it makes it the habit this skill exists to break. Take the section *headings* from the recent PRs and fill them with context-first prose per Step 4, no matter how enumerated the existing PRs are.
+
+If no template exists, use a minimal structure (title, description, testing notes) with the section headings the recent PRs use. Follow the template's section contract exactly; just never inherit its enumeration.
 
 ### Step 3: Fetch linked context
 
@@ -56,6 +58,8 @@ If a design link (Figma, etc.) appears in the ticket, note it in the PR for visu
 
 ### Step 4: Write the PR body
 
+**The hard rule, before anything else:** the description explains *what changed, why, and how to verify it*, in prose. It is never a list of files, functions, migrations, or internal symbols, the diff already shows those. If you find yourself writing "added X helper, updated Y service, changed Z schema", stop: that is the diff talking, not you. If you cannot describe the change without listing the files it touched, you do not yet understand it well enough to write the PR, go back to the diff and find the one or two sentences that explain what it actually does for someone.
+
 Fill the template section by section, applying the write-docs craft from the REQUIRED BACKGROUND above. For each section, the principle is the same: write like you're explaining this to a teammate over coffee, not generating a report. Lead each section with what the reader needs to know, let a sentence carry the *because*, and only use a bullet list when the items are genuinely parallel (a list of independent fixes in one PR, say) rather than a single decision sliced into fragments.
 
 **Anchor to behavior, not coordinates.** Describe *what the code now does* and *why*, never *where the lines moved*. "Line 47", "renamed the variable on line 83", "updated the import block" are all stale the moment you push another commit, and they make the reviewer hunt. The diff already shows the *where*; your job is the *what* and *why*. Likewise, don't transcribe the diff into prose, if a reviewer can get it from the diff, leave it to the diff.
@@ -66,7 +70,7 @@ Fill the template section by section, applying the write-docs craft from the REQ
 
 - **What changed (product perspective):** One paragraph. What does the user/partner/admin experience differently after this merges? Not "changed line 47 of MenuSelector" but "newly created menus now appear active in the selector instead of incorrectly showing as disabled."
 
-- **What changed (code perspective):** Brief technical summary. Which decision did you make and why? Mention the approach, not every file. "Switched the disabled-state derivation from `published` to `enabled` in the dropdown component, since `published` is ClassPass-controlled and shouldn't affect partner-facing status."
+- **What changed (code perspective):** One or two sentences on the *approach and the key decision*, not a list of changes. Name the shape of the solution, not the files: "Switched the disabled-state derivation from `published` to `enabled`, since `published` is ClassPass-controlled and shouldn't affect partner-facing status." If a structural decision deserves a reviewer's attention (a new pattern, a tricky trade-off), say it in a sentence. Resist the urge to inventory the changeset; the reviewer reads the diff for that.
 
 - **Testing:** What you did to convince yourself it works, the *kind* of verification, not a scoreboard. "Created a new menu in the dashboard and confirmed it shows as active and selectable; checked that an existing ClassPass-disabled menu still greys out. Added tests covering the enabled-vs-published split." Name the behaviors you exercised and any manual/browser check. **Do not include test counts, coverage percentages, or "N tests passing"**: those numbers rot on the next commit, nobody reads them, and CI already reports them.
 
@@ -122,6 +126,7 @@ The bad version lists what moved; the good version explains what was wrong, why,
 
 - Don't skip the template. Even if it feels overkill for a one-line fix, fill it in. Consistency matters more than brevity.
 - Don't enumerate where you should narrate. A description made of five-bullet lists has flattened all the causality out of your change. If the bullets depend on each other, write the paragraph.
+- Don't imitate an enumerated house style. Reading recent merged PRs (Step 2) is for the *skeleton* (section names, title format, ticket-linking), never for level of detail. If the team's PRs are file-by-file `## Changes` dumps, you still write context-first prose inside their section headings. Copying their enumeration is the single most common way this skill fails.
 - Don't reference line numbers or file coordinates ("changed line 47"). They go stale on the next push and the diff already shows them. Anchor to behavior.
 - Don't include churn-y numbers that rot and that nobody reads: test counts ("398 tests passing"), coverage percentages, "N tests added", file-change counts. CI reports the numbers; the PR body is for context. Say *what* you verified, never *how many*.
 - Don't list every changed file. That's what the diff is for.
