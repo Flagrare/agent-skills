@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.20.3: 2026-06-22
+
+### Bug Fixes
+
+- **`/flagrare:ticket-creator`**: tickets no longer come out as `file:line` dumps. The brevity rules were there, but the template modeled the dense style and the Context polish was a skippable step, so output still read like an exploration trail. The grounding budget is now a 2 to 3 pointer ceiling that prefers weaving references into prose, a before/after worked example contrasts the enumeration trap with the narrative target, the Context polish is marked required, and a pre-present self-check blocks an unpolished ticket from being shown.
+
 ## 1.20.2: 2026-06-11
 
 ### Bug Fixes
