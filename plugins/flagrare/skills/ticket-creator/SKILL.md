@@ -15,12 +15,39 @@ A ticket is a pointer, not a document. The reader is an engineer who will open t
 
 Concretely:
 
-- **Context**: 2 to 4 sentences. Link the spec/TDD; do not paraphrase it.
-- **Grounding**: the 3 to 5 most relevant `file:line` pointers, not the full exploration dump.
-- **What needs to happen**: high-level steps only. The engineer owns the how; do not write the implementation for them.
-- **Acceptance criteria**: a handful of testable lines, not an exhaustive matrix.
+- **Context**: 2 to 4 sentences of prose that tell the *story*: what the system does, why this case is the exception, what breaks if ignored. Lead with the narrative, not the mechanics. Link the spec/TDD; do not paraphrase it.
+- **Grounding**: **at most 2 to 3 pointers, and only ones that change how the reader thinks.** Two-or-three is a ceiling, not a quota; one good pointer beats five. Prefer weaving the pointer into the Context prose ("the `processPayment()` flow isn't wrapped in a transaction") over a separate bulleted `file:line` list. A bulleted wall of `path/file.kt:42` lines is the #1 enumeration smell; it reads as your exploration trail, not as help.
+- **What needs to happen**: the intent and the simplest approach, in prose. The engineer owns the how; do not write the implementation for them or list every file they'll touch.
+- **Acceptance criteria**: 3 to 4 testable lines that capture what *done* means. Not an exhaustive matrix; do not enumerate every table, field, or branch.
 
-Brevity is a feature: a scannable ticket gets picked up; a wall of text gets skipped.
+Brevity is a feature: a scannable ticket gets picked up; a wall of text gets skipped. **The test: would a teammate skimming this understand why it matters and what done looks like, without you in the room?** You are writing for a person who will act, not documenting your own exploration.
+
+### Enumeration vs. narrative: a worked example
+
+Same ticket, two ways. The first is the trap; the second is the target.
+
+**❌ Enumeration trap** (dense, machine-facing, reads as an exploration dump):
+
+> **Context:** `processPayment()` calls `chargeCard()` then `recordLedgerEntry()`, but the two aren't in a transaction, so a crash between them leaves a charged card with no ledger row. Reproduced in staging; see `PaymentService.kt` flow. Affects retries via `RetryQueue`.
+>
+> **Suspect Code:**
+> - `service/PaymentService.kt:142`, `processPayment()`, no transaction wrapper
+> - `service/PaymentService.kt:160`, `chargeCard()` call site
+> - `service/PaymentService.kt:168`, `recordLedgerEntry()` call site
+> - `dao/LedgerDao.kt:55`, insert that never runs on crash
+> - `queue/RetryQueue.kt:30`, replays the whole method, double-charges
+>
+> **Acceptance Criteria:** `processPayment()` wraps charge + ledger in one transaction · rollback on ledger failure · retry does not double-charge · `LedgerDao.insert` covered by test · `RetryQueue` idempotency test added · metric emitted on rollback
+
+**✅ Narrative target** (prose-first, human-facing, pointers woven in):
+
+> **Context:** When a customer pays, we charge their card and then write a ledger entry, but those two steps aren't wrapped in a transaction. If the service dies in between (or the retry queue replays the call), the card gets charged with no matching ledger row, or charged twice. It's rare, but it's real money and it's silent: nothing alerts when the two drift apart. The fix is to make the charge-and-record pair atomic so one can't happen without the other.
+>
+> **Where to look:** `PaymentService.processPayment()` is where the charge and the ledger write happen sequentially without a transaction; the retry queue replays that whole method, which is what turns a gap into a double-charge.
+>
+> **Acceptance Criteria:** A failure after the charge never leaves a card charged without a ledger entry · a retried payment doesn't double-charge · both are proven by tests.
+
+The second is shorter *and* clearer. The first makes the reader reconstruct the story from fragments; the second hands them the story and trusts them to open the code.
 
 ---
 
@@ -252,7 +279,9 @@ Each template has an optional grounding subsection populated from `/flagrare:cod
 
 ---
 
-## Polish the Context (Post-Draft)
+## Polish the Context (Post-Draft): REQUIRED, not optional
+
+This step is the one most likely to be skipped, and skipping it is the single biggest cause of dense, machine-facing tickets. A drafted ticket *looks* finished, so it is tempting to present it as-is. **Do not.** Unless the user opted out (see Skip below), the Context has not been written for a human until it has been through this pass. Treat "drafted but not polished" as "not done."
 
 After the draft is assembled with codebase findings, polish the **Context section only** by invoking `/flagrare:write-docs` with the draft Context as input.
 
@@ -312,6 +341,14 @@ Specific and testable:
 ---
 
 ## Presenting the result
+
+**Before presenting, self-check each ticket against these. If any fails, fix it first, do not present:**
+
+- [ ] Context is prose that tells the story (system → exception → what breaks), not a list of facts.
+- [ ] Context went through the write-docs polish (unless the user opted out).
+- [ ] At most 2-3 code pointers, woven into prose where possible, no bulleted `file:line` wall.
+- [ ] Acceptance criteria are 3-4 lines of what *done* means, not an exhaustive matrix of tables/fields.
+- [ ] A teammate could read it without you in the room and know why it matters and what done looks like.
 
 After the file(s) are written and the index updated, **close with a tool, not prose.** A drafted ticket (or backlog) reads as "done," so ending with a prose "here's the ticket, let me know" frequently stops the turn before the user can act (the stall pattern in [`docs/research/2026-06-11-claude-code-goal-anti-stall.md`](../../../../docs/research/2026-06-11-claude-code-goal-anti-stall.md)). Issue an `AskUserQuestion` with options:
 
