@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.20.4: 2026-06-25
+
+### Bug Fixes
+
+- **`/flagrare:tdd-writer`**: now carries the same no-em-dash banner the other prose-emitting skills do. It was the one skill that writes a full document in its own voice yet relied solely on the write-docs handoff to suppress em-dashes, so a TDD drafted without that handoff loaded could still come out with them. The rule now travels with the skill itself.
+
 ## 1.20.3: 2026-06-22
 
 ### Bug Fixes
