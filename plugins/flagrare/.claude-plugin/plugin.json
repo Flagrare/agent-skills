@@ -2,7 +2,7 @@
   "name": "flagrare",
   "displayName": "Flagrare",
   "description": "Development lifecycle skills: planning, quality gates, review, documentation, and design verification.",
-  "version": "1.20.5",
+  "version": "1.20.6",
   "author": {
     "name": "Yuri Flagrare",
     "email": "yuri.flagrare@gmail.com"
