@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.20.5: 2026-06-25
+
+### Behaviour
+
+- **`/flagrare:tdd-writer`**: drafts now stay distilled instead of accreting the exploration that produced them. A new "Restraint" anti-pattern group tells the skill to cut what it resolved rather than document it (a settled decision is not an open question), to state facts without narrating how it learned them (no "X told Y in Slack", "a Notion doc said", "verified at line N"), to leave no self-referential scaffolding (stale "[NEEDS VERIFICATION]", "this corrects an earlier note"), to delete a heading once its content collapses rather than write "N/A", and to let a later pass make the doc shorter rather than pile on "resolved:" annotations. The TDD is framed as the answer to three questions, what we're solving, why, and how, with everything else treated as load on the reader.
+
 ## 1.20.4: 2026-06-25
 
 ### Bug Fixes
