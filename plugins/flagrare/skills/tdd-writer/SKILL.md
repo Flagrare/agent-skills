@@ -5,8 +5,6 @@ description: "Draft comprehensive Technical Design Documents. Analyzes codebase,
 
 # TDD Writer
 
-> **No em-dashes.** Nothing this skill writes may contain an em-dash; use a comma, colon, or parentheses instead. Enforced by a repo hook that flags em-dashes in generated `.md`. See `/flagrare:write-docs`.
-
 Draft Technical Design Documents for staging up large or complex projects. A TDD is a communication tool: a reader who has never seen the work should be able to read it start to finish and come away understanding **what** you're proposing, **why**, and **how** it will be built. It is not a form to fill in, and it is not a checklist with the prose removed.
 
 **REQUIRED BACKGROUND:** Invoke `/flagrare:write-docs` before drafting. This skill owns *what a TDD must cover and how to verify it*; write-docs owns *how to make the prose readable*. The single most common failure of an AI-drafted TDD is the "medicine sheet", every section flattened into terse bullets, no causality, nothing a human wants to read. The craft layer in write-docs is the antidote, and the section "Writing the document" below applies it specifically to TDDs. Read both; do not skip the handoff.
@@ -387,3 +385,10 @@ Once the review passes, present the TDD and **close with a tool, not prose**: is
 - Don't assume how systems communicate without verification
 - Don't skip the verification summary
 - Don't present the TDD without marking gaps
+
+**Restraint (the TDD answers three questions: what are we solving, why, and how, for a reader who has never seen the work). Everything that doesn't serve those is noise that raises the reader's risk and mental load):**
+- Don't document what you resolved. A decision that's settled is not a question, so it doesn't belong in Open Questions, Risks, or Key Decisions. State the resolved choice once where it's relevant (a flow, the rollout) and delete the deliberation. Open Questions holds only genuinely-open forks that still need an owner's call.
+- Don't narrate provenance. How you learned a fact, "X told Y in Slack," "a Notion doc pointed here," "confirmed in the 2026-06-16 thread," "verified at lines 49-52", is research trail, not design. State the fact; cite a person only when their *sign-off* is the pending action.
+- Don't leave self-referential scaffolding in the doc: no "[NEEDS VERIFICATION]" left in once verified, no "this corrects an earlier note," no "as we found above." The reader doesn't care about the draft's history.
+- Don't keep a section alive once its content collapses to nothing. If every item under a heading got resolved, cut the heading. Prefer cutting to writing "N/A".
+- Don't carry forward the exploration's volume. A TDD is the distilled conclusion, not the log of getting there. When a later pass resolves things, the doc should get *shorter*, not accrete "resolved:" annotations. If unsure whether a sentence helps the reader answer what/why/how, cut it.
