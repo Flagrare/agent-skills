@@ -257,22 +257,9 @@ so give each alternative a fair sentence and an honest reason it lost.]
 ## Future Work
 [Deferred items]
 
----
-
-## Verification Summary
-
-**Sources Checked:**
-- [ ] Ticket: [ticket ID]
-- [ ] Docs: [page IDs]
-- [ ] Codebase files read: [list files]
-- [ ] API definitions: [list files]
-- [ ] Database schemas: [list files]
-
-**Information Gaps:**
-- [UNKNOWN: items that could not be verified]
-- [NEEDS VERIFICATION: items requiring additional review]
-- [TBD: pending decisions]
 ```
+
+**Verification (a drafting artifact, NOT a section of the shipped TDD).** While drafting, keep a private checklist of what you verified and what you couldn't, sources checked (ticket, docs, code files, proto, schemas) and information gaps (`[UNKNOWN]`, `[NEEDS VERIFICATION]`, `[TBD]`). This keeps you honest and tells you what's still unproven. It is scaffolding for the author, so **strip it from the document you present.** A reader answering what/why/how does not need your sources list; genuinely-open decisions live in Open Questions, not a gaps dump. (Earlier versions of this skill shipped a "Verification Summary" section in the doc, that was wrong; it is a checklist you run, not content you publish.)
 
 ### Phase 3: Writing the document
 
@@ -335,7 +322,7 @@ prose should have carried. Then confirm:
   as prose.)
 - Is every technical claim backed by code you actually read?
 - Are all unknowns marked explicitly with the markers from the No Assumptions Policy?
-- Does the verification summary list every source?
+- Did you run the verification checklist (every claim traced to a source), and then strip that checklist from the presented doc?
 - Are diagrams clear, accurate, and consistently color-coded?
 - Does every section's opening sentence do work, rather than describe what the section is
   about?
@@ -383,8 +370,8 @@ Once the review passes, present the TDD and **close with a tool, not prose**: is
 - Don't guess database column names or types
 - Don't fabricate code examples without reading actual code
 - Don't assume how systems communicate without verification
-- Don't skip the verification summary
-- Don't present the TDD without marking gaps
+- Don't skip the verification checklist while drafting (but don't ship it as a section either, see Restraint)
+- Don't present the TDD without marking gaps, real open decisions go in Open Questions
 
 **Restraint (the TDD answers three questions: what are we solving, why, and how, for a reader who has never seen the work). Everything that doesn't serve those is noise that raises the reader's risk and mental load):**
 - Don't document what you resolved. A decision that's settled is not a question, so it doesn't belong in Open Questions, Risks, or Key Decisions. State the resolved choice once where it's relevant (a flow, the rollout) and delete the deliberation. Open Questions holds only genuinely-open forks that still need an owner's call.
@@ -392,3 +379,4 @@ Once the review passes, present the TDD and **close with a tool, not prose**: is
 - Don't leave self-referential scaffolding in the doc: no "[NEEDS VERIFICATION]" left in once verified, no "this corrects an earlier note," no "as we found above." The reader doesn't care about the draft's history.
 - Don't keep a section alive once its content collapses to nothing. If every item under a heading got resolved, cut the heading. Prefer cutting to writing "N/A".
 - Don't carry forward the exploration's volume. A TDD is the distilled conclusion, not the log of getting there. When a later pass resolves things, the doc should get *shorter*, not accrete "resolved:" annotations. If unsure whether a sentence helps the reader answer what/why/how, cut it.
+- Clarity without long-windedness, the two failure modes are opposite and both cost the reader. Compression is the sneakier one: a sentence that packs four ideas into one breath, or a paragraph that is six clauses doing five jobs, is correct but forces the reader to unpack it. The densest, most important paragraph (often the core risk) is the one most likely to be over-compressed, so give it the most room: break it into beats, one idea per sentence, ordered as cause then effect. Define every piece of internal jargon at first use, inline, in the same sentence ("a background job pulls the POS menu and reconciles our copy against it" before you ever lean on the bare word "reconcile"); assume a new hire who knows the stack generically but not this corner of it. Cut phrases that sound technical but carry no information for the reader ("holds by construction", "by design", "leverage", "it should be noted that"); replace them with the concrete thing they gesture at, or delete them. The test is the read-aloud: any clause you can't say in one breath, or any term a new hire would have to stop and look up, is a rewrite. Note this is the same craft `/flagrare:write-docs` teaches; restraint here means applying it, not just trimming length.

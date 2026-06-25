@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.20.6: 2026-06-25
+
+### Behaviour
+
+- **`/flagrare:tdd-writer`**: drafts now read clearly without going long-winded, and the verification checklist stops leaking into the shipped doc. A new clarity rule names over-compression as the sneakier failure mode (the densest paragraph, usually the core risk, is the one most likely crammed into a single breath) and tells the skill to break such paragraphs into one-idea-per-sentence beats, define internal jargon inline at first use rather than lean on a bare term like "reconcile", and cut phrases that sound technical but carry nothing ("holds by construction", "by design"). Separately, the old "Verification Summary" is now framed as a drafting checklist the author runs and then strips, not a section to publish; an earlier version shipped it as document content, which contradicted the no-scaffolding rule.
+
 ## 1.20.5: 2026-06-25
 
 ### Behaviour
