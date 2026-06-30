@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.21.0: 2026-06-30
+
+A new craft skill for making interfaces feel good, not just work.
+
+### New Skills
+
+- **`/flagrare:interaction-polish`**: elevates the feel and "juice" of UI interactions in the tradition of Emil Kowalski (sonner, vaul) and Josh Comeau. Point it at a stiff component or describe an interaction; it applies tasteful easing, springs, and micro-feedback, with `prefers-reduced-motion` and compositor-only performance built in. CSS-first, adapts to your stack. Its defining trait is restraint: it frequency-gates motion and will say when not to animate at all (a command palette opened a hundred times a day should feel instant, not animated). Bundles SKILL.md plus three references (easing and timing, per-component recipes, accessibility and performance).
+
 ## 1.20.6: 2026-06-25
 
 ### Behaviour
