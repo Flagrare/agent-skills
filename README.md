@@ -84,6 +84,8 @@ After this one-time bootstrap, `/flagrare:update` works for all future versions 
 
 `/flagrare:figma-matcher` enforces pixel-perfect implementation of Figma designs. It extracts every visual property from Figma, spins up Chrome DevTools to measure the current implementation, builds a comparison checklist, and fixes all discrepancies in a single pass.
 
+`/flagrare:interaction-polish` elevates the feel and "juice" of UI interactions, in the craft tradition of Emil Kowalski (sonner, vaul) and Josh Comeau. Point it at a stiff component or describe an interaction, and it applies tasteful motion (easing, springs, micro-feedback, the small details that make an interface feel alive) with accessibility (`prefers-reduced-motion`) and performance (compositor-only properties) built in. CSS-first, adapts to the project's stack. Its defining trait is restraint: it frequency-gates motion, leads with feedback over decoration, and knows when not to animate at all (a command palette summoned a hundred times a day should feel instant, not animated). Distinct from `/flagrare:ux-audit`, which finds usability problems; this one improves how an interaction feels.
+
 `/flagrare:research-catalog` fires whenever you do external research (WebFetch, WebSearch, Explore-agent). It catalogs sources under `docs/research/` in the consuming project before returning the synthesis, so decisions trace back to evidence.
 
 `/flagrare:write-docs` guides documentation writing using Pinker's classic style, the Diataxis framework, and concrete examples from React, Stripe, and Anthropic's docs.
