@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.22.0: 2026-07-01
+
+A senior product designer's eye, on demand.
+
+### New Skills
+
+- **`/flagrare:design-review`**: evaluates and refines a UI the way a senior product designer would, then applies the highest-leverage fixes. It diagnoses before it touches anything (names the screen's one job, runs the squint test, ranks findings by leverage), respects and extends the project's existing brand or design system before inventing a single style, and leads with restraint: remove, demote, and quiet before adding. Grounded in the design canon (Rams, Tufte, the Gestalt principles, the Vignelli Canon, Nielsen's heuristics) and the Refactoring UI playbook, with the theory in bundled references. Fires when a UI feels "clunky", "packed", or "amateur", or when you ask to improve hierarchy, spacing, or legibility. Works on UI code or a screenshot. Distinct from `/flagrare:ux-audit` (usability) and `/flagrare:interaction-polish` (motion and feel); this one is visual, product-design craft.
+
 ## 1.21.0: 2026-06-30
 
 A new craft skill for making interfaces feel good, not just work.
