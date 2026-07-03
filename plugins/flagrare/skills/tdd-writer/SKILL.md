@@ -315,7 +315,9 @@ inventory.
 
 Run the write-docs self-check, read the document aloud; sentences that choke on the
 tongue usually nominalize a verb or rely on a bullet list to carry a relationship the
-prose should have carried. Then confirm:
+prose should have carried. For a finished draft heading to reviewers, `/flagrare:editorial-pass`
+is the full version of this review: a whole-document read (throughline, pacing, consistency)
+plus the noise hunt the Restraint rules below only summarize. Then confirm:
 
 - Could a new team member read this start to finish and understand what's proposed, why,
   and how? (If they'd have to reassemble the argument from bullets, rewrite those bullets
