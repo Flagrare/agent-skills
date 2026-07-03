@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.23.0: 2026-07-03
+
+A human editor for your documents, on demand.
+
+### New Skills
+
+- **`/flagrare:editorial-pass`**: reviews a finished draft the way a human editor reads it, whole document, start to finish, building a model of what it's trying to communicate before judging a single line. It writes the document's spine in one sentence, diagnoses from large to small (throughline, sequencing and contextualization, pacing, consistency), and hunts three noise categories agents habitually leave behind: provenance narration ("as verified in X", "so-and-so confirmed"), ruled-out-hypothesis residue ("we confirmed it is not Y"), and self-referential scaffolding ("resolved since drafting"). Negative findings survive only if a future reader would otherwise redo the work. It delivers a prioritized editorial memo first (findings ordered by reader cost, with tiers for mechanical fixes, visible gaps, and author judgment calls) and rewrites only on approval, re-verifying any claim whose wording changed. Strictly a prose editor, not a technical reviewer: it judges the writing, never the design the writing describes, with internal contradiction as the one carve-out. The read-and-repair counterpart to `/flagrare:write-docs`; generalizes `/flagrare:tdd-writer`'s Restraint rules to any long-form document. Grounded in an ecosystem prior-art survey (`docs/research/2026-07-03-editorial-pass-prior-art.md`).
+
 ## 1.22.0: 2026-07-01
 
 A senior product designer's eye, on demand.
