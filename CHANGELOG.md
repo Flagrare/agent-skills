@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.24.0: 2026-07-03
+
+The design review learns to see what ISN'T there.
+
+### Improved Skills
+
+- **`/flagrare:design-review`**: three field-failure fixes from a real review that missed an undesigned form section, a dead header, and a personality gap while polishing everything loud. (1) A mandatory **system coverage inventory** before any lens: every visual group on screen is named to a design-system recipe; unmapped groups and declared-but-unspent personality devices (mascot, hand-scrawl, rotation) are automatic top-3 findings. The squint test catches excess; the inventory catches omission, both instruments are now required. (2) **Whole-surface scope**: walk the screen as a visitor across all states, never as the author of the recent diff. (3) **The timid-fix ban**: "feels flat / without personality" findings demand benchmarking 2-3 named personality-forward references (PostHog, Duolingo, Gumroad, Mailchimp) and designing from them inside the system, never just rearranging what exists. Restraint governs data surfaces; declared-personality zones are where the brand is supposed to spend.
+
 ## 1.23.0: 2026-07-03
 
 A human editor for your documents, on demand.
