@@ -150,8 +150,11 @@ For each configured local repo root, enumerate `*/.git/` one level deep, then fo
 ```bash
 git -C {repo_path} log --author="{LOGIN_OR_EMAIL}" \
   --since="{FROM}" --until="{TO} 23:59:59" \
-  --pretty=format:'%H|%ai|%s|%b%n---'
+  --date=format:'%a %Y-%m-%d %H:%M' \
+  --pretty=format:'%H|%ad|%s|%b%n---'
 ```
+
+`%ad` with `--date=format:'%a ...'` makes **git** print the weekday (`Mon`, `Tue`, ...). Use that weekday verbatim. Never compute a weekday from a date yourself.
 
 These catch work that hasn't hit GitHub yet, local WIP, branches not pushed. Deduplicate SHAs against the GitHub PR commits already collected.
 
@@ -239,6 +242,16 @@ For every PR, commit cluster, or ticket, derive a **human phrase** that names th
 
 The phrase goes in the prose; the PR number and ticket ID go in the refs footnote. Inline numbers belong only when the user explicitly asks ("include PR links inline").
 
+## Pin every event to a real date before you write
+
+Temporal hallucination, the wrong weekday or work attributed to the wrong day, is this skill's most common failure. Prevent it mechanically: before writing a single sentence, build a dated timeline from the timestamps you already collected, and treat that timeline as the ONLY source for any day or time reference.
+
+- Every collected event carries a real timestamp: commit dates (now printed with their weekday via `%ad`), PR `merged_at` / `created_at`, review `submitted_at`, deploy `created_at`. Tag each event with its weekday and date straight from that timestamp.
+- Do NOT infer a weekday from a date in your head. If you need the weekday for an ISO date that did not arrive with one, compute it: `date -j -f '%Y-%m-%d' '<ISO>' '+%A'` (macOS) or `date -d '<ISO>' '+%A'` (GNU). Never reason it out.
+- The `date` output from "Resolve the time window" is today's anchor. Everything else is positioned relative to it using real timestamps, never guessed.
+
+**The hard rule: any specific day or time-of-day claim in the report must trace to a timestamp in this timeline.** "Tuesday", "this morning", "late afternoon", "yesterday evening", "first thing" are calendar or clock claims. Use them only when an event's actual timestamp supports them. No timestamp, no temporal claim.
+
 ## Narrative synthesis
 
 This is where the skill earns its keep. The naive version of this skill enumerates events. The version worth shipping reads like a **Staff Engineer's standup**: impact-first, root-cause-aware, and honest about judgment calls.
@@ -267,7 +280,7 @@ The same events, written two ways. Both are accurate. Only one reads like a Staf
 
 **✅ Staff recap (impact, causation, judgment):**
 
-> The image-cache regression that's been paging the on-call rotation for a week is fixed and in prod, root cause was the LRU admitting entries faster than it evicted under burst load, which only surfaced because our retry policy amplifies traffic on the hot path. While that was baking, I unblocked Daniel on the auth-service refactor; the migration plan was sound and we agreed on the rollback path inline. Pushed back on Carol's cache-benchmark methodology, the workload she's measuring doesn't match what production sees, and shipping the conclusions as-is would have driven the wrong tuning decisions next quarter. My own queue refactor is in re-review after addressing the back-pressure concerns from Tuesday.
+> The image-cache regression that's been paging the on-call rotation for a week is fixed and in prod, root cause was the LRU admitting entries faster than it evicted under burst load, which only surfaced because our retry policy amplifies traffic on the hot path. While that was baking, I unblocked Daniel on the auth-service refactor; the migration plan was sound and we agreed on the rollback path inline. Pushed back on Carol's cache-benchmark methodology, the workload she's measuring doesn't match what production sees, and shipping the conclusions as-is would have driven the wrong tuning decisions next quarter. My own queue refactor is in re-review after addressing the back-pressure concerns from the earlier review pass.
 
 Notice: same five events, but the second version names the *consequence* of each one. The reader walks away knowing what changed about the system, not what tickets moved columns.
 
@@ -298,9 +311,9 @@ If an activity produced a real outcome (a bug found, a risk surfaced, a decision
 
 Write in past tense. First-person if `first_person: true`, otherwise use the configured display name in the third person.
 
-Use connective tissue that conveys rhythm without literal timestamps: *most of the day*, *while that was running*, *on the side*, *between meetings*, *late afternoon*, *one thing that took longer than expected*. These cue the reader to time-of-day shape and let you order beats by importance rather than by clock.
+Use connective tissue that conveys rhythm: *most of the day*, *while that was running*, *on the side*, *one thing that took longer than expected*. These convey shape without asserting a clock or calendar position, so they are always safe. Phrases that DO assert a position, *late afternoon*, *between meetings*, *Tuesday*, *first thing*, *yesterday evening*, are allowed only when a real timestamp in your timeline supports them (see "Pin every event to a real date"). Order beats by importance rather than by clock, but never invent a time to do it.
 
-Avoid the word "PR" in prose if you can substitute the work-name. "Shipped the image cache fix" beats "Merged the image-cache PR". Avoid "addressed feedback" without saying what the feedback *was*, "addressed the back-pressure concerns from Tuesday" tells the reader something; "addressed feedback" doesn't.
+Avoid the word "PR" in prose if you can substitute the work-name. "Shipped the image cache fix" beats "Merged the image-cache PR". Avoid "addressed feedback" without saying what the feedback *was*, "addressed the back-pressure concerns from the earlier review" tells the reader something; "addressed feedback" doesn't. (If you do name a day, it must come from a real timestamp.)
 
 ### Synthesizing Today
 
@@ -340,8 +353,9 @@ plainly and frame what it enabled.}
 {Long-form journal section. 2-5 short paragraphs grouping events by
 thread, not by source. Each paragraph is one coherent story with its
 own impact line. Cross-reference where it helps, "the same auth
-refactor I reviewed Tuesday, Daniel ended up shipping before EOD; the
-migration ran clean."
+refactor I reviewed earlier in the window, Daniel ended up shipping it;
+the migration ran clean." (Any day or time reference must come from a
+real timestamp, see "Pin every event to a real date".)
 
 Open paragraphs with varied shapes, not every one starts with a verb.
 Lead with the noun ("The auth refactor..."), the constraint ("Most of
@@ -388,13 +402,28 @@ it mattered*. Names work in human terms. Deploy state inlined only
 when it's notable.
 
 **NEVER include in bullets or prose:**
+- **Implementation details**: file names, function or symbol names, "refactored the X service", "added a nullable column", "split the handler". The channel reader wants the outcome, not the changeset. This is the most common channel regression.
 - Skills invoked, slash commands run, or AI tooling used ("ran debug-hunt", "used standup skill", etc.)
 - Process steps ("grepped the codebase", "ran evals", "read the docs")
 - Ticket-column moves that produced no code change
 - Self-reviews, bot-authored PRs handled individually (collapse to "approved N dependency bumps")
 
 These are process, not outcome. If a debugging session is worth mentioning,
-name what was *found* and *fixed*, not the method used.}
+name what was *found* and *fixed*, not the method used.
+
+A channel before/after, since the bullets are what the model copies:
+
+❌ Enumerated, implementation-focused (a changelog, not a standup):
+- Refactored DailyHighlight.svelte and extracted IntentionCard component
+- Added HighlightOutcomeActions with yes/partial/moved_forward/not_today
+- Removed EveningWitness.svelte and its test
+- Updated daily-highlight.service.ts to return outcome
+
+✅ Outcome-focused (what changed for people):
+- The /today screen redesign is in review, one calm intention instead of the old wall of cards, and the evening check-in is gentler
+- Returning after a quiet stretch no longer reads as a failure, the new momentum signal welcomes you back instead of resetting a streak
+
+Same work. The first lists files; the second tells the team what is different. Write the second.}
 
 - Image-cache regression shipped, on-call rotation should stop paging
 - Unblocked Daniel on auth refactor (approved after working through the rollback path inline)

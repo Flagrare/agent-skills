@@ -1,6 +1,6 @@
 ---
 name: design-review
-description: "Evaluate and refine UI the way a senior product designer would, visual hierarchy, spacing and rhythm, typographic scale, legibility, information density, alignment, and restraint, then apply the highest-leverage fixes. Use this skill WHENEVER the user says a UI / page / screen / component feels 'clunky', 'packed', 'cramped', 'busy', 'off', 'amateur', 'cluttered', or 'needs polish'; when they ask to 'improve the design / layout / hierarchy / spacing / legibility', 'make this look designed / professional', 'apply design principles', 'clean this up', 'review the design', or want a 'senior designer' / 'senior product designer' pass; and proactively after building any non-trivial UI, to critique and tighten it before moving on. Grounded in the design canon (Dieter Rams, Edward Tufte, the Gestalt principles, the Vignelli Canon, Nielsen's heuristics) and the Refactoring UI playbook. It respects and extends the project's existing brand / design system first, and documents any missing pattern before building it. Works on existing UI code (improves it in place) or on a screenshot / description. Distinct from a usability/UX audit (this is visual / product-design craft) and from code review (this is design, not correctness)."
+description: "Evaluate and refine UI the way a senior product designer would, visual hierarchy, spacing and rhythm, typographic scale, legibility, information density, alignment, and restraint, then apply the highest-leverage fixes. Use this skill WHENEVER the user says a UI / page / screen / component feels 'clunky', 'packed', 'cramped', 'busy', 'off', 'amateur', 'cluttered', or 'needs polish'; when they ask to 'improve the design / layout / hierarchy / spacing / legibility', 'make this look designed / professional', 'apply design principles', 'clean this up', 'review the design', or want a 'senior designer' / 'senior product designer' pass; and proactively after building any non-trivial UI, to critique and tighten it before moving on. Grounded in the design canon (Dieter Rams, Edward Tufte, the Gestalt principles, the Vignelli Canon, Nielsen's heuristics) and the Refactoring UI playbook. It respects and extends the project's existing brand / design system first, runs a mandatory system coverage inventory (undesigned groups and unspent brand personality are automatic findings, not just visual excess), reviews the whole surface across all states rather than the recent diff, and documents any missing pattern before building it. When a screen 'lacks personality' it benchmarks named personality-forward references (e.g. PostHog, Duolingo) and designs from them rather than rearranging what exists. Works on existing UI code (improves it in place) or on a screenshot / description. Distinct from a usability/UX audit (this is visual / product-design craft) and from code review (this is design, not correctness)."
 ---
 
 # Design Review: the senior product designer's eye
@@ -33,19 +33,44 @@ pattern genuinely isn't defined, derive it from the system's north-star, write i
 first, then build it.** If no system exists, establish the minimal one (a spacing scale, a type
 scale, ~2-3 text weights, one accent) before styling screens.
 
+### The system coverage inventory (mandatory, before any lens)
+
+Reading the system for *tokens* is not the same as reading it as a *checklist*. Before diagnosing,
+**enumerate every visual group on the screen(s)** — header, each form cluster, each card, each list,
+each footer strip — and for each one, **name the system recipe it instantiates**. Two outcomes are
+findings, automatically ranked top-3:
+
+- **A group with no recipe** is undesigned UI: either design it into the system first, or it's the
+  reason the screen "feels thrown together" (a bare form floating outside the card language is the
+  classic case).
+- **A declared pattern with zero instances** is unused budget: if the system defines personality
+  devices (a mascot, hand-scrawl asides, rotation, illustrations) and the screen has none, the brand
+  is silently off. Ask where the personality *should* live on this screen.
+
+This inventory exists because the squint test below only catches **excess** (what stands out that
+shouldn't); it is structurally blind to **omission** (what was never designed, dead space, missing
+personality). You need both instruments.
+
 ## Workflow: diagnose, then apply
 
 ### 1. Diagnose, a *prioritized* critique, not nitpicks
 
+**Review the whole surface, never the diff.** Walk the screen the way a visitor does — every state
+(empty, partial, full, error), top to bottom — not the way its author does (only the elements recent
+work touched). Scoping the critique to what you just built is confirmation bias wearing a design hat;
+the stale header nobody has looked at in weeks is exactly where the findings hide.
+
 Start from the job, not the pixels:
 1. **Name the ONE job** of the screen in a sentence, and the user's **priority order** for the
    content/actions.
-2. **Squint test.** Blur the screen (mentally, or literally zoom out / blur a screenshot). Whatever
+2. **Run the system coverage inventory** (above): every visual group named to a recipe, every
+   declared personality device accounted for. Unmapped groups and unspent personality are findings.
+3. **Squint test.** Blur the screen (mentally, or literally zoom out / blur a screenshot). Whatever
    still stands out is what the user sees first. **Does it match the priority order?** If not,
    hierarchy is the #1 fix, before anything else.
-3. **The subtraction question:** for each element, *does this serve the one job?* If not: remove,
+4. **The subtraction question:** for each element, *does this serve the one job?* If not: remove,
    then demote to a caption, then (last resort) keep-but-quiet.
-4. **Run the lenses** below, plus a quick pass of **Nielsen's 10 heuristics** (see
+5. **Run the lenses** below, plus a quick pass of **Nielsen's 10 heuristics** (see
    `references/critique-and-anti-patterns.md`). Do it in **2-3 passes**, a single pass misses things.
 
 Then deliver the critique **ranked by leverage**: the **1-3 changes that most improve the screen's
@@ -60,6 +85,16 @@ Fix the levers **in this order** (later ones depend on earlier ones being right)
 Apply the changes to the code, and **explain the why** (name the principle) as you go, so the user
 gains the eye, not just a diff. If the input is a screenshot, translate the fixes into code against
 the real design system; then re-screenshot and re-run the squint test to verify.
+
+**Beware the timid fix.** When the finding is "this feels flat / without personality / poorly used
+space," rearranging the existing elements is not a fix — it's the same screen in a different order.
+That class of finding demands **design work from references**: benchmark 2-3 named products whose
+personality the brand admires (the system doc usually names a north star — PostHog, Duolingo,
+Gumroad, Mailchimp — products that spend real illustration, mascot, and copy budget on their
+surfaces), study *how* they fill the equivalent zone, then design the project's own version inside
+its system and write the new pattern into the system doc. Restraint (Rams) governs data surfaces;
+declared-personality zones (heroes, headers, empty states, celebrations) are where the brand is
+*supposed* to spend — quieting them is malpractice in the other direction.
 
 ## The lenses (condensed, depth in `references/`)
 
