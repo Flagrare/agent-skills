@@ -92,6 +92,8 @@ After this one-time bootstrap, `/flagrare:update` works for all future versions 
 
 `/flagrare:write-docs` guides documentation writing using Pinker's classic style, the Diataxis framework, and concrete examples from React, Stripe, and Anthropic's docs.
 
+`/flagrare:editorial-pass` reviews a finished draft the way a human editor reads it: whole document, start to finish, building a model of what it's trying to communicate before judging a single line. It diagnoses throughline, sequencing, pacing, and consistency from large to small, then hunts three noise categories agents habitually leave behind (provenance narration like "as verified in X", ruled-out-hypothesis residue like "we confirmed it is not Y", and self-referential scaffolding like "resolved since drafting"). It delivers an editorial memo first and only rewrites on approval. Strictly a prose editor, not a technical reviewer: it judges the writing, never the design the writing describes. The read-and-repair counterpart to `/flagrare:write-docs`.
+
 `/flagrare:testing-philosophy` is the shared definition of a good test, distilled from Kent Dodds and generalized to any language and layer (frontend, backend, CLI, library): behavior over implementation details, the Testing Trophy, and a hard floor requiring at least one end-to-end test of the critical happy path for user-facing features. It's the required background for `/flagrare:atdd-plan`, `/flagrare:implementation-review`, and `/flagrare:tdd-writer`.
 
 ### Maintenance
