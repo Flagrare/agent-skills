@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.25.0: 2026-07-10
+
+The editor learns the difference between context and escort.
+
+### Improved Skills
+
+- **`/flagrare:editorial-pass`**: a fourth noise category, **dramatized background**, born from an EM review that halved a TDD intro with no context loss. It hunts prose that argues for what the reader only needs to accept: illustrations of concepts the room already holds, stakes-selling ("X is what makes a real menu"), and causal chains walked step by step where only the conclusion is used. The cut is bounded so it can't gut real context: context is for decisions (the reader must judge, keep the ingredients), assertion is for background (one plain sentence). Per-sentence test: deleted, does the reader decide wrongly, or just feel less escorted?
+- **`/flagrare:tdd-writer`**: Restraint gains the same rule at drafting time, as two registers. Key Decisions and Open Questions get full contextualization; background sections get assertion only, no illustrating, no importance-selling, no deriving. Drafts start at the reader's altitude instead of getting trimmed down to it later.
+
+
 ## 1.24.0: 2026-07-03
 
 The design review learns to see what ISN'T there.
