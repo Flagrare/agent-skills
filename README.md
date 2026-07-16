@@ -1,8 +1,8 @@
 # agent-skills
 
-Twenty-six skills that wrap around your development cycle in Claude Code. They turn tickets into ATDD plans, smoke-test features against a running app or service, hunt down bugs with runtime evidence, guard commits against doc drift, run six-axis code review, draft changelogs that read like patch notes, and review PRs with full context from your tracker and design tools.
+Twenty-seven skills that wrap around your development cycle in Claude Code. They turn tickets into ATDD plans, smoke-test features against a running app or service, hunt down bugs with runtime evidence, guard commits against doc drift, run seven-axis code review, draft changelogs that read like patch notes, and review PRs with full context from your tracker and design tools.
 
-All skills are namespaced under `flagrare:*` to avoid collisions with other plugins. Installing this marketplace adds `/flagrare:intake`, `/flagrare:work-prep`, `/flagrare:smoke-test`, `/flagrare:wrap-up`, `/flagrare:pr-reviewer`, and twenty-one more to every Claude Code session.
+All skills are namespaced under `flagrare:*` to avoid collisions with other plugins. Installing this marketplace adds `/flagrare:intake`, `/flagrare:work-prep`, `/flagrare:smoke-test`, `/flagrare:wrap-up`, `/flagrare:pr-reviewer`, and twenty-two more to every Claude Code session.
 
 ## Install
 
@@ -10,7 +10,7 @@ All skills are namespaced under `flagrare:*` to avoid collisions with other plug
 bash <(curl -sL https://raw.githubusercontent.com/Flagrare/agent-skills/main/install.sh)
 ```
 
-One command. It registers the marketplace, installs the `flagrare` plugin, and makes all twenty-six skills available. Restart Claude Code or run `/reload-plugins` afterward.
+One command. It registers the marketplace, installs the `flagrare` plugin, and makes all twenty-seven skills available. Restart Claude Code or run `/reload-plugins` afterward.
 
 If you prefer to clone first:
 
@@ -56,7 +56,9 @@ After this one-time bootstrap, `/flagrare:update` works for all future versions 
 
 `/flagrare:staleness-audit` diffs your staged changes against the repo's documentation surfaces (README, ADRs, public exports, doc comments, test names, changesets) and flags drift before it lands in history.
 
-`/flagrare:implementation-review` launches six parallel subagents: plan-gap detection, use-case coverage, missing test scenarios, test philosophy (Kent Dodds Testing Trophy), SOLID violations, and Clean Code violations.
+`/flagrare:implementation-review` launches seven parallel subagents: plan-gap detection, use-case coverage, missing test scenarios, test philosophy (Kent Dodds Testing Trophy), SOLID violations, Clean Code violations, and security. The security check pulls in `/flagrare:security-audit`.
+
+`/flagrare:security-audit` is the collection's security pass. It reviews the staged diff for HIGH-confidence, concretely exploitable vulnerabilities (injection, broken authn/authz, secrets and data exposure, unsafe deserialization, crypto misuse, SSRF), scoped to the change plus its trust boundary, and audits dependencies with the repo's own package manager when a lockfile moved (degrading to an advisory flag when the auditor is not installed). Every finding carries a concrete exploit path; theoretical noise is dropped. Runs as Check 7 of `/flagrare:implementation-review` and standalone on demand.
 
 `/flagrare:wrap-up` runs automated checks (tests, lint, types), invokes `/flagrare:implementation-review`, then layers additional SOLID and Clean Code review for anything not covered. The combined report tells you whether to commit or fix first.
 
@@ -116,7 +118,7 @@ A typical feature cycle:
 /flagrare:figma-matcher          UI work done, verify against Figma
 /flagrare:smoke-test             feature done, validate behaviour against a running app or service
 /flagrare:wrap-up                code done, full quality gate
-  /flagrare:implementation-review  (six-axis review, called by wrap-up)
+  /flagrare:implementation-review  (seven-axis review, called by wrap-up)
 /flagrare:staleness-audit        docs didn't drift
 git commit                       everything passes, commit
 /flagrare:open-pr                push and open a PR with proper context

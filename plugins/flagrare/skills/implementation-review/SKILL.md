@@ -1,15 +1,17 @@
 ---
 name: implementation-review
-description: "Pre-commit quality gate. Invoke before every git commit, after /flagrare:staleness-audit. Six checks, plan gaps, use-case coverage gaps, missing test scenarios, test philosophy violations (Kent Dodds Testing Trophy), SOLID violations, Clean Code violations. Each check is delegated to a parallel subagent. Surfaces findings before they land in history. Also invoke when the user says review this, am I done, did I miss anything, or check the quality."
+description: "Pre-commit quality gate. Invoke before every git commit, after /flagrare:staleness-audit. Seven checks, plan gaps, use-case coverage gaps, missing test scenarios, test philosophy violations (Kent Dodds Testing Trophy), SOLID violations, Clean Code violations, and security vulnerabilities. Each check is delegated to a parallel subagent. Surfaces findings before they land in history. Also invoke when the user says review this, am I done, did I miss anything, or check the quality."
 ---
 
 # Implementation Review
 
 Run this before every commit, after `/flagrare:staleness-audit`. The goal: **what was planned is implemented, what is implemented is tested, and what is tested is correct**.
 
-Each of the six checks is run by a dedicated subagent. Spawn all six in parallel, collect their reports, then synthesise into the output format below.
+Each of the seven checks is run by a dedicated subagent. Spawn all seven in parallel, collect their reports, then synthesise into the output format below.
 
 **REQUIRED BACKGROUND for Checks 2-4:** the test-related checks apply `/flagrare:testing-philosophy` (behavior over implementation, the Testing Trophy, the e2e necessity floor). Pass that skill's content into the Check 2, 3, and 4 subagent briefs so they judge against the same definition of "good test" the planning side uses.
+
+**REQUIRED BACKGROUND for Check 7:** the security check applies `/flagrare:security-audit` (threat taxonomy, three-phase methodology, confidence gate, false-positive precedents, generic dependency audit). Pass that skill's content into the Check 7 subagent brief so it judges against the same security discipline a standalone `/flagrare:security-audit` run uses.
 
 ---
 
@@ -31,9 +33,9 @@ If no plan is findable, say so explicitly and skip Checks 1-2 in the subagent br
 
 ---
 
-## Step 2: Dispatch six subagents in parallel
+## Step 2: Dispatch seven subagents in parallel
 
-Spawn all six subagents simultaneously using `model: "sonnet"`. Each subagent receives the relevant slice of inputs (described in each brief below) and returns findings in the format `Check N · [name]: ✓ clean | ⚠ [finding] | ✗ [blocking finding]`.
+Spawn all seven subagents simultaneously using `model: "sonnet"`. Each subagent receives the relevant slice of inputs (described in each brief below) and returns findings in the format `Check N · [name]: ✓ clean | ⚠ [finding] | ✗ [blocking finding]`.
 
 Do not run checks sequentially in the main agent. Spawn → collect → synthesise.
 
@@ -173,9 +175,23 @@ Scan for:
 
 ---
 
+### Subagent brief: Check 7: Security
+
+**Inputs:** full `git diff --staged`, file list, the lockfile diff if a lockfile changed.
+
+Pull in the full content of `/flagrare:security-audit` and apply it to the staged diff. That skill carries the threat taxonomy, the three-phase methodology (understand the repo's security model, compare the change against it, trace data flow from source to sink), the confidence gate, the false-positive precedents, and the generic dependency audit.
+
+The one rule: **only report a finding with a concrete exploit path, and only when over 80% confident it is actually exploitable.** A security check that flags theoretical issues gets ignored; keep it to what a security engineer would confidently raise. Review what the change *newly introduces*, not pre-existing issues the diff sits near.
+
+When a lockfile changed, run the repo's native dependency auditor (scoped to the changed packages so the gate stays fast) and degrade gracefully to an advisory flag if the auditor is not installed.
+
+Return findings in the house line format. HIGH and MEDIUM severity block; LOW is advisory.
+
+---
+
 ## Step 3: Synthesise (main agent)
 
-After all six subagents return, merge their findings into this format:
+After all seven subagents return, merge their findings into this format:
 
 ```
 Implementation review, [commit subject or staged file summary]
@@ -198,10 +214,13 @@ Check 5 · SOLID
 Check 6 · Clean Code
   ✓ No violations  |  ✗ [file:line]: [issue]
 
+Check 7 · Security
+  ✓ No vulnerabilities in the diff  |  ✗ [file:line]: [category] ([severity]), [exploit in a phrase] + fix  |  ⚠ [lockfile moved / auditor unavailable]
+
 Summary: [N findings, fix before committing / Clean, proceed]
 ```
 
-If a finding is **blocking** (plan gap, philosophy violation on a public API test, SOLID violation that breaks extensibility), fix it before committing unless the user explicitly overrides.
+If a finding is **blocking** (plan gap, philosophy violation on a public API test, SOLID violation that breaks extensibility, a HIGH or MEDIUM security vulnerability), fix it before committing unless the user explicitly overrides.
 
 If a finding is **advisory** (a test name that could be clearer, a slightly long function), surface it but do not block.
 
@@ -229,5 +248,7 @@ git commit
 - Don't invent a plan if none is findable, skip Checks 1-2 and say so.
 - Don't treat every advisory finding as blocking, use judgment.
 - Don't run Check 4 on non-test files, or Check 5 on test files.
+- Don't report a Check 7 security finding without a concrete exploit path, theoretical vulnerabilities are noise that trains the reader to skip the whole report.
+- Don't fail Check 7 when the dependency auditor is missing, degrade to an advisory flag.
 - Don't report "✓ clean" without the subagent actually reading the diff.
 - Don't run checks sequentially, the point of subagents is parallel execution.
