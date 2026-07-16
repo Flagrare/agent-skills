@@ -1,6 +1,6 @@
 ---
 name: wrap-up
-description: "Post-implementation quality gate. Runs automated checks (tests, lint, types), invokes /flagrare:implementation-review for the six-check parallel review, then performs additional SOLID and Clean Code review on any findings not covered. Use when the user says 'wrap up', 'review changes', 'check my work', 'am I done', or after completing an implementation task."
+description: "Post-implementation quality gate. Runs automated checks (tests, lint, types), invokes /flagrare:implementation-review for the seven-check parallel review, then performs additional SOLID and Clean Code review on any findings not covered. Use when the user says 'wrap up', 'review changes', 'check my work', 'am I done', or after completing an implementation task."
 ---
 
 # Wrap-up
@@ -65,7 +65,7 @@ If any check fails, list the specific errors.
 
 ### Step 2: Invoke `/flagrare:implementation-review`
 
-Call `/flagrare:implementation-review`. This runs six parallel subagent checks:
+Call `/flagrare:implementation-review`. This runs seven parallel subagent checks:
 
 1. Plan gap analysis
 2. Use-case coverage
@@ -73,8 +73,9 @@ Call `/flagrare:implementation-review`. This runs six parallel subagent checks:
 4. Test philosophy (Kent Dodds Testing Trophy)
 5. SOLID violations
 6. Clean Code violations
+7. Security (pulls in `/flagrare:security-audit`)
 
-Checks 2-4 apply `/flagrare:testing-philosophy`, behavior over implementation and the e2e necessity floor, so test quality is owned there; don't re-litigate it in Step 3.
+Checks 2-4 apply `/flagrare:testing-philosophy`, behavior over implementation and the e2e necessity floor, so test quality is owned there; don't re-litigate it in Step 3. Check 7 applies `/flagrare:security-audit`, so security is owned there; don't re-litigate it in Step 3 either.
 
 **Wait for it to complete.** Collect all findings.
 
@@ -120,7 +121,7 @@ Merge automated check results, `/flagrare:implementation-review` findings, and s
 | Types | PASS/FAIL |
 
 ### Implementation Review (from /flagrare:implementation-review)
-[Paste the six-check summary verbatim]
+[Paste the seven-check summary verbatim]
 
 ### Supplementary Review
 
