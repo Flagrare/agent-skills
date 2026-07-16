@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.26.0: 2026-07-16
+
+A security engineer reviews every change before it lands.
+
+### New Skills
+
+- **`/flagrare:security-audit`**: a focused security pass that surfaces only what a security engineer would confidently raise, injection, broken authn/authz (including the IDOR / tenant-leak case), secrets and PII exposure, unsafe deserialization, crypto misuse, and SSRF, each with a concrete exploit path and a fix. Scope adapts to how it is called (the staged diff inside the commit gate; the branch-versus-base diff plus uncommitted work when run on its own) and always extends to the trust boundary the change lands in, so a one-line edit to an auth check pulls in the surrounding path rather than the changed line alone. When a lockfile moved it runs the repo's own dependency auditor (npm, pnpm, pip-audit, cargo, govulncheck, bundle audit, composer) and degrades to an advisory flag when that tool is not installed. Every finding is confidence-gated, so theoretical noise is dropped rather than reported. Informed by Claude Code's built-in `/security-review`, whose false-positive precedents it adopts (client-side auth is not a vulnerability, React and Angular are XSS-safe without `dangerouslySetInnerHTML`, SSRF needs control of the host or protocol).
+
+### Improved Skills
+
+- **`/flagrare:implementation-review`**: the pre-commit gate gains a seventh parallel check, security, which pulls in `/flagrare:security-audit` the same way Checks 2 to 4 pull in `/flagrare:testing-philosophy`. HIGH and MEDIUM vulnerabilities block the commit; LOW is advisory.
+- **`/flagrare:wrap-up`**: now runs and reports seven checks, with security owned by `/flagrare:security-audit` rather than re-litigated inline.
+
 ## 1.25.0: 2026-07-10
 
 The editor learns the difference between context and escort.
