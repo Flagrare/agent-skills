@@ -138,7 +138,7 @@ Read `voice.md` first if it exists; its observed rules win over the generic ones
 1. **Short and direct.** A few sentences, no preamble, no "Great discussion!", no wrap-up flourish.
 2. **No LLM tells.** No em-dashes, no "aligns with", no rule-of-three constructions, no self-congratulation.
 3. **First person, explicit.** "I ran into this", never "Ran into this".
-4. **Hedge pushback collaboratively.** State the concern, admit possible missing context, ask what they think. Never sound certain about someone else's code.
+4. **Hedge pushback collaboratively, without interrogating.** State the concern plainly with its evidence and admit possible missing context. A closing question is for genuine uncertainty, when you actually need the author's context to resolve the point, not a mandatory sign-off: ending every draft with "does that match your understanding?" reads as a tic, and a faux-question that is really an assertion ("am I reading this right that this is unused?") reads passive-aggressive, which is worse than asserting. When the evidence is on the table and you are confident, say the thing and stop.
 5. **Contextualize references.** Never a bare ticket number; say what the ticket is with the key in parentheses.
 6. **Cite PRs and commits, not people.** Explaining where a behavior came from means pointing at the PR or SHA, never naming who broke it.
 7. **Substance first.** Every draft must contain the specific fact, risk, or suggestion that justified surfacing the item. If someone without the user's context could have written the draft, the item fails the credibility bar: cut it instead of shipping filler.
