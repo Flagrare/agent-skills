@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.27.0: 2026-07-27
+
+A scout for the work that gets you promoted.
+
+### New Skills
+
+- **`/flagrare:senior-scan`**: scans the org's communication surfaces for openings to operate at the next level, decisions still being formed, people stuck or circling, discussions missing context only you have, cross-team changes touching your systems. Surfaces are pluggable and chosen at onboarding from the MCPs actually connected (chat, code review, docs and tickets, with Slack and GitHub as reference implementations and RFC comment periods called out as the highest-leverage catch). One read-only sweep per surface feeds a five-axis score (leverage, credibility, stretch, audience, timing) with a hard anti-performative filter: no leverage or no credibility kills an item no matter how visible the thread, because shallow drive-bys hurt the promotion case they were meant to build. Ships a max-5 digest with fully contextualized items and draft replies in your own voice (distilled from your real messages at onboarding), gated behind per-message approval, and appends posted contributions to an evidence log that `/flagrare:brag-doc` can consume. Onboarding is discovery-first: channels, repos, and domains are proposed from your actual activity and confirmed, not composed from memory.
+
 ## 1.26.0: 2026-07-16
 
 A security engineer reviews every change before it lands.
