@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.28.0: 2026-07-27
+
+The scan learns that a statement is not an attack.
+
+### Improved Skills
+
+- **`/flagrare:senior-scan`**: the pushback drafting rule rewritten after first field feedback. Questions are for genuine uncertainty, when the author's context would actually resolve the point, not a mandatory sign-off: ending every draft with "does that match your understanding?" reads as a tic, and a faux-question that is really an assertion ("am I reading this right that this is unused?") reads passive-aggressive, which is worse than asserting. Confident claims with their evidence on the table now end as statements.
+
 ## 1.27.0: 2026-07-27
 
 A scout for the work that gets you promoted.
