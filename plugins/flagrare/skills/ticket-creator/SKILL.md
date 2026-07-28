@@ -204,6 +204,8 @@ Optionally include service name: `[BE][billing-service] Summary`
 
 Summary should be concise and action-oriented. If you have seen the ticket before, it should fully remind you what it is about.
 
+Titles pass the same three-reader bar as bodies, and they matter more, because the board shows nothing else. Plain language describing the outcome; no internal field names (`flip_back_at`), no coined shorthand ("sweep", "wire", "passthrough"), nothing that requires the meeting. "Hourly job: put things back on sale when their return time passes" beats "Sold-out sweep: flip past-due rows back". If the title needs the body to be understood, rewrite the title.
+
 ---
 
 ## Issue Types
