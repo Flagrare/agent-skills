@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.29.0: 2026-07-28
+
+The reviewer stops taking its own agents at their word.
+
+### Improved Skills
+
+- **`/flagrare:pr-reviewer`, verification**: subagent output is now a lead, not a finding. Before anything earns a comment, the skill reads the cited code, checks the claim's load-bearing premise (greps for the test it says is missing, reads the rule it says is broken, finds the callers it says will break), looks for a sibling precedent, and walks the interleaving itself on anything security or concurrency related. What doesn't survive gets dropped and reported to you in one line rather than padding the review. A CRITICAL "no tests for this adapter" collapses once the adapter it was modelled on turns out to be untested too. Every surviving finding is marked `(introduced)` or `(pre-existing)`, which changes the comment's framing without touching its severity: an inherited security hole is still a security hole, but the author shouldn't be asked to answer for it.
+
+- **`/flagrare:pr-reviewer`, voice**: comments keep their subject. "I checked the transaction boundaries", not "Checked the transaction boundaries", with a write/not table for the five ways that slip happens. Length is a budget now (100-300 characters) rather than a vibe, and the four worked examples that broke the 1-2 sentence rule they illustrate have been cut down inside it. Brevity yields to comprehensibility: causal-chain findings (a value import pulling in a runtime dependency, a race across two requests, a lock that doesn't cover what it appears to) state every link, because a comment the author can't follow has failed no matter how short. New table of passive-aggressive framings to avoid, including quoting the author's stated goal back at them as a scoreboard, and the concessive "to be fair" opener.
+
+- **`/flagrare:pr-reviewer`, output**: the chat summary and the GitHub review body were one artifact and are now two. The summary you read keeps the full findings list, the checklist, and a new "dropped in verification" section. The body the author reads is one paragraph that opens on the blocker, and never summarizes the PR back to the person who wrote it, recaps what you verified, or appends an inventory of things you chose not to flag. Reviews post as **pending** so you submit them yourself and the severity call stays with you, anchored to lines actually added in the diff.
+
 ## 1.28.0: 2026-07-27
 
 The scan learns that a statement is not an attack.
