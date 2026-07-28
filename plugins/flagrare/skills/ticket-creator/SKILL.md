@@ -51,6 +51,24 @@ The second is shorter *and* clearer. The first makes the reader reconstruct the 
 
 ---
 
+## Write for three readers
+
+Every ticket ships to at least three audiences, and it fails if any of them bounces:
+
+- **A junior developer** must understand exactly what work to do without asking anyone. If a term would send them to Slack ("LAPI"? "the sweep"?), gloss it on first use: "the shared core database (LAPI)", "the hourly job". Prefer the plain description alongside the term of art ("both safe to call twice" next to idempotent).
+- **A PM** must see how the work adds value. The ticket opens with the product story, not the mechanics: what the user does, what goes wrong today, what this ticket changes.
+- **A manager** must be able to skim the Goal alone and know what the ticket does.
+
+Concretely:
+
+- **Open with the product story.** The first sentence states the user-visible problem in plain words before any architecture: "Partners can mark an item 'Unavailable today', but nothing ever brings it back." When several tickets serve one feature, repeat that same one-line story in each, then name the slice this ticket owns ("this ticket is only the memory: one table and a register/clear endpoint").
+- **Gloss jargon at first use, in every ticket.** Acronyms, internal service nicknames, and team shorthand get a short parenthetical the first time they appear. Tickets are read out of order and out of context; assume this one is the first the reader opens.
+- **Cryptic is a bug.** If understanding a sentence requires having been in the meeting, rewrite it. The reader was not in the meeting.
+- **State decisions as facts, not minutes.** Never cite when or how a decision was made ("decided at the Jul 28 grooming", "per Tuesday's sync"): a ticket is self-contained, so write the decision as the way things are and link the decision doc if the reader needs the trade-offs. Provenance belongs in the decision doc, not the ticket.
+- **Use the tracker's rich formatting when pushing.** Identifiers, field names, classes and packages get inline code marks; links are real links with text, never bare URLs; sections are real headings, criteria real bullets. A ticket that renders as flat prose with naked URLs reads as unfinished even when the content is right. After the first push to a tracker, fetch one ticket back and check the stored formatting actually converted.
+
+---
+
 ## When to Use
 
 - User asks to create tickets, file a bug, write a story, create tasks
@@ -303,6 +321,8 @@ Sections NOT polished, they stay mechanical:
 
 Tickets should be **2-3 days of work**. If larger, break up.
 
+Split along independently testable deliverables, not just repos or layers: a data store and the job that consumes it are two tickets, because each can ship and be verified alone. When you split, state the direction in a one-line header on each ticket ("Depends on: X" / "Enables: Y") so the sequencing survives without the index.
+
 ---
 
 ## Acceptance Criteria Best Practices
@@ -349,6 +369,11 @@ Specific and testable:
 - [ ] At most 2-3 code pointers, woven into prose where possible, no bulleted `file:line` wall.
 - [ ] Acceptance criteria are 3-4 lines of what *done* means, not an exhaustive matrix of tables/fields.
 - [ ] A teammate could read it without you in the room and know why it matters and what done looks like.
+- [ ] Opens with the plain-language product story (what the user does → what goes wrong today → the slice this ticket owns).
+- [ ] Passes the three-reader test: a junior dev knows exactly what to build, a PM sees the value, a manager gets it from the Goal alone.
+- [ ] No unglossed acronym or team shorthand; nothing that requires having been in the meeting.
+- [ ] No decision provenance ("decided at X meeting", dates of syncs); decisions stated as facts with a link to the write-up.
+- [ ] Identifiers carry code marks and links have text; the push will render rich, not flat.
 
 After the file(s) are written and the index updated, **close with a tool, not prose.** A drafted ticket (or backlog) reads as "done," so ending with a prose "here's the ticket, let me know" frequently stops the turn before the user can act (the stall pattern in [`docs/research/2026-06-11-claude-code-goal-anti-stall.md`](../../../../docs/research/2026-06-11-claude-code-goal-anti-stall.md)). Issue an `AskUserQuestion` with options:
 
@@ -428,3 +453,4 @@ Present a summary with all created ticket keys/URLs.
 - Don't skip codebase grounding when a codebase exists. A ticket pointing at `path/to/file.ts:42` is dramatically more useful than one gesturing at "the relevant area".
 - Don't run `/flagrare:codebase-explore` sequentially for a backlog flow. Emit all `Agent` tool calls in a single message, the runtime executes them concurrently. N tickets must take roughly the same wall-clock as 1.
 - Don't polish acceptance criteria, environment, or metadata via write-docs. Those sections are mechanical by design; prose-ifying them blurs the testability.
+- Don't assume the reader was in the meeting. Every acronym, service nickname, and decision reference gets a gloss or a link; a ticket that only makes sense with the meeting context is cryptic, and cryptic is a bug.
