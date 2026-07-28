@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.30.0: 2026-07-28
+
+The ticket learns it has three readers.
+
+### Improved Skills
+
+- **`/flagrare:ticket-creator`, three readers**: a ticket now has to survive three audiences, and the skill says so explicitly: a junior developer must know exactly what to build without asking anyone, a PM must see the value, a manager must get it from the Goal alone. Every ticket opens with the product story in plain words (what the user does, what goes wrong today, the slice this ticket owns), and when several tickets serve one feature they repeat the same one-line story before naming their slice. Jargon is glossed at first use, every ticket, because tickets are read out of order; "cryptic is a bug" is now the rule, with the test being whether a sentence requires having been in the meeting.
+
+- **`/flagrare:ticket-creator`, decisions as facts**: no more "decided at Tuesday's grooming" or "(Jul 23 sync)" inside ticket bodies. A ticket is self-contained: it states the decision as the way things are and links the decision doc for trade-offs. Provenance, dates, and meeting names belong in the write-up the ticket points to, never in the ticket.
+
+- **`/flagrare:ticket-creator`, rich formatting on push**: identifiers, fields, classes and packages get inline code marks; links carry text instead of standing as bare URLs; sections are real headings and criteria real bullets. Field-tested the hard way: structurally-correct ADF with flat prose and naked URLs still reads as unfinished. After the first push to a tracker, the skill fetches one ticket back to confirm the stored formatting actually converted.
+
+- **`/flagrare:ticket-creator`, sizing**: the split line moved from "2-3 days" alone to splitting along independently testable deliverables (a data store and the job that consumes it are two tickets), with a one-line `Depends on:` / `Enables:` header on each so the sequencing survives without the index. Self-check and anti-patterns extended to enforce all of the above before a ticket is ever presented.
+
 ## 1.29.0: 2026-07-28
 
 The reviewer stops taking its own agents at their word.
