@@ -168,9 +168,25 @@ Layer additional review based on the fetched context:
 - Are API contracts followed?
 - Are architectural decisions respected?
 
-### Step 5: Draft Humanized GitHub Comments
+### Step 5: Verify Every Finding Before Drafting
 
-For every finding (from both systematic review and contextual review), produce a GitHub-ready comment draft.
+**Subagent output is a lead, not a finding.** Do not draft a comment from a subagent report you have not confirmed yourself. Agents overstate severity, mistake convention for defect, and occasionally invent a line number. A wrong finding posted on a colleague's PR costs more than a missed one.
+
+For each reported finding, before it earns a comment draft:
+
+1. **Read the actual code** at the cited file and line. Confirm the construct is really there and really does what the report says.
+2. **Check the claim's load-bearing premise.** If a report says "this branch is untested", grep for the test. If it says "this violates the module rule", read the rule. If it says "this breaks callers", find the callers.
+3. **Check for a sibling precedent.** Does the pre-existing equivalent do the same thing? If yes, it is `(pre-existing)` and the severity usually drops. A "CRITICAL: no tests for this adapter" collapses when the adapter it was modelled on has no tests either.
+4. **Reproduce the reasoning for anything security or concurrency related.** Walk the interleaving yourself. State the ordering that produces the bad outcome. If you cannot construct it, the finding does not ship.
+5. **Kill it if it does not survive.** Report the drop to the user in one line rather than silently padding the review.
+
+Also verify the author's own claims where a finding depends on them. PR descriptions that argue a design decision at length are usually right, and checking beats assuming in both directions: a claim that checks out is worth one clause of confirmation, and a claim that doesn't is often the most valuable thing in the review.
+
+Findings that survive this step carry their evidence into the draft: the file and line of the rule broken, the name of the pattern to copy, the interleaving that triggers the race.
+
+### Step 6: Draft Humanized GitHub Comments
+
+For every finding that survived Step 5, produce a GitHub-ready comment draft.
 
 **Severity scale:**
 
@@ -181,23 +197,35 @@ For every finding (from both systematic review and contextual review), produce a
 | Nice to have | NICE | Optional improvement |
 
 **Comment requirements:**
-- 1-2 sentences max for inline comments
+- 1-2 sentences for inline comments. Budget roughly 100-300 characters. If a draft runs past 350, cut a whole sentence, never a subject (see below).
 - Copy-paste ready for GitHub
 - No AI-isms: avoid "consider", "it would be beneficial", "enhance", "leverage", "crucial", "pivotal"
 - Use "you" when it fits
 - Frame suggestions as options: "One option:", "Worth adding:", "Might be cleaner to..."
 - Reserve firm language for actual blockers only
 
+**Never drop the subject of a sentence.** Brevity comes out of whole sentences, never out of grammar. Telegraphic prose reads as a machine writing minutes, not a colleague talking.
+
+| Write | Not |
+|---|---|
+| I checked the transaction boundaries | Checked the transaction boundaries |
+| I didn't find any correctness bugs | No correctness bugs found |
+| I don't see a spec for this one | No spec for this one |
+| I think this could use a note on X | Worth a note on X |
+| It looks like the union is stale | Looks like the union is stale |
+
+**Brevity yields to comprehensibility.** The 1-2 sentence budget assumes the finding is self-evident once the reader sees the line it sits on. When the defect is a causal chain (a value import pulling in a runtime dependency, a race across two requests, a lock that doesn't cover what it appears to), state each link. A comment the author cannot follow has failed no matter how short it is. Spend the extra sentences on the mechanism, not on preamble or on restating their PR description back at them.
+
 **Voice and examples:**
 
 Voice setup. Think of the author as a teammate you respect, someone who's going to read this tomorrow morning before they've had coffee. They already shipped a draft, which took real effort. Write the way you'd actually talk to them at lunch. Usually that means starting from what we noticed rather than what we want done, and asking instead of telling when we're not sure. Use "we" where it fits, since the code is something we share.
 
-Concrete before-and-after pairs. The envelope around each comment (severity, file, line) stays the same; only the comment text shifts. Eight pairs, ordered by severity, then by finding type.
+Concrete before-and-after pairs. The envelope around each comment (severity, file, line) stays the same; only the comment text shifts. Eight pairs, ordered by severity, then by finding type. **Every friendly version below is inside the length budget. They are the target, not a floor to build on.**
 
 **1. Null check (Critical, correctness)**
 - Cold: `` `venue` can be null here. Add a safe call or null check. ``
-- Friendly: `` I think `venue` can come back as null here, in the case where the search doesn't find a match. We hit something similar in BookingRepo a little while ago. Should we add a guard for it? ``
-- *What changed: opens with the observation rather than the instruction, frames the codebase as shared, asks instead of commanding.*
+- Friendly: `` I think `venue` can come back as null here when the search doesn't match. Should we add a guard? ``
+- *What changed: opens with the observation rather than the instruction, asks instead of commanding.*
 
 **2. SQL injection (Critical, security)**
 - Cold: `SQL injection risk. Use parameterized queries.`
@@ -216,12 +244,12 @@ Concrete before-and-after pairs. The envelope around each comment (severity, fil
 
 **5. Missing edge case (Suggestion, correctness)**
 - Cold: `` What happens when `items` is empty? Add handling. ``
-- Friendly: `` I was wondering what happens here if `items` comes through empty. Does the totals calc just zero out, or do we want to throw? Either way is fine, just wanted to make sure whatever we end up with is intentional. ``
+- Friendly: `` I was wondering what happens here if `items` comes through empty. Does the total just zero out, or do we want to throw? ``
 - *What changed: poses as a genuine question, offers both options so the author isn't cornered, "we want to" instead of "you should".*
 
 **6. Generic naming (Suggestion, clean code)**
 - Cold: `` `data` is too generic. Rename. ``
-- Friendly: `` I think this `data` could probably use a more specific name, maybe something like `customerLoyaltyRecord` or whatever fits the actual shape. Future-us would probably thank us when we're grepping for it in six months. ``
+- Friendly: `` I think this `data` could use a more specific name, maybe `customerLoyaltyRecord`. Future-us would thank us when we're grepping for it. ``
 - *What changed: "Future-us" is the small but real win. Concrete alternative offered, future-pain rationale frames it as shared.*
 
 **7. Magic number (Nice, clean code)**
@@ -247,22 +275,45 @@ What the pairs are showing:
 - No rule of three.
 - No "Additionally", "Furthermore", "Moreover".
 - No sycophancy ("Great approach!", "Excellent work!").
-- Be specific. "Add a null check here" beats "It might be worth considering adding a null check to improve robustness."
+- Be specific, but keep the subject. "I think this needs a null check" beats "It might be worth considering adding a null check to improve robustness." Cutting to a bare imperative ("Add a null check here") overshoots into the clipped voice.
+
+**Don't score points.** A well-argued PR description means most findings will contradict something the author claimed. That is exactly when the framing goes wrong. Each of these reads as passive aggressive:
+
+| Avoid | Because | Instead |
+|---|---|---|
+| "reintroduces the flaw this PR set out to avoid" | quotes their own goal back as a scoreboard | describe the defect on its own terms |
+| "the rationale doesn't hold" | a verdict on their thinking | "the rationale might need a tweak" |
+| "To be fair, the legacy code does this too" | concessive opener, implies you're granting them something | "The legacy routes are in the same spot" |
+| "this passes for a different reason than its name suggests" | gotcha framing | "I think this might be passing for a different reason" |
+| "am I reading this right that this is unused?" | a faux-question that is really an assertion | assert it plainly, with the evidence |
+
+Attach the point of agreement to the criticism rather than parking it after a "though". Offer fixes as proposals ("if you agree", "would that cover it?"). Never open a comment or a review body by summarizing what the PR does: the author wrote it.
 
 **Format per finding:**
 
 ```
-CRITICAL - `path/to/File.kt` L45
-GitHub comment: I think `venue` can come back as null here when the search doesn't find a match. Should we add a guard for it?
+CRITICAL - `path/to/File.kt` L45 (introduced)
+GitHub comment: I think `venue` can come back as null here when the search doesn't match. Should we add a guard?
 
-SUGGESTION - `reservations/BookingService.kt` L32
-GitHub comment: I noticed this method's doing a fair bit. Pulling validation out into its own function might make the tests easier for us. Totally up to you.
+SUGGESTION - `reservations/BookingService.kt` L32 (introduced)
+GitHub comment: I noticed this one's doing both validation and persistence. Pulling validation out might make the tests easier for us.
 
-NICE - `reservations/BookingServiceTest.kt` (file-level)
-GitHub comment: Would be good to add a test for the cancelled path too, if we get a chance.
+NICE - `reservations/BookingServiceTest.kt` (file-level, pre-existing pattern)
+GitHub comment: I don't see a test for the cancelled path. The sibling suites skip it too, so not a convention break, but it'd be good to lock down.
 ```
 
-### Step 6: Present the Review
+**Mark every finding `(introduced)` or `(pre-existing)`.** Determine which by checking whether the surrounding code, or the nearest sibling implementation, already does the same thing. A finding the PR did not cause needs different framing: say so in the comment, so the author isn't asked to answer for something they inherited. This changes the comment text, not the severity: an inherited security hole is still a security hole, but "the sibling adapter does this too" is information the author needs.
+
+### Step 7: Present the Review
+
+**There are two separate artifacts and they have different rules. Do not let one leak into the other.**
+
+| Artifact | Audience | Contains |
+|---|---|---|
+| **A. The chat summary** | the user, deciding whether to post | context fetched, verdict, every finding with its draft, checklist, findings dropped in Step 5 |
+| **B. The GitHub review body** | the PR author | one paragraph, opening on the blocker |
+
+**A. Present to the user in chat:**
 
 ```
 ## PR Review: <PR title>
@@ -277,7 +328,10 @@ GitHub comment: Would be good to add a test for the cancelled path too, if we ge
 
 ### Findings
 
-[All findings grouped by file, each with severity and GitHub comment draft]
+[Each finding: severity, file, line, (introduced|pre-existing), and its GitHub comment draft]
+
+### Dropped in verification
+[Any subagent finding that did not survive Step 5, one line each. Omit the section if none.]
 
 ### Checklist
 - [ ] Logic correct and edge cases handled
@@ -289,6 +343,47 @@ GitHub comment: Would be good to add a test for the cancelled path too, if we ge
 - [ ] Design alignment verified (if applicable)
 ```
 
+The "what the PR does" clause in the Overall Assessment is orientation **for the user**. It does not go on GitHub.
+
+**B. The GitHub review body is one paragraph.** It opens on the thing you'd want fixed, then covers what's fine in a clause. A second short paragraph is allowed only for findings that have no line to anchor to (a wrong claim in the PR description, a stale response shape).
+
+Never put these in the review body:
+- A summary of what the PR does. The author wrote it.
+- A recap of what you verified or which of their claims checked out.
+- A list of things you looked at and chose not to flag.
+- Praise beyond a clause.
+
+```
+Good: I think the race in `verifyMfaOtp.controller.ts` could activate a factor for a
+number we never verified. That's the one I'd want to sort out before merge, details
+inline. The rest looks right to me: the layering, the responder maps, and the ticket
+criteria.
+
+Bad:  Adds the two `/v2/registration/mfa/*` endpoints over the aggregate from #7421.
+The layering is clean. Adapters are only constructed in `index.ts` and injected,
+neither controller reaches into `infrastructure/`, and the responder maps are
+genuinely exhaustive. I also went through the CLAUDE.md edits and I think they're
+documenting what shipped. A few things I looked at and decided not to flag: ...
+```
+
+The bad version opens with a subjectless fragment, narrates the PR back at its author, recaps the verification, and appends a not-flagged inventory. Every one of those is padding that buries the blocker.
+
+### Step 8: Post It
+
+Only after the user approves. Create the review as **pending** so the user submits it themselves, which keeps the judgment call on severity with them:
+
+```bash
+# one call, body + all inline comments, no `event` field => PENDING
+gh api --method POST /repos/{owner}/{repo}/pulls/{n}/reviews --input review.json
+```
+
+`review.json` is `{"body": "...", "comments": [{"path", "line", "side": "RIGHT", "body"}, ...]}`.
+
+- Anchor every comment on a line that is **added in the diff**. Verify before posting: parse the diff's `@@` hunks for added-line numbers, or check `position` and `diff_hunk` on the created comments.
+- Report the review ID and the anchored lines back, then let the user submit.
+- To submit on request: `POST .../reviews/{id}/events -f event=COMMENT|REQUEST_CHANGES|APPROVE`. Recommend an event, but the user chooses.
+- To revise after posting: `PATCH /repos/{owner}/{repo}/pulls/comments/{comment_id}` for a comment, `PUT .../pulls/{n}/reviews/{id}` for the body. Both work after submission.
+
 ---
 
 ## Anti-patterns
@@ -299,6 +394,10 @@ GitHub comment: Would be good to add a test for the cancelled path too, if we ge
 - Don't sound like a checklist or a formal audit.
 - Don't post comments to the PR without explicit user approval. Always draft first.
 - Don't run subagents sequentially. The whole point is parallel dispatch.
+- Don't trust a subagent finding you haven't confirmed in the code yourself (Step 5).
+- Don't shorten a comment by dropping its subject. Cut sentences, not grammar.
+- Don't open the review body by describing the PR to the person who wrote it.
+- Don't quote the author's stated goal back at them as evidence they missed it.
 
 ---
 
@@ -312,8 +411,10 @@ GitHub comment: Would be good to add a test for the cancelled path too, if we ge
      |--- Step 1-2: fetch PR + linked resources (Jira, Figma, Notion)
      |--- Step 3: 5 parallel subagents (correctness, security, tests, SOLID, clean code)
      |--- Step 4: contextual review (ticket/design/doc alignment)
-     |--- Step 5: humanize all findings into GitHub comment drafts
-     |--- Step 6: present combined review
+     |--- Step 5: verify every finding in the code; drop what doesn't survive
+     |--- Step 6: humanize survivors into GitHub comment drafts
+     |--- Step 7: present to the user (full) vs GitHub body (one paragraph)
+     |--- Step 8: post as a pending review; the user submits
      |
      v
 [user approves posting or adjusts]
