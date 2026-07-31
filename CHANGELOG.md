@@ -1,5 +1,23 @@
 # Changelog
 
+## 1.31.0: 2026-07-31
+
+The matcher learns to fetch instead of squint.
+
+### Improved Skills
+
+- **`/flagrare:figma-matcher`, Step 0 exists now**: before anything gets extracted, the skill locates the exact node ids and inventories every child frame and instance in the section — desktop, mobile closed and open, popouts, and every instance inside container rows — then classifies each as in scope, verified-already-implemented, or explicitly out of scope. Field-tested the embarrassing way: a tabs-row instance dismissed as "page chrome" turned out to contain a store-status control the page was missing entirely. A missed instance is a missed feature, not a styling nit, and unaccounted frames now mean the job isn't done. When Figma's page-level enumeration returns the empty `width="0"` canvas, the fallback is Figma's own Find in the browser: search the frame name, click each result, read the node id off the URL.
+
+- **`/flagrare:figma-matcher`, fetch, don't transcribe**: extraction stops being a reading-comprehension exercise. `get_variable_defs` returns the design-token map as JSON (hex colors, spacing numbers, full font and shadow specs), `get_metadata` gives exact geometry where gaps and paddings fall out of the coordinate math, `get_design_context` is reserved for one atomic node at a time because large frames silently degrade to sparse metadata, and the REST nodes endpoint is documented as the most exact path when a PAT exists — including the r/g/b/a floats-times-255 conversion and the Enterprise-only gating on the Variables endpoint. When both sides of the comparison are JSON, a script joins them and the model only writes the Fix column, so no row can be mis-copied or skipped.
+
+- **`/flagrare:figma-matcher`, measurement traps**: synthetic `mouseover` does not apply `:hover` styles, so hover claims come from reading the SCSS, never from a measurement that proves nothing. Open states are checklist rows (click the menu open, measure the popout), mobile gets its own viewport pass, and position relationships are measured too — a menu that expands in place of its trigger has to top-align with it, not dangle below.
+
+- **`/flagrare:figma-matcher`, implementation traps**: four ways a verification round dies, written down after each one cost a real pass. Icon components that hoist your className onto the `<svg>` itself, house-stylesheet specificity that silently beats a scoped override until you mirror the full selector chain, global button styles inflating line boxes until the trigger goes `inline-flex` with an explicit height, and `table-layout: fixed` being the thing that makes percentage columns and cell ellipsis actually work.
+
+- **`/flagrare:figma-matcher`, honest tables**: deliberate divergences get their own labeled rows instead of silent fixes — the menu item the team ratified after the frame was drawn, the placeholder the user approved, the house-component standard not worth forking. Mismatches on shared components force a decision before the Fix column is final: scoped override or correct-everywhere, never a silently widened blast radius. And values that render identically by spec (a 100px radius clamping exactly like the design's 50px on a 40px pill) count as MATCH with the equivalence noted, because "never say close enough" was never meant to outlaw arithmetic.
+
+- **`/flagrare:figma-matcher`, `/goal` honesty**: the skill claimed the model could invoke `/goal`; it cannot — it's a UI command. It now asks the user to set it, and runs the same zero-discrepancy loop manually when they don't.
+
 ## 1.30.0: 2026-07-28
 
 The ticket learns it has three readers.
