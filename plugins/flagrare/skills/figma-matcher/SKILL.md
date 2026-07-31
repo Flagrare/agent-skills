@@ -30,9 +30,28 @@ If you catch yourself about to edit a styling file without having shown the comp
 
 You MUST complete every step in order. Do not skip steps. Do not combine steps. Do not start writing CSS until Step 5.
 
-### Step 1: Extract ALL Properties from Figma
+### Step 0: Find the Frames and Inventory EVERYTHING In Them
 
-Call `get_design_context` on every relevant node. Also call `get_screenshot` to capture the Figma rendering for later visual comparison.
+Before extracting anything, locate the exact node ids and enumerate what the design actually contains.
+
+**Finding node ids when you only have a file key or section name:**
+- `get_metadata` with no nodeId lists top-level pages; with a page id it should enumerate the tree — but page-level enumeration sometimes returns an empty `width="0"` canvas. Node-level calls still work, so the gap is discovery only.
+- When enumeration fails, drive the browser: open the Figma file in the user's Chrome (debug profile), use Figma's **Find** (the search icon in the left sidebar), search the frame/section name, click "See results on other pages" if needed, then click each result and read the `node-id` from the URL. Collect all of them before extracting.
+
+**Coverage rule — account for every child, then decide:**
+Run `get_metadata` on the section/frame and list EVERY child frame and instance: desktop frame, mobile frames (closed AND open/overlay states), popout menus, dropdowns, sheets, and every instance inside container rows. For each one, explicitly classify it as (a) in scope, (b) already implemented elsewhere (verify — go look), or (c) out of scope per the user. Never dismiss an instance as "page chrome" without checking the page actually renders it in this context — a tabs-row instance can contain a control (e.g. a store-status dropdown) that the current page is missing entirely. A missed instance is a missed feature, not a styling nit.
+
+Interaction states are frames too: a mockup with a cursor on a row is showing you the hover state; a second mobile frame with an overlay is showing you the opened sheet. Both become checklist rows.
+
+### Step 1: Extract ALL Properties from Figma — Fetch, Don't Transcribe
+
+Machine-readable extraction first; hand-reading generated output is the biggest error source. In order:
+
+1. **`get_variable_defs`** on the main node — returns the design-token map as JSON (`{"Gray/Gray30": "#E7E7E7", "Spacing/spacing-small": "8", "Regular/Medium": "Font(...16, weight: 500, lineHeight: 24...)"}`). This is ground truth for every tokenized color, spacing, radius, font, and shadow. Save it; Step 2 joins against it.
+2. **`get_metadata`** on the frame — exact geometry for free: row heights, column widths, x/y offsets, element sizes. Gaps and paddings fall out of the coordinate math (`y=83, height=56, next y=155` → 16px gap).
+3. **`get_design_context`** on SMALL nodes only — one atomic piece at a time (a header cell, a row cell, a button, a menu). Large frames silently degrade to sparse metadata with a note telling you to recurse into sublayers; budget for one call per atomic component.
+4. **`get_screenshot`** on every frame (desktop, mobile, open states) — download the PNGs; they are the Step 6 visual baseline.
+5. **Optional, most exact: Figma REST API** — `GET https://api.figma.com/v1/files/:key/nodes?ids=:nodeId` with an `X-Figma-Token` PAT returns the raw node JSON: fills/strokes as r/g/b/a **floats 0-1 (multiply by 255)**, `cornerRadius`, auto-layout paddings, `itemSpacing`, text `style`, `effects`. Use when a PAT is available; note the sandbox may need `api.figma.com` allowed. The Variables REST endpoint (`/variables/local`) is Enterprise-only — `get_variable_defs` is the plan-independent substitute.
 
 For each visual element, extract into a structured checklist:
 
@@ -145,6 +164,12 @@ JSON.stringify({
 
 Do this for EVERY element in the checklist. Not just the ones you think might be wrong. Check children, containers, buttons, icons, text spans, everything.
 
+**Also measure the states, and know the measurement traps:**
+- **Open states**: click the dropdown/menu/sheet open inside `evaluate_script` (a short `await` after the click), then measure the popout: width, radius, shadow, item font, item height, item padding. Popouts are checklist rows, not bonuses.
+- **Hover cannot be measured synthetically**: `dispatchEvent(mouseover)` does NOT apply `:hover` CSS. Verify hover styles by reading the SCSS, not by measuring a synthetic hover — a transparent reading proves nothing.
+- **Mobile pass**: `resize_page` to the design's mobile frame size (usually 390×844), reload, and re-measure the mobile checklist rows. Restore the viewport when done.
+- **Position relationships count**: e.g. a menu that "expands in place of" its trigger should top-align with it (`menu.top ≈ toggle.top`), not drop below. Measure `getBoundingClientRect` of both and compare.
+
 ### Step 4: Build the Comparison Table and Present It
 
 Create a markdown table with columns:
@@ -155,12 +180,16 @@ Create a markdown table with columns:
 | 2 | Banner container | border-color | rgba(103,103,103,0.5) | rgba(189,189,189,0.8) | MISMATCH | transparentize($color-ui70, 0.5) |
 | 3 | CTA button | background-color | rgba(103,103,103,0.15) | rgba(0,85,255,0.15) | MISMATCH | transparentize($color-ui70, 0.85) |
 
-Fill in EVERY row from your checklist. Mark each as MATCH or MISMATCH.
+Fill in EVERY row from your checklist. Mark each as MATCH or MISMATCH. When both sides came out of Steps 1 and 3 as JSON, prefer joining them with a small script (Figma floats ×255 for colors; tolerance ≤2/255 per channel, ≤1px for geometry) so no row can be mis-copied or skipped — you write only the Fix column.
 
 For mismatches, specify:
 - Which file to change
 - Which selector/property
 - The exact new value (using the project's variable system where possible)
+
+**Deliberate divergences get their own labeled rows**, not silent "fixes": features added after the frame was drawn (an extra menu item the team ratified), placeholders the user explicitly approved (a native confirm pending a designed dialog), or house-component standards not worth forking (pager copy). Name each one and why it stays.
+
+**Shared components need a decision before the Fix column is final**: if a mismatched style lives on a component other features use, ask the user — scoped override (this feature only) or fix the shared component ("correct everywhere")? Do not silently widen the blast radius, and do not silently fork either.
 
 **OUTPUT THIS TABLE TO THE USER.** Do not proceed until you have done so.
 
@@ -173,15 +202,21 @@ Only after the table is complete and shown to the user:
 - Do not iterate one property at a time
 - Do not make partial fixes
 
-### Step 6: Set `/goal` and Verify Until Zero Discrepancies
+**Known implementation traps (each one has burned a real pass):**
+- **Icon components may hoist your className onto the `<svg>` itself** (react-inlinesvg does). `.my-icon svg { ... }` then matches nothing — size the class directly and keep only `path`/`circle`/`line` fill/stroke overrides nested. Also check whether the icon is fill-based or stroke-based before writing `fill: currentColor`.
+- **Match the house stylesheet's specificity, then add one class.** A scoped `.feature table th` loses to `.house-table table thead tr th`. Mirror the full chain and prefix your block class. For third-party inline styles (e.g. a dropdown's positioning `min-width`), `!important` is the sanctioned tool — copy the existing precedent comment style.
+- **Inline flex the trigger buttons**: global button styles plus baseline-aligned inline children inflate line boxes; an explicit `height` + `inline-flex` centering is how you hit an exact design height.
+- **`table-layout: fixed` is what makes % column widths and cell ellipsis real.** Give the flexible columns explicit widths only where the design fixes them; leave the rest auto so the browser splits them equally, exactly like equal-width design columns.
 
-Before beginning verification, invoke `/goal` with the following condition:
+### Step 6: Verify Until Zero Discrepancies
+
+`/goal` is a UI command — you cannot invoke it yourself. If the session would benefit from the goal loop, ask the user to run `/goal` with the condition below; otherwise run the same loop manually and do not stop until it's satisfied:
 
 ```
 /goal For every row in the Figma comparison checklist: re-run evaluate_script via Chrome DevTools on the live page, rebuild the full comparison table, and confirm every row shows MATCH (tolerance: <=2 subpixel rounding in rgba channels). Then take a fresh screenshot and compare side-by-side with the Figma screenshot from Step 1 confirming zero visible differences in color, spacing, sizing, typography, borders, shadows, or layout. Not met until the rebuilt table has 0 MISMATCH rows AND the screenshot comparison shows 0 visual discrepancies.
 ```
 
-This activates Claude Code's built-in goal loop: you keep working across turns until the condition is met. The `/goal` evaluator will prevent premature completion.
+If the user sets it, the goal loop keeps you working across turns until the condition is met and prevents premature completion. If not, the loop below is still mandatory — run it yourself.
 
 #### Each verification pass within the goal:
 
@@ -213,14 +248,16 @@ This activates Claude Code's built-in goal loop: you keep working across turns u
 ## Rules
 
 1. **Never pick a variant/token by name.** Always resolve to hex and compare numerically.
-2. **Never say "close enough."** Either the rgba values match or they don't. A 1-2 unit rounding difference in subpixel rendering is acceptable. A different base color is not.
+2. **Never say "close enough."** Either the rgba values match or they don't. A 1-2 unit rounding difference in subpixel rendering is acceptable. A different base color is not. One principled exception: values that render identically by spec count as MATCH — e.g. `border-radius: 100px` vs the design's `50px` on a 40px-tall pill (both clamp to height/2). Note the equivalence in the row.
 3. **Never start writing CSS/SCSS before completing Steps 1-4 and showing the table.**
 4. **Never skip Chrome DevTools.** Even if you "know" what the computed style is. Measure, don't assume.
 5. **Every property gets checked.** Not just the ones that look wrong.
 6. **If an existing component variant doesn't match exactly,** add a className override with the correct values. Don't use the "closest" variant and hope nobody notices.
 7. **If the dev server isn't running,** start it before Step 3. Do not skip Step 3.
 8. **Screenshots are mandatory** at Step 1 (Figma), Step 3 (before), and Step 6 (after).
-9. **Button widths and text wrapping** must be explicitly checked. If a button is full-width in Figma, verify it's full-width in implementation. If text shouldn't wrap, verify `white-space: nowrap`.
+9. **Button widths and text wrapping** must be explicitly checked. If a button is full-width in Figma, verify it's full-width in implementation. If text shouldn't wrap, verify `white-space: nowrap` — and remember the design usually wants ellipsis truncation, not wrapping, in table cells.
+10. **Every frame and instance from Step 0 must be accounted for** — in the table, as a deliberate divergence, or as confirmed-already-implemented. Unaccounted = not done.
+11. **Icon glyphs are properties too.** A circled plus is not a bare plus; compare the actual glyph in the screenshot, not just the size.
 
 ## When This Skill Applies
 
