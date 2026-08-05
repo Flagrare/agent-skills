@@ -347,6 +347,8 @@ The "what the PR does" clause in the Overall Assessment is orientation **for the
 
 **B. The GitHub review body is one paragraph.** It opens on the thing you'd want fixed, then covers what's fine in a clause. A second short paragraph is allowed only for findings that have no line to anchor to (a wrong claim in the PR description, a stale response shape).
 
+One paragraph is a shape, not a compression license. When the blocker is a causal chain, the opening states the mechanism link by link in plain words and the paragraph grows to fit it, same as Step 6's comprehensibility rule. "Details inline" supplements a mechanism the reader already grasped; it never substitutes for one.
+
 Never put these in the review body:
 - A summary of what the PR does. The author wrote it.
 - A recap of what you verified or which of their claims checked out.
@@ -367,6 +369,21 @@ documenting what shipped. A few things I looked at and decided not to flag: ...
 ```
 
 The bad version opens with a subjectless fragment, narrates the PR back at its author, recaps the verification, and appends a not-flagged inventory. Every one of those is padding that buries the blocker.
+
+The Good example above works because its defect fits in a clause ("could activate a factor for a number we never verified"). Do not imitate its compression when yours doesn't:
+
+```
+Cryptic: I think the formKey change can remount the edit form under the partner
+mid-edit once the groups query resolves, that's the one thing I'd want sorted
+before merge, details inline.
+
+Clear:   One thing I'd like to sort before merge: in the edit flyout, the modifier
+groups fetch feeds into the form's `key`, and when the fetch resolves the key
+changes and React remounts the form. So a partner who starts typing while that
+fetch is still in flight gets their edits wiped. Details inline.
+```
+
+The cryptic version gestures at the mechanism in a clause and leans on "details inline" to carry it. It reads fine to the reviewer who just traced the chain, and to nobody else.
 
 ### Step 8: Post It
 
