@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.32.0: 2026-08-05
+
+The review body learns to say what actually breaks.
+
+### Improved Skills
+
+- **`/flagrare:pr-reviewer`, one paragraph is a shape, not a compression license**: the review body rule now says outright that when the blocker is a causal chain, the opening states the mechanism link by link in plain words and the paragraph grows to fit, and that "details inline" supplements a mechanism the reader already grasped, never substitutes for one. Field-tested the embarrassing way: a real blocker (a fetch resolving into a React `key`, remounting the form and wiping the partner's edits) got compressed to "the formKey change can remount the edit form", which read fine to the reviewer who had just traced the chain and to nobody else. The Good example turned out to be part of the problem, since its defect fits in a clause and invites imitation when yours doesn't; a cryptic-vs-clear pair from the incident now sits right under it.
+
 ## 1.31.0: 2026-07-31
 
 The matcher learns to fetch instead of squint.
