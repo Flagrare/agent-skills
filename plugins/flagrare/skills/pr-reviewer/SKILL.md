@@ -216,6 +216,25 @@ For every finding that survived Step 5, produce a GitHub-ready comment draft.
 
 **Brevity yields to comprehensibility.** The 1-2 sentence budget assumes the finding is self-evident once the reader sees the line it sits on. When the defect is a causal chain (a value import pulling in a runtime dependency, a race across two requests, a lock that doesn't cover what it appears to), state each link. A comment the author cannot follow has failed no matter how short it is. Spend the extra sentences on the mechanism, not on preamble or on restating their PR description back at them.
 
+**Every reference has to be resolvable by the author alone.** This is the other way comments turn cryptic, and the existing brevity rule does not catch it: the mechanism is stated fine, but the comment points at something the author cannot reach from where they are standing. You have the other PR's diff, the design file, and the ticket open in tabs. They have this line of code. A reference they would have to come back and ask you about has failed, however precise it is.
+
+| Unresolvable as written | What it needs |
+|---|---|
+| a bare design node id (`4051:28381`) | a full clickable link, plus what the frame shows |
+| another PR by number or ticket key | one clause saying what that PR changes, so its relevance is legible without opening it |
+| a symbol you added on a different branch | the file it lives in, and what it does |
+| "AC #2", "the third bullet", "the rule in CLAUDE.md" | the criterion or rule restated in a few words |
+| "the sibling does this too" | which sibling, by path |
+
+Before and after, from a review that pointed at a design frame the author had no way to open:
+
+- Cryptic: `The read-only Figma section already specs it (4051:28381: single full-width Close instead of Cancel/Save).`
+- Clear: `Design already has the read-only version of it: [node 4051-28381](https://figma.com/design/<key>?node-id=4051-28381) shows the same modal with one full-width Close button in place of Cancel/Save.`
+
+Same sentence, same length budget. The difference is whether the author can act on it without a round trip.
+
+**Read each draft back as the author before it ships.** They have not seen your other tabs, your subagent reports, or the branch you were on ten minutes ago. Every proper noun in the comment (a PR, a ticket, a file, a symbol, a design frame, a person) either resolves from what is in front of them or gets one clause of context attached. This is the last check before Step 6 output, and it is cheap: reread, and for each name ask "could they follow this from this page alone?"
+
 **Voice and examples:**
 
 Voice setup. Think of the author as a teammate you respect, someone who's going to read this tomorrow morning before they've had coffee. They already shipped a draft, which took real effort. Write the way you'd actually talk to them at lunch. Usually that means starting from what we noticed rather than what we want done, and asking instead of telling when we're not sure. Use "we" where it fits, since the code is something we share.
@@ -415,6 +434,7 @@ gh api --method POST /repos/{owner}/{repo}/pulls/{n}/reviews --input review.json
 - Don't shorten a comment by dropping its subject. Cut sentences, not grammar.
 - Don't open the review body by describing the PR to the person who wrote it.
 - Don't quote the author's stated goal back at them as evidence they missed it.
+- Don't cite anything the author cannot resolve from the page they are on: a bare design node id, another PR by number with no gloss, a symbol that only exists on your branch, an acceptance criterion by number. Precise and unreachable is still cryptic.
 
 ---
 
