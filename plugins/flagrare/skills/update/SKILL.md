@@ -22,6 +22,13 @@ from an older release:
 bash <(curl -sL https://raw.githubusercontent.com/Flagrare/agent-skills/main/update.sh)
 ```
 
+**Run it with the agent sandbox disabled.** The script rewrites
+`~/.claude/plugins/`, which sandboxes normally deny writes to. Sandboxed, the
+`claude plugin marketplace update` call fails, the script falls through to its
+re-clone branch, and you get a wall of `rm: Operation not permitted` instead of
+an update. In Claude Code, pass `dangerouslyDisableSandbox: true` on the Bash
+call rather than running it once to watch it fail.
+
 After running, tell the user:
 
 > Skills updated from GitHub. Run `/reload-plugins` or restart Claude Code to apply.
