@@ -48,6 +48,15 @@ MARKETPLACE_DIR="$HOME/.claude/plugins/marketplaces/${CURRENT_NAME}"
 if claude plugin marketplace list 2>/dev/null \
     | grep -qE "^[[:space:]]*❯[[:space:]]+${CURRENT_NAME}\$"; then
   if ! claude plugin marketplace update "$CURRENT_NAME" 2>/dev/null; then
+    # Probe before destroying: a sandbox that denies writes here would let rm -rf
+    # delete part of the tree and then abort under `set -e`, leaving the
+    # marketplace worse off than the stale cache we were trying to heal.
+    if [ -d "$MARKETPLACE_DIR" ] && ! (: > "$MARKETPLACE_DIR/.write-probe") 2>/dev/null; then
+      echo "Cannot write to $MARKETPLACE_DIR." >&2
+      echo "This usually means the shell is sandboxed. Re-run with the sandbox disabled." >&2
+      exit 1
+    fi
+    rm -f "$MARKETPLACE_DIR/.write-probe" 2>/dev/null || true
     echo "Marketplace update failed — removing stale cache and re-adding."
     rm -rf "$MARKETPLACE_DIR" "${MARKETPLACE_DIR}.bak"
     claude plugin marketplace remove "$CURRENT_NAME" 2>/dev/null || true
