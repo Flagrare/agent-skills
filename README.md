@@ -1,8 +1,8 @@
 # agent-skills
 
-Thirty-two skills that wrap around your development cycle in Claude Code. They turn tickets into ATDD plans, smoke-test features against a running app or service, hunt down bugs with runtime evidence, guard commits against doc drift, run seven-axis code review, draft changelogs that read like patch notes, and review PRs with full context from your tracker and design tools.
+Thirty-three skills that wrap around your development cycle in Claude Code. They turn tickets into ATDD plans, smoke-test features against a running app or service, hunt down bugs with runtime evidence, guard commits against doc drift, run seven-axis code review, draft changelogs that read like patch notes, and review PRs with full context from your tracker and design tools.
 
-All skills are namespaced under `flagrare:*` to avoid collisions with other plugins. Installing this marketplace adds `/flagrare:intake`, `/flagrare:work-prep`, `/flagrare:smoke-test`, `/flagrare:wrap-up`, `/flagrare:pr-reviewer`, and twenty-seven more to every Claude Code session.
+All skills are namespaced under `flagrare:*` to avoid collisions with other plugins. Installing this marketplace adds `/flagrare:intake`, `/flagrare:work-prep`, `/flagrare:smoke-test`, `/flagrare:wrap-up`, `/flagrare:pr-reviewer`, and twenty-eight more to every Claude Code session.
 
 ## Install
 
@@ -10,7 +10,7 @@ All skills are namespaced under `flagrare:*` to avoid collisions with other plug
 bash <(curl -sL https://raw.githubusercontent.com/Flagrare/agent-skills/main/install.sh)
 ```
 
-One command. It registers the marketplace, installs the `flagrare` plugin, and makes all thirty-two skills available. Restart Claude Code or run `/reload-plugins` afterward.
+One command. It registers the marketplace, installs the `flagrare` plugin, and makes all thirty-three skills available. Restart Claude Code or run `/reload-plugins` afterward.
 
 If you prefer to clone first:
 
@@ -81,6 +81,8 @@ After this one-time bootstrap, `/flagrare:update` works for all future versions 
 `/flagrare:standup-report` writes your daily standup as a Staff Engineer would deliver it, impact-driven, root-cause-aware, and honest about judgment calls. It pulls from GitHub (your PRs, reviews left, comments addressed, merges, deploys), local git across configured repo roots, the project's release automation, and any tracker MCP you've configured (Linear, Jira, Notion, etc.). The output is a short narrative paragraph plus a journal-style recap plus a slack-pasteable bullet list. Names work in human terms, "fixed the image cache eviction" not "PR #481", and resolves "yesterday" as your last working day, so Monday standups cover Friday. On first install, prompts for additional MCPs (Slack, calendar) that can feed narrative context.
 
 `/flagrare:brag-doc` is standup-report's long-arc counterpart. Ask for a day, week, biweek, month, or custom range, and the skill clusters your activity (authored PRs, reviews given, commits, deploys, linked tickets) into 3-6 impact themes, then renders a brag-doc-formatted markdown document, headline, themed sections leading with outcomes, IC contributions separated from amplification, learnings, open threads, refs. The output drops into a dev journal, a personal bragging sheet, or a performance-review packet as-is. Pass `resumancer` as a mode argument (`/flagrare:brag-doc resumancer`) and the skill emits a bash block of ready-to-paste `resumancer` CLI commands instead, with command types (build / impact / reflection / goal) mapped from theme shape.
+
+`/flagrare:impact-timeline` is brag-doc at tenure scale. Point it at a whole job (or any multi-month window) and it walks the window one month at a time, sweeping every source that holds a trace of the work before it advances: GitHub, the ticket tracker, Slack, Notion, meeting notes, the company BI platform, Datadog, Sentry. The premise is that no single source survives the audit alone, trackers show what was planned, git shows what shipped, Slack shows the debugging and unblocking that never became a ticket, and meeting notes hold the praise and the numbers nobody wrote down anywhere else. Every claim then earns a **Measured by:** line, grouped Product, Technical, and Business, with the source and as-of date attached, small samples and clamped retention windows flagged in the text rather than quietly rounded away, and adjacent metrics explicitly refused as credit. It writes each month to disk as it finishes, so a run spanning a year survives its own length, and closes on a one-page synthesis with five interview stories in "accomplished X, measured by Y, by doing Z" form. Built for a departure record, a promotion packet, or a year in review; for anything shorter than a few months, `/flagrare:brag-doc` is the right tool.
 
 `/flagrare:senior-scan` scans your org's communication surfaces for openings to operate at the next level, decisions still being formed, people stuck or circling, discussions missing context only you have, cross-team changes touching systems you own. One read-only sweep agent per surface (chat, code review, docs and tickets, chosen at onboarding from the MCPs actually connected) feeds a five-axis score (leverage, credibility, stretch, audience, timing) behind a hard anti-performative filter: no leverage or no credibility kills an item no matter how visible the thread, because shallow drive-bys hurt the promotion case they were meant to build. Output is a max-5 digest with fully contextualized items and draft replies in your own voice (distilled from your real messages at onboarding), gated behind per-message approval. Posted contributions append to an evidence log that `/flagrare:brag-doc` consumes at review season.
 
