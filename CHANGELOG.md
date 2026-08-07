@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.33.0: 2026-08-07
+
+A whole tenure, month by month, with receipts.
+
+### New Skills
+
+- **`/flagrare:impact-timeline`**: builds a month-by-month career impact timeline across an entire tenure (or any multi-month window), the long-arc sibling of `/flagrare:brag-doc`. Each month is swept in every available source before the loop advances, GitHub, the tracker, Slack, Notion, meeting notes, the BI platform, Datadog, Sentry, on the premise that any single source badly undercounts a year of work: trackers hold what was planned, git holds what shipped, Slack holds the debugging and unblocking that never became a ticket, and meeting notes hold the praise and the numbers nobody wrote down elsewhere. Every claim then carries a "**Measured by:**" line grouped Product / Technical / Business, with the source and as-of date named, small samples and clamped retention windows flagged in the text, adjacent metrics refused as credit, and baselines never invented. Bulk enumeration runs once up front (authored and reviewed PR TSVs, bucketed locally), each month writes to disk as it completes so a year-long run survives mid-flight summarization, and a final meeting-notes sweep queries org context (layoffs, reorgs, the person's own departure sequence) through the very last day, because those events cluster at the end of a tenure and an early sweep misses them. Ships with `references/playbook.md`: per-source query recipes proven in a real full-tenure run (154 PRs, 8 sources), including the Mode/Snowflake API extraction pattern and the Granola bulk-query phrasings that recovered praise, assignments, and every all-hands number. Reads `/flagrare:senior-scan`'s contributions log as amplification evidence and reuses the shared flagrare config. Ends with a one-page synthesis and five interview stories in "accomplished X, measured by Y, by doing Z" form.
+
+### Improved Skills
+
+- **`/flagrare:brag-doc`, knows its ceiling**: the trigger description now routes windows longer than about a month, tenure retrospectives, and departure records to `/flagrare:impact-timeline`, mirroring the routing impact-timeline already does in the other direction. Before this, "prep my perf packet for the last six months" matched brag-doc's review-season triggers while its window menu tops out at "Last month".
+
 ## 1.32.0: 2026-08-05
 
 The review body learns to say what actually breaks.
