@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.34.0: 2026-08-07
+
+Precise and unreachable is still cryptic.
+
+### Improved Skills
+
+- **`/flagrare:pr-reviewer`, references the author can actually follow**: a comment now has to resolve for the person reading it, not just for the reviewer who wrote it. The skill already carried an anti-cryptic rule, and it kept catching the wrong failure: it targets unstated mechanism, telling you to spell out each link when the defect is a causal chain. Field-tested the hard way on a review where every comment stated its mechanism correctly and was still unreadable, because the nouns were unreachable. A design frame cited as a bare node id nobody can click, a sibling PR referenced by number with no gloss on what it changes, a prop that exists only on the reviewer's own unmerged branch, an acceptance criterion cited as "AC #1". Precise and unreachable is still cryptic, and the old rule had no opinion about it. A second rule now sits beside the brevity one: every proper noun in a comment, a PR, a ticket, a file, a symbol, a design frame, either resolves from the page the author is on or carries one clause of context. It ships with a table of the five reference types that rot this way, the before and after from the incident, and a closing pass that rereads each draft as the author, who has not seen your other tabs.
+
+- **`/flagrare:update`, survives a sandboxed shell**: the skill now says to run the update script with the agent sandbox disabled, and the script refuses to begin a destructive re-clone it cannot finish. Under Claude Code's default sandbox, `claude plugin marketplace update` fails on its first write to `~/.claude/plugins/`, the script falls through to its "remove stale cache and re-add" branch, and `rm -rf` then prints twenty-five lines of `Operation not permitted` while updating nothing. The quieter hazard was the one worth fixing: had the sandbox allowed a partial delete, `set -e` would have aborted mid-`rm` and left the marketplace strictly worse off than the stale cache that branch exists to heal. The script now probes the marketplace directory for writability before deleting anything and exits with two actionable lines instead of a wall of errors.
+
 ## 1.33.0: 2026-08-07
 
 A whole tenure, month by month, with receipts.
