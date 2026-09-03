@@ -206,6 +206,8 @@ Summary should be concise and action-oriented. If you have seen the ticket befor
 
 Titles pass the same three-reader bar as bodies, and they matter more, because the board shows nothing else. Plain language describing the outcome; no internal field names (`flip_back_at`), no coined shorthand ("sweep", "wire", "passthrough"), nothing that requires the meeting. "Hourly job: put things back on sale when their return time passes" beats "Sold-out sweep: flip past-due rows back". If the title needs the body to be understood, rewrite the title.
 
+Write the title in the reporter's vocabulary, not the investigation's. After debugging, the mechanism feels like the point; it isn't, the reader recognizes the symptom. For bugs, the title states what the user sees, quoting the on-screen error text when it's short: `Modifier saves show "Could not save" errors for changes that actually saved` beats `Save reports failure even though the write committed`. Words like "committed", "read-back", "misclassifies" belong in the body, never the title.
+
 ---
 
 ## Issue Types
@@ -227,7 +229,7 @@ Each template has an optional grounding subsection populated from `/flagrare:cod
 
 ```markdown
 ## Goal
-[One-liner: what this delivers and why it matters.]
+[One or two sentences, symptom first: what the user sees or can't do today, in their words (quote the actual error/UI text when short), then what done changes. Direct and concrete; no abstract outcome language like "report correctly" or "handle gracefully" when a real quote or example exists.]
 
 ## Context
 [2 to 4 sentences. Orient the reader: what part of the project, what needs to change, the end result. Link the TDD/spec instead of restating it, assume the reader opens that link. Do not reproduce the spec here.]
@@ -373,6 +375,7 @@ Specific and testable:
 - [ ] A teammate could read it without you in the room and know why it matters and what done looks like.
 - [ ] Opens with the plain-language product story (what the user does → what goes wrong today → the slice this ticket owns).
 - [ ] Passes the three-reader test: a junior dev knows exactly what to build, a PM sees the value, a manager gets it from the Goal alone.
+- [ ] Title and Goal pass the symptom test: they say what the user sees (quoting real error/UI text when short), not the mechanism the investigation found.
 - [ ] No unglossed acronym or team shorthand; nothing that requires having been in the meeting.
 - [ ] No decision provenance ("decided at X meeting", dates of syncs); decisions stated as facts with a link to the write-up.
 - [ ] Identifiers carry code marks and links have text; the push will render rich, not flat.
