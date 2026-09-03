@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.35.0: 2026-09-03
+
+The title says what the user saw, not what the debugger found.
+
+### Improved Skills
+
+- **`/flagrare:ticket-creator`, symptom-first titles and goals**: after an investigation, the mechanism feels like the point, so it leaks into the two lines everyone reads. Field-tested the hard way on a bug ticket that went out titled "Saving modifier changes reports failure even though the save committed", with a goal promising the save would "report success when the write commits": vocabulary straight from the debugging session, meaningless on a board, while every reader would have recognized the actual toast, "Could not save... Refresh and try again". The reviewer's verdict was one word, "floreia demais". Three changes close the gap. The title convention now demands the reporter's vocabulary and, for bugs, the on-screen error text quoted when short; "committed", "read-back", and their cousins are banished to the body. The Goal template drops "what this delivers and why it matters", an invitation to abstraction, for symptom-first: what the user sees today, in their words, then what done changes. And the pre-present self-check gains a symptom test for title and Goal specifically, because the write-docs polish pass is scoped to Context and never touches either.
+
 ## 1.34.0: 2026-08-07
 
 Precise and unreachable is still cryptic.
