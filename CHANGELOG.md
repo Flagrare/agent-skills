@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.36.0: 2026-09-10
+
+Two branches, one browser, and the numbers to prove which one moved.
+
+### New Skills
+
+- **`/flagrare:visual-diff-branches`, before/after evidence for a styling PR**: answers "what does this branch change on these pages" with the same pages captured on each ref, pixel-diffed to show where, and measured with computed styles to show what. Born on a design-system tokens PR that had to be checked against the SKU pages before it landed: no image library on the machine, a login session that expired mid-run and turned every later shot into a login page, one venue URL that fired a logout call and took the rest of the matrix down with it, a dev server that compiled twice per checkout, and a "regression" that turned out to be a main fix the branch had not picked up yet. Every one of those is now a step or a script. The scripts run on the Chromium the project already ships (Playwright resolved from the project, not the skill), a per-project `shots.mjs` names the pages, locales, viewports and measurement targets, and the report shape separates regressions from deliberate divergences from the design and from gaps that were already there. Tested against an agent without the skill, which reached for a full clone plus a second dev server, an npm install of pixelmatch, and an SCSS diff in place of measurements; with the skill loaded it did none of that.
+
 ## 1.35.0: 2026-09-03
 
 The title says what the user saw, not what the debugger found.
