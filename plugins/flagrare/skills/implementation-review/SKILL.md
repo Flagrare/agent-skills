@@ -169,7 +169,7 @@ Scan for:
 | Magic values | Bare literals with semantic meaning: `if (index >= 99)`, `setTimeout(fn, 3000)`, `"choice:made"` repeated in multiple files. Every meaningful literal must be a named constant. |
 | Function does more than one thing | If "and" is required to describe what it does, it should be split. |
 | Unqualified generic names | `data`, `info`, `result`, `value`, `temp`, `manager`, `handler`, `helper` without qualification. |
-| What-comments | Comments that restate the code (`// increment the index` above `index++`). Only keep *why* comments: hidden constraints, workarounds, non-obvious invariants. |
+| Comments | Flag every comment in the diff that is not a trap-preventer: one where deleting or moving the code it sits on would look like a safe cleanup and break something the reader cannot see. What-comments, provenance ("on purpose", "the design says"), file headers, citations to tickets or docs, and test narration all fail that test, even when they read as a *why*. `/flagrare:wrap-up` Step 3 does the deleting; this check only reports. |
 | Half-finished surfaces | Any exported symbol with `TODO`, a stub body `{ return null; }`, or "implement later". |
 | Long parameter lists | More than 3-4 positional parameters, group into an options object. |
 
