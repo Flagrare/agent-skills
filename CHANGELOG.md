@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.37.0: 2026-09-11
+
+The comment that explains itself is the one the reviewer asks you to delete.
+
+### Improved Skills
+
+- **`/flagrare:wrap-up`, comment cull as an action, not a finding**: the gate used to inherit its comment standard from implementation-review's Clean Code check, which flagged what-comments and let anything that read as a *why* through. Field-tested the hard way on a redirect PR that passed every gate and still drew two review comments, both on comments: a header block in an e2e ids file explaining what each fixture was and how to find a replacement, and a note in a test file saying it lived alone "on purpose" because React logs a key warning once per session. Both were whys. Both were provenance. The reviewer's question was "do you think this file needs all these comments?", and the answer was no. Wrap-up now carries its own Step 3, before the supplementary review: enumerate every comment the diff adds, keep only the trap-preventer, the one where deleting or moving the code it sits on would look like a safe cleanup and break something the reader cannot see, and delete the rest without asking. The step names what always goes whatever it says about itself (what-comments, "on purpose" and "the design says", file headers, citations, test narration), forbids trimming a comment into survival, and asks first whether the constraint can live in a name, a test title, or an assertion message so the comment is not needed at all. Deletions and survivors land in the combined report with one line each, so a veto is one sentence, and they stay off the fix menu because they are already applied. Implementation-review's Check 6 row now states the same test, so the two skills stop disagreeing about what a keepable why is: Check 6 reports, wrap-up deletes.
+
 ## 1.36.0: 2026-09-10
 
 Two branches, one browser, and the numbers to prove which one moved.
