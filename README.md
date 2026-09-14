@@ -56,7 +56,7 @@ After this one-time bootstrap, `/flagrare:update` works for all future versions 
 
 `/flagrare:staleness-audit` diffs your staged changes against the repo's documentation surfaces (README, ADRs, public exports, doc comments, test names, changesets) and flags drift before it lands in history.
 
-`/flagrare:implementation-review` launches seven parallel subagents: plan-gap detection, use-case coverage, missing test scenarios, test philosophy (Kent Dodds Testing Trophy), SOLID violations, Clean Code violations, and security. The security check pulls in `/flagrare:security-audit`.
+`/flagrare:implementation-review` launches seven parallel subagents: plan-gap detection, use-case coverage, missing test scenarios, test philosophy (Kent Dodds Testing Trophy), SOLID violations, Clean Code violations, and security. The security check pulls in `/flagrare:security-audit`. Every check reports its coverage, and a check with unexplained skips cannot report clean.
 
 `/flagrare:security-audit` is the collection's security pass. It reviews the staged diff for HIGH-confidence, concretely exploitable vulnerabilities (injection, broken authn/authz, secrets and data exposure, unsafe deserialization, crypto misuse, SSRF), scoped to the change plus its trust boundary, and audits dependencies with the repo's own package manager when a lockfile moved (degrading to an advisory flag when the auditor is not installed). Every finding carries a concrete exploit path; theoretical noise is dropped. Runs as Check 7 of `/flagrare:implementation-review` and standalone on demand.
 
@@ -72,7 +72,7 @@ After this one-time bootstrap, `/flagrare:update` works for all future versions 
 
 ### Review
 
-`/flagrare:pr-reviewer` fetches linked Jira tickets, Figma designs, and Notion docs via MCP, then spawns five parallel subagents for systematic code review (correctness, security, tests, SOLID, clean code). Every subagent finding is confirmed against the actual code before it earns a comment, so inflated severity and invented line numbers never reach a colleague's PR. What survives becomes friendly, humanized GitHub comments, each marked introduced or pre-existing, posted as a pending review you submit yourself.
+`/flagrare:pr-reviewer` fetches linked Jira tickets, Figma designs, and Notion docs via MCP, then spawns five parallel subagents for systematic code review (correctness, security, tests, SOLID, clean code). Every subagent finding is confirmed against the actual code before it earns a comment, so inflated severity and invented line numbers never reach a colleague's PR, and every finding dropped in that pass names the fact that disproved it. Each subagent reports which files it covered, so a review that quietly skipped half the diff cannot read as a clean one. What survives becomes friendly, humanized GitHub comments, each marked introduced or pre-existing, posted as a pending review you submit yourself.
 
 `/flagrare:open-pr` creates a pull request that follows the repo's PR template. It reads `.github/PULL_REQUEST_TEMPLATE.md`, fetches linked tickets for context (tracker-agnostic), and fills each section with narrative prose (not file enumerations). Descriptions explain what changed from both a product and code perspective, link relevant tickets, and include specific testing notes.
 

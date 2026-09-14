@@ -39,6 +39,14 @@ Spawn all seven subagents simultaneously using `model: "sonnet"`. Each subagent 
 
 Do not run checks sequentially in the main agent. Spawn → collect → synthesise.
 
+**Rules every brief below inherits.** Paste these into each subagent's prompt ahead of its brief. They are adapted from the review prompts in alibaba/open-code-review; the teardown is at [`docs/research/2026-09-14-open-code-review-teardown.md`](../../../../docs/research/2026-09-14-open-code-review-teardown.md).
+
+- **Report your coverage, in your check's unit.** Open your report with one line: what you were given, what you examined, what you skipped with a one-phrase reason each. Files for the code checks (3 through 7), plan items for Check 1, use cases for Check 2. A file whose hunks you did not read is skipped, not examined. Examining an implementation file does not cover its interface, its config, its type declarations, or its barrel export; the secondary file is where contract drift hides, and it is the one most often skipped.
+- **Reading is unbounded, findings are not.** Read whatever you need to understand the change, including files outside the diff. The set of code you *evaluate* stays exactly as your brief says (Check 4 judges test files only, Check 5 non-test files only). File findings only against code inside the staged diff; deleted lines are reference context, not a target.
+- **Write when the evidence is sufficient.** Once you can cite the construct and say what is wrong with it, write the finding and move on. Never call the same tool twice with the same arguments. There is no verification step behind you, so do not stop short of the evidence either.
+- **Finding nothing is a result.** If a sweep turns up nothing real, report the check clean and finish. Do not keep probing for marginal findings, and do not manufacture one to prove you read the diff; your coverage line is that proof, and it is what makes a clean check credible. An invented finding costs more than a missed one, because it trains the reader to skim the whole report.
+- **Every finding cites its construct.** File, line, and the code you are talking about. A finding without a citation is a hunch, and hunches do not leave the subagent.
+
 ---
 
 ### Subagent brief: Check 1: Plan gap analysis
@@ -196,6 +204,8 @@ After all seven subagents return, merge their findings into this format:
 ```
 Implementation review, [commit subject or staged file summary]
 
+Coverage: N staged files. Per check: 3 N/N · 4 N/N · 5 N/N · 6 N/N · 7 N/N; Check 1 N/N plan items; Check 2 N/N use cases. Skipped: <item> (<check>, <reason>). Omit the skipped clause if none.
+
 Check 1 · Plan gaps
   ✓ All phase items present  |  ✗ Gap: [item], [present/partial/absent]
 
@@ -220,6 +230,8 @@ Check 7 · Security
 Summary: [N findings, fix before committing / Clean, proceed]
 ```
 
+If any check skipped an item without a reason, the Summary line says so and cannot read "Clean, proceed". Unexplained partial coverage is not a clean review.
+
 If a finding is **blocking** (plan gap, philosophy violation on a public API test, SOLID violation that breaks extensibility, a HIGH or MEDIUM security vulnerability), fix it before committing unless the user explicitly overrides.
 
 If a finding is **advisory** (a test name that could be clearer, a slightly long function), surface it but do not block.
@@ -233,7 +245,7 @@ If a finding is **advisory** (a test name that could be clearer, a slightly long
      ↓
 /flagrare:staleness-audit    ← docs drift, TSDoc, export sync, stale markers
      ↓
-/flagrare:implementation-review   ← THIS SKILL (6 parallel subagents)
+/flagrare:implementation-review   ← THIS SKILL (7 parallel subagents)
      ↓
 git commit
      ↓
@@ -251,4 +263,6 @@ git commit
 - Don't report a Check 7 security finding without a concrete exploit path, theoretical vulnerabilities are noise that trains the reader to skip the whole report.
 - Don't fail Check 7 when the dependency auditor is missing, degrade to an advisory flag.
 - Don't report "✓ clean" without the subagent actually reading the diff.
+- Don't report a check clean when its coverage line shows unexplained skips. The coverage line is what makes clean credible.
+- Don't invent a finding to prove the diff was read; the coverage line does that.
 - Don't run checks sequentially, the point of subagents is parallel execution.

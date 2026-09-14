@@ -74,6 +74,14 @@ Spawn **five review subagents in parallel** using `model: "sonnet"`. Each receiv
 
 Do not run these checks sequentially. Spawn all five simultaneously, collect results, then synthesise.
 
+**Rules every brief below inherits.** Paste these into each subagent's prompt ahead of its brief. The coverage, scope and evidence rules here, and the evidenced-drop rule in Step 5, are adapted from the review prompts in alibaba/open-code-review; the teardown is at [`docs/research/2026-09-14-open-code-review-teardown.md`](../../../../docs/research/2026-09-14-open-code-review-teardown.md).
+
+- **Report your coverage.** Open your report with one line: files seen, files reviewed, files skipped with a one-phrase reason each. A file whose hunks you did not read is skipped, not reviewed. Reviewing an implementation file does not cover its interface, its config, its type declarations, or its barrel export; the secondary file is where contract drift hides, and it is the one most often skipped.
+- **Reading is unbounded, findings are not.** Read whatever you need to understand the change, including files outside the diff. File findings only against code inside the diff. A problem on a line the author did not touch is context you gathered, not a finding.
+- **Spend your calls on evidence, not on certainty.** Budget roughly two or three tool calls per finding. Once you can cite the construct and say what is wrong with it, write the finding and move on; the main agent verifies every finding after you report it. Never call the same tool twice with the same arguments.
+- **Finding nothing is a result.** If a sweep turns up nothing real, say so and finish. Do not keep probing for marginal findings, and do not manufacture one to prove you read the diff; your coverage line is that proof. An invented finding costs more than a missed one, because it trains the reader to skim the whole report.
+- **Every finding cites its construct.** File, line, and the code you are talking about. A finding without a citation is a hunch, and hunches do not leave the subagent.
+
 ---
 
 #### Subagent 1: Correctness & Logic
@@ -170,15 +178,15 @@ Layer additional review based on the fetched context:
 
 ### Step 5: Verify Every Finding Before Drafting
 
-**Subagent output is a lead, not a finding.** Do not draft a comment from a subagent report you have not confirmed yourself. Agents overstate severity, mistake convention for defect, and occasionally invent a line number. A wrong finding posted on a colleague's PR costs more than a missed one.
+**Subagent output is a lead, not a finding.** Do not draft a comment from a subagent report you have not confirmed yourself. Agents overstate severity, mistake convention for defect, and occasionally invent a line number. A wrong finding posted on a colleague's PR costs more than a missed one. The rule is the same at both stages: no finding is reported without the construct it cites (Step 3), and no finding is dropped without the fact that disproved it (this step).
 
 For each reported finding, before it earns a comment draft:
 
 1. **Read the actual code** at the cited file and line. Confirm the construct is really there and really does what the report says.
 2. **Check the claim's load-bearing premise.** If a report says "this branch is untested", grep for the test. If it says "this violates the module rule", read the rule. If it says "this breaks callers", find the callers.
 3. **Check for a sibling precedent.** Does the pre-existing equivalent do the same thing? If yes, it is `(pre-existing)` and the severity usually drops. A "CRITICAL: no tests for this adapter" collapses when the adapter it was modelled on has no tests either.
-4. **Reproduce the reasoning for anything security or concurrency related.** Walk the interleaving yourself. State the ordering that produces the bad outcome. If you cannot construct it, the finding does not ship.
-5. **Kill it if it does not survive.** Report the drop to the user in one line rather than silently padding the review.
+4. **Reproduce the reasoning for anything security or concurrency related.** Walk the interleaving yourself. State the ordering that produces the bad outcome. If you cannot construct it, the finding does not ship as an assertion. When the downside-if-true is critical (a race, a security hole, data loss), it may ship as a genuine question that states the specific mechanism you suspect and why you could not confirm it. At most one or two of these per review; more than that and they become the faux-questions Step 6 forbids.
+5. **Kill it if it does not survive, and say what killed it.** A drop cites the specific fact that disproved it: the test it claimed was missing, by file and line; the caller it claimed would break, unbroken; the sibling that does the same thing. "Could not confirm" is not a reason to drop, it is a reason to soften (rule 4) or to state the uncertainty in the draft. Report every drop to the user in Step 7 rather than silently padding the review.
 
 Also verify the author's own claims where a finding depends on them. PR descriptions that argue a design decision at length are usually right, and checking beats assuming in both directions: a claim that checks out is worth one clause of confirmation, and a claim that doesn't is often the most valuable thing in the review.
 
@@ -342,6 +350,9 @@ GitHub comment: I don't see a test for the cancelled path. The sibling suites sk
 - Figma: <file/frame> (or "not linked")
 - Notion: <page> (or "not linked")
 
+### Coverage
+- N files in the diff. Per subagent: correctness N/N, security N/N, tests N/N, SOLID N/N, clean code N/N. Skipped: <file> (<which subagent>, <reason>). Omit the skipped clause if none.
+
 ### Overall Assessment
 [One paragraph: what the PR does, whether it aligns with the ticket/design, and the verdict: approve / approve with feedback / needs work]
 
@@ -350,7 +361,7 @@ GitHub comment: I don't see a test for the cancelled path. The sibling suites sk
 [Each finding: severity, file, line, (introduced|pre-existing), and its GitHub comment draft]
 
 ### Dropped in verification
-[Any subagent finding that did not survive Step 5, one line each. Omit the section if none.]
+[Each: the finding, and the specific fact that disproved it. Omit the section if none.]
 
 ### Checklist
 - [ ] Logic correct and edge cases handled
@@ -363,6 +374,8 @@ GitHub comment: I don't see a test for the cancelled path. The sibling suites sk
 ```
 
 The "what the PR does" clause in the Overall Assessment is orientation **for the user**. It does not go on GitHub.
+
+If any subagent skipped a file without a reason, the verdict says so in its first sentence. A review with unexplained partial coverage does not get to read as a clean review.
 
 **B. The GitHub review body is one paragraph.** It opens on the thing you'd want fixed, then covers what's fine in a clause. A second short paragraph is allowed only for findings that have no line to anchor to (a wrong claim in the PR description, a stale response shape).
 
@@ -416,6 +429,7 @@ gh api --method POST /repos/{owner}/{repo}/pulls/{n}/reviews --input review.json
 `review.json` is `{"body": "...", "comments": [{"path", "line", "side": "RIGHT", "body"}, ...]}`.
 
 - Anchor every comment on a line that is **added in the diff**. Verify before posting: parse the diff's `@@` hunks for added-line numbers, or check `position` and `diff_hunk` on the created comments.
+- **When a comment will not anchor, do not drop it.** Re-derive the target by copying the lines verbatim from the diff and stripping the leading markers, then find that range in the hunks. If it still will not anchor (the finding is about an absence, or the file has no added lines), fold it into the review body. Do not post it as a standalone file-level comment: that endpoint posts immediately and bypasses the pending-review gate. A finding that survived Step 5 never disappears for a mechanical reason.
 - Report the review ID and the anchored lines back, then let the user submit.
 - To submit on request: `POST .../reviews/{id}/events -f event=COMMENT|REQUEST_CHANGES|APPROVE`. Recommend an event, but the user chooses.
 - To revise after posting: `PATCH /repos/{owner}/{repo}/pulls/comments/{comment_id}` for a comment, `PUT .../pulls/{n}/reviews/{id}` for the body. Both work after submission.
@@ -431,6 +445,8 @@ gh api --method POST /repos/{owner}/{repo}/pulls/{n}/reviews --input review.json
 - Don't post comments to the PR without explicit user approval. Always draft first.
 - Don't run subagents sequentially. The whole point is parallel dispatch.
 - Don't trust a subagent finding you haven't confirmed in the code yourself (Step 5).
+- Don't drop a finding without naming the fact that disproved it. "Could not confirm" softens a finding; it does not kill one.
+- Don't present a review as clean when a subagent skipped files without saying why.
 - Don't shorten a comment by dropping its subject. Cut sentences, not grammar.
 - Don't open the review body by describing the PR to the person who wrote it.
 - Don't quote the author's stated goal back at them as evidence they missed it.

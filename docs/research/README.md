@@ -6,6 +6,7 @@ External research conducted for this project. Each entry credits the sources it 
 
 | Date | Topic | Triggered by | Informed |
 |------|-------|--------------|----------|
+| 2026-09-14 | [Open Code Review teardown: what our review skills should absorb](./2026-09-14-open-code-review-teardown.md) | Reading `alibaba/open-code-review` (Apache-2.0) to see what its review prompts solve that our skills leave to model judgement | pr-reviewer (shared subagent rules, evidenced drops, coverage, anchor fallback); implementation-review (shared subagent rules, coverage) |
 | 2026-07-03 | [Prior art for a whole-document "human editor" prose-review skill](./2026-07-03-editorial-pass-prior-art.md) | Designing `/flagrare:editorial-pass` (whole-document editorial reading + agent-noise deletion categories) | editorial-pass skill |
 | 2026-06-23 | [What a product engineer is, and working backwards from experience](./2026-06-23-product-engineering.md) | Designing the `experience-grill` skill (the product front-half of the pipeline) | `experience-grill` SKILL.md |
 | 2026-06-11 | [Kent Dodds' testing philosophy, generalized across languages and layers](./2026-06-11-kent-dodds-testing-philosophy.md) | Strengthening test-proposing/reviewing skills on e2e necessity + behavior-over-implementation | testing-philosophy skill; atdd-plan, implementation-review, tdd-writer, wrap-up |
