@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.38.0: 2026-09-14
+
+A clean review and a review that skipped half the diff look identical from the outside.
+
+### Improved Skills
+
+- **`/flagrare:pr-reviewer`, evidence at both ends, and coverage you can see**: the five subagents were handed the full PR diff and trusted to finish it, and nothing in their output told a subagent that read fourteen of twenty files apart from one that read all twenty. The fix came from reading the review prompts in alibaba/open-code-review, which make coverage a hard output and split what a reviewer may read from what it may comment on. Every subagent now opens with a coverage line (files seen, reviewed, skipped with a reason), reads whatever it needs but files findings only inside the diff, writes a finding as soon as it can cite the construct rather than gathering more, and is allowed to find nothing, with the coverage line as the proof it looked. Step 5 gained the matching half: a dropped finding has to name the fact that disproved it (the test it said was missing, by file and line; the caller it said would break, unbroken), and "could not confirm" softens a finding instead of killing it. When the downside-if-true is critical, an unconfirmed finding ships as a genuine question stating the mechanism suspected, capped at one or two per review so it never decays into the faux-question tic Step 6 forbids. Step 8 stops losing verified findings for mechanical reasons: a comment that will not anchor on an added line folds into the review body rather than vanishing. The chat summary shows per-subagent coverage and evidenced drops, and a review with unexplained skips cannot read as clean. The teardown, with five larger ideas still open (iterative deepening with a deliberate plan strip, path-scoped coupling rules, a standing assurance case), is in `docs/research/2026-09-14-open-code-review-teardown.md`.
+
+- **`/flagrare:implementation-review`, the same subagent rules, minus the budget**: all seven checks inherit coverage reporting in their own unit (files for the code checks, plan items for Check 1, use cases for Check 2), read-anything-but-file-only-inside-the-diff, cite-your-construct, and explicit permission to report clean. Deliberately no tool-call ceiling: pr-reviewer's subagents have Step 5 behind them, these do not, and a cap with no verifier downstream trades accuracy for cost. The Summary line cannot say "Clean, proceed" over unexplained skips.
+
 ## 1.37.0: 2026-09-11
 
 The comment that explains itself is the one the reviewer asks you to delete.
