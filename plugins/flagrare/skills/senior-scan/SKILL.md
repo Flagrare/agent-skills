@@ -27,7 +27,7 @@ The scan is **read-only**. Sweep agents must never post, react, comment, or appr
 
 Config lives in the shared **`~/.claude/skills/flagrare/config.json`**: skill-agnostic keys (GitHub login, display name, repo scope) at the top level, senior-scan keys under `skills["senior-scan"]`. Mutable files live in **`~/.claude/skills/flagrare/senior-scan/`** (`state.json`, `contributions.log.md`, `voice.md`), outside the plugin tree so they survive plugin updates.
 
-In Bash, expand `~` explicitly and `mkdir -p "$HOME/.claude/skills/flagrare/senior-scan"` before writing.
+Write these files (and `config.json`) with the Write tool, never from Bash: a sandboxed Bash cannot write under `~/.claude/skills`, and a failed state write silently breaks dedupe across runs. Reading them from Bash is fine; expand `~` explicitly as `$HOME`.
 
 If `skills["senior-scan"].onboarding_complete` is not `true`, run onboarding. Reuse any top-level keys another flagrare skill already collected (ask only for what's missing), and only write the `skills["senior-scan"]` block plus missing top-level keys; leave other skills' blocks untouched.
 
@@ -112,30 +112,43 @@ Score each candidate 0-2 on five axes:
 
 ### 4. Present the digest
 
-The user has not read these threads. Contextualize fully; never assume they know what a thread is about.
+The digest is a to-do list, not a report. The user should know what to do from the table alone, and read an item's block only when they act on it. The user has not read these threads, so every item still says what is happening, but in one sentence, not a paragraph.
+
+Do not relay each sweep's findings as it lands; the digest is the only output. When a status line is forced (a sweep finishing, the harness asking for an update), give one line naming the sweeps still running, with no findings.
 
 ```
-## Senior scan: <date>, window <X>h  <note any configured surface skipped because its MCP was unavailable>
+## Senior scan: <date>, <window>. <one line of caveats: surfaces skipped, state not saved>
 
-### 1. <One-line headline of the opportunity>
-**Where:** <channel or repo#PR, as a link>
-**What's happening:** <2-4 sentences: who, what's being discussed or changed, where it stands>
-**Why you:** <the specific gap the user fills, plus which target behavior this exercises>
-**Suggested angle:** <one sentence: the substance of what to say>
-**Draft:**
-> <draft reply or review comment, following the drafting rules>
+| # | Action | Why it matters | Where | Next step |
+|---|---|---|---|---|
+| 1 | <verb-first action, under 10 words> | <impact, max 12 words> · <target behavior> | [<short label>](<url>) | Send draft |
+| 2 | Answer whether the dual-write order email fired | A partner got no email for real orders · unblocking others | [#sku-foundation](<permalink>) | Check first: trace the partners-service order notification path for dual-write venues |
+
+### 1. <same verb-first action>
+<one sentence: what is happening and where it stands>. <one sentence: why you, naming the fact or context only you bring>.
+> <draft, at most 3 sentences>
 
 (repeat per item)
 
-### Skipped but notable
-- <one line each for 2-5 near-misses and why they were cut; this keeps the filter honest and tunable>
+**Cut:** <near-miss, reason>; <near-miss, reason>; ...
 ```
+
+Rules that keep it scannable:
+
+- **Actions start with a verb and name the move**: "Flag missing `ignoreInternalError` on #8051", not "Item report error handling".
+- **"Why it matters" says what changes if the user acts, then the behavior it exercises.** The impact is 12 words at most, the concrete outcome ("stops a 502 blanking a page before launch", "a modifiers decision is being made without the person who designed them"), never the score or a restatement of the action. After a `·`, name the configured target behavior in two or three words ("quality bar", "unblocking others"). Rows are ordered by score, so this column is what explains the ranking.
+- **"Where" is a short linked label** (`[pf #8051](url)`, `[#channel](permalink)`), never a bare URL, which would blow the table's width.
+- **Every item ends in a next step.** Either a draft ready to send, or `Check first:` with the single concrete check (a query, a code path to trace) that would make a draft safe. Never a draft built on a claim that has not been verified.
+- **No field labels in item blocks** ("What's happening:", "Why you:", "Suggested angle:"). The two sentences and the draft carry all of it.
+- **Evidence goes inside the draft, not before it.** If the draft already cites `file:line`, the block does not repeat it.
+- **Near misses fit on one line.** A short reason each, so the filter stays honest and tunable without adding a section.
+- **Stop after the cut line.** No closing summary. Ask only which items to act on.
 
 ### 5. Drafting rules
 
 Read `voice.md` first if it exists; its observed rules win over the generic ones. Generic floor, applied always:
 
-1. **Short and direct.** A few sentences, no preamble, no "Great discussion!", no wrap-up flourish.
+1. **Short and direct.** Three sentences at most, no preamble, no "Great discussion!", no wrap-up flourish.
 2. **No LLM tells.** No em-dashes, no "aligns with", no rule-of-three constructions, no self-congratulation.
 3. **First person, explicit.** "I ran into this", never "Ran into this".
 4. **Hedge pushback collaboratively, without interrogating.** State the concern plainly with its evidence and admit possible missing context. A closing question is for genuine uncertainty, when you actually need the author's context to resolve the point, not a mandatory sign-off: ending every draft with "does that match your understanding?" reads as a tic, and a faux-question that is really an assertion ("am I reading this right that this is unused?") reads passive-aggressive, which is worse than asserting. When the evidence is on the table and you are confident, say the thing and stop.
@@ -147,7 +160,7 @@ Read `voice.md` first if it exists; its observed rules win over the generic ones
 
 ### 6. Update state and the evidence trail
 
-After presenting, write `state.json`: update `last_run`, append surfaced items with `status: "surfaced"`.
+After presenting, write `state.json` with the Write tool: update `last_run`, append surfaced items with `status: "surfaced"`. If the write fails, say so in the digest's caveat line, since the next run will re-surface the same items.
 
 When the user approves and posts a contribution (or says they handled it), set that item's status to `"contributed"` and append to `contributions.log.md`:
 
