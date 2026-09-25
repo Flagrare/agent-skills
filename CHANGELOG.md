@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.39.0: 2026-09-25
+
+A digest you have to read before you can act on it is a report, and nobody asked for a report.
+
+### Improved Skills
+
+- **`/flagrare:senior-scan`, a to-do list instead of a briefing**: the digest opened each item with four labelled fields (Where, What's happening, Why you, Suggested angle) before the draft, then closed with a separate near-misses section. Field-tested the hard way on a seven-day run that surfaced five good items and still read as a wall: two of the five had no draft at all because the claim behind them was unverified, and that fact was buried in the last paragraph of each block. The digest now opens with a table, one row per item: a verb-first action, a "why it matters" cell that names what changes if you act and which target behavior it exercises, a short linked label, and the next step. The next step is either "Send draft" or "Check first:" with the single concrete check that would make a draft safe, so an item you cannot act on yet says so in the row. Item blocks shrink to two sentences plus a draft of at most three, near misses fit on one "Cut:" line, and sweep results are no longer relayed as each sweep lands.
+
+- **`/flagrare:senior-scan`, state that actually saves**: the skill told the model to write `state.json` from Bash, and a sandboxed Bash cannot write under `~/.claude/skills`. The write failed with "Operation not permitted", so nothing recorded what had been surfaced and every run would show the same items again. State, config and the contributions log are now written with the Write tool, which goes through the permission prompt, and a failed write shows up in the digest header instead of disappearing.
+
 ## 1.38.0: 2026-09-14
 
 A clean review and a review that skipped half the diff look identical from the outside.
