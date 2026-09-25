@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.41.0: 2026-09-25
+
+A ticket that retells the epic is a ticket nobody finishes reading.
+
+### Improved Skills
+
+- **`/flagrare:ticket-creator`, say it once**: the "Write for three readers" rules told every ticket in a backlog to repeat the feature's one-line story and to gloss jargon "in every ticket". Field-tested the hard way on a 26-ticket backlog: every ticket opened with the same two sentences about who can't do what today, about 1,000 of its 6,600 words, and each one then previewed its own bullet list in Context and restated it in the acceptance criteria. The product story and the shared glossary now live in the epic; a backlog ticket's Goal is one sentence about its own slice, while standalone tickets (bugs, one-offs) still open with the story. A new "Say it once" section and self-check: Context says why, not the change again; criteria describe done from the outside instead of restating the bullets; a caveat lives in one section; long dependency lists get summarized. And tickets are named by what they do, never by local file number (`05-...`), in text, dependency lines, the epic or any chart, because nobody memorizes those numbers and they don't exist in the tracker.
+
+### Tooling
+
+- **`scripts/bump-version.py`**: sets the plugin version, verifies the result is valid JSON, and recovers the last good `plugin.json` from git if the working copy is empty. v1.39.1 and v1.40.1 both shipped `plugin.json` as an empty file after hand edits; this release restores it and gives releases one safe way to bump.
+
 ## 1.40.1: 2026-09-25
 
 A row you can only read if you ran the scan yourself is a note to self, not a digest.
