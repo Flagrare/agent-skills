@@ -297,6 +297,8 @@ What the pairs are showing:
 - Hedges: "probably", "might be worth", "totally up to you", "if we get a chance".
 - Severity in the opener: "Heads up" for must-fix, "small thing" or "would be good" for nice-to-haves.
 
+**Vary the openers across one review.** The phrases above are examples, not a template. Reuse one on every comment of the same severity and a review of three nits reads "Small thing: ... Small thing: ... Small thing: ...", which is the tell of a form being filled in, not a person reading code. Before Step 7, read the drafts' first words side by side: no two comments in one review open with the same phrase, and at most one opens with a severity label at all. The rest open straight on the observation ("We cover X, but not Y", "`SkuOrderReportsPage.js` already has a `SummaryTile` that..."), letting a hedge later in the sentence ("might be worth", "totally up to you", "if we get a chance") carry the severity. Other openers to rotate in when a label is warranted: "Minor one:", "Nit:", "Optional, but", "One more thought:".
+
 **Humanization rules (apply to every comment):**
 - No em dashes. Use commas, periods, or parentheses.
 - No rule of three.
