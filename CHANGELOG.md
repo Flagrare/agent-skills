@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.40.1: 2026-09-25
+
+A row you can only read if you ran the scan yourself is a note to self, not a digest.
+
+### Improved Skills
+
+- **`/flagrare:senior-scan`, context before the ask**: the digest table from 1.39.0 was scannable but assumed a reader who had just watched the sweeps. Field-tested the hard way when the remaining items were re-listed mid-session after two PR reviews and a merge: rows like "Flag the same `ignoreInternalError` gap on the approved peak-times PR" and a Where cell reading "pf #8025" left the reader asking what any of it was about. The table now opens with a "What's going on" column, one plain sentence of at most 25 words saying whose thing it is, what it is in product terms, and where it stands, with the link on the thing's name in place of the old Where column. Table cells now use product terms rather than code: no PR numbers, ticket keys, channel ids, function names or flags, and each row says what breaks for whom. Code identifiers and `file:line` stay in the item block and the draft. When items are re-listed later in a session, each row is rebuilt for a cold reader, never shortened to "the same gap".
+
 ## 1.40.0: 2026-09-25
 
 The team already showed how it cuts work; now the skill looks before it slices.
