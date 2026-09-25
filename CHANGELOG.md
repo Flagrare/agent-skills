@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.40.0: 2026-09-25
+
+The team already showed how it cuts work; now the skill looks before it slices.
+
+### Improved Skills
+
+- **`/flagrare:ticket-creator`, backlogs that follow the team's precedent**: the skill decomposed every spec by its own defaults, 2-3 day tickets split by layer, whatever the team actually does. Field-tested the hard way on a TDD backlog that came out as 10 tidy tickets, when the squad's latest backlog had about 40 one-to-two-PR tickets and the sibling feature's epic split the work per modal view, per page integrated, with tracking, email, admin UI, QA validation and post-rollout monitoring each on their own. The author's verdict before reading a single ticket: "you haven't broken this down enough." A new Step 0.25 now reads two things before any slicing: the previous epic for the same or a sibling feature (its seams, the cross-cutting tickets it carved out, and the tickets it had to add late, which are the gaps to pre-empt), and the team's own latest backlog (its working model, prefixes and numbering). The precedent becomes the default, deviations get one line in the INDEX, and the 2-3 day rule drops back to a fallback for teams with no visible convention.
+
+### Fixed
+
+- **Plugin manifest restored**: the 1.39.1 release commit left `plugins/flagrare/.claude-plugin/plugin.json` empty instead of bumping its version. It is back, at 1.40.0.
+
 ## 1.39.1: 2026-09-25
 
 Three nits that all start the same way read like a form, not a colleague.
