@@ -105,6 +105,22 @@ Record which tools are available. Use the best one when it's time to push.
 
 ---
 
+## Step 0.25: Match the Team's Precedent (Backlogs)
+
+Before decomposing a spec or TDD, find out how this team already breaks work down, and copy that. The skill's defaults (2-3 day tickets, split by layer) are a fallback for teams with no visible convention, not a standard to impose. A team that files 40 small tickets per TDD will read a 10-ticket backlog as "not broken down enough", however clean each ticket is.
+
+Look for two things, in this order:
+
+1. **The previous epic for the same or a sibling feature.** If the work extends an existing feature (a flow built by another squad, the v1 of the same thing), find that epic and list its children: `parent = <EPIC>` in Jira, the milestone in GitHub, the project in Linear. It is the best reference for three things at once:
+   - **Granularity and seams**: did they split per UI view, per page integrated, per service? Copy the seams, not just the count.
+   - **Cross-cutting tickets they carved out**: tracking/analytics, email or template changes, admin/ops tooling, QA validation, e2e tests, flag removal/launch, monitoring after rollout, deleting old code. Each one they filed separately is one you should file separately.
+   - **Tickets they had to add late.** Children created well after the first batch (later keys, later dates) are what the original plan missed: already-reported or empty states, hiding an entry point where the backend would reject the action, copy updates, limits on inputs. Pre-empt the same gaps instead of repeating them.
+2. **The team's own most recent backlog.** Recent epics by the same squad, or local backlog folders (`*_tickets/`, `docs/backlog/`) and their `INDEX.md`. Take the working model you find there (for example "contract first, frontend mock layer, every ticket 1-2 PRs, sized S/M, scenarios mapped to tickets"), plus the title prefixes and numbering.
+
+Apply the precedent as the default, and deviate only where this work's constraints force it (a split the precedent had that would break here, or a ticket it needed that doesn't apply). State each deviation in one line in the INDEX so the reader sees it was deliberate. If no precedent exists, say so in the INDEX and fall back to the defaults below.
+
+---
+
 ## Step 0.5: Ground the Ticket in Code (Pre-Draft)
 
 Before drafting any ticket, ground it in the actual codebase if one exists. An engineer picking up an ungrounded ticket has to repeat the codebase exploration that this skill could have done once. Tickets that point at specific files and reuse-candidates are dramatically more useful than tickets that gesture vaguely at "the relevant area".
@@ -323,7 +339,7 @@ Sections NOT polished, they stay mechanical:
 
 ## Sizing
 
-Tickets should be **2-3 days of work**. If larger, break up.
+Tickets should be **2-3 days of work** unless the team's precedent says otherwise (Step 0.25); a team convention like "1-2 PRs per ticket" wins over this default. If larger, break up.
 
 Split along independently testable deliverables, not just repos or layers: a data store and the job that consumes it are two tickets, because each can ship and be verified alone. When you split, state the direction in a one-line header on each ticket ("Depends on: X" / "Enables: Y") so the sequencing survives without the index.
 
@@ -350,17 +366,20 @@ Specific and testable:
 ## Workflow: Spec/TDD to Backlog
 
 1. **Read the source** - spec, TDD, or wiki page.
-2. **Analyze and decompose** into 3-15 implementation tickets. Consider:
-   - Technical layers (BE, FE, Database, Infra)
-   - Dependencies and sequencing
-   - Sizing (2-3 days each)
-3. **Parallel codebase grounding**: if conditions allow (Step 0.5), dispatch N parallel `/flagrare:codebase-explore` agents (one per candidate ticket) by emitting N `Agent` tool calls with `model: "sonnet"` in a single message. Wait for all results before drafting.
-4. **Draft and polish each ticket**: for each ticket: assemble with grounding findings, then call `/flagrare:write-docs` on the Context section (skip if grounding was skipped or polish opted out).
-5. **Write all files:**
+2. **Find the team's precedent** (Step 0.25): the previous epic for the same or sibling feature, and the team's latest backlog. Note their seams, cross-cutting tickets, late additions and working model.
+3. **Analyze and decompose** following that precedent. Consider:
+   - The precedent's seams first (per view, per integration, per service), then technical layers (BE, FE, Database, Infra)
+   - Dependencies and sequencing: a contract/proto ticket first so tracks can start together, and a mock layer if the frontend would otherwise wait on the backend
+   - The cross-cutting tickets the precedent carved out (tracking, email/templates, admin/ops tooling, QA validation, e2e, launch/flag removal, monitoring after rollout)
+   - The precedent's late additions, pre-empted as tickets now
+   - Sizing (precedent first, 2-3 days as fallback)
+4. **Parallel codebase grounding**: if conditions allow (Step 0.5), dispatch N parallel `/flagrare:codebase-explore` agents (one per candidate ticket) by emitting N `Agent` tool calls with `model: "sonnet"` in a single message. Wait for all results before drafting.
+5. **Draft and polish each ticket**: for each ticket: assemble with grounding findings, then call `/flagrare:write-docs` on the Context section (skip if grounding was skipped or polish opted out).
+6. **Write all files:**
    - `00-epic.md` (if creating a new Epic/Project)
    - `NN-slug.md` for each ticket
-   - `INDEX.md` with sequencing, summary table, open questions, blockers
-6. Present the result, see *Presenting the result* below (tool-driven close, not prose).
+   - `INDEX.md` with sequencing, summary table, open questions, blockers, and one line per deliberate deviation from the precedent
+7. Present the result, see *Presenting the result* below (tool-driven close, not prose).
 
 ---
 
@@ -374,6 +393,7 @@ Specific and testable:
 - [ ] Acceptance criteria are 3-4 lines of what *done* means, not an exhaustive matrix of tables/fields.
 - [ ] A teammate could read it without you in the room and know why it matters and what done looks like.
 - [ ] Opens with the plain-language product story (what the user does → what goes wrong today → the slice this ticket owns).
+- [ ] (Backlogs) The breakdown follows the team's precedent from Step 0.25: same seams, same cross-cutting tickets, the precedent's late additions pre-empted, deviations stated in the INDEX.
 - [ ] Passes the three-reader test: a junior dev knows exactly what to build, a PM sees the value, a manager gets it from the Goal alone.
 - [ ] Title and Goal pass the symptom test: they say what the user sees (quoting real error/UI text when short), not the mechanism the investigation found.
 - [ ] No unglossed acronym or team shorthand; nothing that requires having been in the meeting.
@@ -455,6 +475,7 @@ Present a summary with all created ticket keys/URLs.
 - Don't write essay-length tickets. A ticket is a pointer, not a document: link the spec instead of restating it, distill grounding to a few pointers, and keep the body to roughly one screen.
 - Don't assume the project/team. Ask if unclear.
 - Don't hard-code a single tracker. Detect from context.
+- Don't impose this skill's default granularity when the team has a visible convention. Read the previous epic for the same feature and the team's latest backlog first (Step 0.25); "not broken down enough" from the user means this step was skipped.
 - Don't skip codebase grounding when a codebase exists. A ticket pointing at `path/to/file.ts:42` is dramatically more useful than one gesturing at "the relevant area".
 - Don't run `/flagrare:codebase-explore` sequentially for a backlog flow. Emit all `Agent` tool calls in a single message, the runtime executes them concurrently. N tickets must take roughly the same wall-clock as 1.
 - Don't polish acceptance criteria, environment, or metadata via write-docs. Those sections are mechanical by design; prose-ifying them blurs the testability.
