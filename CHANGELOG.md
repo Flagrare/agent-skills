@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.39.1: 2026-09-25
+
+Three nits that all start the same way read like a form, not a colleague.
+
+### Improved Skills
+
+- **`/flagrare:pr-reviewer`, openers that vary**: the voice section listed "small thing" as the opener for nice-to-haves, and the model took it as a template. Field-tested the hard way on a three-comment review where two drafts opened with "Small thing:" back to back, the kind of repetition that tells the author a checklist wrote the review. The skill now says the listed openers are examples, that no two comments in one review may open with the same phrase, and that at most one opens with a severity label at all. The rest open straight on the observation and let a hedge later in the sentence carry the severity, with a few alternates ("Minor one:", "Nit:", "Optional, but") for when a label is warranted.
+
 ## 1.39.0: 2026-09-25
 
 A digest you have to read before you can act on it is a report, and nobody asked for a report.
