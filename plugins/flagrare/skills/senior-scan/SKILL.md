@@ -112,17 +112,17 @@ Score each candidate 0-2 on five axes:
 
 ### 4. Present the digest
 
-The digest is a to-do list, not a report. The user should know what to do from the table alone, and read an item's block only when they act on it. The user has not read these threads, so every item still says what is happening, but in one sentence, not a paragraph.
+The digest is a to-do list, not a report. The user should know what to do from the table alone, and read an item's block only when they act on it. Write the table for a reader who has read none of these threads and remembers nothing from the scan: they may open it hours later, or see it re-listed mid-session after other work. A row that only makes sense to someone who just ran the sweeps has failed, however short it is.
 
 Do not relay each sweep's findings as it lands; the digest is the only output. When a status line is forced (a sweep finishing, the harness asking for an update), give one line naming the sweeps still running, with no findings.
 
 ```
 ## Senior scan: <date>, <window>. <one line of caveats: surfaces skipped, state not saved>
 
-| # | Action | Why it matters | Where | Next step |
+| # | What's going on | What you'd do | Why it matters | Next step |
 |---|---|---|---|---|
-| 1 | <verb-first action, under 10 words> | <impact, max 12 words> · <target behavior> | [<short label>](<url>) | Send draft |
-| 2 | Answer whether the dual-write order email fired | A partner got no email for real orders · unblocking others | [#sku-foundation](<permalink>) | Check first: trace the partners-service order notification path for dual-write venues |
+| 1 | <whose thing, what it is in product terms, where it stands; the thing's name is the link> | <verb-first move, plain words> | <impact, max 12 words> · <target behavior> | Send draft |
+| 2 | A restaurant got no email or text for two app orders on 9/24; Andrea asked in the [squad channel](<permalink>) whether it should have, nobody answered | Tell her which email should have fired and whether it did | A partner missed real orders, support is stuck · unblocking others | Check first: look the order up in Braze |
 
 ### 1. <same verb-first action>
 <one sentence: what is happening and where it stands>. <one sentence: why you, naming the fact or context only you bring>.
@@ -135,9 +135,11 @@ Do not relay each sweep's findings as it lands; the digest is the only output. W
 
 Rules that keep it scannable:
 
-- **Actions start with a verb and name the move**: "Flag missing `ignoreInternalError` on #8051", not "Item report error handling".
+- **"What's going on" gives the context before the ask.** One plain sentence, 25 words at most: whose thing it is, what it is in product terms, and where it stands (unreviewed, approved, question unanswered since Tuesday). "Diego's [peak-times PR](url) promises a fallback message when loading fails; two people approved it", not "pf #8025 fallback". The thing's name carries the link, so there is no separate Where column.
+- **The table speaks product, not code.** No PR numbers, ticket keys, channel ids, function names, or flags in any table cell: a reader cannot decode `ignoreInternalError on #8051` without the context they don't have. Say what breaks for whom ("a server error shows the full-page error screen instead of the retry button"). Code identifiers and `file:line` belong in the item block and the draft, where the reader is already acting.
+- **Actions start with a verb and name the move in plain words**: "Point out that a server error blanks the page instead of showing the retry", not "Flag missing `ignoreInternalError` on #8051", and not "Item report error handling".
+- **Re-listing follows the same rules.** When remaining items are shown again later in the session, rebuild each row from scratch for a cold reader; never shorten a row to "the same gap" or "item 1's issue" because it was discussed earlier.
 - **"Why it matters" says what changes if the user acts, then the behavior it exercises.** The impact is 12 words at most, the concrete outcome ("stops a 502 blanking a page before launch", "a modifiers decision is being made without the person who designed them"), never the score or a restatement of the action. After a `·`, name the configured target behavior in two or three words ("quality bar", "unblocking others"). Rows are ordered by score, so this column is what explains the ranking.
-- **"Where" is a short linked label** (`[pf #8051](url)`, `[#channel](permalink)`), never a bare URL, which would blow the table's width.
 - **Every item ends in a next step.** Either a draft ready to send, or `Check first:` with the single concrete check (a query, a code path to trace) that would make a draft safe. Never a draft built on a claim that has not been verified.
 - **No field labels in item blocks** ("What's happening:", "Why you:", "Suggested angle:"). The two sentences and the draft carry all of it.
 - **Evidence goes inside the draft, not before it.** If the draft already cites `file:line`, the block does not repeat it.
