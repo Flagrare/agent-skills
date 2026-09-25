@@ -20,6 +20,17 @@ Concretely:
 - **What needs to happen**: the intent and the simplest approach, in prose. The engineer owns the how; do not write the implementation for them or list every file they'll touch.
 - **Acceptance criteria**: 3 to 4 testable lines that capture what *done* means. Not an exhaustive matrix; do not enumerate every table, field, or branch.
 
+### Say it once
+
+Each fact appears once per ticket. The usual repeats, all of which read as padding:
+
+- **Context previews the bullets.** If "What needs to happen" lists the change, Context says why it's needed, not the change again.
+- **Acceptance criteria restate the bullets.** Criteria say what *done* looks like from the outside (a test passes, a screen shows X), not "the endpoint from step 2 exists".
+- **The same caveat in two sections** ("everything is additive" in Context, "all additive" in the criteria). Keep the one where the reader acts on it.
+- **Long dependency lines.** "Enables: every frontend ticket" beats a list of six ticket titles.
+
+Across a backlog, the same rule holds at the epic level: the product story and the glossary live in the epic, not in every ticket (see *Write for three readers*).
+
 Brevity is a feature: a scannable ticket gets picked up; a wall of text gets skipped. **The test: would a teammate skimming this understand why it matters and what done looks like, without you in the room?** You are writing for a person who will act, not documenting your own exploration.
 
 ### Enumeration vs. narrative: a worked example
@@ -56,13 +67,14 @@ The second is shorter *and* clearer. The first makes the reader reconstruct the 
 Every ticket ships to at least three audiences, and it fails if any of them bounces:
 
 - **A junior developer** must understand exactly what work to do without asking anyone. If a term would send them to Slack ("LAPI"? "the sweep"?), gloss it on first use: "the shared core database (LAPI)", "the hourly job". Prefer the plain description alongside the term of art ("both safe to call twice" next to idempotent).
-- **A PM** must see how the work adds value. The ticket opens with the product story, not the mechanics: what the user does, what goes wrong today, what this ticket changes.
+- **A PM** must see how the work adds value. A standalone ticket opens with the product story, not the mechanics: what the user does, what goes wrong today, what this ticket changes. In a backlog, the epic carries that story and each ticket links to it.
 - **A manager** must be able to skim the Goal alone and know what the ticket does.
 
 Concretely:
 
-- **Open with the product story.** The first sentence states the user-visible problem in plain words before any architecture: "Partners can mark an item 'Unavailable today', but nothing ever brings it back." When several tickets serve one feature, repeat that same one-line story in each, then name the slice this ticket owns ("this ticket is only the memory: one table and a register/clear endpoint").
-- **Gloss jargon at first use, in every ticket.** Acronyms, internal service nicknames, and team shorthand get a short parenthetical the first time they appear. Tickets are read out of order and out of context; assume this one is the first the reader opens.
+- **Open with the product story, once.** For a standalone ticket (a bug, a one-off task), the first sentence states the user-visible problem in plain words before any architecture: "Partners can mark an item 'Unavailable today', but nothing ever brings it back." For a backlog, that story goes in the epic, and each ticket's Goal is one sentence about its own slice ("Add the table and the register/clear endpoint that remember what's sold out"). Do NOT repeat the feature story in every ticket: a 26-ticket backlog that opened each ticket with the same two sentences spent 1,000 of its 6,600 words on the copy (field-tested, 2026-09-25).
+- **Gloss jargon once.** Acronyms, internal service nicknames, and team shorthand get a short parenthetical the first time they appear. In a backlog, gloss the feature's shared terms in the epic; a ticket glosses only the terms specific to it. A standalone ticket glosses everything it uses.
+- **Name tickets by what they do, never by a local number.** Numbered file names (`05-report-on-order.md`) only sort the drafts; nobody memorizes them and they don't exist in the tracker. In ticket text, dependency lines, the epic and any chart, write "the report-window decision" or "the admin page ticket", and switch to tracker keys (as links) once the tickets are pushed.
 - **Cryptic is a bug.** If understanding a sentence requires having been in the meeting, rewrite it. The reader was not in the meeting.
 - **State decisions as facts, not minutes.** Never cite when or how a decision was made ("decided at the Jul 28 grooming", "per Tuesday's sync"): a ticket is self-contained, so write the decision as the way things are and link the decision doc if the reader needs the trade-offs. Provenance belongs in the decision doc, not the ticket.
 - **Use the tracker's rich formatting when pushing.** Identifiers, field names, classes and packages get inline code marks; links are real links with text, never bare URLs; sections are real headings, criteria real bullets. Every ticket key mentioned in a body is a link to that ticket: content pushed through the API is NOT auto-linkified the way typed text is, so a bare `PROJ-123` stays dead text (in Jira, write `[PROJ-123](https://<site>/browse/PROJ-123)`). A ticket that renders as flat prose with naked URLs and dead keys reads as unfinished even when the content is right. After the first push to a tracker, fetch one ticket back and check the stored formatting actually converted.
@@ -245,10 +257,10 @@ Each template has an optional grounding subsection populated from `/flagrare:cod
 
 ```markdown
 ## Goal
-[One or two sentences, symptom first: what the user sees or can't do today, in their words (quote the actual error/UI text when short), then what done changes. Direct and concrete; no abstract outcome language like "report correctly" or "handle gracefully" when a real quote or example exists.]
+[Standalone ticket: one or two sentences, symptom first: what the user sees or can't do today, in their words (quote the actual error/UI text when short), then what done changes. Backlog ticket: ONE sentence about this ticket's slice; the epic holds the feature story. Direct and concrete; no abstract outcome language like "report correctly" or "handle gracefully" when a real quote or example exists.]
 
 ## Context
-[2 to 4 sentences. Orient the reader: what part of the project, what needs to change, the end result. Link the TDD/spec instead of restating it, assume the reader opens that link. Do not reproduce the spec here.]
+[2 to 4 sentences. Why this change is needed and what the reader must know that the bullets below don't say. Link the TDD/spec instead of restating it, assume the reader opens that link. Do not reproduce the spec here, and do not preview the "What needs to happen" list.]
 
 ## Existing Patterns (optional: from codebase-explore)
 - `path/to/file.ts:42`, the function this touches today
@@ -341,7 +353,7 @@ Sections NOT polished, they stay mechanical:
 
 Tickets should be **2-3 days of work** unless the team's precedent says otherwise (Step 0.25); a team convention like "1-2 PRs per ticket" wins over this default. If larger, break up.
 
-Split along independently testable deliverables, not just repos or layers: a data store and the job that consumes it are two tickets, because each can ship and be verified alone. When you split, state the direction in a one-line header on each ticket ("Depends on: X" / "Enables: Y") so the sequencing survives without the index.
+Split along independently testable deliverables, not just repos or layers: a data store and the job that consumes it are two tickets, because each can ship and be verified alone. When you split, state the direction in a one-line header on each ticket ("Depends on: X" / "Enables: Y") so the sequencing survives without the index. Name the other tickets by what they do (or by tracker key once pushed), never by local file number, and summarize long lists ("Enables: every frontend ticket").
 
 ---
 
@@ -392,11 +404,13 @@ Specific and testable:
 - [ ] At most 2-3 code pointers, woven into prose where possible, no bulleted `file:line` wall.
 - [ ] Acceptance criteria are 3-4 lines of what *done* means, not an exhaustive matrix of tables/fields.
 - [ ] A teammate could read it without you in the room and know why it matters and what done looks like.
-- [ ] Opens with the plain-language product story (what the user does → what goes wrong today → the slice this ticket owns).
+- [ ] Standalone ticket: opens with the plain-language product story (what the user does → what goes wrong today → what this changes). Backlog ticket: the Goal is one sentence about its slice, and the story lives in the epic, not copied into every ticket.
+- [ ] Says each fact once: Context doesn't preview the bullets, criteria don't restate them, no caveat appears in two sections.
+- [ ] No local file numbers anywhere (text, dependency lines, epic, charts); other tickets are named by what they do or by tracker key.
 - [ ] (Backlogs) The breakdown follows the team's precedent from Step 0.25: same seams, same cross-cutting tickets, the precedent's late additions pre-empted, deviations stated in the INDEX.
 - [ ] Passes the three-reader test: a junior dev knows exactly what to build, a PM sees the value, a manager gets it from the Goal alone.
 - [ ] Title and Goal pass the symptom test: they say what the user sees (quoting real error/UI text when short), not the mechanism the investigation found.
-- [ ] No unglossed acronym or team shorthand; nothing that requires having been in the meeting.
+- [ ] No unglossed acronym or team shorthand (glossed once: in the epic for a backlog, in the ticket for a standalone one); nothing that requires having been in the meeting.
 - [ ] No decision provenance ("decided at X meeting", dates of syncs); decisions stated as facts with a link to the write-up.
 - [ ] Identifiers carry code marks and links have text; the push will render rich, not flat.
 
