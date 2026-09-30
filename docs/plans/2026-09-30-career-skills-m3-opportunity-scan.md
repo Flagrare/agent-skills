@@ -21,6 +21,8 @@ Decisions taken while designing (with the advisor):
 - **Cadence.** An explicit run ignores the cadence. A scheduled run stops when not due.
 - **Window.** The lookback is `last_run` to today, 30 days the first time, and capped at 90 days.
 
+Parked on purpose, not built here: `cadence_days` given as a string instead of a number is not coerced.
+
 ## Global Constraints
 
 - No em-dashes in any file. Verify with the command above.
@@ -753,7 +755,7 @@ A script that refuses (exit code 2) prints the reason; tell the user in plain wo
 
 Run `initiatives.py context`. It prints:
 
-- `has_map`, and from the promotion map: `target` (`target_level`, `cycle`, `why`, `more_of`, `less_of`), `open_rows` (rubric rows not yet done), `unseen_people`, `decision_process` (`artifact`, `usual_driver`), and `packet_deadline`. A value that is a list means the map's sources disagree: show every option, never pick one.
+- `has_map`, and from the promotion map: `target` (`target_level`, `cycle`, `why`, `more_of`, `less_of`), `open_rows` (rubric rows not yet done), `unseen_people`, `decision_process` (`artifact`, `usual_driver`), and `packet_deadline`. `more_of` and `less_of` are lists by design; for the single-valued facts (`target_level`, `cycle`, the `decision_process` fields, `packet_deadline`), a list means the map's sources disagree: show every option, never pick one.
 - `initiatives`: the `active` one (or null), `proposed`, `candidates` (most seen first) and `dropped` (each with `seen_again`: seen since it was dismissed).
 - `cadence`: `last_run`, `days_since`, `due`, and `window_start`, the first day to sweep (the last run, or 30 days back the first time, never more than 90 days back).
 - `fallback`: the impact-scan config's `target_behaviors`, `domains` and `audience`.
@@ -810,9 +812,11 @@ The digest is short: the user should know what each proposal is from its first l
 ```
 ## Opportunity scan: <date>, window <window_start> to <today>. <caveats: surfaces skipped, no map, not due but run on request>
 <one line on the active initiative, when there is one>
+<Still on the table: each earlier `proposed` item, one line each with its title and when it was proposed, when there are any>
 
 ### 1. <the problem in plain words, as the thing to own>
 **Evidence:** <links, each with three words on what it shows>
+**Owner check:** <what was searched, in one sentence, and that nobody owns it>
 **Hypothesis:** We believe <change> will <result> because <reason>. **Success:** <metric, measured how, decided before building>.
 **Rough impact:** <who gets what, in plain words>. **Who cares:** <people or teams, and why now>.
 **First step:** <the smallest step, fitted to how decisions are made>
@@ -831,6 +835,8 @@ Rules:
 - **Plain words.** No ticket keys or channel ids in the headline; they go in the evidence links. Rubric row ids go in parentheses after the hypothesis, only with a map.
 - **Pitch in the user's voice.** Read `~/.claude/skills/flagrare/career/voice.md` when it exists. First person, no preamble, no flourish.
 
+Earlier proposals the user kept but has not started stay on the "Still on the table" line, not in the three new slots; ask whether any is now agreed with the manager or should be dropped.
+
 Stop after the Cut line. Ask which proposals to keep, which to dismiss, and whether any is already agreed with their manager.
 
 ### 6. Record
@@ -841,6 +847,7 @@ After the user answers, write each change with the Write tool, one script call a
 - **Dismiss:** `initiatives.py status --status dropped --note "<why, in the user's words>"`. It will not come back unless it is seen again.
 - **Agreed with the manager:** `initiatives.py status --status active --aligned-with "<who>" --note "<where or how it was agreed>"`. Only a proposal can become active, only one at a time, and never without the user saying their manager agreed. Do not suggest skipping that conversation.
 - **Finished or abandoned** (when the user says so later): `--status done` or `--status dropped`.
+- **Bring back a dismissed problem** that has not been seen again (only when the user asks): `--status candidate` first, then `propose`.
 
 The `--proposal` JSON holds: `problem`, `hypothesis`, `metric`, `impact`, `who_cares`, `why_now`, `first_step`, `pitch`, `owner_check`, `decision_fit` (how the first step fits the decision process), and `rubric_rows` (ids from `open_rows`, empty without a map). The script refuses a proposal missing `problem`, `hypothesis`, `metric`, `first_step`, `pitch` or `owner_check`.
 
