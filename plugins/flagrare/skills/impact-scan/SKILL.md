@@ -113,10 +113,20 @@ Score each candidate 0-2 on five axes:
 - **Leverage**: would weighing in change the outcome, or just add a voice? A decided thread scores 0.
 - **Credibility**: does the user have specific knowledge, context, or ownership the participants lack? Generic "good point" opinions score 0.
 - **Stretch**: does this move one of the `open_rows` forward, beyond the user's assigned lane? Pick the row it moves from `open_rows` only, and never invent a row id. With no map or no open rows, use the configured target behaviors instead. Routine work in their own tickets scores low.
-- **Audience**: who will see the contribution? 2 if someone in `unseen_people` will, 1 if only people who already know the user's work will, 0 if nobody whose view matters will. With no map, score it against the configured audience the same way; with neither, it defaults to 1.
+- **Audience**: who will see the contribution? 2 if someone in `unseen_people` will, 1 if only people who already know the user's work will, 0 if nobody whose view matters will. With no map, use the configured audience as before: will they (or their equivalents) see it? With neither, it defaults to 1.
 - **Timing**: is the window still open? A decision landing today scores 2; something simmering for weeks scores 1.
 
-**Hard filter first:** drop anything with Leverage 0 or Credibility 0, regardless of the other axes. That is the anti-performative rule, and it is not negotiable, it protects the user's reputation. Then rank survivors by total and keep at most 5. Dedupe against `scan-state.json` before presenting.
+**Hard filter first:** drop anything with Leverage 0 or Credibility 0, regardless of the other axes. That is the anti-performative rule, and it is not negotiable, it protects the user's reputation. Then run step 3b on the survivors, so problems ready for hand-off leave the ranking and flags are known before the digest. Rank what is left by total and keep at most 5. Dedupe against `scan-state.json` before presenting.
+
+### 3b. Flags and hand-off (with a map, before the cut)
+
+This step runs only when `has_map` is true; without a map, skip it and the digest has no Flags raised or Handed off lines. It keeps the other career skills current through two small records. Write each with the Write tool from the action the script prints, reading the target first if it exists. When several calls plan writes to the same file, apply them one at a time: write the first result, then run the next call, so each one sees the file as it now is.
+
+**Staleness flags.** When a sweep sees something that makes part of the promotion map out of date, raise a flag for that map section: a reorg or team change (`org`), someone leaving or a new manager or director (`org` and `people`), a change to the promotion process (`process`), HR publishing the review calendar (`calendar`). Run `python3 <plugin root>/lib/career/career_state.py flag --home "$HOME" --section <section> --reason "<what changed, plain words>" --source <link> --today <YYYY-MM-DD>`. `--section` must be one of the map's sections listed in `<plugin root>/lib/career/STATE.md`; the script rejects anything else. The same flag is never raised twice.
+
+**Hand-off of recurring problems.** Some items are problems rather than decisions: something broken, missing, or painful for users or partners (a class of failures, a gap nobody owns, the same question asked again). Record each problem-type item that passes the hard filter, once per scan run: `python3 <plugin root>/lib/career/career_state.py candidate --home "$HOME" --id <stable-slug> --title "<problem in plain words>" --evidence <link> --today <YYYY-MM-DD>`. To find an earlier sighting, compare with the existing candidates in `initiatives.json` by title and evidence; reuse that id when it is the same underlying problem, otherwise choose a new stable slug. A second sighting means the same problem showing up somewhere else (a different thread, incident or ticket), not the same thread continuing; the script ignores an evidence link it already has, so an escalating thread never counts twice.
+
+Read the candidate's `seen_count` from the planned `initiatives.json` content, or, when the script plans nothing (the link was already recorded), from `initiatives.json` itself. At 2 or more the problem is handed off: it leaves the ranking before the top-5 cut (it never takes one of the 5 slots), gets no draft, appears only on the digest's **Handed off** line, and goes into `scan-state.json` with status `handed_off` in step 6. Owning the fix is worth more than a third comment. The candidates wait in `initiatives.json` for `/flagrare:opportunity-scan` (coming in a later release).
 
 ### 4. Present the digest
 
@@ -139,8 +149,8 @@ Do not relay each sweep's findings as it lands; the digest is the only output. W
 (repeat per item)
 
 **Cut:** <near-miss, reason>; <near-miss, reason>; ...
-**Flags raised:** <map section>: <what changed> (only when step 6 raised a flag)
-**Handed off:** <problem in plain words> (seen <N> times, now a candidate in `initiatives.json`) (only when step 6 handed one off)
+**Flags raised:** <map section>: <what changed> (only when step 3b raised a flag)
+**Handed off:** <problem in plain words> (seen <N> times, now a candidate in `initiatives.json`) (only when step 3b handed one off)
 ```
 
 Rules that keep it scannable:
@@ -149,7 +159,7 @@ Rules that keep it scannable:
 - **The table speaks product, not code.** No PR numbers, ticket keys, channel ids, function names, or flags in any table cell: a reader cannot decode "a missing error flag on a PR number" without the context they don't have. Say what breaks for whom ("a server error shows the full-page error screen instead of the retry button"). Code identifiers and `file:line` belong in the item block and the draft, where the reader is already acting.
 - **Actions start with a verb and name the move in plain words**: "Point out that a server error blanks the page instead of showing the retry", not "Flag a missing error flag on a PR number", and not "Item report error handling".
 - **Re-listing follows the same rules.** When remaining items are shown again later in the session, rebuild each row from scratch for a cold reader; never shorten a row to "the same gap" or "item 1's issue" because it was discussed earlier.
-- **"Why it matters" says what changes if the user acts, then the behavior it exercises.** The impact is 12 words at most, the concrete outcome ("stops a 502 blanking a page before launch", "a modifiers decision is being made without the person who designed them"), never the score or a restatement of the action. After a `·`, name what it exercises in two or three plain words: the rubric row's area when there is a map ("finding problems"), otherwise the configured target behavior ("quality bar", "unblocking others"). Row ids are code-like, so they go in the item block, never in the table. Rows are ordered by score, so this column is what explains the ranking.
+- **"Why it matters" says what changes if the user acts, then the behavior it exercises.** The impact is 12 words at most, the concrete outcome ("stops a 502 blanking a page before launch", "a modifiers decision is being made without the person who designed them"), never the score or a restatement of the action. After a `·`, name what it exercises in two or three plain words: with a map, what the open row asks for, taken from its `target_text` ("finding problems" for a row about proactively discovering problems); otherwise the configured target behavior ("quality bar", "unblocking others"). Row ids are code-like, so they go in the item block, never in the table. Rows are ordered by score, so this column is what explains the ranking.
 - **Every item ends in a next step.** Either a draft ready to send, or `Check first:` with the single concrete check (a query, a code path to trace) that would make a draft safe. Never a draft built on a claim that has not been verified.
 - **No field labels in item blocks** ("What's happening:", "Why you:", "Suggested angle:"). The two sentences and the draft carry all of it.
 - **Evidence goes inside the draft, not before it.** If the draft already cites `file:line`, the block does not repeat it.
@@ -172,7 +182,7 @@ Read `voice.md` first if it exists; its observed rules win over the generic ones
 
 ### 6. Update state and the evidence trail
 
-After presenting, write `career/scan-state.json` with the Write tool: update `last_run`, append surfaced items with `status: "surfaced"`. If the write fails, say so in the digest's caveat line, since the next run will re-surface the same items. Then update the board (step 7) in the same turn.
+After presenting, write `career/scan-state.json` with the Write tool: update `last_run`, append surfaced items with `status: "surfaced"` and any item handed off in step 3b with `status: "handed_off"`. If the write fails, say so in the digest's caveat line, since the next run will re-surface the same items. Then update the board (step 7) in the same turn.
 
 When the user approves and posts a contribution (or says they handled it), set that item's status to `"contributed"` and append to `career/contributions.log.md`:
 
@@ -180,21 +190,11 @@ When the user approves and posts a contribution (or says they handled it), set t
 - <date> | <link> | <one sentence: what the contribution was and what it changed> | behavior: <target behavior exercised> | row: <rubric row id>
 ```
 
-Add the `| row: <id>` field only when there is a map and the item moved one of its `open_rows`; otherwise end the line after `behavior:`. The format is in `<plugin root>/lib/career/STATE.md`.
+Add the `| row: <id>` field only when there is a map and the item moved one of its `open_rows`; otherwise end the line after `behavior:`. With a map, `behavior:` still names the closest configured target behavior, because the board's coverage panel counts those; the row id goes in `row:`. The format is in `<plugin root>/lib/career/STATE.md`.
 
 This log is the promotion evidence trail, the lagging indicator made legible. When the user later runs `/flagrare:brag-doc` or builds a promo packet, point them at it; brag-doc should treat it as a first-class source.
 
 Every log entry is also a board update: rebuild so the evidence log shows it, and move the item to `waiting` (a reply is expected) or `done`.
-
-### 6b. Flags and hand-off
-
-Two small records keep the other career skills current. Write both with the Write tool from the action the script prints, reading the target first if it exists.
-
-**Staleness flags.** When a sweep sees something that makes part of the promotion map out of date, raise a flag for that map section: a reorg or team change (`org`), someone leaving or a new manager or director (`org` and `people`), a change to the promotion process (`process`), HR publishing the review calendar (`calendar`). Run `python3 <plugin root>/lib/career/career_state.py flag --home "$HOME" --section <section> --reason "<what changed, plain words>" --source <link> --today <YYYY-MM-DD>`. The same flag is never raised twice. Only raise flags when the user has a promotion map.
-
-**Hand-off of recurring problems.** Some items are problems rather than decisions: something broken, missing, or painful for users or partners (a class of failures, a gap nobody owns, the same question asked again). Record each problem-type item that passes the hard filter, whether or not it makes the top 5, once per scan run: `python3 <plugin root>/lib/career/career_state.py candidate --home "$HOME" --id <stable-slug> --title "<problem in plain words>" --evidence <link> --today <YYYY-MM-DD>`. To find an earlier sighting, compare with the existing candidates in `initiatives.json` by title and evidence; reuse that id when it is the same underlying problem, otherwise choose a new stable slug. A second sighting means the same problem showing up somewhere else (a different thread, incident or ticket), not the same thread continuing; the script ignores an evidence link it already has, so an escalating thread never counts twice.
-
-When the planned `initiatives.json` content shows that candidate's `seen_count` at 2 or more, the problem is handed off: it leaves the table (it does not take one of the 5 slots), appears only on the digest's **Handed off** line, and goes into `scan-state.json` with status `handed_off`. Owning the fix is worth more than a third comment. The candidates wait in `initiatives.json` for `/flagrare:opportunity-scan` (coming in a later release).
 
 ### 7. Keep the board current
 
