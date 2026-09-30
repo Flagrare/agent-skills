@@ -13,19 +13,19 @@ It writes a **promotion map**: `promotion-map.md` for the user to read and bring
 
 ## Library
 
-The plugin ships helper scripts at `<plugin root>/lib/career/`. The plugin root is two directories above this skill's base directory. They only read and print JSON; this skill writes every file with the Write tool, because a sandboxed shell cannot write under `~/.claude/skills`.
+The plugin ships helper scripts at `<plugin root>/lib/career/`. The plugin root is two directories above this skill's base directory. Run each as `python3 <plugin root>/lib/career/<script>.py ...`. They only read and print JSON; this skill writes every file with the Write tool, because a sandboxed shell cannot write under `~/.claude/skills`.
 
 - `career_state.py paths|contributions|plan --home "$HOME"`: file locations, the contributions log (union of old and new locations), and the migration plan.
 - `map_schema.py check <map.json> --today YYYY-MM-DD`: errors, missing sections, stale sections (over 90 days), conflicts.
-- `deadlines.py --deadline YYYY-MM-DD --today YYYY-MM-DD --dead START:END [--published]`: when to talk to the manager.
+- `deadlines.py --deadline YYYY-MM-DD --today YYYY-MM-DD [--dead START:END ...] [--published]`: when to talk to the manager. `--dead` is optional and repeatable.
 
 The map's shape is in `reference/map-schema.md`, and the markdown layout is in `reference/map-template.md`.
 
 ## 1. Load state (every run)
 
-1. Run `career_state.py plan`. Apply each action with the Write tool (`mkdir` means write any file into the folder, starting with the map). **Never delete anything.**
-2. Read `~/.claude/skills/flagrare/config.json` (top-level identity keys, the `skills.promotion` block) and the existing map, if any.
-3. No map means a **first run**. A map means a **refresh** (section 4), unless the user asks for `packet` mode (section 5).
+1. Run `career_state.py plan`. Apply each `write` action with the Write tool, reading the target first if it already exists (the Write tool will not overwrite a file it has not read). A `mkdir` action needs no separate step: the folder is created by the first file written into it. Do not write a placeholder map. **Never delete anything.**
+2. Read `~/.claude/skills/flagrare/config.json` (top-level identity keys, the `skills.promotion` block) and the existing map, if any. If the config file or the `skills.promotion` block is missing, continue with defaults.
+3. No map means a **first run** (section 3). A map whose `map_schema.py check` output lists `missing` sections means an interrupted first run: resume it at the earliest phase whose sections are missing. Otherwise run a **refresh** (section 4), unless the user asks for `packet` mode (section 5).
 
 ## 2. Rules for every fact
 
@@ -40,11 +40,13 @@ The map's shape is in `reference/map-schema.md`, and the markdown layout is in `
 
 Tell the user up front: the first run is long, often an hour or more, and it saves after each phase, so it can be stopped and resumed.
 
+**Every save** writes both `promotion-map.json` and `promotion-map.md`, and sets `sections.<name>.checked_at` (today) and `sections.<name>.sources` for every section written in that phase. A section without `checked_at` counts as stale.
+
 ### Phase 1: Target, process and calendar
 1. **Interview first, before any research.** Ask one question at a time:
    1. Current level and target level.
    2. Track: individual contributor or manager.
-   3. Which cycle they're aiming at (propose one once the calendar is known).
+   3. Which cycle they're aiming at (come back to this after step 4, once the calendar is known, and propose one).
    4. **Why** they want it, what work they want **more of**, and what they want **less of**.
 2. **Look up two facts about the target level:** is it terminal at this company (no expectation of promotion beyond it), and what's the expected time band at the current level? Quote both.
 3. **Say what the "why" changes.** A terminal target plus a "peace of mind" why makes the target the finish line. A "money" or "scope" why means planning past it. Write this into the map's section 1.
@@ -68,7 +70,7 @@ Tell the user up front: the first run is long, often an hour or more, and it sav
 5. Save.
 
 ### Phase 4: Plan
-1. **Deadlines:** run `deadlines.py` with the packet deadline. Use this cycle's date if published; otherwise last year's, marked `inferred`. Ask the user which holiday or vacation windows are dead time where they are, and pass them as `--dead`. Record "comfortable by X, absolute by Y" with its status and state. If the state is `past`, say so plainly and name the next cycle.
+1. **Deadlines:** run `deadlines.py` with the packet deadline. If this cycle's date is published, use it and pass `--published`. Otherwise project last year's date onto this cycle (same month and day, one year later) and leave it `inferred`. Ask the user which holiday or vacation windows are dead time where they are, and pass them as `--dead`. Record "comfortable by X, absolute by Y" with its status and state. If the state is `past`, say so plainly and name the next cycle.
 2. **Packet readiness:** for each template section, mark `strong`, `thin` or `empty` from the rubric rows and evidence.
 3. **Manager questions:** everything still unknown, plus the readiness question ("is <cycle> realistic, and what's missing?").
 4. Run `map_schema.py check`. Fix any errors, then save.
@@ -79,12 +81,13 @@ Tell the user up front: the first run is long, often an hour or more, and it sav
 1. Run `map_schema.py check`, and read `career/flags.json` if it exists (other skills write staleness signals there, such as a reorg, a departure, or a calendar being published).
 2. Re-research only the stale or flagged sections. Keep every other section as it is.
 3. Ask the user "anything changed?", covering target, manager, team, and people who have seen their work.
-4. Update `checked_at` for each re-checked section, clear the flags you handled, and save.
+4. If the calendar section is re-checked, or a flag says the calendar was published, re-run `deadlines.py` and update `calendar.manager_conversation`.
+5. Update `checked_at` for each re-checked section, clear the flags you handled, and save.
 
 ## 5. Packet mode (`/flagrare:promotion packet`)
 
 When the packet deadline approaches, or the user asks:
-1. Load the map. Use `/flagrare:brag-doc` over the evidence window to gather material.
-2. Draft the packet in the company's template, from `process.packet_template`: the header fields, then 2-3 projects (role, estimate vs actual, complexity), mentorship and team building, technical craft, and a list of people to ask for peer quotes.
+1. Load the map; if there is none, run the first run first. Gather evidence since the date of the last promotion (or the hire date): use `/flagrare:brag-doc` for windows up to a month and `/flagrare:impact-timeline` for longer ones.
+2. Draft the packet in the company's template, from `process.packet_template` (if the template is unknown, use this common shape and say it is a fallback: the header fields, then 2-3 projects (role, estimate vs actual, complexity), mentorship and team building, technical craft, and a list of people to ask for peer quotes).
 3. Write each project as action, then measurable result, then impact. Tell a story, not a list of tickets, and name the target-level rubric line each project demonstrates.
 4. Save it as `career/packet-draft.md` for the user to edit. **Never submit it anywhere.**
