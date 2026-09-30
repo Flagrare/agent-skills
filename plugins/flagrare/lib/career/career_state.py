@@ -13,7 +13,6 @@ from pathlib import Path
 CAREER_REL = Path(".claude/skills/flagrare/career")
 LEGACY_REL = Path(".claude/skills/flagrare/senior-scan")
 CONFIG_REL = Path(".claude/skills/flagrare/config.json")
-LOG_HEADER = "# Career contributions"
 MOVED_NOTE = (
     "# Mirrored\n\n"
     "`~/.claude/skills/flagrare/career/` mirrors these files for the career skills.\n"
@@ -48,15 +47,6 @@ def _entries(text: str | None) -> list[str]:
     return [line.rstrip() for line in text.splitlines() if line.startswith("- ")]
 
 
-def _header(text: str | None) -> str | None:
-    if not text:
-        return None
-    for line in text.splitlines():
-        if line.startswith("# "):
-            return line
-    return None
-
-
 def read_contributions(home: str) -> list[str]:
     p = paths(home)
     legacy = _entries(_read(Path(p["legacy_dir"]) / "contributions.log.md"))
@@ -85,7 +75,7 @@ def plan_migration(home: str) -> list[dict]:
             actions.append({"action": "write", "path": p["log"], "content": legacy_log, "reason": "copy legacy contributions log to career folder"})
         else:
             legacy_entries = _entries(legacy_log)
-            career_lines = set(career_log.splitlines())
+            career_lines = {line.rstrip() for line in career_log.splitlines()}
             missing = [line for line in legacy_entries if line not in career_lines]
             if missing:
                 content = career_log.rstrip('\n') + '\n' + '\n'.join(missing) + '\n'

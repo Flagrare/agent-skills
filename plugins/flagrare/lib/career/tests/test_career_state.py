@@ -67,6 +67,33 @@ class PlanMigration(unittest.TestCase):
                     Path(a["path"]).write_text(a["content"])
             self.assertEqual(cs.plan_migration(str(home)), [])
 
+    def test_given_legacy_entry_with_trailing_spaces_when_planning_again_then_does_not_reappend(self):
+        with tempfile.TemporaryDirectory() as d:
+            home = Path(d)
+            write(home, f"{LEGACY}/contributions.log.md", "# h\n\n- a  \n- b\n")
+            write(home, f"{CAREER}/contributions.log.md", "# h\n\n- a\n")
+            for a in cs.plan_migration(str(home)):
+                if a["action"] == "mkdir":
+                    Path(a["path"]).mkdir(parents=True, exist_ok=True)
+                else:
+                    Path(a["path"]).write_text(a["content"])
+            again = cs.plan_migration(str(home))
+            self.assertEqual([a for a in again if a["path"].endswith("contributions.log.md")], [])
+            career_text = (home / CAREER / "contributions.log.md").read_text()
+            self.assertEqual(career_text.splitlines().count("- a"), 1)
+
+    def test_given_career_log_entry_with_trailing_spaces_when_planning_then_does_not_reappend(self):
+        with tempfile.TemporaryDirectory() as d:
+            home = Path(d)
+            write(home, f"{LEGACY}/contributions.log.md", "# h\n\n- a  \n- b\n")
+            write(home, f"{CAREER}/contributions.log.md", "# h\n\n- a  \n")
+            for a in cs.plan_migration(str(home)):
+                Path(a["path"]).write_text(a["content"])
+            again = cs.plan_migration(str(home))
+            self.assertEqual([a for a in again if a["path"].endswith("contributions.log.md")], [])
+            career_text = (home / CAREER / "contributions.log.md").read_text()
+            self.assertEqual([l for l in career_text.splitlines() if l.rstrip() == "- a"], ["- a  "])
+
     def test_given_career_log_has_extra_entries_when_planning_then_never_drops_them(self):
         with tempfile.TemporaryDirectory() as d:
             home = Path(d)

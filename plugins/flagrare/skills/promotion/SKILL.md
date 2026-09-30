@@ -40,7 +40,7 @@ The map's shape is in `reference/map-schema.md`, and the markdown layout is in `
 
 Tell the user up front: the first run is long, often an hour or more, and it saves after each phase, so it can be stopped and resumed.
 
-**Every save** writes both `promotion-map.json` and `promotion-map.md`, and sets `sections.<name>.checked_at` (today) and `sections.<name>.sources` for every section written in that phase. A section without `checked_at` counts as stale.
+**Every save** writes both `promotion-map.json` and `promotion-map.md`, and sets `sections.<name>.checked_at` (today) and `sections.<name>.sources` for every section written in that phase. A section without `checked_at` counts as stale. Phase 1 writes `target`, `process` and `calendar`; Phase 2 writes `rubric`; Phase 3 writes `org`, `people` and `precedent`; Phase 4 writes `packet_readiness` and `manager_questions`. Write each section even when nothing was found (an empty list or object with its `checked_at`), so an empty section is not mistaken for an interrupted run.
 
 ### Phase 1: Target, process and calendar
 1. **Interview first, before any research.** Ask one question at a time:
