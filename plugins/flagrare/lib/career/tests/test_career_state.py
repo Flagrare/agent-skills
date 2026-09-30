@@ -183,7 +183,7 @@ class ScanStateMerge(unittest.TestCase):
             write(home, f"{CAREER}/scan-state.json", json.dumps({"last_run": "2026-09-30", "seen": [{"id": "b", "status": "surfaced", "surfaced_at": "2026-09-30"}, {"note": "noid"}]}))
             merged = self._plan_state(home)
             ids = [i.get("id") for i in merged["seen"]]
-            self.assertEqual(ids[:2], ["b", "a"])
+            self.assertEqual(ids[:2], ["a", "b"])
             self.assertTrue(any(i.get("note") == "noid" for i in merged["seen"]))
 
     def test_given_legacy_state_json_is_not_dict_when_planning_then_no_write(self):
@@ -203,8 +203,8 @@ class ScanStateMerge(unittest.TestCase):
     def test_given_diverged_states_when_planning_and_applying_then_replan_idempotent(self):
         with tempfile.TemporaryDirectory() as d:
             home = Path(d)
-            legacy_state = {"last_run": "2026-10-05", "seen": [{"id": "a", "status": "surfaced", "surfaced_at": "2026-10-05"}]}
-            career_state = {"last_run": "2026-09-30", "seen": [{"id": "b", "status": "surfaced", "surfaced_at": "2026-09-30"}]}
+            legacy_state = {"last_run": "2026-10-05", "seen": [{"id": "a", "status": "surfaced", "surfaced_at": "2026-10-05"}, {"note": "legacy_noid"}]}
+            career_state = {"last_run": "2026-09-30", "seen": [{"id": "b", "status": "surfaced", "surfaced_at": "2026-09-30"}, {"note": "career_noid"}]}
             write(home, f"{LEGACY}/state.json", json.dumps(legacy_state))
             write(home, f"{CAREER}/scan-state.json", json.dumps(career_state))
             actions = cs.plan_migration(str(home))

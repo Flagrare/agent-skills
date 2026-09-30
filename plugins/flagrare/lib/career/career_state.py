@@ -93,13 +93,17 @@ def _merge_seen(legacy: list, career: list) -> list:
     """Union of seen items by id. A contributed item wins; otherwise the later surfaced_at wins. Keeps id-less items."""
     merged: dict[str, dict] = {}
     order: list[str] = []
-    id_less: list[dict] = []
+    legacy_id_less: list[dict] = []
+    career_id_less: list[dict] = []
     seen_id_less: list[dict] = []
-    for item in (career or []) + (legacy or []):
+    for item in (legacy or []) + (career or []):
         key = item.get("id")
         if key is None:
             if not any(i == item for i in seen_id_less):
-                id_less.append(item)
+                if item in (legacy or []):
+                    legacy_id_less.append(item)
+                else:
+                    career_id_less.append(item)
                 seen_id_less.append(item)
             continue
         if key not in merged:
@@ -114,7 +118,7 @@ def _merge_seen(legacy: list, career: list) -> list:
             continue
         if str(item.get("surfaced_at", "")) >= str(current.get("surfaced_at", "")):
             merged[key] = item
-    return [merged[k] for k in order] + id_less
+    return [merged[k] for k in order] + legacy_id_less + career_id_less
 
 
 def _plan_scan_state(legacy_path: Path, career_path: Path) -> list[dict]:
