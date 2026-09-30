@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.42.0: 2026-09-30
+
+A digest is read once; the board is what you come back to.
+
+### Improved Skills
+
+- **`/flagrare:senior-scan`, a board from the first scan**: the digest scrolls away with the session, so the open items, the ones waiting on someone, and the evidence log had no place to live between runs. Field-tested the hard way over a week of scans that fed a hand-built local dashboard, kept current only because a personal memory note said to rebuild it; any session that missed the note left the board behind the conversation. The skill now bundles the board (`board/template.html` plus `board/build.py`) and treats it as an expected output: onboarding asks where it lives (`board.dir`, default `~/senior-scan-board`), the first scan creates it if the user has none (including users onboarded before this release), and a new workflow step 7 rebuilds it after every scan and every status change (posted, waiting, done, dropped) in the same turn as `state.json` and the contributions log. `data.json` is the single source of truth, with its shape documented in the skill: urgency tiers with the reason, `check_first` versus `draft` (never a draft built on an unverified claim), `waiting_on` with a 3-day nudge, stable ids so a new scan updates an item instead of duplicating it. A failed build shows up in the digest caveat line.
+
 ## 1.41.0: 2026-09-25
 
 A ticket that retells the epic is a ticket nobody finishes reading.
