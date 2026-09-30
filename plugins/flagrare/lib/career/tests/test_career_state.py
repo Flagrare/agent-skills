@@ -104,13 +104,15 @@ class PlanMigration(unittest.TestCase):
             for entry in ("- a", "- b", "- z"):
                 self.assertIn(entry, log_writes[0]["content"])
 
-    def test_given_existing_career_state_when_planning_then_does_not_overwrite_it(self):
+    def test_given_existing_career_state_when_planning_then_keeps_career_values(self):
         with tempfile.TemporaryDirectory() as d:
             home = Path(d)
             write(home, f"{LEGACY}/state.json", '{"old": true}')
             write(home, f"{CAREER}/scan-state.json", '{"new": true}')
-            paths = [a["path"] for a in cs.plan_migration(str(home))]
-            self.assertFalse(any(p.endswith("scan-state.json") for p in paths))
+            writes = [a for a in cs.plan_migration(str(home)) if a["path"].endswith("scan-state.json")]
+            merged = json.loads(writes[0]["content"])
+            self.assertTrue(merged["new"])
+            self.assertTrue(merged["old"])
 
     def test_given_career_log_with_structure_when_planning_then_preserves_format(self):
         with tempfile.TemporaryDirectory() as d:
@@ -143,6 +145,57 @@ class PlanMigration(unittest.TestCase):
             log_writes = [a for a in actions if a["path"].endswith("contributions.log.md")]
             self.assertEqual(len(log_writes), 1)
             self.assertEqual(log_writes[0]["content"], legacy_text)
+
+
+class ScanStateMerge(unittest.TestCase):
+    def _plan_state(self, home: Path) -> dict:
+        writes = [a for a in cs.plan_migration(str(home)) if a["path"].endswith("scan-state.json")]
+        return json.loads(writes[0]["content"]) if writes else {}
+
+    def test_given_legacy_state_newer_when_planning_then_merge_takes_later_last_run_and_all_items(self):
+        with tempfile.TemporaryDirectory() as d:
+            home = Path(d)
+            write(home, f"{LEGACY}/state.json", json.dumps({"last_run": "2026-10-05T10:00:00Z", "seen": [{"id": "a", "status": "surfaced", "surfaced_at": "2026-10-05"}, {"id": "b", "status": "surfaced", "surfaced_at": "2026-10-05"}]}))
+            write(home, f"{CAREER}/scan-state.json", json.dumps({"last_run": "2026-09-30T10:00:00Z", "seen": [{"id": "a", "status": "surfaced", "surfaced_at": "2026-09-30"}]}))
+            merged = self._plan_state(home)
+            self.assertEqual(merged["last_run"], "2026-10-05T10:00:00Z")
+            self.assertEqual([i["id"] for i in merged["seen"]], ["a", "b"])
+
+    def test_given_career_marks_item_contributed_when_merging_then_contributed_wins(self):
+        with tempfile.TemporaryDirectory() as d:
+            home = Path(d)
+            write(home, f"{LEGACY}/state.json", json.dumps({"last_run": "2026-10-05", "seen": [{"id": "a", "status": "surfaced", "surfaced_at": "2026-10-05"}]}))
+            write(home, f"{CAREER}/scan-state.json", json.dumps({"last_run": "2026-09-30", "seen": [{"id": "a", "status": "contributed", "surfaced_at": "2026-09-30"}]}))
+            self.assertEqual(self._plan_state(home)["seen"][0]["status"], "contributed")
+
+    def test_given_states_already_merged_when_planning_then_no_state_write(self):
+        with tempfile.TemporaryDirectory() as d:
+            home = Path(d)
+            state = {"last_run": "2026-10-05", "seen": [{"id": "a", "status": "surfaced", "surfaced_at": "2026-10-05"}]}
+            write(home, f"{LEGACY}/state.json", json.dumps(state))
+            write(home, f"{CAREER}/scan-state.json", json.dumps(state))
+            self.assertEqual(self._plan_state(home), {})
+
+
+class VoiceCopy(unittest.TestCase):
+    def test_given_legacy_voice_newer_and_different_when_planning_then_copies_it(self):
+        import os
+        with tempfile.TemporaryDirectory() as d:
+            home = Path(d)
+            write(home, f"{CAREER}/voice.md", "old rules")
+            write(home, f"{LEGACY}/voice.md", "new rules")
+            os.utime(home / CAREER / "voice.md", (1_000_000, 1_000_000))
+            writes = [a for a in cs.plan_migration(str(home)) if a["path"].endswith("voice.md")]
+            self.assertEqual(writes[0]["content"], "new rules")
+
+    def test_given_career_voice_newer_when_planning_then_keeps_it(self):
+        import os
+        with tempfile.TemporaryDirectory() as d:
+            home = Path(d)
+            write(home, f"{LEGACY}/voice.md", "legacy rules")
+            write(home, f"{CAREER}/voice.md", "edited rules")
+            os.utime(home / LEGACY / "voice.md", (1_000_000, 1_000_000))
+            self.assertFalse([a for a in cs.plan_migration(str(home)) if a["path"].endswith("voice.md")])
 
 
 class Config(unittest.TestCase):

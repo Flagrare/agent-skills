@@ -81,14 +81,72 @@ def plan_migration(home: str) -> list[dict]:
                 content = career_log.rstrip('\n') + '\n' + '\n'.join(missing) + '\n'
                 actions.append({"action": "write", "path": p["log"], "content": content, "reason": "append missing legacy entries to career log"})
 
-    for legacy_name, target_key in (("state.json", "scan_state"), ("voice.md", "voice")):
-        source = _read(legacy / legacy_name)
-        if source is not None and not Path(p[target_key]).is_file():
-            actions.append({"action": "write", "path": p[target_key], "content": source, "reason": f"copy {legacy_name} from senior-scan"})
+    actions += _plan_scan_state(legacy / "state.json", Path(p["scan_state"]))
+    actions += _plan_voice(legacy / "voice.md", Path(p["voice"]))
 
     if legacy.is_dir() and not (legacy / "MOVED.md").is_file():
         actions.append({"action": "write", "path": str(legacy / "MOVED.md"), "content": MOVED_NOTE, "reason": "pointer to the new career folder"})
     return actions
+
+
+def _merge_seen(legacy: list, career: list) -> list:
+    """Union of seen items by id. A contributed item wins; otherwise the later surfaced_at wins."""
+    merged: dict[str, dict] = {}
+    order: list[str] = []
+    for item in (legacy or []) + (career or []):
+        key = item.get("id")
+        if key is None:
+            continue
+        if key not in merged:
+            merged[key] = item
+            order.append(key)
+            continue
+        current = merged[key]
+        if current.get("status") == "contributed" and item.get("status") != "contributed":
+            continue
+        if item.get("status") == "contributed" and current.get("status") != "contributed":
+            merged[key] = item
+            continue
+        if str(item.get("surfaced_at", "")) >= str(current.get("surfaced_at", "")):
+            merged[key] = item
+    return [merged[k] for k in order]
+
+
+def _plan_scan_state(legacy_path: Path, career_path: Path) -> list[dict]:
+    """Copy or merge senior-scan's state.json into career/scan-state.json, never losing a seen item."""
+    legacy_text = _read(legacy_path)
+    if legacy_text is None:
+        return []
+    career_text = _read(career_path)
+    if career_text is None:
+        return [{"action": "write", "path": str(career_path), "content": legacy_text, "reason": "copy state.json from senior-scan"}]
+    try:
+        legacy_state = json.loads(legacy_text)
+        career_state = json.loads(career_text)
+    except json.JSONDecodeError:
+        return []
+    merged = {**legacy_state, **career_state}
+    if "last_run" in legacy_state or "last_run" in career_state:
+        merged["last_run"] = max(str(legacy_state.get("last_run") or ""), str(career_state.get("last_run") or ""))
+    if "seen" in legacy_state or "seen" in career_state:
+        merged["seen"] = _merge_seen(legacy_state.get("seen", []), career_state.get("seen", []))
+    if merged == career_state:
+        return []
+    content = json.dumps(merged, indent=2, ensure_ascii=False) + "\n"
+    return [{"action": "write", "path": str(career_path), "content": content, "reason": "merge newer senior-scan state into career scan-state"}]
+
+
+def _plan_voice(legacy_path: Path, career_path: Path) -> list[dict]:
+    """Copy voice.md when missing, or when the legacy copy is newer and different."""
+    legacy_text = _read(legacy_path)
+    if legacy_text is None:
+        return []
+    career_text = _read(career_path)
+    if career_text is None:
+        return [{"action": "write", "path": str(career_path), "content": legacy_text, "reason": "copy voice.md from senior-scan"}]
+    if legacy_text != career_text and legacy_path.stat().st_mtime > career_path.stat().st_mtime:
+        return [{"action": "write", "path": str(career_path), "content": legacy_text, "reason": "legacy voice.md is newer"}]
+    return []
 
 
 def skill_config(config: dict, name: str) -> dict:
