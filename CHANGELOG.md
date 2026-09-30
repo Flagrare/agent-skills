@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.45.0: 2026-09-30
+
+The scan finally knows where you're going.
+
+### Improved Skills
+
+- **`/flagrare:impact-scan`, scored against your promotion map**: the Stretch axis used to mean "exercises one of the behaviors you typed at onboarding", a list that never changes as you close gaps. Field-tested the hard way: a day of promotion research produced the rubric rows still open and the directors who had never seen the user's work, and the scan could use none of it. With a map, Stretch now asks which open rubric row an item moves (chosen from the map's rows, never invented), and Audience asks whether someone who hasn't seen your work will see it. The digest names the area in plain words and keeps the row id out of the table, and posted contributions carry an optional `| row: <id>` tag. When a sweep sees a reorg, a departure or a published review calendar, the scan raises a flag so the next `/flagrare:promotion` refresh re-checks that part of the map. Problems that keep coming back from different threads are recorded in `initiatives.json`; on the second sighting the scan hands the problem off instead of drafting another comment, ready for the upcoming `/flagrare:opportunity-scan`. Without a map, nothing changes.
+
+### Tooling
+
+- **Career library**: `scoring.py context` lists what the scan scores against (open rows, people who haven't seen your work, or the config fallback), and `career_state.py flag` and `candidate` plan the flag and candidate files without writing them. A thread that keeps escalating never counts as a second sighting, and a reworded flag with the same source is not raised twice. The first evals for impact-scan cover map-aware ranking, flags and hand-off.
+
 ## 1.44.0: 2026-09-30
 
 Same scan, new name, one shared place for your evidence.
