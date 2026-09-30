@@ -12,13 +12,14 @@ STATUSES = {"verified", "unverified", "inferred"}
 
 def _walk(node: object, path: str):
     if isinstance(node, dict):
-        if "status" in node:
+        is_fact = "value" in node or "alternatives" in node
+        if is_fact:
             yield path, node
             for i, alt in enumerate(node.get("alternatives", []) or []):
                 yield from _walk(alt, f"{path}.alternatives[{i}]")
-            return
-        for key, value in node.items():
-            yield from _walk(value, f"{path}.{key}" if path else key)
+        else:
+            for key, value in node.items():
+                yield from _walk(value, f"{path}.{key}" if path else key)
     elif isinstance(node, list):
         for i, value in enumerate(node):
             yield from _walk(value, f"{path}[{i}]")
@@ -30,15 +31,23 @@ def validate(m: dict) -> list[str]:
         if section not in m:
             continue
         for path, fact in _walk(m[section], section):
-            if fact.get("status") not in STATUSES:
+            if "status" not in fact:
+                errors.append(f"{path}: missing status")
+            elif fact.get("status") not in STATUSES:
                 errors.append(f"{path}: status must be one of {sorted(STATUSES)}")
             if "alternatives" in fact:
                 if len(fact["alternatives"]) < 2:
                     errors.append(f"{path}: alternatives needs at least two entries")
                 continue
-            for field in ("value", "source", "checked_at"):
-                if field not in fact:
-                    errors.append(f"{path}: missing {field}")
+            if "value" in fact:
+                for field in ("source", "checked_at"):
+                    if field not in fact:
+                        errors.append(f"{path}: missing {field}")
+                if "checked_at" in fact:
+                    try:
+                        date.fromisoformat(fact["checked_at"])
+                    except (ValueError, TypeError):
+                        errors.append(f"{path}: checked_at must be an ISO date (YYYY-MM-DD)")
     return errors
 
 
@@ -60,8 +69,18 @@ def stale_sections(m: dict, today: date, days: int = 90) -> list[str]:
     for section in SECTIONS:
         if section not in m:
             continue
-        checked = meta.get(section, {}).get("checked_at")
-        if not checked or (today - date.fromisoformat(checked)).days > days:
+        section_meta = meta.get(section, {})
+        if not isinstance(section_meta, dict):
+            stale.append(section)
+            continue
+        checked = section_meta.get("checked_at")
+        if not checked:
+            stale.append(section)
+            continue
+        try:
+            if (today - date.fromisoformat(checked)).days > days:
+                stale.append(section)
+        except (ValueError, TypeError):
             stale.append(section)
     return stale
 
