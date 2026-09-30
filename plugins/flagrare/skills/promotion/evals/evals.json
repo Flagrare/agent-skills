@@ -1,0 +1,29 @@
+{
+  "skill_name": "promotion",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "I want to get promoted. Can you build my promotion map?",
+      "expected_output": "Agent says the first run is long and saves after each phase, then interviews before researching: asks current and target level, track (IC or manager), target cycle, and why plus what work they want more of and less of, one question at a time.",
+      "files": []
+    },
+    {
+      "id": 1,
+      "prompt": "HR hasn't published this year's review calendar. Last year packets were due January 7 and we lose Dec 20 to Jan 2 to holidays. When do I need to talk to my manager?",
+      "expected_output": "Agent runs the deadline calculator (or reasons the same way), gives a comfortable date and an absolute date, marks both inferred because the calendar is unpublished, and says to re-check when HR publishes.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "The squad directory in Notion says my future manager reports to Neil, but the Miro org chart shows them reporting to Karen. Which is right?",
+      "expected_output": "Agent does not pick one silently: records both as alternatives with their sources and status unverified, shows both to the user, and suggests how to confirm (for example, asking the manager).",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Update my promotion map with how promotions are decided at my company.",
+      "expected_output": "When no written process is found in the connected sources, the agent says so, adds concrete questions to manager_questions (who decides, when, what the packet looks like) instead of inventing a process, and saves the partial map.",
+      "files": []
+    }
+  ]
+}
