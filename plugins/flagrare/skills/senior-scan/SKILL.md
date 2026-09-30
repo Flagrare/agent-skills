@@ -25,7 +25,7 @@ The scan is **read-only**. Sweep agents must never post, react, comment, or appr
 
 ## Setup (first run only)
 
-Config lives in the shared **`~/.claude/skills/flagrare/config.json`**: skill-agnostic keys (GitHub login, display name, repo scope) at the top level, senior-scan keys under `skills["senior-scan"]`. Mutable files live in **`~/.claude/skills/flagrare/senior-scan/`** (`state.json`, `contributions.log.md`, `voice.md`), outside the plugin tree so they survive plugin updates.
+Config lives in the shared **`~/.claude/skills/flagrare/config.json`**: skill-agnostic keys (GitHub login, display name, repo scope) at the top level, senior-scan keys under `skills["senior-scan"]`. Mutable files live in **`~/.claude/skills/flagrare/senior-scan/`** (`state.json`, `contributions.log.md`, `voice.md`), outside the plugin tree so they survive plugin updates. The user's **board** (a local HTML dashboard of open items and the evidence log, see workflow step 7) lives wherever `skills["senior-scan"].board.dir` points.
 
 Write these files (and `config.json`) with the Write tool, never from Bash: a sandboxed Bash cannot write under `~/.claude/skills`, and a failed state write silently breaks dedupe across runs. Reading them from Bash is fine; expand `~` explicitly as `$HOME`.
 
@@ -48,6 +48,7 @@ The interview is half discovery, half confirmation: propose from real data where
    - **tickets**: projects or teams whose comment threads matter, proposed the same way
 5. **Audience (optional).** Names whose visibility matters for the promotion case: manager, senior/staff engineers, adjacent team leads. Powers the Audience score; without it that axis defaults to 1 and the skill says so.
 6. **Voice.** Fetch a sample of the user's own recent writing (their Slack messages, their PR review comments, not other people's), distill 5-8 observed rules (sentence length, hedging style, formality, emoji use, how they disagree), and write them to `voice.md`. Show the rules for confirmation. If no sample is reachable, fall back to the generic drafting rules below and note it.
+7. **Board.** Ask where the board should live (default `~/senior-scan-board`) and save it as `board.dir`. If the user already keeps a dashboard of these items, point `board.dir` at its folder instead of creating a second one. The board itself is created at the end of the first scan (workflow step 7).
 
 Save, then show the full config summary for one final confirmation and set `onboarding_complete: true`.
 
@@ -72,7 +73,8 @@ Save, then show the full config summary for one final confirmation and set `onbo
         { "type": "docs", "mcp": "confluence", "scope": ["ENG space, RFC section"] }
       ],
       "audience": ["grace (manager)", "dknuth (staff)"],
-      "exclusions": ["#random", "PRs the user authored"]
+      "exclusions": ["#random", "PRs the user authored"],
+      "board": { "dir": "~/senior-scan-board" }
     }
   }
 }
@@ -162,7 +164,7 @@ Read `voice.md` first if it exists; its observed rules win over the generic ones
 
 ### 6. Update state and the evidence trail
 
-After presenting, write `state.json` with the Write tool: update `last_run`, append surfaced items with `status: "surfaced"`. If the write fails, say so in the digest's caveat line, since the next run will re-surface the same items.
+After presenting, write `state.json` with the Write tool: update `last_run`, append surfaced items with `status: "surfaced"`. If the write fails, say so in the digest's caveat line, since the next run will re-surface the same items. Then update the board (step 7) in the same turn.
 
 When the user approves and posts a contribution (or says they handled it), set that item's status to `"contributed"` and append to `contributions.log.md`:
 
@@ -171,3 +173,40 @@ When the user approves and posts a contribution (or says they handled it), set t
 ```
 
 This log is the promotion evidence trail, the lagging indicator made legible. When the user later runs `/flagrare:brag-doc` or builds a promo packet, point them at it; brag-doc should treat it as a first-class source.
+
+Every log entry is also a board update: rebuild so the evidence log shows it, and move the item to `waiting` (a reply is expected) or `done`.
+
+### 7. Keep the board current
+
+The board is the expected output of every scan, not an extra: a local page the user opens to see what to act on next, what is waiting on someone else, and the evidence log. The digest is read once; the board is what they come back to. It is display-only: `data.json` is the single source of truth, the user tells you in chat what changed, and you update the file and rebuild.
+
+**First scan, or no board yet.** If `board.dir` is unset (including users onboarded before the board existed) or the folder has no `data.json`, create it at the end of this run: ask for the location once (default `~/senior-scan-board`), save `board.dir`, write `data.json` from this scan, build, and tell the user how to open it. Never finish a scan with no board and no caveat saying why.
+
+**Every update.** Write `<board.dir>/data.json` with the Write tool, then run `python3 <this skill's base directory>/board/build.py <board.dir>`, which renders `board.html` from the bundled template plus the contributions log. If the sandbox blocks the write outside the working folder, rerun the build outside the sandbox. Rebuild after the scan AND whenever an item changes (a draft posted, an item now waiting on someone, done, dropped), in the same turn you update `state.json` or the log, so the board never lags the conversation. If the build fails, say so in the caveat line.
+
+`data.json` shape:
+
+```json
+{
+  "scan": { "date": "2026-09-30", "window": "Sep 29 14:18 UTC to Sep 30 13:30 UTC", "caveats": "Jira skipped" },
+  "behaviors": ["raising the quality bar", "unblocking others"],
+  "items": [{
+    "id": "short-stable-slug", "rank": 1, "status": "todo",
+    "urgency": "today", "effort": "15 min", "deadline": "2 approvals, could merge today",
+    "source": "github", "kind": "review",
+    "action": "Point out the flyout always shows the last 7 days",
+    "link": "https://...", "context": "Whose thing, what it is, where it stands",
+    "why": "Impact in 12 words or less", "behavior": "raising the quality bar",
+    "draft": "ready-to-send text", "draft_where": "GitHub inline comment on file.js:60",
+    "check_first": "the one check that makes a draft safe",
+    "waiting_on": "Eric", "since": "2026-09-29"
+  }]
+}
+```
+
+- `status`: `todo` (shown in the ranked list), `waiting` (raised, waiting on someone; set `waiting_on` and `since`, and after 3 days the board suggests a nudge), `done`, `dropped`.
+- `urgency`: `today` (could merge or close before the user acts), `week`, `later`. `deadline` says why.
+- `behaviors`: the configured target behaviors; the board shows evidence coverage for each.
+- An item carries either `draft` or `check_first`, never a draft built on an unverified claim. The same product-language rules as the digest table apply to `action`, `context` and `why`.
+- Keep ids stable across runs. Before adding an item, check for an existing one about the same thread: update it instead of adding a duplicate, and if the new scan contradicts its text, fix the text or flag the conflict to the user.
+
