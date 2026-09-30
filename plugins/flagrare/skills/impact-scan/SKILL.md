@@ -92,11 +92,15 @@ Re-run any onboarding step when the user says "reconfigure", or when they say th
 
 Run the load-state step from Setup first (`career_state.py plan`, applied with the Write tool), then read `career/scan-state.json` (`{ "last_run": iso8601, "seen": [{ "id", "source", "surfaced_at", "status" }] }`). The scan window is `last_run` to now; if no state exists, default to the last 48 hours, capped at 7 days. Items already in `seen` are only re-surfaced if they escalated: a new decision point, a new unanswered question, a thread reopened.
 
+Then get the scoring inputs: run `python3 <plugin root>/lib/career/scoring.py context --home "$HOME"`. It prints `has_map`, the map's `open_rows` (rubric rows not yet done, each with `id`, `area` and `target_text`), `unseen_people` (people who have not seen the user's work yet), and a `fallback` with the configured `target_behaviors` and `audience`. The sweeps and step 3 use them.
+
 ### 2. Sweep in parallel
 
 Spawn **one read-only sweep subagent per configured surface**, all in the same message so they run concurrently. Each gets its surface's scope, the domain map with keywords, the exclusions, the user's identity (so their own posts are skipped), and the time window.
 
 Every sweep hunts the same four signals: (a) a decision still being formed (architecture, API contracts, migrations, process); (b) a question nobody has answered well, or a thread going in circles; (c) a discussion inside the user's domains that is missing context the user has; (d) work from other teams that touches systems the user owns or depends on. And every sweep returns the same shape, raw findings only, no ranking: location and link, participants, a 2-3 sentence summary, matched signal(s), and the specific gap the user could fill.
+
+When `has_map` is true, each sweep also returns a separate short list of **map events**, exempt from the ignore rules below: a reorg or team change, someone leaving, a new manager or director, a change to the promotion process, or HR publishing the review calendar. Each event has its link and one plain sentence. These are not items to weigh in on; they feed the staleness flags in step 3b.
 
 **Chat sweep (reference: Slack).** Read recent activity in each configured channel, follow interesting threads, and additionally run 2-3 keyword searches from the domain map, since relevant discussions happen outside configured channels. Ignore social chatter, resolved threads, FYI-only announcements, and threads where the right people are already converging.
 
@@ -106,27 +110,25 @@ Every sweep hunts the same four signals: (a) a decision still being formed (arch
 
 ### 3. Score and cut
 
-First get the scoring inputs: run `python3 <plugin root>/lib/career/scoring.py context --home "$HOME"`. It prints `has_map`, the map's `open_rows` (rubric rows not yet done, each with `id`, `area` and `target_text`), `unseen_people` (people who have not seen the user's work yet), and a `fallback` with the configured `target_behaviors` and `audience`.
-
 Score each candidate 0-2 on five axes:
 
 - **Leverage**: would weighing in change the outcome, or just add a voice? A decided thread scores 0.
 - **Credibility**: does the user have specific knowledge, context, or ownership the participants lack? Generic "good point" opinions score 0.
 - **Stretch**: does this move one of the `open_rows` forward, beyond the user's assigned lane? Pick the row it moves from `open_rows` only, and never invent a row id. With no map or no open rows, use the configured target behaviors instead. Routine work in their own tickets scores low.
-- **Audience**: who will see the contribution? 2 if someone in `unseen_people` will, 1 if only people who already know the user's work will, 0 if nobody whose view matters will. With no map, use the configured audience as before: will they (or their equivalents) see it? With neither, it defaults to 1.
+- **Audience**: who will see the contribution? 2 if someone in `unseen_people` will, 1 if only people who already know the user's work will, 0 if nobody whose view matters will. With no map, or when `unseen_people` is empty (the map has no people yet), use the configured audience as before: will they (or their equivalents) see it? With neither, it defaults to 1.
 - **Timing**: is the window still open? A decision landing today scores 2; something simmering for weeks scores 1.
 
-**Hard filter first:** drop anything with Leverage 0 or Credibility 0, regardless of the other axes. That is the anti-performative rule, and it is not negotiable, it protects the user's reputation. Then run step 3b on the survivors, so problems ready for hand-off leave the ranking and flags are known before the digest. Rank what is left by total and keep at most 5. Dedupe against `scan-state.json` before presenting.
+**Hard filter first:** drop anything with Leverage 0 or Credibility 0, regardless of the other axes. That is the anti-performative rule, and it is not negotiable, it protects the user's reputation. Then run step 3b (flags from the sweeps' map events, hand-off from the problem-type survivors), so problems ready for hand-off leave the ranking and flags are known before the digest. Rank what is left by total and keep at most 5. Dedupe against `scan-state.json` before presenting.
 
 ### 3b. Flags and hand-off (with a map, before the cut)
 
 This step runs only when `has_map` is true; without a map, skip it and the digest has no Flags raised or Handed off lines. It keeps the other career skills current through two small records. Write each with the Write tool from the action the script prints, reading the target first if it exists. When several calls plan writes to the same file, apply them one at a time: write the first result, then run the next call, so each one sees the file as it now is.
 
-**Staleness flags.** When a sweep sees something that makes part of the promotion map out of date, raise a flag for that map section: a reorg or team change (`org`), someone leaving or a new manager or director (`org` and `people`), a change to the promotion process (`process`), HR publishing the review calendar (`calendar`). Run `python3 <plugin root>/lib/career/career_state.py flag --home "$HOME" --section <section> --reason "<what changed, plain words>" --source <link> --today <YYYY-MM-DD>`. `--section` must be one of the map's sections listed in `<plugin root>/lib/career/STATE.md`; the script rejects anything else. The same flag is never raised twice.
+**Staleness flags.** For each map event the sweeps returned (these never need to pass the hard filter), raise a flag for the map section it makes out of date: a reorg or team change (`org`), someone leaving or a new manager or director (`org` and `people`), a change to the promotion process (`process`), HR publishing the review calendar (`calendar`). Run `python3 <plugin root>/lib/career/career_state.py flag --home "$HOME" --section <section> --reason "<what changed, plain words>" --source <link> --today <YYYY-MM-DD>`. `--section` must be one of the map's sections listed in `<plugin root>/lib/career/STATE.md`; the script rejects anything else. The same flag is never raised twice.
 
 **Hand-off of recurring problems.** Some items are problems rather than decisions: something broken, missing, or painful for users or partners (a class of failures, a gap nobody owns, the same question asked again). Record each problem-type item that passes the hard filter, once per scan run: `python3 <plugin root>/lib/career/career_state.py candidate --home "$HOME" --id <stable-slug> --title "<problem in plain words>" --evidence <link> --today <YYYY-MM-DD>`. To find an earlier sighting, compare with the existing candidates in `initiatives.json` by title and evidence; reuse that id when it is the same underlying problem, otherwise choose a new stable slug. A second sighting means the same problem showing up somewhere else (a different thread, incident or ticket), not the same thread continuing; the script ignores an evidence link it already has, so an escalating thread never counts twice.
 
-Read the candidate's `seen_count` from the planned `initiatives.json` content, or, when the script plans nothing (the link was already recorded), from `initiatives.json` itself. At 2 or more the problem is handed off: it leaves the ranking before the top-5 cut (it never takes one of the 5 slots), gets no draft, appears only on the digest's **Handed off** line, and goes into `scan-state.json` with status `handed_off` in step 6. Owning the fix is worth more than a third comment. The candidates wait in `initiatives.json` for `/flagrare:opportunity-scan` (coming in a later release).
+Record every sighting from this run first, then decide hand-offs: two new threads about the same problem in one run count as two sightings, and neither gets a draft once the count reaches 2. Read the candidate's `seen_count` from the planned `initiatives.json` content, or, when the script plans nothing (the link was already recorded), from `initiatives.json` itself. At 2 or more the problem is handed off: it leaves the ranking before the top-5 cut (it never takes one of the 5 slots), gets no draft, appears only on the digest's **Handed off** line, and goes into `scan-state.json` with status `handed_off` in step 6. Owning the fix is worth more than a third comment. The candidates wait in `initiatives.json` for `/flagrare:opportunity-scan` (coming in a later release).
 
 ### 4. Present the digest
 
@@ -143,14 +145,14 @@ Do not relay each sweep's findings as it lands; the digest is the only output. W
 | 2 | A restaurant got no email or text for two app orders on 9/24; a support lead asked in the [squad channel](<permalink>) whether it should have, nobody answered | Tell them which email should have fired and whether it did | A partner missed real orders, support is stuck · unblocking others | Check first: look the order up in the email tool |
 
 ### 1. <same verb-first action>
-<one sentence: what is happening and where it stands>. <one sentence: why you, naming the fact or context only you bring>.
+<one sentence: what is happening and where it stands>. <one sentence: why you, naming the fact or context only you bring>. (<rubric row id>, only with a map)
 > <draft, at most 3 sentences>
 
 (repeat per item)
 
 **Cut:** <near-miss, reason>; <near-miss, reason>; ...
 **Flags raised:** <map section>: <what changed> (only when step 3b raised a flag)
-**Handed off:** <problem in plain words> (seen <N> times, now a candidate in `initiatives.json`) (only when step 3b handed one off)
+**Handed off:** <problem in plain words> (seen <N> times, recorded in `initiatives.json`) (only when step 3b handed one off)
 ```
 
 Rules that keep it scannable:
