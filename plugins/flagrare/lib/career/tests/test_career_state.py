@@ -176,6 +176,45 @@ class ScanStateMerge(unittest.TestCase):
             write(home, f"{CAREER}/scan-state.json", json.dumps(state))
             self.assertEqual(self._plan_state(home), {})
 
+    def test_given_career_has_id_less_seen_items_when_merging_then_keeps_them(self):
+        with tempfile.TemporaryDirectory() as d:
+            home = Path(d)
+            write(home, f"{LEGACY}/state.json", json.dumps({"last_run": "2026-10-05", "seen": [{"id": "a", "status": "surfaced", "surfaced_at": "2026-10-05"}]}))
+            write(home, f"{CAREER}/scan-state.json", json.dumps({"last_run": "2026-09-30", "seen": [{"id": "b", "status": "surfaced", "surfaced_at": "2026-09-30"}, {"note": "noid"}]}))
+            merged = self._plan_state(home)
+            ids = [i.get("id") for i in merged["seen"]]
+            self.assertEqual(ids[:2], ["b", "a"])
+            self.assertTrue(any(i.get("note") == "noid" for i in merged["seen"]))
+
+    def test_given_legacy_state_json_is_not_dict_when_planning_then_no_write(self):
+        with tempfile.TemporaryDirectory() as d:
+            home = Path(d)
+            write(home, f"{LEGACY}/state.json", json.dumps([1]))
+            write(home, f"{CAREER}/scan-state.json", json.dumps({"last_run": "2026-09-30"}))
+            self.assertEqual(self._plan_state(home), {})
+
+    def test_given_seen_contains_non_dict_when_planning_then_no_write(self):
+        with tempfile.TemporaryDirectory() as d:
+            home = Path(d)
+            write(home, f"{LEGACY}/state.json", json.dumps({"last_run": "2026-10-05", "seen": ["x"]}))
+            write(home, f"{CAREER}/scan-state.json", json.dumps({"last_run": "2026-09-30"}))
+            self.assertEqual(self._plan_state(home), {})
+
+    def test_given_diverged_states_when_planning_and_applying_then_replan_idempotent(self):
+        with tempfile.TemporaryDirectory() as d:
+            home = Path(d)
+            legacy_state = {"last_run": "2026-10-05", "seen": [{"id": "a", "status": "surfaced", "surfaced_at": "2026-10-05"}]}
+            career_state = {"last_run": "2026-09-30", "seen": [{"id": "b", "status": "surfaced", "surfaced_at": "2026-09-30"}]}
+            write(home, f"{LEGACY}/state.json", json.dumps(legacy_state))
+            write(home, f"{CAREER}/scan-state.json", json.dumps(career_state))
+            actions = cs.plan_migration(str(home))
+            state_writes = [a for a in actions if a["path"].endswith("scan-state.json")]
+            self.assertTrue(len(state_writes) > 0)
+            Path(state_writes[0]["path"]).write_text(state_writes[0]["content"])
+            again = cs.plan_migration(str(home))
+            replan_state_writes = [a for a in again if a["path"].endswith("scan-state.json")]
+            self.assertEqual(len(replan_state_writes), 0)
+
 
 class VoiceCopy(unittest.TestCase):
     def test_given_legacy_voice_newer_and_different_when_planning_then_copies_it(self):

@@ -90,12 +90,17 @@ def plan_migration(home: str) -> list[dict]:
 
 
 def _merge_seen(legacy: list, career: list) -> list:
-    """Union of seen items by id. A contributed item wins; otherwise the later surfaced_at wins."""
+    """Union of seen items by id. A contributed item wins; otherwise the later surfaced_at wins. Keeps id-less items."""
     merged: dict[str, dict] = {}
     order: list[str] = []
-    for item in (legacy or []) + (career or []):
+    id_less: list[dict] = []
+    seen_id_less: list[dict] = []
+    for item in (career or []) + (legacy or []):
         key = item.get("id")
         if key is None:
+            if not any(i == item for i in seen_id_less):
+                id_less.append(item)
+                seen_id_less.append(item)
             continue
         if key not in merged:
             merged[key] = item
@@ -109,7 +114,7 @@ def _merge_seen(legacy: list, career: list) -> list:
             continue
         if str(item.get("surfaced_at", "")) >= str(current.get("surfaced_at", "")):
             merged[key] = item
-    return [merged[k] for k in order]
+    return [merged[k] for k in order] + id_less
 
 
 def _plan_scan_state(legacy_path: Path, career_path: Path) -> list[dict]:
@@ -125,6 +130,22 @@ def _plan_scan_state(legacy_path: Path, career_path: Path) -> list[dict]:
         career_state = json.loads(career_text)
     except json.JSONDecodeError:
         return []
+    if not isinstance(legacy_state, dict) or not isinstance(career_state, dict):
+        return []
+    legacy_seen = legacy_state.get("seen")
+    career_seen = career_state.get("seen")
+    if legacy_seen is not None and not isinstance(legacy_seen, list):
+        return []
+    if career_seen is not None and not isinstance(career_seen, list):
+        return []
+    if legacy_seen is not None:
+        for item in legacy_seen:
+            if not isinstance(item, dict):
+                return []
+    if career_seen is not None:
+        for item in career_seen:
+            if not isinstance(item, dict):
+                return []
     merged = {**legacy_state, **career_state}
     if "last_run" in legacy_state or "last_run" in career_state:
         merged["last_run"] = max(str(legacy_state.get("last_run") or ""), str(career_state.get("last_run") or ""))
