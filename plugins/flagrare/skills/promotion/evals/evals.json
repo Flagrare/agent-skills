@@ -15,7 +15,7 @@
     },
     {
       "id": 2,
-      "prompt": "The squad directory in Notion says my future manager reports to Neil, but the Miro org chart shows them reporting to Karen. Which is right?",
+      "prompt": "The squad directory in Notion says my future manager reports to Alex, but the Miro org chart shows them reporting to Sam. Which is right?",
       "expected_output": "Agent does not pick one silently: records both as alternatives with their sources and status unverified, shows both to the user, and suggests how to confirm (for example, asking the manager).",
       "files": []
     },

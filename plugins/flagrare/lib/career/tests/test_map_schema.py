@@ -39,8 +39,8 @@ class Conflicts(unittest.TestCase):
         fact = {
             "status": "unverified",
             "alternatives": [
-                {"value": "Neil", "source": "notion", "checked_at": "2026-09-30", "status": "unverified"},
-                {"value": "Karen", "source": "miro", "checked_at": "2026-09-30", "status": "unverified"},
+                {"value": "Alex", "source": "notion", "checked_at": "2026-09-30", "status": "unverified"},
+                {"value": "Sam", "source": "miro", "checked_at": "2026-09-30", "status": "unverified"},
             ],
         }
         m = {"org": {"n2_manager_reports_to": fact}}

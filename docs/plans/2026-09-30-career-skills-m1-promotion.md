@@ -419,8 +419,8 @@ class Conflicts(unittest.TestCase):
         fact = {
             "status": "unverified",
             "alternatives": [
-                {"value": "Neil", "source": "notion", "checked_at": "2026-09-30", "status": "unverified"},
-                {"value": "Karen", "source": "miro", "checked_at": "2026-09-30", "status": "unverified"},
+                {"value": "Alex", "source": "notion", "checked_at": "2026-09-30", "status": "unverified"},
+                {"value": "Sam", "source": "miro", "checked_at": "2026-09-30", "status": "unverified"},
             ],
         }
         m = {"org": {"n2_manager_reports_to": fact}}
@@ -1010,7 +1010,7 @@ git commit -m "✨ feat(promotion): promotion skill with sourced four-phase map,
     },
     {
       "id": 2,
-      "prompt": "The squad directory in Notion says my future manager reports to Neil, but the Miro org chart shows them reporting to Karen. Which is right?",
+      "prompt": "The squad directory in Notion says my future manager reports to Alex, but the Miro org chart shows them reporting to Sam. Which is right?",
       "expected_output": "Agent does not pick one silently: records both as alternatives with their sources and status unverified, shows both to the user, and suggests how to confirm (for example, asking the manager).",
       "files": []
     },
