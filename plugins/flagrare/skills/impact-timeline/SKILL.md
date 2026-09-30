@@ -48,7 +48,7 @@ For each month, in order, gather then write before advancing. Per month:
 
 Notion tends to be low-yield per month; search it once per initiative (specs, test plans, architecture docs the person authored) rather than per month.
 
-If `~/.claude/skills/flagrare/senior-scan/contributions.log.md` exists, read it once before the loop: `/flagrare:senior-scan` appends dated, already-vetted contributions there (design-review interventions, unblocking threads, RFC comments), which are exactly the amplification evidence a git/tracker sweep cannot see. Fold entries into their months as amplification, not IC work.
+If `~/.claude/skills/flagrare/career/contributions.log.md` exists (or, on setups that have not run a career skill yet, `~/.claude/skills/flagrare/senior-scan/contributions.log.md`), read it once before the loop: `/flagrare:impact-scan` (formerly senior-scan) appends dated, already-vetted contributions there (design-review interventions, unblocking threads, RFC comments), which are exactly the amplification evidence a git/tracker sweep cannot see. Fold entries into their months as amplification, not IC work.
 
 ## Phase 3: Meeting-notes sweep
 
