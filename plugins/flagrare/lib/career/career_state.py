@@ -14,9 +14,9 @@ CAREER_REL = Path(".claude/skills/flagrare/career")
 LEGACY_REL = Path(".claude/skills/flagrare/senior-scan")
 CONFIG_REL = Path(".claude/skills/flagrare/config.json")
 MOVED_NOTE = (
-    "# Mirrored\n\n"
-    "`~/.claude/skills/flagrare/career/` mirrors these files for the career skills.\n"
-    "Senior-scan still writes here until impact-scan replaces it; nothing here is deleted.\n"
+    "# Moved\n\n"
+    "`~/.claude/skills/flagrare/career/` now holds these files for the career skills; impact-scan (formerly senior-scan) writes there.\n"
+    "This folder is kept as a backup and nothing here is deleted.\n"
 )
 
 
