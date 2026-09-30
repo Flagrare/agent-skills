@@ -1,0 +1,348 @@
+<title>Senior Scan Board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a dispatch desk. One "next up" ticket on top, then a triage queue grouped by urgency (numbered = real order), with a narrow rail for what you're waiting on and the promo evidence coverage. */
+:root {
+  --bg: #eef0ec;
+  --panel: #ffffff;
+  --panel-2: #f7f8f5;
+  --ink: #161a1d;
+  --ink-2: #3b4449;
+  --muted: #6b757b;
+  --line: #d7dcd6;
+  --accent: #0d6b66;
+  --accent-ink: #ffffff;
+  --accent-soft: #dcefeb;
+  --now: #c2410c;
+  --now-soft: #fde6d7;
+  --week: #9a6b00;
+  --week-soft: #fbf0d3;
+  --later: #5b6670;
+  --later-soft: #e8ecee;
+  --good: #1f7a45;
+  --good-soft: #dcf1e3;
+  --wait: #6a4fa3;
+  --wait-soft: #ece6f7;
+  --code: #eceeea;
+  --shadow: 0 1px 0 rgba(22, 26, 29, 0.04), 0 8px 24px -16px rgba(22, 26, 29, 0.25);
+  --display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --body: "Atkinson Hyperlegible", "Segoe UI", Roboto, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #101416; --panel: #171d20; --panel-2: #1c2327; --ink: #e8edef; --ink-2: #c3ccd1; --muted: #8f9ba2; --line: #2a3338;
+    --accent: #3fb6ab; --accent-ink: #0b1414; --accent-soft: #143331;
+    --now: #ff8a4c; --now-soft: #3a1f12; --week: #e8b74a; --week-soft: #33280f; --later: #9aa6ad; --later-soft: #232b30;
+    --good: #6fd197; --good-soft: #15301f; --wait: #b8a2ec; --wait-soft: #261f3a; --code: #222a2e;
+    --shadow: 0 1px 0 rgba(0,0,0,0.3), 0 10px 28px -18px rgba(0,0,0,0.8);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #101416; --panel: #171d20; --panel-2: #1c2327; --ink: #e8edef; --ink-2: #c3ccd1; --muted: #8f9ba2; --line: #2a3338;
+  --accent: #3fb6ab; --accent-ink: #0b1414; --accent-soft: #143331;
+  --now: #ff8a4c; --now-soft: #3a1f12; --week: #e8b74a; --week-soft: #33280f; --later: #9aa6ad; --later-soft: #232b30;
+  --good: #6fd197; --good-soft: #15301f; --wait: #b8a2ec; --wait-soft: #261f3a; --code: #222a2e;
+  --shadow: 0 1px 0 rgba(0,0,0,0.3), 0 10px 28px -18px rgba(0,0,0,0.8);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.5; }
+a { color: inherit; }
+code { font-family: var(--mono); font-size: 0.86em; background: var(--code); padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+
+.wrap { max-width: 1240px; margin: 0 auto; padding-inline: 20px; padding-block: 24px 64px; }
+
+/* masthead */
+.mast { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px; padding-bottom: 18px; border-bottom: 2px solid var(--ink); }
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand-mark { width: 34px; height: 34px; border-radius: 8px; background: var(--accent); display: grid; place-items: center; flex: none; }
+.brand h1 { font-family: var(--display); font-weight: 800; font-size: 24px; letter-spacing: -0.01em; margin: 0; line-height: 1.1; }
+.brand p { margin: 0; color: var(--muted); font-size: 13px; }
+.tally { display: flex; flex-wrap: wrap; gap: 8px; }
+.tally span { font-size: 13px; padding: 5px 10px; border-radius: 999px; background: var(--panel); border: 1px solid var(--line); white-space: nowrap; }
+.tally b { font-family: var(--display); font-variant-numeric: tabular-nums; }
+.tally .t-now b { color: var(--now); } .tally .t-wait b { color: var(--wait); } .tally .t-good b { color: var(--good); }
+
+.grid { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 28px; margin-top: 24px; align-items: start; }
+@media (max-width: 960px) { .grid { grid-template-columns: minmax(0, 1fr); } }
+
+.eyebrow { font-family: var(--display); font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; }
+
+/* next up */
+.next { background: var(--panel); border-radius: 12px; box-shadow: var(--shadow); border: 1px solid var(--line); border-left: 6px solid var(--now); padding: 20px 22px; display: grid; gap: 12px; }
+.next-top { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.next h2 { font-family: var(--display); font-size: 24px; font-weight: 800; line-height: 1.2; margin: 0; letter-spacing: -0.01em; text-wrap: balance; }
+.next .ctx { color: var(--ink-2); margin: 0; max-width: 70ch; }
+.next .why { margin: 0; font-weight: 700; }
+.next .step { background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; font-size: 14px; }
+.next .step b { font-family: var(--display); font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 2px; }
+.btns { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn { font: inherit; font-weight: 700; font-size: 14px; padding: 8px 14px; border-radius: 8px; border: 1px solid var(--accent); cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+.btn.primary { background: var(--accent); color: var(--accent-ink); }
+.btn.ghost { background: transparent; color: var(--accent); }
+
+/* chips */
+.chip { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 700; padding: 2px 9px; border-radius: 999px; white-space: nowrap; line-height: 1.6; }
+.chip.now { color: var(--now); background: var(--now-soft); }
+.chip.week { color: var(--week); background: var(--week-soft); }
+.chip.later { color: var(--later); background: var(--later-soft); }
+.chip.src { color: var(--ink-2); background: var(--panel-2); border: 1px solid var(--line); font-weight: 500; }
+.chip.verify { color: var(--muted); background: transparent; border: 1px solid var(--line); font-weight: 500; }
+.chip.ready { color: var(--good); background: var(--good-soft); }
+.chip.effort { color: var(--ink-2); background: transparent; border: 1px dashed var(--line); font-weight: 500; }
+.chip.beh { color: var(--accent); background: var(--accent-soft); font-weight: 500; }
+
+/* queue */
+.queue { display: grid; gap: 26px; margin-top: 28px; }
+.tier-head { display: flex; align-items: baseline; gap: 10px; margin: 0 0 8px; }
+.tier-head h3 { font-family: var(--display); font-size: 17px; font-weight: 800; margin: 0; }
+.tier-head .n { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.tier-head .hint { font-size: 13px; color: var(--muted); }
+.tier.now h3 { color: var(--now); } .tier.week h3 { color: var(--week); } .tier.later h3 { color: var(--later); }
+.rows { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+details.row { border-top: 1px solid var(--line); }
+details.row:first-child { border-top: 0; }
+details.row > summary { list-style: none; cursor: pointer; display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; gap: 4px 12px; padding: 12px 14px; align-items: start; }
+details.row > summary::-webkit-details-marker { display: none; }
+details.row > summary:hover { background: var(--panel-2); }
+details.row[open] > summary { background: var(--panel-2); }
+.rank { font-family: var(--display); font-weight: 800; font-size: 18px; color: var(--muted); font-variant-numeric: tabular-nums; line-height: 1.3; }
+.tier.now .rank { color: var(--now); }
+.row-main { min-width: 0; display: grid; gap: 4px; }
+.row-title { font-weight: 700; font-size: 15px; line-height: 1.35; }
+.row-meta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 13px; color: var(--muted); }
+.row-meta .deadline { color: var(--ink-2); }
+.row-right { display: flex; gap: 6px; align-items: center; }
+.caret { color: var(--muted); font-size: 14px; transition: transform 0.15s; padding-top: 2px; }
+details.row[open] .caret { transform: rotate(90deg); }
+.detail { padding: 2px 14px 16px 60px; display: grid; gap: 10px; background: var(--panel-2); }
+.detail p { margin: 0; max-width: 72ch; }
+.detail .lbl { font-family: var(--display); font-size: 11.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 2px; }
+.draft { white-space: pre-wrap; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; font-size: 14px; overflow-wrap: anywhere; }
+.copied { font-size: 12px; color: var(--good); font-weight: 700; }
+
+/* rail */
+.rail { display: grid; gap: 22px; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; }
+.card h3 { font-family: var(--display); font-size: 15px; font-weight: 800; margin: 0 0 10px; display: flex; justify-content: space-between; align-items: baseline; }
+.card h3 .n { font-size: 12.5px; color: var(--muted); font-weight: 500; }
+.wait-item { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 10px; padding: 9px 0; border-top: 1px solid var(--line); }
+.wait-item:first-of-type { border-top: 0; padding-top: 0; }
+.wait-item a { font-weight: 700; font-size: 14px; text-decoration: none; }
+.wait-item a:hover { text-decoration: underline; }
+.wait-item .who { font-size: 12.5px; color: var(--muted); }
+.age { font-family: var(--mono); font-size: 12px; font-variant-numeric: tabular-nums; color: var(--muted); text-align: right; }
+.age.stale { color: var(--now); font-weight: 500; }
+.nudge { grid-column: 1 / -1; font-size: 12px; color: var(--now); }
+.cov { display: grid; gap: 9px; }
+.cov-row { display: grid; gap: 4px; }
+.cov-top { display: flex; justify-content: space-between; font-size: 13px; }
+.cov-top b { font-variant-numeric: tabular-nums; }
+.bar { height: 7px; border-radius: 999px; background: var(--panel-2); border: 1px solid var(--line); overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--accent); border-radius: 999px; }
+.cov-row.gap .cov-top { color: var(--now); }
+.gapnote { font-size: 12.5px; color: var(--muted); margin: 10px 0 0; }
+.evi { display: grid; gap: 10px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
+.evi-item { display: grid; gap: 1px; font-size: 13.5px; }
+.evi-item .d { font-family: var(--mono); font-size: 11.5px; color: var(--muted); }
+.evi-item a { font-weight: 700; text-decoration: none; }
+.evi-item a:hover { text-decoration: underline; }
+.evi-item .w { color: var(--ink-2); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.more { font: inherit; font-size: 13px; font-weight: 700; color: var(--accent); background: none; border: 0; padding: 0; cursor: pointer; justify-self: start; }
+.foot { margin-top: 36px; font-size: 12.5px; color: var(--muted); }
+.empty { padding: 16px; color: var(--muted); font-size: 14px; }
+
+@media (max-width: 560px) {
+  .wrap { padding-inline: 16px; }
+  details.row > summary { grid-template-columns: 26px minmax(0, 1fr) auto; }
+  .row-right .chip.src { display: none; }
+  .detail { padding-left: 14px; }
+  .next { padding: 16px; }
+  .next h2 { font-size: 20px; }
+}
+@media (prefers-reduced-motion: reduce) { .caret { transition: none; } }
+</style>
+
+<div class="wrap">
+  <header class="mast">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">
+        <svg width="22" height="22" viewBox="0 0 32 32"><circle cx="16" cy="16" r="11" fill="none" stroke="#fff" stroke-width="3"/><circle cx="16" cy="16" r="5.5" fill="none" stroke="#fff" stroke-width="3"/><circle cx="16" cy="16" r="2" fill="#f0b35c"/></svg>
+      </div>
+      <div>
+        <h1>Senior Scan Board</h1>
+        <p id="scanline">Loading…</p>
+      </div>
+    </div>
+    <div class="tally" id="tally"></div>
+  </header>
+
+  <div class="grid">
+    <main>
+      <p class="eyebrow">Next up</p>
+      <div id="next"></div>
+      <div class="queue" id="queue"></div>
+    </main>
+    <aside class="rail">
+      <section class="card" aria-labelledby="h-wait">
+        <h3 id="h-wait">Waiting on others <span class="n" id="n-wait"></span></h3>
+        <div id="wait"></div>
+      </section>
+      <section class="card" aria-labelledby="h-cov">
+        <h3 id="h-cov">Promo evidence <span class="n" id="n-evi"></span></h3>
+        <div class="cov" id="cov"></div>
+        <p class="gapnote" id="gapnote" hidden></p>
+        <div class="evi" id="evi"></div>
+      </section>
+    </aside>
+  </div>
+  <p class="foot">Rebuilt after each scan from <code>data.json</code>. Tell Claude in chat when something changes ("sent the Otter one") and it updates this board. Nothing is ever posted from here.</p>
+</div>
+
+<script>
+(function () {
+  const DATA = /*DATA*/{}/*END*/;
+  const items = DATA.items || [];
+  const contribs = [...(DATA.contributions || [])].sort((a, b) => String(b.date).localeCompare(String(a.date)));
+  const scan = DATA.scan || {};
+  const BEHAVIORS = DATA.behaviors || [];
+  const TODAY = scan.date || new Date().toISOString().slice(0, 10);
+
+  const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const inline = s => esc(s).replace(/`([^`]+)`/g, "<code>$1</code>");
+  const safeUrl = u => (/^https:\/\//.test(u || "") ? u : null);
+  const SRC = { github: "GitHub", slack: "Slack", notion: "Notion", jira: "Jira" };
+  const TIER = { today: ["now", "Today", "Could slip or merge before you act"], week: ["week", "This week", "Open decisions, no hard deadline"], later: ["later", "Later", "Parked until something else lands"] };
+  const days = d => Math.max(0, Math.round((new Date(TODAY) - new Date(d)) / 864e5));
+
+  const open = items.filter(i => i.status === "todo" || i.status === "drafted").sort((a, b) => (a.rank ?? 99) - (b.rank ?? 99));
+  const waiting = items.filter(i => i.status === "waiting").sort((a, b) => String(a.since || "").localeCompare(String(b.since || "")));
+  const byTier = { today: [], week: [], later: [] };
+  open.forEach(i => (byTier[i.urgency] || byTier.week).push(i));
+
+  document.getElementById("scanline").textContent =
+    (scan.date ? "Scan of " + new Date(scan.date + "T12:00:00").toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric" }) : "No scan yet") +
+    (scan.caveats ? " · " + scan.caveats : "");
+
+  const weekAgo = new Date(new Date(TODAY) - 7 * 864e5).toISOString().slice(0, 10);
+  document.getElementById("tally").innerHTML =
+    `<span class="t-now"><b>${byTier.today.length}</b> today</span>` +
+    `<span><b>${byTier.week.length + byTier.later.length}</b> later</span>` +
+    `<span class="t-wait"><b>${waiting.length}</b> waiting</span>` +
+    `<span class="t-good"><b>${contribs.filter(c => c.date >= weekAgo).length}</b> shipped this week</span>`;
+
+  const statusChip = i => i.draft && !i.check_first ? `<span class="chip ready">Draft ready</span>` : (i.check_first ? `<span class="chip verify">Verify first</span>` : "");
+  const srcChip = i => i.source ? `<span class="chip src">${esc(SRC[i.source] || i.source)}</span>` : "";
+
+  function detailBody(i) {
+    const url = safeUrl(i.link);
+    return `
+      ${i.context ? `<p><span class="lbl">What's going on</span>${inline(i.context)}</p>` : ""}
+      ${i.why ? `<p><span class="lbl">Why it matters</span>${inline(i.why)} ${i.behavior ? `<span class="chip beh">${esc(i.behavior)}</span>` : ""}</p>` : ""}
+      ${i.next_step ? `<p><span class="lbl">What we know</span>${inline(i.next_step)}</p>` : ""}
+      ${i.check_first ? `<p><span class="lbl">Verify before drafting</span>${inline(i.check_first)}</p>` : ""}
+      ${i.draft ? `<div><span class="lbl">Draft (${esc(i.draft_where || "reply")})</span><div class="draft" data-draft="${esc(i.id)}">${inline(i.draft)}</div></div>` : ""}
+      <div class="btns">
+        ${url ? `<a class="btn primary" href="${esc(url)}" target="_blank" rel="noopener">Open in ${esc(SRC[i.source] || "source")} ↗</a>` : ""}
+        ${i.draft ? `<button class="btn ghost" type="button" data-copy="${esc(i.id)}">Copy draft</button><span class="copied" hidden>Copied</span>` : ""}
+      </div>`;
+  }
+
+  // Next up
+  const top = byTier.today[0] || open[0];
+  document.getElementById("next").innerHTML = top ? `
+    <article class="next">
+      <div class="next-top">
+        <span class="chip ${TIER[top.urgency]?.[0] || "week"}">${esc(top.deadline || TIER[top.urgency]?.[1] || "")}</span>
+        ${top.effort ? `<span class="chip effort">${esc(top.effort)}</span>` : ""}
+        ${srcChip(top)} ${statusChip(top)}
+      </div>
+      <h2>${esc(top.action)}</h2>
+      ${top.context ? `<p class="ctx">${inline(top.context)}</p>` : ""}
+      ${top.why ? `<p class="why">${inline(top.why)}</p>` : ""}
+      ${top.check_first ? `<div class="step"><b>First step</b>${inline(top.check_first)}</div>` : (top.next_step ? `<div class="step"><b>First step</b>${inline(top.next_step)}</div>` : "")}
+      <div class="btns">
+        ${safeUrl(top.link) ? `<a class="btn primary" href="${esc(top.link)}" target="_blank" rel="noopener">Open in ${esc(SRC[top.source] || "source")} ↗</a>` : ""}
+        ${top.draft ? `<button class="btn ghost" type="button" data-copy="${esc(top.id)}">Copy draft</button><span class="copied" hidden>Copied</span>` : ""}
+      </div>
+    </article>` : `<div class="card empty">Nothing to act on. The next scan will fill this in.</div>`;
+
+  // Queue (skip the item already shown as next up)
+  let n = 1;
+  document.getElementById("queue").innerHTML = ["today", "week", "later"].map(t => {
+    const list = byTier[t].filter(i => i !== top);
+    if (!list.length) return "";
+    const [cls, label, hint] = TIER[t];
+    return `<section class="tier ${cls}">
+      <div class="tier-head"><h3>${label}</h3><span class="n">${list.length}</span><span class="hint">${hint}</span></div>
+      <div class="rows">${list.map(i => `
+        <details class="row" id="row-${esc(i.id)}">
+          <summary>
+            <span class="rank">${++n}</span>
+            <span class="row-main">
+              <span class="row-title">${esc(i.action)}</span>
+              <span class="row-meta">${i.deadline ? `<span class="deadline">${esc(i.deadline)}</span>` : ""}${i.effort ? `<span class="chip effort">${esc(i.effort)}</span>` : ""}${statusChip(i)}</span>
+            </span>
+            <span class="row-right">${srcChip(i)}<span class="caret" aria-hidden="true">▸</span></span>
+          </summary>
+          <div class="detail">${detailBody(i)}</div>
+        </details>`).join("")}</div>
+    </section>`;
+  }).join("");
+
+  // Waiting
+  document.getElementById("n-wait").textContent = waiting.length ? waiting.length + " open" : "";
+  document.getElementById("wait").innerHTML = waiting.length ? waiting.map(i => {
+    const d = i.since ? days(i.since) : null;
+    const stale = d !== null && d >= 3;
+    const url = safeUrl(i.link);
+    return `<div class="wait-item">
+      <div>${url ? `<a href="${esc(url)}" target="_blank" rel="noopener">${esc(i.action)}</a>` : `<b>${esc(i.action)}</b>`}
+        <div class="who">${esc(i.waiting_on || "")}${i.source ? " · " + esc(SRC[i.source] || i.source) : ""}</div></div>
+      <div class="age${stale ? " stale" : ""}">${d === null ? "" : d === 0 ? "today" : d + "d"}</div>
+      ${stale ? `<div class="nudge">Quiet for ${d} days. Worth a friendly nudge?</div>` : ""}
+    </div>`;
+  }).join("") : `<div class="empty" style="padding:0">Nothing waiting.</div>`;
+
+  // Evidence coverage by target behavior
+  const KEYWORD = { "raising the quality bar": "quality bar", "unblocking others": "unblocking", "influence beyond assigned tickets": "beyond assigned", "owning technical decisions": "owning" };
+  const counts = BEHAVIORS.map(b => [b, contribs.filter(c => String(c.behavior || "").toLowerCase().includes(KEYWORD[b] || b)).length]);
+  const max = Math.max(1, ...counts.map(c => c[1]));
+  document.getElementById("n-evi").textContent = contribs.length + " logged";
+  document.getElementById("cov").innerHTML = counts.map(([b, c]) => `
+    <div class="cov-row${c === 0 ? " gap" : ""}">
+      <div class="cov-top"><span>${esc(b)}</span><b>${c}</b></div>
+      <div class="bar"><i style="width:${Math.round((c / max) * 100)}%"></i></div>
+    </div>`).join("");
+  const gaps = counts.filter(c => c[1] <= 1).map(c => c[0]);
+  const gn = document.getElementById("gapnote");
+  if (gaps.length) { gn.hidden = false; gn.textContent = "Thin evidence: " + gaps.join(", ") + ". Favor items that exercise these."; }
+
+  const evi = document.getElementById("evi");
+  const renderEvi = all => {
+    const list = all ? contribs : contribs.slice(0, 4);
+    evi.innerHTML = list.map(c => `
+      <div class="evi-item"><span class="d">${esc(c.date)}</span>
+        ${safeUrl(c.link) ? `<a href="${esc(c.link)}" target="_blank" rel="noopener">${esc(c.title || "Link")}</a>` : ""}
+        <span class="w">${inline(c.what)}</span></div>`).join("") +
+      (contribs.length > 4 ? `<button class="more" type="button" data-more="${all ? "less" : "all"}">${all ? "Show fewer" : "Show all " + contribs.length}</button>` : "");
+  };
+  renderEvi(false);
+
+  document.addEventListener("click", async e => {
+    const more = e.target.closest("[data-more]");
+    if (more) { renderEvi(more.dataset.more === "all"); return; }
+    const btn = e.target.closest("[data-copy]");
+    if (!btn) return;
+    const it = items.find(i => i.id === btn.dataset.copy);
+    const flag = btn.parentElement.querySelector(".copied");
+    try { await navigator.clipboard.writeText(it?.draft || ""); flag.hidden = false; setTimeout(() => (flag.hidden = true), 1800); }
+    catch (_) { const box = document.querySelector(`[data-draft="${CSS.escape(it.id)}"]`); if (box) { const r = document.createRange(); r.selectNodeContents(box); const s = getSelection(); s.removeAllRanges(); s.addRange(r); } }
+  });
+})();
+</script>
