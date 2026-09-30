@@ -868,3 +868,30 @@ git commit -m "🔖 release: v1.45.0"
 git tag -a v1.45.0 -m "release v1.45.0" HEAD
 ```
 The controller asks the user before pushing, the GitHub release and `/flagrare:update`.
+
+---
+
+## As built
+
+The shipped 1.45.0 differs from the tasks above in these ways, each decided during review:
+
+- **Flags and hand-off moved from step 6b to step 3b and run only with a map.** The plan put them after the digest, so a handed-off problem could still take a top-5 slot and the digest could not show the Flags raised or Handed off lines. They now run after the hard filter and before the cut. Without a map the step is skipped, which keeps the promise that nothing changes without one.
+- **The scan reads `scoring.py context` in step 1, and with a map the sweeps return a separate list of map events** (reorg, departure, new manager or director, promotion process change, review calendar). The plan had flags raised from ranked items, but sweeps ignore announcements and an announcement has no leverage, so flags could never fire.
+- **Audience falls back to the configured audience when `unseen_people` is empty** (no map, a map with no people yet, or everyone has seen the work), with the pre-1.45 wording.
+- **Hand-off details:**
+  - Every sighting in a run is recorded before hand-offs are decided.
+  - `seen_count` is read from `initiatives.json` when the script plans nothing.
+  - The Handed off line says "recorded in `initiatives.json`".
+- **"Why it matters" names what the open row asks for, taken from its `target_text`,** not the row's area. The row id sits in parentheses at the end of the item block's "why you" sentence. With a map, `behavior:` still names the closest configured behavior (the board counts those), and the row id goes in `row:`.
+- **Evals:** eval 0 expects the plain-words phrase. Eval 2 gains `evals/fixtures/initiatives.json` and a map.
+- **`STATE.md`:** the hand-off threshold is stated as impact-scan's rule, not the script's, and applies only when the user has a promotion map.
+
+Parked for later:
+- Corrupt `flags.json` or `initiatives.json` is replaced wholesale, and item-level corruption can raise.
+- A config that is not a dict raises in `scoring.context`.
+- There are no CLI tests.
+- Whether a problem already marked `handed_off` is re-listed on later runs.
+- Wording nits:
+  - The row id placeholder says "only with a map" rather than "only when it moves an open row".
+  - The sweep inputs list does not name `has_map`.
+- Spec Milestone 2 item 5 is left open for a product decision: every chat draft ends with its link, and every claim is hedged. It conflicts with the drafting rule "say the thing and stop".
