@@ -1,0 +1,23 @@
+{
+  "skill_name": "impact-scan",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "Run an impact scan. Two threads look equally strong on leverage, credibility and timing: one is a question about why our checkout fails for some partners that nobody has investigated, the other is a style debate about code formatting in a module I own. My promotion map is at ~/.claude/skills/flagrare/career/promotion-map.json (see the fixture).",
+      "expected_output": "Agent runs scoring.py context, sees the open rubric row scope.proactive-discovery (Scope & Impact) and that Alex Chen has not seen the user's work, ranks the unexplained checkout failure above the formatting debate because it moves the open row, names 'finding problems' (not the row id) in the Why it matters cell, and puts the row id only in the item block.",
+      "files": ["evals/fixtures/promotion-map.json"]
+    },
+    {
+      "id": 1,
+      "prompt": "Run an impact scan. In the eng-wide channel this week there is an announcement that our director is leaving and a new director starts next month. I have a promotion map.",
+      "expected_output": "Agent raises a staleness flag for the org section (and people) with career_state.py flag, the announcement link as source, writes flags.json with the Write tool, and shows a 'Flags raised' line after the Cut line. It does not add the announcement as a weigh-in item unless there is a real decision to shape.",
+      "files": ["evals/fixtures/promotion-map.json"]
+    },
+    {
+      "id": 2,
+      "prompt": "Run an impact scan. A partner support thread today reports order emails not arriving; last week a different incident thread reported the same missing emails and it was recorded as a candidate in initiatives.json with seen_count 1.",
+      "expected_output": "Agent records the new sighting with career_state.py candidate reusing the existing id and the new thread's link, sees seen_count reach 2, does not draft a reply for it, keeps it out of the top-5 table, lists it on the 'Handed off' line, and marks it handed_off in scan-state.json.",
+      "files": []
+    }
+  ]
+}
