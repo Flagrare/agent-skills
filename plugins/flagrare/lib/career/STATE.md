@@ -21,7 +21,7 @@ Impact-scan's dedupe state (formerly `senior-scan/state.json`):
   "seen": [{ "id": "slack:C123:1790703452.608029", "source": "slack", "surfaced_at": "2026-09-30T13:30:00Z", "status": "surfaced|contributed|dropped" }] }
 ```
 
-When both the old and new files exist, the merge keeps the later `last_run` and the union of `seen` by `id` (on a tie, the newer career copy wins, and a `contributed` item always wins over any other status for the same id). Items without an `id` are kept too. Other top-level keys are kept. A file that is not valid state is left alone rather than merged.
+When both the old and new files exist, the merge keeps the later `last_run` and the union of `seen` by `id` (the later `surfaced_at` wins, the career copy wins a tie, and a `contributed` item always wins over any other status for the same id). Items without an `id` are kept too. Other top-level keys are kept. For any other top-level key present in both files, the career value wins. A file that is not valid state is left alone rather than merged.
 
 ## voice.md
 
@@ -36,7 +36,7 @@ Written only by `/flagrare:promotion`. Shape: `skills/promotion/reference/map-sc
 Signals that part of the promotion map may be stale. Other skills append; `/flagrare:promotion` reads them on refresh and removes the ones it handled.
 
 ```json
-[{ "section": "org", "reason": "the consumer director is leaving", "source": "<link>", "raised_at": "2026-09-30" }]
+[{ "section": "org", "reason": "a new team lead was announced", "source": "<link>", "raised_at": "2026-09-30" }]
 ```
 
 `section` is one of the promotion map's sections (`target`, `process`, `calendar`, `rubric`, `org`, `people`, `precedent`, `packet_readiness`, `manager_questions`).

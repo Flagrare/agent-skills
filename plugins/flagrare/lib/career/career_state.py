@@ -84,41 +84,70 @@ def plan_migration(home: str) -> list[dict]:
     actions += _plan_scan_state(legacy / "state.json", Path(p["scan_state"]))
     actions += _plan_voice(legacy / "voice.md", Path(p["voice"]))
 
-    if legacy.is_dir() and not (legacy / "MOVED.md").is_file():
-        actions.append({"action": "write", "path": str(legacy / "MOVED.md"), "content": MOVED_NOTE, "reason": "pointer to the new career folder"})
+    if legacy.is_dir():
+        moved = _read(legacy / "MOVED.md")
+        if moved is None:
+            actions.append({"action": "write", "path": str(legacy / "MOVED.md"), "content": MOVED_NOTE, "reason": "pointer to the new career folder"})
+        elif moved.startswith("# Mirrored"):
+            actions.append({"action": "write", "path": str(legacy / "MOVED.md"), "content": MOVED_NOTE, "reason": "refresh the pointer note"})
     return actions
 
 
+class _Slot:
+    def __init__(self, item: dict) -> None:
+        self.item = item
+
+
+def _hashable(value: object) -> bool:
+    try:
+        hash(value)
+    except TypeError:
+        return False
+    return True
+
+
 def _merge_seen(legacy: list, career: list) -> list:
-    """Union of seen items by id. A contributed item wins; otherwise the later surfaced_at wins. Keeps id-less items."""
-    merged: dict[str, dict] = {}
-    order: list[str] = []
-    legacy_id_less: list[dict] = []
-    career_id_less: list[dict] = []
-    seen_id_less: list[dict] = []
-    for item in (legacy or []) + (career or []):
+    """Union of seen items by id. A contributed item wins; otherwise the later surfaced_at wins, and the career copy wins a tie.
+    Career order is kept and new legacy items are appended. Items without a usable (present and hashable) id are kept."""
+    merged: dict = {}
+    result: list = []
+    for item in list(career or []) + list(legacy or []):
         key = item.get("id")
-        if key is None:
-            if not any(i == item for i in seen_id_less):
-                if item in (legacy or []):
-                    legacy_id_less.append(item)
-                else:
-                    career_id_less.append(item)
-                seen_id_less.append(item)
+        if key is None or not _hashable(key):
+            if item not in [r for r in result if not isinstance(r, _Slot)]:
+                result.append(item)
             continue
         if key not in merged:
-            merged[key] = item
-            order.append(key)
+            slot = _Slot(item)
+            merged[key] = slot
+            result.append(slot)
             continue
-        current = merged[key]
+        slot = merged[key]
+        current = slot.item
         if current.get("status") == "contributed" and item.get("status") != "contributed":
             continue
         if item.get("status") == "contributed" and current.get("status") != "contributed":
-            merged[key] = item
+            slot.item = item
             continue
-        if str(item.get("surfaced_at", "")) >= str(current.get("surfaced_at", "")):
-            merged[key] = item
-    return [merged[k] for k in order] + legacy_id_less + career_id_less
+        if str(item.get("surfaced_at", "")) > str(current.get("surfaced_at", "")):
+            slot.item = item
+    return [r.item if isinstance(r, _Slot) else r for r in result]
+
+
+def _canon(items: list) -> list[str]:
+    return sorted(json.dumps(i, sort_keys=True, ensure_ascii=False) for i in items)
+
+
+def _same_state(merged: dict, career: dict) -> bool:
+    if merged.keys() != career.keys():
+        return False
+    for key, value in merged.items():
+        if key == "seen":
+            if _canon(value) != _canon(career["seen"]):
+                return False
+        elif value != career[key]:
+            return False
+    return True
 
 
 def _plan_scan_state(legacy_path: Path, career_path: Path) -> list[dict]:
@@ -155,7 +184,7 @@ def _plan_scan_state(legacy_path: Path, career_path: Path) -> list[dict]:
         merged["last_run"] = max(str(legacy_state.get("last_run") or ""), str(career_state.get("last_run") or ""))
     if "seen" in legacy_state or "seen" in career_state:
         merged["seen"] = _merge_seen(legacy_state.get("seen", []), career_state.get("seen", []))
-    if merged == career_state:
+    if _same_state(merged, career_state):
         return []
     content = json.dumps(merged, indent=2, ensure_ascii=False) + "\n"
     return [{"action": "write", "path": str(career_path), "content": content, "reason": "merge newer senior-scan state into career scan-state"}]

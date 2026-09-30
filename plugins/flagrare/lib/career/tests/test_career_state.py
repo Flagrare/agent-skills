@@ -183,7 +183,8 @@ class ScanStateMerge(unittest.TestCase):
             write(home, f"{CAREER}/scan-state.json", json.dumps({"last_run": "2026-09-30", "seen": [{"id": "b", "status": "surfaced", "surfaced_at": "2026-09-30"}, {"note": "noid"}]}))
             merged = self._plan_state(home)
             ids = [i.get("id") for i in merged["seen"]]
-            self.assertEqual(ids[:2], ["a", "b"])
+            self.assertEqual(sorted(i for i in ids if i), ["a", "b"])
+            self.assertEqual(ids[:2], ["b", None])
             self.assertTrue(any(i.get("note") == "noid" for i in merged["seen"]))
 
     def test_given_legacy_state_json_is_not_dict_when_planning_then_no_write(self):
@@ -235,6 +236,70 @@ class VoiceCopy(unittest.TestCase):
             write(home, f"{CAREER}/voice.md", "edited rules")
             os.utime(home / LEGACY / "voice.md", (1_000_000, 1_000_000))
             self.assertFalse([a for a in cs.plan_migration(str(home)) if a["path"].endswith("voice.md")])
+
+
+class StateMergeRobustness(unittest.TestCase):
+    def _apply(self, home, actions):
+        for a in actions:
+            if a["action"] == "mkdir":
+                Path(a["path"]).mkdir(parents=True, exist_ok=True)
+            else:
+                Path(a["path"]).write_text(a["content"])
+
+    def _scan_writes(self, actions):
+        return [a for a in actions if a["action"] == "write" and a["path"].endswith("scan-state.json")]
+
+    def test_given_unhashable_id_when_merging_then_keeps_item_without_crashing(self):
+        with tempfile.TemporaryDirectory() as d:
+            home = Path(d)
+            weird = {"id": ["a", "b"], "source": "x"}
+            write(home, f"{LEGACY}/state.json", json.dumps({"seen": [weird, {"id": {"k": 1}}]}))
+            write(home, f"{CAREER}/scan-state.json", json.dumps({"seen": [{"id": "1"}]}))
+            actions = cs.plan_migration(str(home))
+            merged = json.loads(self._scan_writes(actions)[0]["content"])
+            self.assertIn(weird, merged["seen"])
+            self.assertIn({"id": {"k": 1}}, merged["seen"])
+            self.assertIn({"id": "1"}, merged["seen"])
+
+    def test_given_career_seen_in_reverse_order_and_nothing_new_when_planning_then_no_scan_state_write(self):
+        with tempfile.TemporaryDirectory() as d:
+            home = Path(d)
+            a = {"id": "a", "surfaced_at": "1"}
+            b = {"id": "b", "surfaced_at": "2"}
+            write(home, f"{LEGACY}/state.json", json.dumps({"seen": [a, b]}))
+            write(home, f"{CAREER}/scan-state.json", json.dumps({"seen": [b, a]}))
+            self.assertEqual(self._scan_writes(cs.plan_migration(str(home))), [])
+
+    def test_given_new_legacy_item_and_reversed_career_order_when_planning_then_keeps_career_order_and_appends_new(self):
+        with tempfile.TemporaryDirectory() as d:
+            home = Path(d)
+            a = {"id": "a", "surfaced_at": "1"}
+            b = {"id": "b", "surfaced_at": "2"}
+            c = {"id": "c", "surfaced_at": "3"}
+            write(home, f"{LEGACY}/state.json", json.dumps({"seen": [a, b, c]}))
+            write(home, f"{CAREER}/scan-state.json", json.dumps({"seen": [b, a]}))
+            merged = json.loads(self._scan_writes(cs.plan_migration(str(home)))[0]["content"])
+            self.assertEqual([i["id"] for i in merged["seen"]], ["b", "a", "c"])
+
+    def test_given_old_mirrored_moved_note_when_planning_then_rewrites_once(self):
+        with tempfile.TemporaryDirectory() as d:
+            home = Path(d)
+            write(home, f"{LEGACY}/MOVED.md", "# Mirrored\n\nold text\n")
+            actions = cs.plan_migration(str(home))
+            moved = [a for a in actions if a["path"].endswith("MOVED.md")]
+            self.assertEqual(len(moved), 1)
+            self.assertEqual(moved[0]["content"], cs.MOVED_NOTE)
+            self.assertEqual(moved[0]["reason"], "refresh the pointer note")
+            self._apply(home, actions)
+            self.assertEqual([a for a in cs.plan_migration(str(home)) if a["path"].endswith("MOVED.md")], [])
+
+    def test_given_conflicting_top_level_key_when_merging_then_career_value_wins(self):
+        with tempfile.TemporaryDirectory() as d:
+            home = Path(d)
+            write(home, f"{LEGACY}/state.json", json.dumps({"mode": "old", "seen": [{"id": "a"}, {"id": "n"}]}))
+            write(home, f"{CAREER}/scan-state.json", json.dumps({"mode": "new", "seen": [{"id": "a"}]}))
+            merged = json.loads(self._scan_writes(cs.plan_migration(str(home)))[0]["content"])
+            self.assertEqual(merged["mode"], "new")
 
 
 class Config(unittest.TestCase):

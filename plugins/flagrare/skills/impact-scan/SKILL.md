@@ -23,7 +23,7 @@ Which surfaces this user scans is decided at onboarding from the MCPs actually c
 
 The scan is **read-only**. Sweep agents must never post, react, comment, or approve anything, and neither may the main flow without the explicit approval gate below.
 
-## Setup (first run only)
+## Setup and state (every run)
 
 Config lives in the shared **`~/.claude/skills/flagrare/config.json`**: skill-agnostic keys (GitHub login, display name, repo scope) at the top level, impact-scan keys under `skills["impact-scan"]`. This skill was called senior-scan: when `skills["impact-scan"]` is missing, read `skills["senior-scan"]` instead, and write any changes back under `skills["impact-scan"]`. The first time you write that block, copy the whole senior-scan block into `skills["impact-scan"]` and then apply the change, so nothing is lost; leave the senior-scan block in place. Mutable files live in **`~/.claude/skills/flagrare/career/`** (`scan-state.json`, `contributions.log.md`, `voice.md`), shared with the other career skills and outside the plugin tree so they survive plugin updates. Their shapes are in `<plugin root>/lib/career/STATE.md`, where the plugin root is two directories above this skill's base directory. The user's **board** (a local HTML dashboard of open items and the evidence log, see workflow step 7) lives wherever `skills.career.board.dir` points, falling back to `skills["senior-scan"].board.dir`.
 
@@ -90,7 +90,7 @@ Re-run any onboarding step when the user says "reconfigure", or when they say th
 
 ### 1. Load state and window
 
-Read `career/scan-state.json` (`{ "last_run": iso8601, "seen": [{ "id", "source", "surfaced_at", "status" }] }`). The scan window is `last_run` to now; if no state exists, default to the last 48 hours, capped at 7 days. Items already in `seen` are only re-surfaced if they escalated: a new decision point, a new unanswered question, a thread reopened.
+Run the load-state step from Setup first (`career_state.py plan`, applied with the Write tool), then read `career/scan-state.json` (`{ "last_run": iso8601, "seen": [{ "id", "source", "surfaced_at", "status" }] }`). The scan window is `last_run` to now; if no state exists, default to the last 48 hours, capped at 7 days. Items already in `seen` are only re-surfaced if they escalated: a new decision point, a new unanswered question, a thread reopened.
 
 ### 2. Sweep in parallel
 
@@ -128,7 +128,7 @@ Do not relay each sweep's findings as it lands; the digest is the only output. W
 | # | What's going on | What you'd do | Why it matters | Next step |
 |---|---|---|---|---|
 | 1 | <whose thing, what it is in product terms, where it stands; the thing's name is the link> | <verb-first move, plain words> | <impact, max 12 words> · <target behavior> | Send draft |
-| 2 | A restaurant got no email or text for two app orders on 9/24; Andrea asked in the [squad channel](<permalink>) whether it should have, nobody answered | Tell her which email should have fired and whether it did | A partner missed real orders, support is stuck · unblocking others | Check first: look the order up in Braze |
+| 2 | A restaurant got no email or text for two app orders on 9/24; a support lead asked in the [squad channel](<permalink>) whether it should have, nobody answered | Tell them which email should have fired and whether it did | A partner missed real orders, support is stuck · unblocking others | Check first: look the order up in the email tool |
 
 ### 1. <same verb-first action>
 <one sentence: what is happening and where it stands>. <one sentence: why you, naming the fact or context only you bring>.
@@ -141,9 +141,9 @@ Do not relay each sweep's findings as it lands; the digest is the only output. W
 
 Rules that keep it scannable:
 
-- **"What's going on" gives the context before the ask.** One plain sentence, 25 words at most: whose thing it is, what it is in product terms, and where it stands (unreviewed, approved, question unanswered since Tuesday). "Diego's [peak-times PR](url) promises a fallback message when loading fails; two people approved it", not "pf #8025 fallback". The thing's name carries the link, so there is no separate Where column.
-- **The table speaks product, not code.** No PR numbers, ticket keys, channel ids, function names, or flags in any table cell: a reader cannot decode `ignoreInternalError on #8051` without the context they don't have. Say what breaks for whom ("a server error shows the full-page error screen instead of the retry button"). Code identifiers and `file:line` belong in the item block and the draft, where the reader is already acting.
-- **Actions start with a verb and name the move in plain words**: "Point out that a server error blanks the page instead of showing the retry", not "Flag missing `ignoreInternalError` on #8051", and not "Item report error handling".
+- **"What's going on" gives the context before the ask.** One plain sentence, 25 words at most: whose thing it is, what it is in product terms, and where it stands (unreviewed, approved, question unanswered since Tuesday). "a teammate's [peak-times PR](url) promises a fallback message when loading fails; two people approved it", not "the peak-times fallback PR". The thing's name carries the link, so there is no separate Where column.
+- **The table speaks product, not code.** No PR numbers, ticket keys, channel ids, function names, or flags in any table cell: a reader cannot decode "a missing error flag on a PR number" without the context they don't have. Say what breaks for whom ("a server error shows the full-page error screen instead of the retry button"). Code identifiers and `file:line` belong in the item block and the draft, where the reader is already acting.
+- **Actions start with a verb and name the move in plain words**: "Point out that a server error blanks the page instead of showing the retry", not "Flag a missing error flag on a PR number", and not "Item report error handling".
 - **Re-listing follows the same rules.** When remaining items are shown again later in the session, rebuild each row from scratch for a cold reader; never shorten a row to "the same gap" or "item 1's issue" because it was discussed earlier.
 - **"Why it matters" says what changes if the user acts, then the behavior it exercises.** The impact is 12 words at most, the concrete outcome ("stops a 502 blanking a page before launch", "a modifiers decision is being made without the person who designed them"), never the score or a restatement of the action. After a `·`, name the configured target behavior in two or three words ("quality bar", "unblocking others"). Rows are ordered by score, so this column is what explains the ranking.
 - **Every item ends in a next step.** Either a draft ready to send, or `Check first:` with the single concrete check (a query, a code path to trace) that would make a draft safe. Never a draft built on a claim that has not been verified.
@@ -184,7 +184,7 @@ Every log entry is also a board update: rebuild so the evidence log shows it, an
 
 The board is the expected output of every scan, not an extra: a local page the user opens to see what to act on next, what is waiting on someone else, and the evidence log. The digest is read once; the board is what they come back to. It is display-only: `data.json` is the single source of truth, the user tells you in chat what changed, and you update the file and rebuild.
 
-**First scan, or no board yet.** If no board directory is configured (including users onboarded before the board existed) or the folder has no `data.json`, create it at the end of this run: ask for the location once (default `~/career-board`), save it as `skills.career.board.dir`, write `data.json` from this scan, build, and tell the user how to open it. Never finish a scan with no board and no caveat saying why.
+**First scan, or no board yet.** If no board directory is configured under either `skills.career.board.dir` or `skills["senior-scan"].board.dir` (including users onboarded before the board existed) or the folder has no `data.json`, create it at the end of this run: ask for the location once (default `~/career-board`), save it as `skills.career.board.dir`, write `data.json` from this scan, build, and tell the user how to open it. Never finish a scan with no board and no caveat saying why.
 
 **Every update.** Write `<board dir>/data.json` with the Write tool, then run `python3 <plugin root>/lib/career/board/build.py <board dir>`, which renders `board.html` from the bundled template plus the contributions log (it reads the career log and any entries still only in the old senior-scan log). If the sandbox blocks the write outside the working folder, rerun the build outside the sandbox. Rebuild after the scan AND whenever an item changes (a draft posted, an item now waiting on someone, done, dropped), in the same turn you update `scan-state.json` or the log, so the board never lags the conversation. If the build fails, say so in the caveat line.
 
@@ -203,7 +203,7 @@ The board is the expected output of every scan, not an extra: a local page the u
     "why": "Impact in 12 words or less", "behavior": "raising the quality bar",
     "draft": "ready-to-send text", "draft_where": "GitHub inline comment on file.js:60",
     "check_first": "the one check that makes a draft safe",
-    "waiting_on": "Eric", "since": "2026-09-29"
+    "waiting_on": "a reviewer", "since": "2026-09-29"
   }]
 }
 ```
