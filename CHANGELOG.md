@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.43.0: 2026-09-30
+
+A promotion is decided in a room you're not in; now you can see the room.
+
+### New Skills
+
+- **`/flagrare:promotion`, a sourced map of your next level**: senior-scan found threads to weigh in on, but the work that mattered most in a promotion case was never automated. Field-tested the hard way in one long session that grew into a full day of manual research: the org chart from two sources that disagreed, the promotion process from a wiki page, an HR portal and chat announcements, the rubric spreadsheet that contradicted the prose summarizing it, a calendar worked back from last year's dates, and which managers had actually seen the user's work (the most important of them, a former manager, known only to the user). The skill turns that day into four phases that save as they go: an interview first (target, track, cycle, and the why that changes the plan, like a level being terminal), then process and calendar, the rubric gap against the file managers really use, the org and a "who knows your work" list built from evidence and confirmed by the user, and a plan with a mechanically computed "talk to your manager by" window that skips holiday dead time. Every fact carries a source and a verified, unverified or inferred status; conflicting sources are kept side by side; "nothing found" becomes a question for the manager instead of a guess. It writes `promotion-map.md` and `.json` to a new shared `~/.claude/skills/flagrare/career/` folder, the first piece of a career skill family (impact-scan, opportunity-scan and a coordinator follow), and `packet` mode drafts the promotion packet in the company's format. A small stdlib library (`lib/career/`) holds the tested parts: a state resolver that plans a no-loss migration from senior-scan, a map validator, and the deadline calculator.
+
 ## 1.42.0: 2026-09-30
 
 A digest is read once; the board is what you come back to.
