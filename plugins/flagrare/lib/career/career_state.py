@@ -39,7 +39,7 @@ def paths(home: str) -> dict[str, str]:
 
 
 def _read(path: Path) -> str | None:
-    return path.read_text() if path.is_file() else None
+    return path.read_text(encoding="utf-8") if path.is_file() else None
 
 
 def _entries(text: str | None) -> list[str]:
@@ -81,11 +81,15 @@ def plan_migration(home: str) -> list[dict]:
     legacy_log = _read(legacy / "contributions.log.md")
     career_log = _read(Path(p["log"]))
     if legacy_log is not None:
-        merged = read_contributions(home)
-        if merged != _entries(career_log):
-            header = _header(career_log) or _header(legacy_log) or LOG_HEADER
-            content = header + "\n\n" + "\n".join(merged) + "\n"
-            actions.append({"action": "write", "path": p["log"], "content": content, "reason": "union of legacy and career logs, nothing dropped"})
+        if career_log is None:
+            actions.append({"action": "write", "path": p["log"], "content": legacy_log, "reason": "copy legacy contributions log to career folder"})
+        else:
+            legacy_entries = _entries(legacy_log)
+            career_lines = set(career_log.splitlines())
+            missing = [line for line in legacy_entries if line not in career_lines]
+            if missing:
+                content = career_log.rstrip('\n') + '\n' + '\n'.join(missing) + '\n'
+                actions.append({"action": "write", "path": p["log"], "content": content, "reason": "append missing legacy entries to career log"})
 
     for legacy_name, target_key in (("state.json", "scan_state"), ("voice.md", "voice")):
         source = _read(legacy / legacy_name)
