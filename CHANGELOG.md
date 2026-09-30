@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.44.0: 2026-09-30
+
+Same scan, new name, one shared place for your evidence.
+
+### Improved Skills
+
+- **`/flagrare:impact-scan`, senior-scan renamed and moved into the career family**: the scan now sits beside `/flagrare:promotion` and shares its state instead of keeping a private folder. Field-tested the hard way: the day promotion shipped, senior-scan kept writing its own dedupe state and evidence log while promotion read copies made that morning, so the two drifted within hours. Impact-scan now keeps everything in `~/.claude/skills/flagrare/career/`, and every run merges in whatever is still in the old `senior-scan/` folder without deleting it: the evidence log keeps every entry, the dedupe state keeps the later run and every seen item (an item you already contributed to stays contributed), and the newer voice rules win. Config is read from `skills["impact-scan"]` with the old `skills["senior-scan"]` block as a fallback, and your existing board folder keeps working. `/flagrare:senior-scan` still runs as a deprecated alias. Finding, scoring and drafting are unchanged in this release.
+
+### Tooling
+
+- **Shared career library**: the board template and build script moved to `lib/career/board/`, and the build now reads both the new and the old evidence logs, so no entry disappears during the move. A new `lib/career/STATE.md` documents every shared state file, including the optional `| row: <id>` log field that the next release starts writing. `/flagrare:impact-timeline` now reads both the new and the old evidence logs through the shared library, without duplicates.
+
 ## 1.43.0: 2026-09-30
 
 A promotion is decided in a room you're not in; now you can see the room.
