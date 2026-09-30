@@ -41,7 +41,7 @@ The interview is half discovery, half confirmation: propose from real data where
 2. **Career target.** Ask current level and target level, then which next-level behaviors to hunt for. Offer defaults by transition and let the user edit or paste their company ladder's actual language:
    - toward **senior**: influence beyond assigned tickets, unblocking others, owning technical decisions in their domain, raising the quality bar
    - toward **staff**: cross-team leverage, setting direction, connecting efforts that don't know about each other, derisking big decisions early
-   The chosen behaviors become the definition of the Stretch axis (see Scoring), so they should be concrete.
+   The chosen behaviors become the definition of the Stretch axis (see Scoring), so they should be concrete. Once the user has a promotion map (`/flagrare:promotion`), its open rubric rows replace these behaviors for scoring; the config list stays as the fallback.
 3. **Domains of real standing.** Spawn a discovery agent over the user's recent GitHub activity (authored PRs, reviews given, comment threads) to propose the areas where they demonstrably know things: systems, failure modes, conventions. Present the proposal; the user confirms, trims, adds. For each domain also collect 2-4 search keywords. Credibility scoring depends on this list being honest, so tell the user: list what you actually know, not what you want to know.
 4. **Surfaces.** List the MCPs connected in the session that can read a surface (chat, code review, docs, tickets) and ask which should feed the scan, the same detect-and-opt-in move `/flagrare:standup-report` uses for `extra_mcps`. For each chosen surface, collect its scope by proposing from real data:
    - **chat**: channels, proposed via channel search using team names and domain keywords; include team channels, eng-wide channels, and incident/announcement channels
@@ -106,12 +106,14 @@ Every sweep hunts the same four signals: (a) a decision still being formed (arch
 
 ### 3. Score and cut
 
+First get the scoring inputs: run `python3 <plugin root>/lib/career/scoring.py context --home "$HOME"`. It prints `has_map`, the map's `open_rows` (rubric rows not yet done, each with `id`, `area` and `target_text`), `unseen_people` (people who have not seen the user's work yet), and a `fallback` with the configured `target_behaviors` and `audience`.
+
 Score each candidate 0-2 on five axes:
 
 - **Leverage**: would weighing in change the outcome, or just add a voice? A decided thread scores 0.
 - **Credibility**: does the user have specific knowledge, context, or ownership the participants lack? Generic "good point" opinions score 0.
-- **Stretch**: does this exercise one of the configured target behaviors, beyond the user's assigned lane? Routine work in their own tickets scores low.
-- **Audience**: will configured audience people (or their equivalents) see the contribution? Defaults to 1 when no audience is configured.
+- **Stretch**: does this move one of the `open_rows` forward, beyond the user's assigned lane? Pick the row it moves from `open_rows` only, and never invent a row id. With no map or no open rows, use the configured target behaviors instead. Routine work in their own tickets scores low.
+- **Audience**: who will see the contribution? 2 if someone in `unseen_people` will, 1 if only people who already know the user's work will, 0 if nobody whose view matters will. With no map, score it against the configured audience the same way; with neither, it defaults to 1.
 - **Timing**: is the window still open? A decision landing today scores 2; something simmering for weeks scores 1.
 
 **Hard filter first:** drop anything with Leverage 0 or Credibility 0, regardless of the other axes. That is the anti-performative rule, and it is not negotiable, it protects the user's reputation. Then rank survivors by total and keep at most 5. Dedupe against `scan-state.json` before presenting.
@@ -137,6 +139,8 @@ Do not relay each sweep's findings as it lands; the digest is the only output. W
 (repeat per item)
 
 **Cut:** <near-miss, reason>; <near-miss, reason>; ...
+**Flags raised:** <map section>: <what changed> (only when step 6 raised a flag)
+**Handed off:** <problem in plain words> (seen <N> times, now a candidate in `initiatives.json`) (only when step 6 handed one off)
 ```
 
 Rules that keep it scannable:
@@ -145,12 +149,12 @@ Rules that keep it scannable:
 - **The table speaks product, not code.** No PR numbers, ticket keys, channel ids, function names, or flags in any table cell: a reader cannot decode "a missing error flag on a PR number" without the context they don't have. Say what breaks for whom ("a server error shows the full-page error screen instead of the retry button"). Code identifiers and `file:line` belong in the item block and the draft, where the reader is already acting.
 - **Actions start with a verb and name the move in plain words**: "Point out that a server error blanks the page instead of showing the retry", not "Flag a missing error flag on a PR number", and not "Item report error handling".
 - **Re-listing follows the same rules.** When remaining items are shown again later in the session, rebuild each row from scratch for a cold reader; never shorten a row to "the same gap" or "item 1's issue" because it was discussed earlier.
-- **"Why it matters" says what changes if the user acts, then the behavior it exercises.** The impact is 12 words at most, the concrete outcome ("stops a 502 blanking a page before launch", "a modifiers decision is being made without the person who designed them"), never the score or a restatement of the action. After a `·`, name the configured target behavior in two or three words ("quality bar", "unblocking others"). Rows are ordered by score, so this column is what explains the ranking.
+- **"Why it matters" says what changes if the user acts, then the behavior it exercises.** The impact is 12 words at most, the concrete outcome ("stops a 502 blanking a page before launch", "a modifiers decision is being made without the person who designed them"), never the score or a restatement of the action. After a `·`, name what it exercises in two or three plain words: the rubric row's area when there is a map ("finding problems"), otherwise the configured target behavior ("quality bar", "unblocking others"). Row ids are code-like, so they go in the item block, never in the table. Rows are ordered by score, so this column is what explains the ranking.
 - **Every item ends in a next step.** Either a draft ready to send, or `Check first:` with the single concrete check (a query, a code path to trace) that would make a draft safe. Never a draft built on a claim that has not been verified.
 - **No field labels in item blocks** ("What's happening:", "Why you:", "Suggested angle:"). The two sentences and the draft carry all of it.
 - **Evidence goes inside the draft, not before it.** If the draft already cites `file:line`, the block does not repeat it.
 - **Near misses fit on one line.** A short reason each, so the filter stays honest and tunable without adding a section.
-- **Stop after the cut line.** No closing summary. Ask only which items to act on.
+- **Stop after the cut line** (and the flags and hand-off lines when present). No closing summary. Ask only which items to act on.
 
 ### 5. Drafting rules
 
@@ -173,12 +177,24 @@ After presenting, write `career/scan-state.json` with the Write tool: update `la
 When the user approves and posts a contribution (or says they handled it), set that item's status to `"contributed"` and append to `career/contributions.log.md`:
 
 ```
-- <date> | <link> | <one sentence: what the contribution was and what it changed> | behavior: <target behavior exercised>
+- <date> | <link> | <one sentence: what the contribution was and what it changed> | behavior: <target behavior exercised> | row: <rubric row id>
 ```
+
+Add the `| row: <id>` field only when there is a map and the item moved one of its `open_rows`; otherwise end the line after `behavior:`. The format is in `<plugin root>/lib/career/STATE.md`.
 
 This log is the promotion evidence trail, the lagging indicator made legible. When the user later runs `/flagrare:brag-doc` or builds a promo packet, point them at it; brag-doc should treat it as a first-class source.
 
 Every log entry is also a board update: rebuild so the evidence log shows it, and move the item to `waiting` (a reply is expected) or `done`.
+
+### 6b. Flags and hand-off
+
+Two small records keep the other career skills current. Write both with the Write tool from the action the script prints, reading the target first if it exists.
+
+**Staleness flags.** When a sweep sees something that makes part of the promotion map out of date, raise a flag for that map section: a reorg or team change (`org`), someone leaving or a new manager or director (`org` and `people`), a change to the promotion process (`process`), HR publishing the review calendar (`calendar`). Run `python3 <plugin root>/lib/career/career_state.py flag --home "$HOME" --section <section> --reason "<what changed, plain words>" --source <link> --today <YYYY-MM-DD>`. The same flag is never raised twice. Only raise flags when the user has a promotion map.
+
+**Hand-off of recurring problems.** Some items are problems rather than decisions: something broken, missing, or painful for users or partners (a class of failures, a gap nobody owns, the same question asked again). Record each problem-type item that passes the hard filter, whether or not it makes the top 5, once per scan run: `python3 <plugin root>/lib/career/career_state.py candidate --home "$HOME" --id <stable-slug> --title "<problem in plain words>" --evidence <link> --today <YYYY-MM-DD>`. To find an earlier sighting, compare with the existing candidates in `initiatives.json` by title and evidence; reuse that id when it is the same underlying problem, otherwise choose a new stable slug. A second sighting means the same problem showing up somewhere else (a different thread, incident or ticket), not the same thread continuing; the script ignores an evidence link it already has, so an escalating thread never counts twice.
+
+When the planned `initiatives.json` content shows that candidate's `seen_count` at 2 or more, the problem is handed off: it leaves the table (it does not take one of the 5 slots), appears only on the digest's **Handed off** line, and goes into `scan-state.json` with status `handed_off`. Owning the fix is worth more than a third comment. The candidates wait in `initiatives.json` for `/flagrare:opportunity-scan` (coming in a later release).
 
 ### 7. Keep the board current
 
@@ -200,7 +216,7 @@ The board is the expected output of every scan, not an extra: a local page the u
     "source": "github", "kind": "review",
     "action": "Point out the flyout always shows the last 7 days",
     "link": "https://...", "context": "Whose thing, what it is, where it stands",
-    "why": "Impact in 12 words or less", "behavior": "raising the quality bar",
+    "why": "Impact in 12 words or less", "behavior": "raising the quality bar", "rubric_rows": ["scope.proactive-discovery"],
     "draft": "ready-to-send text", "draft_where": "GitHub inline comment on file.js:60",
     "check_first": "the one check that makes a draft safe",
     "waiting_on": "a reviewer", "since": "2026-09-29"
@@ -211,5 +227,6 @@ The board is the expected output of every scan, not an extra: a local page the u
 - `status`: `todo` (shown in the ranked list), `waiting` (raised, waiting on someone; set `waiting_on` and `since`, and after 3 days the board suggests a nudge), `done`, `dropped`.
 - `urgency`: `today` (could merge or close before the user acts), `week`, `later`. `deadline` says why.
 - `behaviors`: the configured target behaviors; the board shows evidence coverage for each.
+- `rubric_rows`: optional; the ids of the map rows the item moves (from `open_rows`), empty or absent without a map.
 - An item carries either `draft` or `check_first`, never a draft built on an unverified claim. The same product-language rules as the digest table apply to `action`, `context` and `why`.
 - Keep ids stable across runs. Before adding an item, check for an existing one about the same thread: update it instead of adding a duplicate, and if the new scan contradicts its text, fix the text or flag the conflict to the user.
