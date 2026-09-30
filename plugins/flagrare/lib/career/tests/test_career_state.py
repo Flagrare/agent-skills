@@ -85,6 +85,38 @@ class PlanMigration(unittest.TestCase):
             paths = [a["path"] for a in cs.plan_migration(str(home))]
             self.assertFalse(any(p.endswith("scan-state.json") for p in paths))
 
+    def test_given_career_log_with_structure_when_planning_then_preserves_format(self):
+        with tempfile.TemporaryDirectory() as d:
+            home = Path(d)
+            career_text = "# h\n\n- a\n  continuation line\n## notes\n\n- d\n"
+            legacy_text = "# h\n\n- a\n- b\n"
+            write(home, f"{LEGACY}/contributions.log.md", legacy_text)
+            write(home, f"{CAREER}/contributions.log.md", career_text)
+            actions = cs.plan_migration(str(home))
+            log_writes = [a for a in actions if a["path"].endswith("contributions.log.md")]
+            self.assertEqual(len(log_writes), 1)
+            content = log_writes[0]["content"]
+            self.assertIn("## notes", content)
+            self.assertIn("  continuation line", content)
+            self.assertIn("- b", content)
+            lines = content.split('\n')
+            notes_idx = next((i for i, l in enumerate(lines) if l == "## notes"), -1)
+            cont_idx = next((i for i, l in enumerate(lines) if "continuation" in l), -1)
+            b_idx = next((i for i, l in enumerate(lines) if l == "- b"), -1)
+            self.assertGreater(notes_idx, -1)
+            self.assertGreater(cont_idx, -1)
+            self.assertGreater(b_idx, notes_idx)
+
+    def test_given_legacy_with_paragraph_when_planning_then_copies_verbatim(self):
+        with tempfile.TemporaryDirectory() as d:
+            home = Path(d)
+            legacy_text = "# h\n\nSome intro text.\n\n- a\n- b\n"
+            write(home, f"{LEGACY}/contributions.log.md", legacy_text)
+            actions = cs.plan_migration(str(home))
+            log_writes = [a for a in actions if a["path"].endswith("contributions.log.md")]
+            self.assertEqual(len(log_writes), 1)
+            self.assertEqual(log_writes[0]["content"], legacy_text)
+
 
 class Config(unittest.TestCase):
     def test_given_only_legacy_key_when_reading_impact_scan_config_then_falls_back(self):
