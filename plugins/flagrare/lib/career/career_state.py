@@ -221,17 +221,79 @@ def board_dir(config: dict) -> str | None:
     return None
 
 
+def _load_list(path: Path) -> list:
+    text = _read(path)
+    if text is None:
+        return []
+    try:
+        data = json.loads(text)
+    except json.JSONDecodeError:
+        return []
+    return data if isinstance(data, list) else []
+
+
+def plan_flag(home: str, section: str, reason: str, source: str, today: str) -> list[dict]:
+    """Plan flags.json with one more staleness flag. A flag for the same section with the same reason or the same source is not added twice."""
+    from map_schema import SECTIONS
+    if section not in SECTIONS:
+        raise ValueError(f"section must be one of {SECTIONS}")
+    path = Path(paths(home)["flags"])
+    flags = _load_list(path)
+    for f in flags:
+        if isinstance(f, dict) and f.get("section") == section and (f.get("reason") == reason or (source and f.get("source") == source)):
+            return []
+    flags.append({"section": section, "reason": reason, "source": source, "raised_at": today})
+    return [{"action": "write", "path": str(path), "content": json.dumps(flags, indent=2, ensure_ascii=False) + "\n", "reason": f"flag {section} as possibly stale"}]
+
+
+def plan_candidate(home: str, item_id: str, title: str, evidence: str, today: str) -> list[dict]:
+    """Plan initiatives.json with one sighting of a problem: add it, or, for a new evidence link, bump seen_count and add the link. The same link again changes nothing."""
+    path = Path(paths(home)["initiatives"])
+    items = _load_list(path)
+    for item in items:
+        if isinstance(item, dict) and item.get("id") == item_id:
+            links = item.setdefault("evidence", [])
+            if not evidence or evidence in links:
+                return []
+            links.append(evidence)
+            item["seen_count"] = int(item.get("seen_count", 1)) + 1
+            item["last_seen"] = today
+            break
+    else:
+        items.append({"id": item_id, "title": title, "evidence": [evidence] if evidence else [], "seen_count": 1,
+                      "first_seen": today, "last_seen": today, "status": "candidate"})
+    return [{"action": "write", "path": str(path), "content": json.dumps(items, indent=2, ensure_ascii=False) + "\n", "reason": f"record a sighting of {item_id}"}]
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Plan-only state helper for the flagrare career skills.")
-    parser.add_argument("command", choices=["paths", "contributions", "plan"])
+    parser.add_argument("command", choices=["paths", "contributions", "plan", "flag", "candidate"])
     parser.add_argument("--home", default=str(Path.home()))
+    parser.add_argument("--section")
+    parser.add_argument("--reason")
+    parser.add_argument("--source", default="")
+    parser.add_argument("--id")
+    parser.add_argument("--title")
+    parser.add_argument("--evidence", default="")
+    parser.add_argument("--today")
     args = parser.parse_args()
     if args.command == "paths":
         result: object = paths(args.home)
     elif args.command == "contributions":
         result = read_contributions(args.home)
-    else:
+    elif args.command == "plan":
         result = plan_migration(args.home)
+    elif args.command == "flag":
+        if not (args.section and args.reason and args.today):
+            parser.error("flag needs --section, --reason and --today")
+        try:
+            result = plan_flag(args.home, args.section, args.reason, args.source, args.today)
+        except ValueError as exc:
+            parser.error(str(exc))
+    else:
+        if not (args.id and args.title and args.today):
+            parser.error("candidate needs --id, --title and --today")
+        result = plan_candidate(args.home, args.id, args.title, args.evidence, args.today)
     print(json.dumps(result, indent=2, ensure_ascii=False))
 
 

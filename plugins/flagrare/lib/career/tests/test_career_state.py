@@ -302,6 +302,65 @@ class StateMergeRobustness(unittest.TestCase):
             self.assertEqual(merged["mode"], "new")
 
 
+class Flags(unittest.TestCase):
+    def test_given_no_flags_when_flagging_then_writes_one_flag(self):
+        with tempfile.TemporaryDirectory() as d:
+            [a] = cs.plan_flag(d, "org", "a new team lead was announced", "https://example.com/x", "2026-10-01")
+            self.assertEqual(json.loads(a["content"]), [{"section": "org", "reason": "a new team lead was announced", "source": "https://example.com/x", "raised_at": "2026-10-01"}])
+
+    def test_given_same_flag_already_raised_when_flagging_then_plans_nothing(self):
+        with tempfile.TemporaryDirectory() as d:
+            home = Path(d)
+            write(home, f"{CAREER}/flags.json", json.dumps([{"section": "org", "reason": "r", "source": "", "raised_at": "2026-09-30"}]))
+            self.assertEqual(cs.plan_flag(str(home), "org", "r", "", "2026-10-01"), [])
+
+    def test_given_unknown_section_when_flagging_then_rejects_it(self):
+        with tempfile.TemporaryDirectory() as d:
+            with self.assertRaises(ValueError):
+                cs.plan_flag(d, "gossip", "r", "", "2026-10-01")
+
+
+class FlagsBySource(unittest.TestCase):
+    def test_given_same_section_and_source_reworded_when_flagging_then_plans_nothing(self):
+        with tempfile.TemporaryDirectory() as d:
+            home = Path(d)
+            write(home, f"{CAREER}/flags.json", json.dumps([{"section": "org", "reason": "a lead is leaving", "source": "https://example.com/a", "raised_at": "2026-09-30"}]))
+            self.assertEqual(cs.plan_flag(str(home), "org", "the team lead is moving on", "https://example.com/a", "2026-10-01"), [])
+
+
+class Candidates(unittest.TestCase):
+    def test_given_same_evidence_link_again_when_recording_then_nothing_changes(self):
+        with tempfile.TemporaryDirectory() as d:
+            home = Path(d)
+            write(home, f"{CAREER}/initiatives.json", json.dumps([{"id": "p", "title": "t", "evidence": ["https://example.com/1"], "seen_count": 1, "first_seen": "2026-10-01", "last_seen": "2026-10-01", "status": "candidate"}]))
+            self.assertEqual(cs.plan_candidate(str(home), "p", "t", "https://example.com/1", "2026-10-02"), [])
+
+    def test_given_first_sighting_when_recording_then_adds_candidate_seen_once(self):
+        with tempfile.TemporaryDirectory() as d:
+            [a] = cs.plan_candidate(d, "partner-emails-missing", "Partners miss order emails", "https://example.com/1", "2026-10-01")
+            [item] = json.loads(a["content"])
+            self.assertEqual((item["seen_count"], item["status"], item["evidence"]), (1, "candidate", ["https://example.com/1"]))
+
+    def test_given_second_sighting_when_recording_then_bumps_count_and_adds_new_evidence_once(self):
+        with tempfile.TemporaryDirectory() as d:
+            home = Path(d)
+            first = cs.plan_candidate(str(home), "p", "t", "https://example.com/1", "2026-10-01")[0]
+            Path(first["path"]).parent.mkdir(parents=True, exist_ok=True)
+            Path(first["path"]).write_text(first["content"])
+            [a] = cs.plan_candidate(str(home), "p", "t", "https://example.com/2", "2026-10-03")
+            [item] = json.loads(a["content"])
+            self.assertEqual(item["seen_count"], 2)
+            self.assertEqual(item["evidence"], ["https://example.com/1", "https://example.com/2"])
+            self.assertEqual((item["first_seen"], item["last_seen"]), ("2026-10-01", "2026-10-03"))
+
+    def test_given_active_initiative_when_seen_again_then_status_is_kept(self):
+        with tempfile.TemporaryDirectory() as d:
+            home = Path(d)
+            write(home, f"{CAREER}/initiatives.json", json.dumps([{"id": "p", "title": "t", "evidence": [], "seen_count": 3, "first_seen": "2026-09-01", "last_seen": "2026-09-20", "status": "active"}]))
+            [a] = cs.plan_candidate(str(home), "p", "t", "https://example.com/3", "2026-10-01")
+            self.assertEqual(json.loads(a["content"])[0]["status"], "active")
+
+
 class Config(unittest.TestCase):
     def test_given_only_legacy_key_when_reading_impact_scan_config_then_falls_back(self):
         cfg = {"skills": {"senior-scan": {"domains": ["x"]}}}
