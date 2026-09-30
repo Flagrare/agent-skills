@@ -19,7 +19,7 @@ The plugin ships helper scripts at `<plugin root>/lib/career/`. The plugin root 
 - `map_schema.py check <map.json> --today YYYY-MM-DD`: errors, missing sections, stale sections (over 90 days), conflicts.
 - `deadlines.py --deadline YYYY-MM-DD --today YYYY-MM-DD [--dead START:END ...] [--published]`: when to talk to the manager. `--dead` is optional and repeatable.
 
-The map's shape is in `reference/map-schema.md`, and the markdown layout is in `reference/map-template.md`.
+The map's shape is in `reference/map-schema.md`, and the markdown layout is in `reference/map-template.md`. The other shared state files (contributions log, flags, initiatives) are described in `<plugin root>/lib/career/STATE.md`; clear a handled flag by writing `flags.json` back without it.
 
 ## 1. Load state (every run)
 
