@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.54.0: 2026-10-01
+
+One board, three jobs, each with room to breathe.
+
+### Improved Skills
+
+- **Career Board, rebuilt as tabs**: after the 1.53.0 pass, the board was still one 4,400px page doing three jobs at once. The left column ended a third of the way down while the side panels ran on. Everything was small grey text in equal boxes, and the top of the page was a warning instead of status. The user's verdict: "the dash still looks very bad".
+  - **Header:** four big numbers: things to do today, Senior behaviors still to show, days left to talk to your manager, and thanks from peers. Each jumps to its tab, and when data is missing a tile says what to run instead.
+  - **Act:** Next up is the main card, with the list beside it and "Waiting on others" underneath. "Tell Claude" is one quiet menu per item instead of a row of buttons.
+  - **Promotion:** where you stand and the three dates with countdowns, the proposed projects under one calm warning, the people who haven't seen your work, and your written case.
+  - **Proof:** behaviors with the least proof first, each with a 3-step bar and its next step, then your logged work and recognition.
+  - **Tab behavior:** the tabs stay at the top, work with the arrow keys and `1`/`2`/`3`, live in the web address and are remembered per viewer.
+  - **Kept from 1.53.0:** search, filters, deep links, the glossary, keyboard shortcuts and "new since your last visit".
+  - **Look:** the visual design was redone with a real type scale, more space and fewer borders, in light and dark and on phone.
+- **Recognition, automatic thanks left out**: birthdays, work anniversaries and welcomes come from the recognition tool's own accounts. `recognition.py summary` now counts them apart (`automatic`) and leaves them out of thanks, givers and proof, so no skill treats "Happy birthday!" as someone who has seen your work.
+
 ## 1.53.0: 2026-10-01
 
 Proposals worth owning, a board that's a pleasure to use, and your peers' thanks counted as proof.
