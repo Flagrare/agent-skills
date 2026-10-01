@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.46.0: 2026-09-30
+
+Something to own, not just something to answer.
+
+### New Skills
+
+- **`/flagrare:opportunity-scan`, proposals you could own end to end**: since 1.45.0, impact-scan hands off problems that keep coming back instead of drafting a third reply, and nothing picked them up: they sat in `initiatives.json`. The rubric line these career skills keep pointing at, "proactively discovers and solves problems", had no skill looking for it on purpose. Opportunity-scan does. About once a month it sweeps the connected surfaces over the last few weeks for recurring pain, silent degradation, ownership gaps, unanswered invitations and leadership priorities, adds the handed-off problems, and checks each one for an existing owner before ranking it: an owned problem is cut and the owner named. It ranks what is left by what the user wants more and less of, the open rubric row it closes, who would notice, standing in the area, how often it came up, and whether it can land before the packet deadline, and brings back at most three proposals. Each has evidence links, a "we believe X will Y because Z" hypothesis with a success metric set before building, the smallest first step, and a short pitch for the manager. The first step fits how the company decides: when a PM drives the decision document, the proposal feeds evidence into it instead of going around it. At most one initiative is active, and only after the user says their manager agreed, which is recorded. A dismissed problem stays dismissed unless it shows up again. Without a promotion map it still runs, ranking against impact-scan's config.
+
+### Improved Skills
+
+- **`/flagrare:impact-scan`**: the Handed off line now points at opportunity-scan, and says when a problem the user dismissed has come back.
+
+### Tooling
+
+- **Career library**: `initiatives.py` plans every opportunity-scan write (`context`, `propose`, `status`, `run`) and refuses a second active initiative, an activation without manager alignment, and a proposal missing its hypothesis, metric, first step, pitch or owner check. A new `opportunity-state.json` records the last run for the 30-day cadence. The README's skill count is corrected.
+
 ## 1.45.0: 2026-09-30
 
 The scan finally knows where you're going.
