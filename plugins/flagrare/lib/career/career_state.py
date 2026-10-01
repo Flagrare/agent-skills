@@ -33,6 +33,7 @@ def paths(home: str) -> dict[str, str]:
         "log": str(career / "contributions.log.md"),
         "scan_state": str(career / "scan-state.json"),
         "flags": str(career / "flags.json"),
+        "opportunity_state": str(career / "opportunity-state.json"),
         "voice": str(career / "voice.md"),
     }
 
