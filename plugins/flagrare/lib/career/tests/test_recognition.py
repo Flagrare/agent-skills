@@ -136,6 +136,18 @@ class Summary(unittest.TestCase):
             self.assertEqual(tuple(s["values"][0]), ("team-first", 2))
             self.assertEqual([(g["name"], g["count"], g["last"]) for g in s["givers"]], [("Kai", 2, "2026-10-01"), ("Ana", 1, "2026-06-01")])
 
+    def test_given_automatic_thanks_when_summarizing_then_counts_them_apart_and_never_as_people(self):
+        with tempfile.TemporaryDirectory() as d:
+            home = Path(d)
+            person = rec.normalize(bonus(1, "Kai", "team-first", "2026-09-30"))
+            birthday = rec.normalize({**bonus(2, "x", "", "2026-09-29"), "giver": {"full_name": "Happy birthday!", "email": "bot+birthday@bonus.ly"}})
+            p = home / CAREER / "recognition.json"
+            p.parent.mkdir(parents=True)
+            p.write_text(json.dumps({"fetched_on": "2026-10-01", "received": [person, birthday], "given": []}))
+            s = rec.summary(str(home), "2026-10-01")
+            self.assertEqual((s["received"], s["automatic"], [g["name"] for g in s["givers"]]), (1, 1, ["Kai"]))
+            self.assertTrue(birthday["automatic"])
+
     def test_given_no_cache_when_summarizing_then_says_so(self):
         with tempfile.TemporaryDirectory() as d:
             self.assertEqual(rec.summary(d, "2026-10-01"), {"has_recognition": False})
