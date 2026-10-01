@@ -200,17 +200,19 @@ For every finding that survived Step 5, produce a GitHub-ready comment draft.
 
 | Severity | Symbol | Meaning |
 |----------|--------|---------|
-| Critical | CRITICAL | Must fix before merge: bugs, security, broken behavior |
-| Suggestion | SUGGESTION | Should consider: quality, clarity, maintainability |
+| Critical | CRITICAL | Likely bug, security hole, or broken behavior |
+| Suggestion | SUGGESTION | Quality, clarity, maintainability |
 | Nice to have | NICE | Optional improvement |
+
+The severity labels are for the user's chat summary only. They never leak into the comment text as conditions ("before merge", "blocker", "must"): the reviewer is a peer sharing what they noticed, not a gatekeeper deciding what the author has to do (see "You're a peer, not a gatekeeper" below).
 
 **Comment requirements:**
 - 1-2 sentences for inline comments. Budget roughly 100-300 characters. If a draft runs past 350, cut a whole sentence, never a subject (see below).
 - Copy-paste ready for GitHub
 - No AI-isms: avoid "consider", "it would be beneficial", "enhance", "leverage", "crucial", "pivotal"
 - Use "you" when it fits
-- Frame suggestions as options: "One option:", "Worth adding:", "Might be cleaner to..."
-- Reserve firm language for actual blockers only
+- Frame suggestions as options: "One option:", "It might be worth adding...", "It might be cleaner to..."
+- No firm language, even for a real bug: say what you think happens and ask what they think
 
 **Never drop the subject of a sentence.** Brevity comes out of whole sentences, never out of grammar. Telegraphic prose reads as a machine writing minutes, not a colleague talking.
 
@@ -256,12 +258,12 @@ Concrete before-and-after pairs. The envelope around each comment (severity, fil
 
 **2. SQL injection (Critical, security)**
 - Cold: `SQL injection risk. Use parameterized queries.`
-- Friendly: `` Heads up, looks like `userId` is going straight into the query string here. Should we switch this over to a parameterized version? It's an easy thing to miss in review. ``
+- Friendly: `` Heads up, it looks like `userId` is going straight into the query string here. Should we switch this over to a parameterized version? It's an easy thing to miss in review. ``
 - *What changed: warmer opener, asks rather than commands, "easy to miss" removes blame.*
 
 **3. Test coverage (Suggestion, tests)**
 - Cold: `Missing test for the cancelled path.`
-- Friendly: `Looks like we're already covering the success and reschedule paths, but not cancel. Would be good to lock that one down too if we get a chance.`
+- Friendly: `It looks like we're already covering the success and reschedule paths, but not cancel. It would be good to lock that one down too if we get a chance.`
 - *What changed: credits existing work first, uses "we" throughout, "if we get a chance" softens the suggestion.*
 
 **4. Single responsibility (Suggestion, SOLID)**
@@ -281,21 +283,33 @@ Concrete before-and-after pairs. The envelope around each comment (severity, fil
 
 **7. Magic number (Nice, clean code)**
 - Cold: `` Replace magic number `86400` with a named constant. ``
-- Friendly: `` Small thing, but `86400` would probably read more clearly as `SECONDS_PER_DAY`. Takes a beat to recognize it otherwise. Worth pulling out into a constant? ``
+- Friendly: `` Small thing, but `86400` would probably read more clearly as `SECONDS_PER_DAY`. It took me a beat to recognize it. Do you think it's worth pulling out into a constant? ``
 - *What changed: "small thing" calibrates severity, admits the inference ("takes a beat"), asks instead of instructs.*
 
 **8. Convention match (Nice, clean code)**
 - Cold: `Use early return.`
-- Friendly: `` Heads up, the rest of `BookingService` is going with early-returns on validation failures. Might be worth doing the same here, just for consistency. ``
+- Friendly: `` I noticed the rest of `BookingService` goes with early-returns on validation failures. It might be worth doing the same here, just for consistency, but totally up to you. ``
 - *What changed: references the local convention without claiming authority, "might be worth" hedges.*
 
 What the pairs are showing:
 - Open with what we noticed, not what we want done.
-- First-person voice when we're guessing ("I think", "looks like", "wondering if").
+- First-person voice when we're guessing ("I think", "it looks like", "I was wondering if").
 - "We" instead of "you" when the codebase is the subject.
 - One short clause of "why" attached to suggestions, not a paragraph.
-- Hedges: "probably", "might be worth", "totally up to you", "if we get a chance".
-- Severity in the opener: "Heads up" for must-fix, "small thing" or "would be good" for nice-to-haves.
+- Hedges: "probably", "it might be worth", "totally up to you", "if we get a chance".
+- Severity in the opener: "Heads up" for a likely bug, "small thing" or "it would be good" for nice-to-haves.
+
+**You're a peer, not a gatekeeper.** The reviewer is rarely in a position to set conditions on someone else's PR, and even when they are, phrasing it that way reads as cocky. Every comment and the review body share what you noticed and ask what the author thinks. Never write what you want, need, or require, and never grade their work.
+
+| Avoid | Because | Instead |
+|---|---|---|
+| "The one I'd want sorted before merge is X" | sets a condition on their merge | "I left a question inline about X, I might be missing something there" |
+| "That's the blocker" / "needs to be fixed before merge" | a verdict you aren't positioned to give | "I think this one could bite us, what do you think?" |
+| "The per-row isolation looks solid to me" / "The rest looks right to me" | grades their work from above | drop it, or a personal reaction: "I really liked how the tests read" |
+| "We'd get the same result here without `SKIP LOCKED`" | gotcha framing, stated as settled fact | "I could be wrong, but I think this test would still pass without `SKIP LOCKED`" |
+| "Could you also add X to the description?" stacked after findings | reads as an assignment list | "It might be nice to mention X in the description too" |
+
+Read the review body and every comment once more as the author would: if any sentence sounds like a manager signing off, a teacher grading, or someone who already knows they're right, rewrite it as a teammate thinking out loud.
 
 **Vary the openers across one review.** The phrases above are examples, not a template. Reuse one on every comment of the same severity and a review of three nits reads "Small thing: ... Small thing: ... Small thing: ...", which is the tell of a form being filled in, not a person reading code. Before Step 7, read the drafts' first words side by side: no two comments in one review open with the same phrase, and at most one opens with a severity label at all. The rest open straight on the observation ("We cover X, but not Y", "`SkuOrderReportsPage.js` already has a `SummaryTile` that..."), letting a hedge later in the sentence ("might be worth", "totally up to you", "if we get a chance") carry the severity. Other openers to rotate in when a label is warranted: "Minor one:", "Nit:", "Optional, but", "One more thought:".
 
@@ -328,7 +342,7 @@ SUGGESTION - `reservations/BookingService.kt` L32 (introduced)
 GitHub comment: I noticed this one's doing both validation and persistence. Pulling validation out might make the tests easier for us.
 
 NICE - `reservations/BookingServiceTest.kt` (file-level, pre-existing pattern)
-GitHub comment: I don't see a test for the cancelled path. The sibling suites skip it too, so not a convention break, but it'd be good to lock down.
+GitHub comment: I don't see a test for the cancelled path. The sibling suites skip it too, so it's not a convention break, but it'd be good to lock down.
 ```
 
 **Mark every finding `(introduced)` or `(pre-existing)`.** Determine which by checking whether the surrounding code, or the nearest sibling implementation, already does the same thing. A finding the PR did not cause needs different framing: say so in the comment, so the author isn't asked to answer for something they inherited. This changes the comment text, not the severity: an inherited security hole is still a security hole, but "the sibling adapter does this too" is information the author needs.
@@ -340,7 +354,7 @@ GitHub comment: I don't see a test for the cancelled path. The sibling suites sk
 | Artifact | Audience | Contains |
 |---|---|---|
 | **A. The chat summary** | the user, deciding whether to post | context fetched, verdict, every finding with its draft, checklist, findings dropped in Step 5 |
-| **B. The GitHub review body** | the PR author | one paragraph, opening on the blocker |
+| **B. The GitHub review body** | the PR author | one paragraph, opening on the main thing you noticed |
 
 **A. Present to the user in chat:**
 
@@ -379,21 +393,20 @@ The "what the PR does" clause in the Overall Assessment is orientation **for the
 
 If any subagent skipped a file without a reason, the verdict says so in its first sentence. A review with unexplained partial coverage does not get to read as a clean review.
 
-**B. The GitHub review body is one paragraph.** It opens on the thing you'd want fixed, then covers what's fine in a clause. A second short paragraph is allowed only for findings that have no line to anchor to (a wrong claim in the PR description, a stale response shape).
+**B. The GitHub review body is one paragraph.** It opens on the main thing you noticed, said as something you noticed or a question, never as a condition ("I'd want", "before merge"). It doesn't grade the rest of the PR. A second short paragraph is allowed only for findings that have no line to anchor to (a wrong claim in the PR description, a stale response shape).
 
-One paragraph is a shape, not a compression license. When the blocker is a causal chain, the opening states the mechanism link by link in plain words and the paragraph grows to fit it, same as Step 6's comprehensibility rule. "Details inline" supplements a mechanism the reader already grasped; it never substitutes for one.
+One paragraph is a shape, not a compression license. When the main finding is a causal chain, the opening states the mechanism link by link in plain words and the paragraph grows to fit it, same as Step 6's comprehensibility rule. "Details inline" supplements a mechanism the reader already grasped; it never substitutes for one.
 
 Never put these in the review body:
 - A summary of what the PR does. The author wrote it.
 - A recap of what you verified or which of their claims checked out.
 - A list of things you looked at and chose not to flag.
-- Praise beyond a clause.
+- Praise beyond a clause, or any verdict on the rest of their work ("the rest looks right to me").
 
 ```
 Good: I think the race in `verifyMfaOtp.controller.ts` could activate a factor for a
-number we never verified. That's the one I'd want to sort out before merge, details
-inline. The rest looks right to me: the layering, the responder maps, and the ticket
-criteria.
+number we never verified, I left the details inline. I might be missing something
+there, so let me know what you think!
 
 Bad:  Adds the two `/v2/registration/mfa/*` endpoints over the aggregate from #7421.
 The layering is clean. Adapters are only constructed in `index.ts` and injected,
@@ -402,19 +415,19 @@ genuinely exhaustive. I also went through the CLAUDE.md edits and I think they'r
 documenting what shipped. A few things I looked at and decided not to flag: ...
 ```
 
-The bad version opens with a subjectless fragment, narrates the PR back at its author, recaps the verification, and appends a not-flagged inventory. Every one of those is padding that buries the blocker.
+The bad version opens with a subjectless fragment, narrates the PR back at its author, grades their work ("The layering is clean"), recaps the verification, and appends a not-flagged inventory. Every one of those is padding that buries the main point.
 
 The Good example above works because its defect fits in a clause ("could activate a factor for a number we never verified"). Do not imitate its compression when yours doesn't:
 
 ```
 Cryptic: I think the formKey change can remount the edit form under the partner
-mid-edit once the groups query resolves, that's the one thing I'd want sorted
-before merge, details inline.
+mid-edit once the groups query resolves, details inline.
 
-Clear:   One thing I'd like to sort before merge: in the edit flyout, the modifier
-groups fetch feeds into the form's `key`, and when the fetch resolves the key
-changes and React remounts the form. So a partner who starts typing while that
-fetch is still in flight gets their edits wiped. Details inline.
+Clear:   I think I found something in the edit flyout: the modifier groups fetch
+feeds into the form's `key`, and when the fetch resolves the key changes and
+React remounts the form. So a partner who starts typing while that fetch is still
+in flight could get their edits wiped. I left the details inline, let me know if
+I'm missing something!
 ```
 
 The cryptic version gestures at the mechanism in a clause and leans on "details inline" to carry it. It reads fine to the reviewer who just traced the chain, and to nobody else.
@@ -451,6 +464,7 @@ gh api --method POST /repos/{owner}/{repo}/pulls/{n}/reviews --input review.json
 - Don't present a review as clean when a subagent skipped files without saying why.
 - Don't shorten a comment by dropping its subject. Cut sentences, not grammar.
 - Don't open the review body by describing the PR to the person who wrote it.
+- Don't set conditions or grade the work ("the one I'd want sorted before merge", "looks solid to me"). Share what you noticed and ask.
 - Don't quote the author's stated goal back at them as evidence they missed it.
 - Don't cite anything the author cannot resolve from the page they are on: a bare design node id, another PR by number with no gloss, a symbol that only exists on your branch, an acceptance criterion by number. Precise and unreachable is still cryptic.
 
