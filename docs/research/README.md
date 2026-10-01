@@ -6,6 +6,8 @@ External research conducted for this project. Each entry credits the sources it 
 
 | Date | Topic | Triggered by | Informed |
 |------|-------|--------------|----------|
+| 2026-09-30 | [What experts say gets software engineers promoted](./2026-09-30-what-gets-engineers-promoted.md) | Designing the career skills family | career skills design; promotion, impact-scan, career (balance warning) |
+| 2026-09-30 | [How product engineering works at PostHog](./2026-09-30-posthog-product-engineering.md) | Designing `/flagrare:opportunity-scan` | career skills design; opportunity-scan proposal shape and decision-process rule |
 | 2026-09-14 | [Open Code Review teardown: what our review skills should absorb](./2026-09-14-open-code-review-teardown.md) | Reading `alibaba/open-code-review` (Apache-2.0) to see what its review prompts solve that our skills leave to model judgement | pr-reviewer (shared subagent rules, evidenced drops, coverage, anchor fallback); implementation-review (shared subagent rules, coverage) |
 | 2026-07-03 | [Prior art for a whole-document "human editor" prose-review skill](./2026-07-03-editorial-pass-prior-art.md) | Designing `/flagrare:editorial-pass` (whole-document editorial reading + agent-noise deletion categories) | editorial-pass skill |
 | 2026-06-11 | [Kent Dodds' testing philosophy, generalized across languages and layers](./2026-06-11-kent-dodds-testing-philosophy.md) | Strengthening test-proposing/reviewing skills on e2e necessity + behavior-over-implementation | testing-philosophy skill; atdd-plan, implementation-review, tdd-writer, wrap-up |

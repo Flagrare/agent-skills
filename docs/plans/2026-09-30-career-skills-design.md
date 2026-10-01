@@ -4,6 +4,8 @@
 
 Status: design, approved section by section on 2026-09-30. Next step: implementation plan.
 
+Research behind this design: [what experts say gets software engineers promoted](../research/2026-09-30-what-gets-engineers-promoted.md) and [how product engineering works at PostHog](../research/2026-09-30-posthog-product-engineering.md).
+
 ## Problem
 
 `/flagrare:senior-scan` finds threads worth weighing in on, and it does that well. But one long working session showed the scan covers the smallest part of the job. Most of the value came from work nothing automates:
