@@ -20,6 +20,9 @@ Clarity comes first, and the user still learns the terms their company uses. The
 | Check first | verify first | The one check that makes a draft safe to send. |
 | Promotion map | map | The sourced document `/flagrare:promotion` keeps: target, process, calendar, the behaviors, people, the written case. |
 | People who haven't seen your work yet | unseen people | People in the decision who have no first-hand context on the user's work. |
+| Your lever | user_lever, lever | What in the user's own work moves a metric (the systems they own, the screens they build). A metric with no lever in their seat belongs to another team. |
+| Company priorities | priorities | The themes and metrics leadership watches, each with its owner team. |
+| Recognition | bonuses | Thanks peers gave the user in the company's recognition tool. Proof someone saw the work, and a source of peer-feedback picks. |
 | The bet | hypothesis | "We believe X will Y because Z": what a proposed project expects to change, set before building. |
 
 Row ids (`scope.proactive-discovery`), file names and statuses like `handed_off` are code: they belong in item blocks, logs and files, never in a table cell or a sentence written for the user. Each behavior's plain name is its `label` in the promotion map.

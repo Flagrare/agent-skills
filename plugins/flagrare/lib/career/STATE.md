@@ -45,7 +45,7 @@ Signals that part of the promotion map may be stale. Other skills append through
 
 Work the user could own. Two skills record candidates through `career_state.py candidate`: opportunity-scan, when the career coordinator runs it, keeps each proposal the user has not decided on as a candidate with one sighting (reusing an existing id); and, when the user has a promotion map, impact-scan records problem-type items (a recurring problem the user could fix, as opposed to a thread to answer) through `career_state.py candidate`, once per scan run: a new evidence link adds a sighting (`seen_count` goes up) and keeps the item's `status`, a link already recorded changes nothing, so the same thread continuing never counts twice. The hand-off threshold is impact-scan's rule, not the script's: at `seen_count` 2 or more it stops drafting replies for that problem and marks the scan item `handed_off` in `scan-state.json`. `/flagrare:opportunity-scan` checks each candidate for an existing owner, ranks it with its own findings, and records what the user keeps through `initiatives.py`:
 
-- `propose` moves a candidate (or a new problem, which needs at least one evidence link) to `proposed` and adds a `proposal` object; `problem`, `hypothesis`, `metric`, `first_step`, `pitch` and `owner_check` are required, the other fields optional. It refuses an item that is already `active` or `done`. It keeps `seen_count`, `first_seen` and every evidence link, and `career_state.py candidate` keeps the proposal when the problem is seen again.
+- `propose` moves a candidate (or a new problem, which needs at least one evidence link) to `proposed` and adds a `proposal` object; `problem`, `hypothesis`, `metric`, `first_step`, `pitch`, `owner_check` and `lever` (what in the user's seat moves the metric) are required; `baseline`, `target` and `by` are expected, the other fields optional. It refuses an item that is already `active` or `done`. It keeps `seen_count`, `first_seen` and every evidence link, and `career_state.py candidate` keeps the proposal when the problem is seen again.
 - A candidate an opportunity scan drafted but the user has not decided on carries the drafted fields as `draft_proposal` (from `career_state.py candidate --details`). It is not a sighting, it never replaces a kept `proposal`, and `propose` removes it.
 - `status` makes one move at a time: `candidate` or `proposed` to `dropped`, `proposed` to `active`, `active` to `done` or `dropped`, `dropped` back to `candidate`, and `dropped` to `dropped` again (a dismissed problem that came back and was dismissed again, which restamps `dropped_at`). Each move stamps `<status>_at`, and a note passed with it is kept as `<status>_note` (for `active`, inside `aligned`).
 - **At most one item is `active`, and only after manager alignment:** the script refuses a second one (naming the first) and refuses `active` without `aligned-with`, which it records as `aligned`.
@@ -60,6 +60,21 @@ Work the user could own. Two skills record candidates through `career_state.py c
    "proposed_at": "2026-10-01", "aligned": { "with": "...", "on": "2026-10-03", "note": "..." }, "active_at": "2026-10-03",
    "dropped_at": "...", "dropped_note": "..." }]
 ```
+
+## recognition.json
+
+A cache of peer recognition from the company's recognition tool (Bonusly), written from `recognition.py fetch` and read by the board, promotion, brag-doc and impact-timeline without the network. The token is never stored here: it lives in `~/.config/flagrare/bonusly-token` (or `skills.career.recognition.token_file`).
+
+```json
+{ "fetched_on": "2026-10-01", "provider": "bonusly", "since": "2025-10-01", "until": "2026-10-01",
+  "user": { "name": "...", "email": "...", "manager_email": "..." },
+  "received": [{ "id": "...", "date": "2026-10-01", "giver": { "name": "...", "email": "..." }, "receivers": ["..."],
+                "value": "team-first", "reason": "raw text", "text": "the thanks, cleaned",
+                "plus_ones": ["..."], "plus_one_count": 0, "link": "https://bonus.ly/bonuses/<id>" }],
+  "given": [ ...same shape... ] }
+```
+
+The `link` opens the bonus when the user is signed in to the tool.
 
 ## opportunity-state.json
 

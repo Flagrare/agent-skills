@@ -34,6 +34,19 @@ class Validate(unittest.TestCase):
         self.assertTrue(any("status" in e for e in ms.validate(m)))
 
 
+class Priorities(unittest.TestCase):
+    def test_given_priorities_with_a_fact_missing_its_status_when_validating_then_reports_it(self):
+        m = {"priorities": [{"theme": "Merchant trust", "metric": {"value": "merchant satisfaction score", "source": "https://x", "checked_at": "2026-09-30"}}]}
+        self.assertEqual(ms.validate(m), ["priorities[0].metric: missing status"])
+
+    def test_given_priorities_checked_long_ago_when_listing_stale_sections_then_reports_them(self):
+        m = {"priorities": [], "sections": {"priorities": {"checked_at": "2026-01-01"}}}
+        self.assertIn("priorities", ms.stale_sections(m, date(2026, 10, 1)))
+
+    def test_given_no_priorities_when_listing_missing_sections_then_it_is_not_required(self):
+        self.assertNotIn("priorities", ms.missing_sections({}))
+
+
 class Conflicts(unittest.TestCase):
     def test_given_two_sources_disagree_when_listing_conflicts_then_both_kept_and_path_reported(self):
         fact = {

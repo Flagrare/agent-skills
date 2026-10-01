@@ -140,6 +140,65 @@
     "people": {
       "checked_at": "2026-09-30",
       "sources": []
+    },
+    "priorities": {
+      "checked_at": "2026-09-30",
+      "sources": [
+        "https://example.com/themes"
+      ]
     }
-  }
+  },
+  "priorities": [
+    {
+      "theme": "Merchant trust",
+      "metric": {
+        "value": "Merchant satisfaction score",
+        "source": "https://example.com/themes",
+        "checked_at": "2026-09-30",
+        "status": "verified"
+      },
+      "baseline": {
+        "value": "32",
+        "source": "https://example.com/themes",
+        "checked_at": "2026-09-30",
+        "status": "verified"
+      },
+      "owner_team": "Merchants",
+      "user_lever": "input"
+    },
+    {
+      "theme": "Order reliability",
+      "metric": {
+        "value": "Share of orders where the venue gets no alert",
+        "source": "https://example.com/themes",
+        "checked_at": "2026-09-30",
+        "status": "verified"
+      },
+      "baseline": {
+        "value": "12%",
+        "source": "https://example.com/themes",
+        "checked_at": "2026-09-30",
+        "status": "verified"
+      },
+      "owner_team": "Partner notifications (the user's squad)",
+      "user_lever": "owner"
+    },
+    {
+      "theme": "Consumer growth",
+      "metric": {
+        "value": "App conversion from search to booking",
+        "source": "https://example.com/themes",
+        "checked_at": "2026-09-30",
+        "status": "verified"
+      },
+      "baseline": {
+        "value": "not written down",
+        "source": "https://example.com/themes",
+        "checked_at": "2026-09-30",
+        "status": "unverified"
+      },
+      "owner_team": "Search",
+      "user_lever": "none"
+    }
+  ]
 }

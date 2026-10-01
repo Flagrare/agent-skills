@@ -17,7 +17,7 @@ from scoring import open_rows, unseen_people
 
 CADENCE_DAYS = 30
 WINDOW_CAP_DAYS = 90
-REQUIRED = ["problem", "hypothesis", "metric", "first_step", "pitch", "owner_check"]
+REQUIRED = ["problem", "hypothesis", "metric", "first_step", "pitch", "owner_check", "lever"]
 MOVES = {
     ("candidate", "dropped"), ("proposed", "dropped"),
     ("proposed", "active"), ("active", "done"), ("active", "dropped"),
@@ -82,7 +82,7 @@ def context(home: str, today: str) -> dict:
     dropped = [{**i, "seen_again": str(i.get("last_seen", "")) > str(i.get("dropped_at", ""))} for i in by_status("dropped")]
     result = {
         "has_map": False,
-        "target": {}, "open_rows": [], "unseen_people": [],
+        "target": {}, "open_rows": [], "unseen_people": [], "priorities": [],
         "decision_process": None, "packet_deadline": None,
         "initiatives": {
             "active": (by_status("active") or [None])[0],
@@ -109,6 +109,9 @@ def context(home: str, today: str) -> dict:
         "unseen_people": unseen_people(m),
         "decision_process": {k: _value(v) for k, v in decision.items()} if isinstance(decision, dict) else None,
         "packet_deadline": {"value": _value(deadline), "status": deadline.get("status")} if isinstance(deadline, dict) else None,
+        "priorities": [{"theme": p.get("theme", ""), "metric": _value(p.get("metric")), "baseline": _value(p.get("baseline")),
+                        "target": _value(p.get("target")), "owner_team": p.get("owner_team", ""), "user_lever": p.get("user_lever", "")}
+                       for p in (m.get("priorities") or []) if isinstance(p, dict)],
     })
     return result
 

@@ -7,6 +7,8 @@ from datetime import date
 from pathlib import Path
 
 SECTIONS = ["target", "process", "calendar", "rubric", "org", "people", "precedent", "packet_readiness", "manager_questions"]
+# Checked like the others when present, never reported missing: older maps predate them.
+OPTIONAL_SECTIONS = ["priorities"]
 STATUSES = {"verified", "unverified", "inferred"}
 
 
@@ -27,7 +29,7 @@ def _walk(node: object, path: str):
 
 def validate(m: dict) -> list[str]:
     errors: list[str] = []
-    for section in SECTIONS:
+    for section in SECTIONS + OPTIONAL_SECTIONS:
         if section not in m:
             continue
         for path, fact in _walk(m[section], section):
@@ -53,7 +55,7 @@ def validate(m: dict) -> list[str]:
 
 def conflicts(m: dict) -> list[str]:
     found: list[str] = []
-    for section in SECTIONS:
+    for section in SECTIONS + OPTIONAL_SECTIONS:
         if section in m:
             found += [path for path, fact in _walk(m[section], section) if "alternatives" in fact]
     return found
@@ -66,7 +68,7 @@ def missing_sections(m: dict) -> list[str]:
 def stale_sections(m: dict, today: date, days: int = 90) -> list[str]:
     meta = m.get("sections", {})
     stale: list[str] = []
-    for section in SECTIONS:
+    for section in SECTIONS + OPTIONAL_SECTIONS:
         if section not in m:
             continue
         section_meta = meta.get(section, {})
