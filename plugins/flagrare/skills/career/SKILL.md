@@ -81,7 +81,10 @@ Rebuild the board once, after everything else: update `<board dir>/data.json` wi
 - the promotion panel, with deadline countdowns;
 - the packet readiness panel (from the map's `packet_readiness`);
 - evidence per rubric row by `label`, with the three biggest gaps and each row's `next_step`;
-- a sparkline of contributions logged per week over the last eight weeks.
+- a sparkline of contributions logged per week over the last eight weeks;
+- the Recognition card (from `career/recognition.json`, when a recognition tool is set up): totals, company values, who recognized the user most, and the latest thanks.
+
+The page also has search and filters, foldable panels, keyboard shortcuts, "new since your last visit" marks and "Tell Claude" buttons that copy a sentence for the user to paste into chat; impact-scan describes how to handle those sentences.
 
 The page itself warns when its scan is two or more days old. If no board folder is configured: interactive, ask once where it should live (default `~/career-board`) and save it as `skills.career.board.dir`; scheduled, skip the board and say so in the caveat line. If the sandbox blocks the write, rerun the build outside it; if the build fails, say so in the caveat line.
 

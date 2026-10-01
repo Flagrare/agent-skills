@@ -55,18 +55,19 @@ Tell the user up front: the first run is long, often an hour or more, and it sav
 2. **Look up two facts about the target level:** is it terminal at this company (no expectation of promotion beyond it), and what's the expected time band at the current level? Quote both.
 3. **Say what the "why" changes.** A terminal target plus a "peace of mind" why makes the target the finish line. A "money" or "scope" why means planning past it. Write this into the map's section 1.
 4. **Find the process, calendar and packet template** in every connected source: wiki, docs, chat announcements, meeting notes, the HR portal (with consent). Also find **how product decisions get made**: the decision document and who usually drives it. Opportunity-scan needs this.
+   Also find **what leadership measures**: the company's themes or strategy documents, OKRs and planning docs, and what planning meetings and all-hands say (in meeting notes such as Granola, when connected). Record each metric that matters for the user's area in `priorities`: the theme, the metric, its baseline and target when written down (each a fact with a source), the team that owns it, and `user_lever`: `owner` if the user's seat owns the metric's main input, `input` if their systems feed it, `none` if the lever sits in another team. Opportunity-scan ranks proposals against this list. Take priorities from meeting notes, never quotes about people.
 5. Save the map (JSON and markdown) with the `target`, `process`, `calendar` and `sections` entries filled in.
 
 ### Phase 2: Rubric gap
 1. **Find the artifact managers rate against** (a ladder spreadsheet, a check-in workbook), not prose written about it. Ask the user whether their manager uses a check-in workbook. If prose and artifact disagree, use the artifact and record the mismatch in `rubric.prose_mismatches`.
 2. Build one `rubric.rows` entry per behavior: the current-level text, the target-level text, a stable id (`<area>.<short-slug>`), and a `label`, the behavior in two to four plain words ("Finding problems", "Sought-after reviewer"), which the board and digests show instead of the id.
-3. Mark each row `done`, `partial` or `not_started`, with evidence from `career_state.py contributions`, the user's reviews and work, and prior review notes the user shares.
+3. Mark each row `done`, `partial` or `not_started`, with evidence from `career_state.py contributions`, recognition peers gave the user (when a recognition tool is set up, see "Recognition" below: each bonus with its link is proof, and the company value it is tagged with points at the core-values behavior), the user's reviews and work, and prior review notes the user shares.
 4. Save.
 
 ### Phase 3: Org and who knows your work
 1. **Org:** the user's chain, who sits above each team they might land on, and upcoming changes (departures, new leaders, reorgs from meeting notes and announcements). Every person gets a source and a status.
 2. **Who knows your work, evidence first, then the user:**
-   - Propose people from the user's own interactions (reviews given and received, shared threads, shared meetings), each with evidence links.
+   - Propose people from the user's own interactions (reviews given and received, shared threads, shared meetings, and everyone who gave them recognition), each with evidence links. A person who recognized the user has seen their work first-hand; flag any of them who sits in the promotion committee.
    - Ask the user to confirm and correct, and to add what no tool can see, like a former manager or a hackathon team.
    - Set `seen_your_work` and `confirmed_by_user`.
 3. **Who sits in calibration:** infer it from the process document, quote the sentence, and mark it `inferred`. List the people in the room who haven't seen the user's work.
@@ -77,18 +78,23 @@ Tell the user up front: the first run is long, often an hour or more, and it sav
 1. **Deadlines:** run `deadlines.py` with the packet deadline. If this cycle's date is published, use it and pass `--published`. Otherwise project last year's date onto this cycle (same month and day, one year later) and leave it `inferred`. Ask the user which holiday or vacation windows are dead time where they are, and pass them as `--dead`. Record "comfortable by X, absolute by Y" with its status and state. If the state is `past`, say so plainly and name the next cycle.
 2. **One next step per open row:** for every row not `done`, write `next_step`: the single cheapest concrete action that would add evidence, fitted to what you found about the company ("type /interview in the recruiting channel", "offer one pairing session on the partner dashboard", "ask your manager for one piece of the roadmap to co-own"). The board lists the three biggest gaps with these steps, so make each one doable in a week, not a goal.
 3. **Packet readiness:** run `python3 <plugin root>/lib/career/coordinator.py readiness --home "$HOME" --today <date>` for the evidence count of each rubric row (log entries tagged with the row plus the row's own evidence), then mark each template section `strong`, `thin` or `empty` from the rows it draws on.
-4. **Manager questions:** everything still unknown, plus the readiness question ("is <cycle> realistic, and what's missing?").
-5. Run `map_schema.py check`. Fix any errors, then save.
-6. Show the user a short summary: the target, the two conversation dates, the Senior behaviors not shown yet (by label), who still needs to see their work, and the questions for their manager. Point to `promotion-map.md`.
+4. **Peer feedback picks:** from `recognition.py summary`, the people who recognized the user most, and for what, are the first candidates for the written case's peer feedback (3 to 5); add them to the Peer Feedback note.
+5. **Manager questions:** everything still unknown, plus the readiness question ("is <cycle> realistic, and what's missing?").
+6. Run `map_schema.py check`. Fix any errors, then save.
+7. Show the user a short summary: the target, the two conversation dates, the Senior behaviors not shown yet (by label), who still needs to see their work, and the questions for their manager. Point to `promotion-map.md`.
 
 ## 4. Refresh
 
-1. Run `map_schema.py check`, and read `career/flags.json` if it exists (other skills write staleness signals there, such as a reorg, a departure, or a calendar being published).
+1. Run `map_schema.py check`, and read `career/flags.json` if it exists (other skills write staleness signals there, such as a reorg, a departure, or a calendar being published). Refresh recognition with `python3 <plugin root>/lib/career/recognition.py fetch --home "$HOME" --today <YYYY-MM-DD>` (apply its planned write of `career/recognition.json` with the Write tool; it needs the network) when a recognition tool is set up.
 2. Re-research only the stale or flagged sections. Keep every other section as it is.
 3. Ask the user "anything changed?", covering target, manager, team, and people who have seen their work.
 4. If the calendar section is re-checked, or a flag says the calendar was published, re-run `deadlines.py` and update `calendar.manager_conversation`.
 5. Refresh each open row's `next_step` when the evidence for it has moved (a step that's done or no longer the cheapest gets replaced), and add any missing `label`.
 6. Update `checked_at` for each re-checked section, clear the flags you handled, and save.
+
+### Recognition
+
+When the user's company uses a peer-recognition tool (Bonusly today), its thanks are proof the user didn't have to log. Setup: the user creates a personal API token in the tool and saves it to `~/.config/flagrare/bonusly-token` (or the file named by `skills.career.recognition.token_file` in `config.json`). Never store the token in `config.json` or a repo, and never paste it into chat. Then run `python3 <plugin root>/lib/career/recognition.py fetch --home "$HOME" --today <YYYY-MM-DD>` (apply its planned write of `career/recognition.json` with the Write tool; it needs the network); `recognition.py summary` gives totals, company values, and who recognized the user most. Quote only what is said about the user. Nothing is ever sent through the tool.
 
 ## 5. Packet mode (`/flagrare:promotion packet`)
 
