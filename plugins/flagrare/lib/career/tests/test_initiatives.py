@@ -103,6 +103,13 @@ class Cadence(unittest.TestCase):
             cad = ini.context(str(home), "2026-10-01")["cadence"]
             self.assertEqual((cad["due"], cad["days_since"], cad["window_start"]), (False, 10, "2026-09-21"))
 
+    def test_given_a_run_ten_days_ago_when_reading_context_then_says_when_the_next_one_is_due(self):
+        with tempfile.TemporaryDirectory() as d:
+            home = Path(d)
+            write(home, f"{CAREER}/opportunity-state.json", {"last_run": "2026-09-21"})
+            cad = ini.context(str(home), "2026-10-01")["cadence"]
+            self.assertEqual((cad["cadence_days"], cad["next_due"]), (30, "2026-10-21"))
+
     def test_given_a_run_long_ago_when_reading_context_then_the_window_is_capped_at_90_days(self):
         with tempfile.TemporaryDirectory() as d:
             home = Path(d)
@@ -214,6 +221,14 @@ class Status(unittest.TestCase):
             [a] = ini.plan_status(str(home), "order-emails", "dropped", "2026-10-01", note="another team owns it")
             [item] = json.loads(a["content"])
             self.assertEqual((item["status"], item["dropped_at"], item["dropped_note"]), ("dropped", "2026-10-01", "another team owns it"))
+
+    def test_given_a_dismissed_problem_that_came_back_when_dismissing_again_then_restamps_it(self):
+        with tempfile.TemporaryDirectory() as d:
+            home = Path(d)
+            write(home, f"{CAREER}/initiatives.json", [candidate(status="dropped", dropped_at="2026-09-25")])
+            [a] = ini.plan_status(str(home), "order-emails", "dropped", "2026-10-01", note="still not mine")
+            [item] = json.loads(a["content"])
+            self.assertEqual((item["status"], item["dropped_at"], item["dropped_note"]), ("dropped", "2026-10-01", "still not mine"))
 
     def test_given_an_unknown_id_when_changing_status_then_refuses(self):
         with tempfile.TemporaryDirectory() as d:

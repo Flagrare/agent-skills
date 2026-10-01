@@ -21,7 +21,7 @@ REQUIRED = ["problem", "hypothesis", "metric", "first_step", "pitch", "owner_che
 MOVES = {
     ("candidate", "dropped"), ("proposed", "dropped"),
     ("proposed", "active"), ("active", "done"), ("active", "dropped"),
-    ("dropped", "candidate"),
+    ("dropped", "candidate"), ("dropped", "dropped"),
 }
 
 
@@ -60,8 +60,9 @@ def _cadence(home: str, today: str, cadence_days: int) -> dict:
     except ValueError:
         since = None
     start = now - timedelta(days=cadence_days) if since is None else now - timedelta(days=min(since, WINDOW_CAP_DAYS))
-    return {"last_run": last_run if since is not None else None, "days_since": since,
-            "due": since is None or since >= cadence_days, "window_start": start.isoformat()}
+    next_due = (now if since is None else now + timedelta(days=max(0, cadence_days - since))).isoformat()
+    return {"last_run": last_run if since is not None else None, "days_since": since, "cadence_days": cadence_days,
+            "due": since is None or since >= cadence_days, "next_due": next_due, "window_start": start.isoformat()}
 
 
 def context(home: str, today: str) -> dict:

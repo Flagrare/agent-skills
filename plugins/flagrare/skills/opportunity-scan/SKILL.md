@@ -41,10 +41,10 @@ Run `initiatives.py context`. It prints:
 
 - `has_map`, and from the promotion map: `target` (`target_level`, `cycle`, `why`, `more_of`, `less_of`), `open_rows` (rubric rows not yet done), `unseen_people`, `decision_process` (`artifact`, `usual_driver`), and `packet_deadline`. `more_of` and `less_of` are lists by design; for the single-valued facts (`target_level`, `cycle`, the `decision_process` fields, `packet_deadline`), a list means the map's sources disagree: show every option, never pick one.
 - `initiatives`: the `active` one (or null), `proposed`, `candidates` (most seen first) and `dropped` (each with `seen_again`: seen since it was dismissed).
-- `cadence`: `last_run`, `days_since`, `due`, and `window_start`, the first day to sweep (the last run, or 30 days back the first time, never more than 90 days back).
+- `cadence`: `last_run`, `days_since`, `cadence_days`, `due`, `next_due`, and `window_start`, the first day to sweep (the last run, or 30 days back the first time, never more than 90 days back).
 - `fallback`: the impact-scan config's `target_behaviors`, `domains` and `audience`.
 
-**Cadence.** When the user asked for this scan, run it even if it is not due. When `/flagrare:career` or a schedule started it and `due` is false, stop and say when it is next due.
+**Cadence.** When the user asked for this scan, run it even if it is not due. When `/flagrare:career` or a schedule started it and `due` is false, stop and say when it is next due (`next_due`).
 
 **Without a map** the scan still runs. Ranking uses the configured target behaviors and domains; the "which open row" and "before the target cycle" factors are skipped; the first step defaults to bringing the problem to the manager. Say once, in the digest header, that `/flagrare:promotion` would sharpen the ranking.
 
@@ -82,7 +82,7 @@ Score each surviving finding 0-2 on six factors:
 
 - **Fit:** it matches what the user wants more of, and is not something they want less of (with no map: their configured target behaviors).
 - **Rubric:** it closes one of the `open_rows`; pick the row from `open_rows` only, never invent one (no map: skip, score 1).
-- **Who cares:** people who would notice the result, with extra weight when they are in `unseen_people`.
+- **Who cares:** people who would notice the result, with extra weight when they are in `unseen_people` (with no map: the configured `fallback.audience`).
 - **Standing:** the user knows the area (one of their domains, systems they have worked in).
 - **Evidence:** how often it came up and from how many places; a handed-off candidate with `seen_count` 2 or more starts at 2.
 - **Timing:** it can show a result before the `packet_deadline` (no map or no deadline: skip, score 1).
@@ -127,7 +127,7 @@ Stop after the Cut line. Ask which proposals to keep, which to dismiss, and whet
 
 After the user answers, write each change with the Write tool, one script call at a time (each reads the file the previous one wrote):
 
-- **Keep:** `initiatives.py propose` with the fields below. For a handed-off candidate, reuse its id so its sightings carry over.
+- **Keep:** `initiatives.py propose` with the fields below. For a handed-off candidate, reuse its id so its sightings carry over. For a problem the user dismissed before, compare this run's findings with the `dropped` entries in step 2: when the user keeps one that has not been seen since it was dismissed, run `status --status candidate` first, then `propose`.
 - **Dismiss:** for an item already in `initiatives.json` (a handed-off candidate, an earlier proposal, a dismissed problem seen again), `initiatives.py status --status dropped --note "<why, in the user's words>"`; it will not come back unless it is seen again. A new finding from this run that the user dismisses is simply not recorded. A handed-off candidate the user neither keeps nor dismisses stays a candidate and comes back next run.
 - **Agreed with the manager:** keep it first (`propose`, if it is not already proposed), then `initiatives.py status --status active --aligned-with "<who>" --note "<where or how it was agreed>"`. Only a proposal can become active, only one at a time, and never without the user saying their manager agreed. Do not suggest skipping that conversation.
 - **Finished or abandoned** (when the user says so later): `--status done` or `--status dropped`.
