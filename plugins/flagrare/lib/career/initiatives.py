@@ -131,6 +131,7 @@ def plan_propose(home: str, item_id: str, title: str, evidence: list[str], propo
             links += [e for e in evidence if e and e not in links]
             item["title"] = title or item.get("title", "")
             item["proposal"] = proposal
+            item.pop("draft_proposal", None)
             item["status"] = "proposed"
             item["proposed_at"] = today
             break

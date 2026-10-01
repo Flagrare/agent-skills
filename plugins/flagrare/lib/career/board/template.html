@@ -160,6 +160,12 @@ details.row[open] .caret { transform: rotate(90deg); }
 .own .lbl { font-family: var(--display); font-size: 11.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-right: 6px; }
 .own.none { border-left-color: var(--line); }
 .cand { margin: 0; padding-left: 18px; display: grid; gap: 4px; color: var(--ink-2); }
+.cand-d { font-size: 13px; color: var(--muted); margin-top: 2px; }
+.cand-d b { color: var(--ink-2); font-weight: 700; }
+.promo-list .left { display: block; font-weight: 500; font-size: 12.5px; color: var(--muted); }
+.promo-list .left.soon { color: var(--week); font-weight: 700; }
+.promo-list .left.late { color: var(--now); font-weight: 700; }
+.promo-list .note { display: block; font-weight: 400; font-size: 12px; color: var(--muted); }
 .cand a { font-weight: 700; text-decoration: none; color: var(--ink); }
 .cand a:hover { text-decoration: underline; }
 .warn { background: var(--now-soft); color: var(--now); border-radius: 8px; padding: 8px 12px; font-size: 14px; font-weight: 700; }
@@ -281,7 +287,10 @@ details.row[open] .caret { transform: rotate(90deg); }
   const firstLink = it => (it.evidence || []).map(safeUrl).find(Boolean);
   const candList = cand.length ? `<p><span class="lbl">Awaiting your decision</span></p><ul class="cand">${cand.map(c => {
       const u = firstLink(c);
-      return `<li>${u ? `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(c.title)}</a>` : esc(c.title)}${(c.seen_count || 0) > 1 ? ` <span class="chip src">seen ${esc(c.seen_count)} times</span>` : ""}</li>`;
+      const dp = c.draft_proposal || {};
+      return `<li>${u ? `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(c.title)}</a>` : esc(c.title)}${(c.seen_count || 0) > 1 ? ` <span class="chip src">seen ${esc(c.seen_count)} times</span>` : ""}
+        ${dp.hypothesis ? `<div class="cand-d">${inline(dp.hypothesis)}${dp.metric ? ` <b>Success:</b> ${inline(dp.metric)}` : ""}</div>` : ""}
+        ${dp.first_step ? `<div class="cand-d"><b>First step:</b> ${inline(dp.first_step)}</div>` : ""}</li>`;
     }).join("")}</ul><p>Keep or dismiss each one: run an opportunity scan, or tell Claude in chat.</p>` : "";
   document.getElementById("own").innerHTML = act ? `
     <article class="own" aria-label="Your initiative">
@@ -307,15 +316,24 @@ details.row[open] .caret { transform: rotate(90deg); }
     const gaps = ROWS.filter(r => r.status !== "done" && r.state !== "strong").length;
     const talk = PROMO.talk_to_manager || {};
     const dl = PROMO.packet_deadline || {};
+    const fmt = d => new Date(d + "T12:00:00").toLocaleDateString(undefined, { month: "short", day: "numeric", year: d.slice(0, 4) === TODAY.slice(0, 4) ? undefined : "numeric" });
+    const left = d => Math.round((new Date(d + "T12:00:00") - new Date(TODAY + "T12:00:00")) / 864e5);
+    const countdown = (d, soon, note) => {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(String(d || ""))) return esc(d);
+      const n = left(d), cls = n < 0 ? "late" : n <= soon ? "soon" : "";
+      const txt = n < 0 ? `${-n} days ago` : n === 0 ? "today" : `${n} days left`;
+      return `${esc(fmt(d))} <span class="left ${cls}">${txt}</span>${note ? `<span class="note">${esc(note)}</span>` : ""}`;
+    };
+    const inferred = s => s && s !== "verified" ? s : "";
     const rowsHtml = [
-      ["Target", PROMO.target_level],
-      ["Open rubric rows", PROMO.open_rows],
-      ["Rows with thin evidence", gaps],
-      ["Talk to your manager by", talk.comfortable_by ? talk.comfortable_by + (talk.absolute_by ? " (latest " + talk.absolute_by + ")" : "") + (talk.status && talk.status !== "verified" ? " (" + talk.status + ")" : "") : ""],
-      ["Packet due", dl.value ? [].concat(dl.value).join(" / ") + (dl.status && dl.status !== "verified" ? " (" + dl.status + ")" : "") : ""],
-      ["Haven't seen your work", (PROMO.unseen_people || []).join(", ")],
+      ["Target", esc(PROMO.target_level || "")],
+      ["Open rubric rows", esc(PROMO.open_rows ?? "")],
+      ["Rows with thin evidence", esc(gaps)],
+      ["Talk to your manager by", talk.comfortable_by ? countdown(talk.comfortable_by, 14, [talk.absolute_by ? "latest " + fmt(talk.absolute_by) : "", inferred(talk.status)].filter(Boolean).join(", ")) : ""],
+      ["Packet due", dl.value ? (Array.isArray(dl.value) ? esc(dl.value.join(" / ")) : countdown(dl.value, 30, inferred(dl.status))) : ""],
+      ["Haven't seen your work", esc((PROMO.unseen_people || []).join(", "))],
     ].filter(([, v]) => v !== undefined && v !== null && v !== "");
-    document.getElementById("promo").innerHTML = rowsHtml.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(Array.isArray(v) ? v.join(" / ") : v)}</dd></div>`).join("");
+    document.getElementById("promo").innerHTML = rowsHtml.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${v}</dd></div>`).join("");
     document.getElementById("promo-card").hidden = false;
   }
 
@@ -339,7 +357,7 @@ details.row[open] .caret { transform: rotate(90deg); }
     </article>` : `<div class="card empty">Nothing to act on. The next scan will fill this in.</div>`;
 
   // Queue (skip the item already shown as next up)
-  let n = 1;
+  let n = 0;
   document.getElementById("queue").innerHTML = ["today", "week", "later"].map(t => {
     const list = byTier[t].filter(i => i !== top);
     if (!list.length) return "";

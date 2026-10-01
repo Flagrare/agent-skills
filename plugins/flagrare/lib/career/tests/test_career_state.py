@@ -361,6 +361,30 @@ class Candidates(unittest.TestCase):
             self.assertEqual(json.loads(a["content"])[0]["status"], "active")
 
 
+class CandidateDetails(unittest.TestCase):
+    DETAILS = {"problem": "Partners miss order emails", "hypothesis": "We believe X will Y because Z", "first_step": "bring it to the PM"}
+
+    def test_given_a_new_candidate_with_details_when_recording_then_keeps_them_as_a_draft(self):
+        with tempfile.TemporaryDirectory() as d:
+            [a] = cs.plan_candidate(d, "p", "t", "https://example.com/1", "2026-10-01", self.DETAILS)
+            [item] = json.loads(a["content"])
+            self.assertEqual((item["status"], item["draft_proposal"]), ("candidate", self.DETAILS))
+
+    def test_given_a_known_link_and_new_details_when_recording_then_adds_the_details_without_a_new_sighting(self):
+        with tempfile.TemporaryDirectory() as d:
+            home = Path(d)
+            write(home, f"{CAREER}/initiatives.json", json.dumps([{"id": "p", "title": "t", "evidence": ["https://example.com/1"], "seen_count": 1, "status": "candidate"}]))
+            [a] = cs.plan_candidate(str(home), "p", "t", "https://example.com/1", "2026-10-01", self.DETAILS)
+            [item] = json.loads(a["content"])
+            self.assertEqual((item["seen_count"], item["draft_proposal"]), (1, self.DETAILS))
+
+    def test_given_a_kept_proposal_when_recording_details_then_leaves_it_alone(self):
+        with tempfile.TemporaryDirectory() as d:
+            home = Path(d)
+            write(home, f"{CAREER}/initiatives.json", json.dumps([{"id": "p", "title": "t", "evidence": ["https://example.com/1"], "seen_count": 1, "status": "proposed", "proposal": {"problem": "kept"}}]))
+            self.assertEqual(cs.plan_candidate(str(home), "p", "t", "https://example.com/1", "2026-10-01", self.DETAILS), [])
+
+
 class Config(unittest.TestCase):
     def test_given_only_legacy_key_when_reading_impact_scan_config_then_falls_back(self):
         cfg = {"skills": {"senior-scan": {"domains": ["x"]}}}
