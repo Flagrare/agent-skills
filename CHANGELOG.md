@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.48.1: 2026-10-01
+
+The board now shows the proposals waiting on you.
+
+### Fixes
+
+- **Career Board, undecided proposals were invisible**: an opportunity scan run by `/flagrare:career` records its proposals as candidates until you keep or dismiss them, but the board's initiative card only showed kept proposals and the active initiative. Found on the first real career run: three proposals sat in `initiatives.json` and the board showed none of them, right next to the "all answering, nothing owned" warning. The card now lists them under "Awaiting your decision" (most seen first, each linked to its evidence), and mentions them in one line when an initiative is already active. `coordinator.py board` returns them as `initiatives.candidates`.
+
 ## 1.49.0: 2026-10-01
 
 The reviewer stops signing off and starts asking.
