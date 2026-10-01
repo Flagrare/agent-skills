@@ -25,7 +25,7 @@ Helper scripts live at `<plugin root>/lib/career/`, where the plugin root is two
 Decide this first, and say it in the digest header.
 
 - **Interactive:** the user started this run in the conversation. Steps that need the user may ask.
-- **Scheduled:** the run came from `/loop`, a cron or schedule, or a prompt that says it runs unattended. **Never ask a question, never wait for an answer, never post.** Every step with `needs_user: true` is skipped and listed under "Needs you". Steps that only read and propose still run.
+- **Scheduled:** the run came from `/loop`, a cron or schedule, or a prompt that says it runs unattended. **Never ask a question, never wait for an answer, never post.** Every step with `needs_user: true` is skipped and listed under "Needs you", except a promotion refresh, which still runs for the sections that need no answer (see step 2). Steps that only read and propose still run.
 
 ## Workflow
 

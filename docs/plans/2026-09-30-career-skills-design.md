@@ -185,7 +185,7 @@ A freshness-driven scheduler. It decides what to run from timestamps and flags:
 - **Interactive vs scheduled.** A run started by `/loop` or a schedule never asks questions and never posts. Interactive steps are listed in the digest as "pending, needs you".
 - **Combined digest, capped:**
   1. initiative status and next step,
-  2. 3-5 weigh-in items (same table rules as senior-scan),
+  2. 3-5 weigh-in items (up to 5 as built, since a scan can return fewer) (same table rules as senior-scan),
   3. one map line (open rubric rows, people who haven't seen the work, the manager-conversation dates, the packet deadline),
   4. pending interactive items,
   5. the **balance warning**, which lives only here: "all answering, nothing owned", computed from contributions in the window versus initiative progress.
