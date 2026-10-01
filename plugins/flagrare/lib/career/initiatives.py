@@ -56,7 +56,7 @@ def _cadence(home: str, today: str, cadence_days: int) -> dict:
     last_run = state.get("last_run") if isinstance(state, dict) else None
     now = date.fromisoformat(today)
     try:
-        since = (now - date.fromisoformat(str(last_run))).days if last_run else None
+        since = max(0, (now - date.fromisoformat(str(last_run))).days) if last_run else None
     except ValueError:
         since = None
     start = now - timedelta(days=cadence_days) if since is None else now - timedelta(days=min(since, WINDOW_CAP_DAYS))
@@ -72,7 +72,10 @@ def context(home: str, today: str) -> dict:
     config = config if isinstance(config, dict) else {}
     own = career_state.skill_config(config, "opportunity-scan")
     scan = career_state.skill_config(config, "impact-scan")
-    cadence_days = own.get("cadence_days", CADENCE_DAYS) if isinstance(own, dict) else CADENCE_DAYS
+    try:
+        cadence_days = max(1, int(own.get("cadence_days", CADENCE_DAYS))) if isinstance(own, dict) else CADENCE_DAYS
+    except (TypeError, ValueError):
+        cadence_days = CADENCE_DAYS
     scan = scan if isinstance(scan, dict) else {}
     items = [i for i in _items(home) if isinstance(i, dict) and i.get("id")]
     by_status = lambda s: [i for i in items if i.get("status") == s]
@@ -155,6 +158,7 @@ def plan_status(home: str, item_id: str, status: str, today: str, aligned_with: 
         other = next((i for i in items if isinstance(i, dict) and i.get("status") == "active"), None)
         if other is not None:
             raise ValueError(f"{other.get('id')} is already active; finish or drop it first")
+        aligned_with = aligned_with.strip()
         if not aligned_with:
             raise ValueError("an initiative becomes active only after manager alignment: pass who agreed")
         item["aligned"] = {"with": aligned_with, "on": today, "note": note}
