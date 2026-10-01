@@ -1,5 +1,27 @@
 # Changelog
 
+## 1.51.0: 2026-10-01
+
+The board tells you what calibration will read, and what to do about the gaps.
+
+### Improved Skills
+
+- **Career Board, packet readiness and gaps you can act on**: the board showed which rubric rows were thin but not what the promotion packet looks like, and its gap note was a long list of names with nothing to do about any of them.
+  - **Packet panel:** the board now has a packet panel (each packet section strong, thin or empty, with the map's note), which is the shape calibration reads.
+  - **Gaps with steps:** the evidence panel names rows in plain words, and replaces the gap note with the three biggest gaps, each with one step you can take this week.
+  - **Weekly trend:** a sparkline shows contributions logged per week over the last eight weeks.
+  - **Honest header:** the header counts contributions "logged this week" (it used to say "shipped", which they weren't), and a banner warns when the board is from a scan two or more days old.
+- **`/flagrare:promotion`, plain labels and a next step per open row**: rubric rows now carry a `label` (the behavior in a few plain words, used by the board and digests instead of the id), and Phase 4 writes a `next_step` for every row not yet done: the cheapest concrete action that would add evidence, doable in a week. Refreshes keep both current, and the map's gap table gains a "Next step" column.
+- **`/flagrare:career` and `/flagrare:impact-scan`** describe the new panels and what feeds them.
+
+### Tooling
+
+- **Career library**:
+  - `coordinator.py readiness` returns each row's `label` and `next_step`.
+  - `coordinator.py board` adds `packet` and `trend`.
+  - A new `coordinator.py trend` returns weekly counts.
+  - There are 3 new tests (122 in total).
+
 ## 1.50.0: 2026-10-01
 
 A board you can trust at a glance.
