@@ -1,5 +1,59 @@
 # Changelog
 
+## 1.53.0: 2026-10-01
+
+Proposals worth owning, a board that's a pleasure to use, and your peers' thanks counted as proof.
+
+### Improved Skills
+
+- **`/flagrare:opportunity-scan`, metrics first**: the first real run proposed three fixes that were honestly small: a bug, a squad ticket, a clean-up. The user's verdict was that they "felt very insignificant or something that will be done anyway". The skill hunted problems, not outcomes. It never asked which company metric a piece of work moves, so leadership's 2027 themes arrived as a tiebreaker.
+  - **Metrics first:** a scan now builds the metric list before it sweeps, from the promotion map's company priorities, themes and planning docs, and meeting notes.
+  - **Three new hard filters:**
+    - work that moves no named metric is not a proposal;
+    - work whose lever sits in another team goes on an "Offer to help" line;
+    - small or already-scheduled fixes are cut, with that reason.
+  - **Ranking:** impact counts double, sized from a number with a source, and the user's lever is scored.
+  - **Proposal shape:** each proposal reads like a product engineer's bet: the outcome for whom, the metric, its baseline and a target by a date, and what in the user's seat moves it. Payout proposals, for example, aim at partners understanding their payouts, not at payout cadence, which waits on another team's migration.
+  - **Results on the same data:** the rerun proposed outcome-sized bets tied to the company's own published metrics, in place of the three fixes.
+- **`/flagrare:impact-scan`, meeting notes and recognition as sources**:
+  - **Meeting notes:** onboarding can add a meeting-notes source (Granola, or whichever transcription tool is connected). Opportunity-scan reads it for priorities and problems people mention but never write down. It never quotes what someone said about another person.
+  - **Recognition:** when a peer-recognition tool is connected, each scan refreshes it, and the digest notes new thanks.
+  - **Board messages:** impact-scan now knows how to handle the board's "Tell Claude" messages.
+- **`/flagrare:promotion`, company priorities and recognition**:
+  - **Priorities:** Phase 1 records what leadership measures as `priorities`: each metric with its baseline, owner team, and the user's lever.
+  - **Recognition:** peer recognition becomes proof for the behaviors it shows. Everyone who recognized the user is a first-hand witness, flagged when they sit in the promotion committee. The people who recognized the user most become the first picks for peer feedback in the written case.
+- **Recognition from Bonusly, read-only**: a new `recognition.py` reads the bonuses a user received and gave, using a personal token kept in `~/.config/flagrare/bonusly-token`, never in the config or a repo. It caches them in `career/recognition.json` with clean text (no points, hashtags or GIF links), the company value, the +1s, and a link. It never sends anything.
+  - **Board:** a Recognition card shows totals, the values peers tagged, who recognized the user most, and the latest thanks.
+  - **Recaps:** `/flagrare:brag-doc` and `/flagrare:impact-timeline` count recognition as supporting evidence.
+- **Career Board, redesigned after a design review, a UX audit and an interaction pass**:
+  - **Next up comes first:** with nothing owned yet, the top card is a compact slot and the proposed projects fold into rows, so "Next up" is in the first screen on desktop and phone.
+  - **Quieter rows:** each row has one caption line and at most one chip. Next up shows its draft before you copy it.
+  - **Proof card:** bars fill at the "strong" mark and use the same colors as the written case. Gaps come first with their next step. Clicking a behavior shows the items that would add proof to it.
+  - **New interactions, view only, with `data.json` still the single source of truth:**
+    - "Tell Claude" buttons copy a plain sentence to paste into chat (done, waiting, skip, keep or dismiss a proposed project);
+    - search and filters;
+    - foldable panels remembered per viewer;
+    - keyboard shortcuts (`j`/`k`, `c`, `o`, `/`, `?`);
+    - "new since your last visit" marks;
+    - links that open an item directly.
+  - **Fixes:**
+    - term definitions now work on keyboard and touch;
+    - contrast meets 4.5:1;
+    - a class clash that drew a banner around the waiting ages is gone;
+    - tap targets are at least 44px on phone;
+    - one date format;
+    - clear messages when there is no promotion map or the career files can't be read.
+
+### Tooling
+
+- **Career library:**
+  - `recognition.py` (`fetch`, `summary`).
+  - `initiatives.py context` returns `priorities`, and `propose` requires a `lever`.
+  - `map_schema.py` checks an optional `priorities` section without reporting it missing on older maps.
+  - `coordinator.py board` adds `recognition` and `readiness_target`.
+  - `build.py` shows a read error on the page and falls back to the link's host for titles.
+  - A new eval checks metric-first proposals.
+
 ## 1.52.0: 2026-10-01
 
 Plain words first, and the real terms explained.
