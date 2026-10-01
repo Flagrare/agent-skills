@@ -1,6 +1,6 @@
 ---
 name: career
-description: Run the career skills that are due, in one pass, and return one short combined digest plus an updated board. It reads timestamps and flags to decide: the promotion map's first run when there is none (after asking), a refresh of map sections that are older than 90 days or flagged by a scan, an opportunity scan when the last one is a month old, and an impact scan every time. The digest leads with the initiative the user owns and its next step, then 3 to 5 threads worth weighing in on, one line on the promotion map (open rubric rows, people who haven't seen the work, when to talk to the manager, the packet deadline), anything that needs the user, and an "all answering, nothing owned" warning when the user keeps replying but owns nothing. A scheduled run (from /loop or a schedule) never asks questions and never posts; it lists what needs the user as pending. Use when the user says "career", "career check", "career digest", "run my career skills", "what should I do for my promotion this week", "daily career scan", or sets up a recurring career run. Also trigger for a scheduled career run.
+description: Run the career skills that are due, in one pass, and return one short combined digest plus an updated board. It reads timestamps and flags to decide: the promotion map's first run when there is none (after asking), a refresh of map sections that are older than 90 days or flagged by a scan, an opportunity scan when the last one is a month old, and an impact scan every time. The digest leads with the initiative the user owns and its next step, then up to 5 threads worth weighing in on, one line on the promotion map (open rubric rows, people who haven't seen the work, when to talk to the manager, the packet deadline), anything that needs the user, and an "all answering, nothing owned" warning when the user keeps replying but owns nothing. A scheduled run (from /loop or a schedule) never asks questions and never posts; it lists what needs the user as pending. Use when the user says "career", "career check", "career digest", "run my career skills", "what should I do for my promotion this week", "daily career scan", or sets up a recurring career run. Also trigger for a scheduled career run.
 ---
 
 # Career
@@ -37,16 +37,16 @@ Run `python3 <plugin root>/lib/career/career_state.py plan --home "$HOME"` and a
 
 Run each step by invoking that skill with the Skill tool, passing `called by /flagrare:career, <interactive|scheduled>, <mode>, sections: <sections>` as its arguments. Each skill's own rules still apply (its owner checks, its hard filters, its approval gate for drafts). Ask each one to return its digest without its closing question; this skill asks once at the end.
 
-- **`promotion`, `first_run`** (no map): interactive, ask once: "Full promotion setup now (it is long and saves as it goes), or just today's scans with your current config?" Run the first run only on yes. Scheduled: skip it and list it under Needs you.
-- **`promotion`, `resume` or `refresh`:** run the refresh of exactly the listed `sections`. When `needs_user` is true (the target or the people list changed, or the first run was interrupted) and the run is scheduled, list it under Needs you instead.
-- **`opportunity-scan`:** due when the last one is 30 days old (or its configured cadence). It proposes; turning a proposal into the user's initiative needs the user and their manager, so a scheduled run lists the proposals under Needs you.
+- **`promotion`, `first_run`** (no map): interactive, ask once: "Full promotion setup now (it is long and saves as it goes), or just today's scans with your current config?" Run the first run only on yes. On no, save today's date as `skills.career.promotion_setup_declined_at` in `config.json` and do not ask again for 30 days (list it under Needs you instead). Scheduled: skip it and list it under Needs you.
+- **`promotion`, `resume` or `refresh`:** run the refresh (or the resume of an interrupted first run) of exactly the listed `sections`. In a scheduled run with `needs_user` true, still call promotion: it re-researches the sections that need no answer and returns the rest (target, people, manager questions) as lines for Needs you. A scheduled `resume` goes under Needs you whole, since the remaining phases start with questions.
+- **`opportunity-scan`:** due when the last one is 30 days old (or its configured cadence), not merely because nothing is owned: the balance warning covers that. It records its proposals as candidates and the run date before returning, so the next run is not due again tomorrow. Turning a proposal into the user's initiative needs the user and their manager, so a scheduled run lists the proposals under Needs you.
 - **`impact-scan`:** every run. A scheduled run keeps its drafts in the digest and the board; nothing is sent.
 
 If a step fails (a missing MCP, a failed write, a script error), keep going with the next one and put the failure in the caveat line.
 
 ### 3. Combined digest
 
-Run `coordinator.py balance` and `coordinator.py map`, then write one digest. It replaces the separate digests of the skills it ran: do not repeat them in full.
+Run `coordinator.py board` (the active initiative with its proposal, the proposals on the table, the map line, readiness per rubric row, and the balance check, in one call), then write one digest. It replaces the separate digests of the skills it ran: do not repeat them in full.
 
 ```
 ## Career: <date>, <interactive|scheduled>. Ran: <skills>. <caveats: failed steps, surfaces skipped, no map>
@@ -55,7 +55,7 @@ Run `coordinator.py balance` and `coordinator.py map`, then write one digest. It
 
 | # | What's going on | What you'd do | Why it matters | Next step |
 |---|---|---|---|---|
-<3 to 5 rows from the impact scan, same rules as its table>
+<up to 5 rows from the impact scan, same rules as its table>
 
 **Map:** <N> open rubric rows (<thin or empty ones in plain words>); haven't seen your work: <names>; talk to your manager by <comfortable_by> (latest <absolute_by>); packet due <date> (<status>).
 **Needs you:** <each pending interactive step, one line with why>
@@ -70,11 +70,11 @@ Rules:
 - **The balance warning lives only here.** Show it when `warn` is true, in the script's words, and add one sentence on what would fix it (the top proposal, or running an opportunity scan).
 - **Without a map** the map line reads "No promotion map yet: run /flagrare:promotion to build one", and the first-run question goes under Needs you in a scheduled run.
 
-Interactive: end with one question: which rows to act on, and anything under Needs you to do now. Scheduled: end after the last line.
+Interactive: end with one question: which rows to act on, which proposals to keep or dismiss (recorded with opportunity-scan's step 6), and anything under Needs you to do now. Scheduled: end after the last line.
 
 ### 4. Board
 
-Rebuild the board once, after everything else: write `<board dir>/data.json` from the impact scan's items (the impact-scan skill describes the shape), then run `python3 <plugin root>/lib/career/board/build.py <board dir> --home "$HOME"`. The board dir is `skills.career.board.dir` in `~/.claude/skills/flagrare/config.json` (or `skills["senior-scan"].board.dir`). The build adds the initiative card, the promotion panel, and evidence per rubric row on its own, from the career folder. If the sandbox blocks the write, rerun the build outside it; if the build fails, say so in the caveat line.
+Rebuild the board once, after everything else: update `<board dir>/data.json` with the impact scan's items, reading it first and keeping the items already there that are `waiting` or `done` (the impact-scan skill describes the shape), then run `python3 <plugin root>/lib/career/board/build.py <board dir> --home "$HOME"`. The board dir is `skills.career.board.dir` in `~/.claude/skills/flagrare/config.json` (or `skills["senior-scan"].board.dir`). The build adds the initiative card, the promotion panel, and evidence per rubric row on its own, from the career folder. If no board folder is configured: interactive, ask once where it should live (default `~/career-board`) and save it as `skills.career.board.dir`; scheduled, skip the board and say so in the caveat line. If the sandbox blocks the write, rerun the build outside it; if the build fails, say so in the caveat line.
 
 ## Setting up a recurring run
 

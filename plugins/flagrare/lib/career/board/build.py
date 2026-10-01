@@ -80,7 +80,11 @@ def main() -> None:
     data = json.loads((board / "data.json").read_text(encoding="utf-8"))
     data["contributions"] = parse_contributions(career_state.read_contributions(args.home))
     today = args.today or (data.get("scan") or {}).get("date") or datetime.date.today().isoformat()
-    data["career"] = coordinator.board(args.home, today)
+    try:
+        data["career"] = coordinator.board(args.home, today)
+    except (AttributeError, TypeError, ValueError, KeyError) as exc:
+        data["career"] = {}
+        print(f"warning: career panel skipped, the career state could not be read ({exc})", file=sys.stderr)
     out = board / "board.html"
     out.write_text(render(data), encoding="utf-8")
     print(f"wrote {out}: {len(data.get('items', []))} items, {len(data['contributions'])} contributions")
