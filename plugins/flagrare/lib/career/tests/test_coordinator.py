@@ -134,6 +134,21 @@ class Readiness(unittest.TestCase):
             self.assertEqual(co.readiness(d), [])
 
 
+class Board(unittest.TestCase):
+    def test_given_undecided_candidates_when_building_board_data_then_lists_them_most_seen_first(self):
+        with tempfile.TemporaryDirectory() as d:
+            home = Path(d)
+            write(home, f"{CAREER}/initiatives.json", [
+                {"id": "a", "title": "Partners miss order emails", "status": "candidate", "seen_count": 1, "evidence": ["https://example.com/1"]},
+                {"id": "b", "title": "Toast pages missing", "status": "candidate", "seen_count": 2, "evidence": ["https://example.com/2"]},
+                {"id": "c", "title": "Kept idea", "status": "proposed", "seen_count": 1, "evidence": []},
+                {"id": "d", "title": "Dismissed idea", "status": "dropped", "seen_count": 1, "evidence": []},
+            ])
+            board = co.board(str(home), "2026-10-01")["initiatives"]
+            self.assertEqual([i["id"] for i in board["candidates"]], ["b", "a"])
+            self.assertEqual([i["id"] for i in board["proposed"]], ["c"])
+
+
 class MapLine(unittest.TestCase):
     def test_given_a_map_when_summarizing_then_lists_gaps_people_and_dates(self):
         with tempfile.TemporaryDirectory() as d:

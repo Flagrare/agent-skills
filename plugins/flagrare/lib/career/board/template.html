@@ -159,6 +159,9 @@ details.row[open] .caret { transform: rotate(90deg); }
 .own p { margin: 0; max-width: 72ch; color: var(--ink-2); }
 .own .lbl { font-family: var(--display); font-size: 11.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-right: 6px; }
 .own.none { border-left-color: var(--line); }
+.cand { margin: 0; padding-left: 18px; display: grid; gap: 4px; color: var(--ink-2); }
+.cand a { font-weight: 700; text-decoration: none; color: var(--ink); }
+.cand a:hover { text-decoration: underline; }
 .warn { background: var(--now-soft); color: var(--now); border-radius: 8px; padding: 8px 12px; font-size: 14px; font-weight: 700; }
 .promo-list { display: grid; gap: 7px; margin: 0; font-size: 13.5px; }
 .promo-list div { display: flex; justify-content: space-between; gap: 10px; }
@@ -274,8 +277,12 @@ details.row[open] .caret { transform: rotate(90deg); }
   }
 
   // The initiative you own, or what is proposed, and the balance warning
-  const act = OWN.active, prop = OWN.proposed || [];
+  const act = OWN.active, prop = OWN.proposed || [], cand = OWN.candidates || [];
   const firstLink = it => (it.evidence || []).map(safeUrl).find(Boolean);
+  const candList = cand.length ? `<p><span class="lbl">Awaiting your decision</span></p><ul class="cand">${cand.map(c => {
+      const u = firstLink(c);
+      return `<li>${u ? `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(c.title)}</a>` : esc(c.title)}${(c.seen_count || 0) > 1 ? ` <span class="chip src">seen ${esc(c.seen_count)} times</span>` : ""}</li>`;
+    }).join("")}</ul><p>Keep or dismiss each one: run an opportunity scan, or tell Claude in chat.</p>` : "";
   document.getElementById("own").innerHTML = act ? `
     <article class="own" aria-label="Your initiative">
       <p class="eyebrow" style="margin:0">Your initiative</p>
@@ -285,11 +292,14 @@ details.row[open] .caret { transform: rotate(90deg); }
       ${act.proposal?.first_step ? `<p><span class="lbl">Next step</span>${inline(act.proposal.first_step)}</p>` : ""}
       <p><span class="lbl">Agreed</span>${esc(act.aligned?.with || "")}${act.aligned?.on ? " on " + esc(act.aligned.on) : ""}</p>
       ${firstLink(act) ? `<div class="btns"><a class="btn ghost" href="${esc(firstLink(act))}" target="_blank" rel="noopener">Evidence ↗</a></div>` : ""}
-    </article>` : (prop.length || BAL.warn) ? `
+      ${cand.length ? `<p><span class="lbl">Also awaiting your decision</span>${cand.map(c => esc(c.title)).join(" · ")}</p>` : ""}
+    </article>` : (prop.length || cand.length || BAL.warn) ? `
     <article class="own none" aria-label="Initiatives">
       <p class="eyebrow" style="margin:0">Nothing owned yet</p>
       ${BAL.warn ? `<div class="warn">${esc(BAL.message)}</div>` : ""}
-      ${prop.length ? `<p><span class="lbl">On the table</span>${prop.map(p => esc(p.title)).join(" · ")}</p><p>Bring one to your manager; it becomes yours once they agree.</p>` : `<p>Run an opportunity scan to find something to own.</p>`}
+      ${prop.length ? `<p><span class="lbl">On the table</span>${prop.map(p => esc(p.title)).join(" · ")}</p><p>Bring one to your manager; it becomes yours once they agree.</p>` : ""}
+      ${candList}
+      ${!prop.length && !cand.length ? `<p>Run an opportunity scan to find something to own.</p>` : ""}
     </article>` : "";
 
   // Promotion summary

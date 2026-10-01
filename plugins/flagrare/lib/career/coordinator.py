@@ -128,9 +128,9 @@ def map_line(home: str) -> dict:
 
 
 def board(home: str, today: str) -> dict:
-    """What the board adds to data.json: the initiative card, the promotion panel and row coverage."""
+    """What the board adds to data.json: the initiative card (with the candidates still waiting for a decision), the promotion panel and row coverage."""
     ctx = initiatives.context(home, today)["initiatives"]
-    return {"initiatives": {"active": ctx["active"], "proposed": ctx["proposed"]},
+    return {"initiatives": {"active": ctx["active"], "proposed": ctx["proposed"], "candidates": ctx["candidates"]},
             "promotion": map_line(home), "readiness": readiness(home), "balance": balance(home, today)}
 
 
