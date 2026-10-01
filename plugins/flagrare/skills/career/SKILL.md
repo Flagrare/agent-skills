@@ -46,7 +46,7 @@ If a step fails (a missing MCP, a failed write, a script error), keep going with
 
 ### 3. Combined digest
 
-Run `coordinator.py board` (the active initiative with its proposal, the proposals on the table, the map line, readiness per rubric row, and the balance check, in one call), then write one digest. It replaces the separate digests of the skills it ran: do not repeat them in full.
+Run `coordinator.py board` (the active initiative with its proposal, the proposals on the table, the candidates still waiting for the user's decision, the map line, readiness per rubric row, and the balance check, in one call), then write one digest. It replaces the separate digests of the skills it ran: do not repeat them in full.
 
 ```
 ## Career: <date>, <interactive|scheduled>. Ran: <skills>. <caveats: failed steps, surfaces skipped, no map>
@@ -74,7 +74,7 @@ Interactive: end with one question: which rows to act on, which proposals to kee
 
 ### 4. Board
 
-Rebuild the board once, after everything else: update `<board dir>/data.json` with the impact scan's items, reading it first and keeping the items already there that are `waiting` or `done` (the impact-scan skill describes the shape), then run `python3 <plugin root>/lib/career/board/build.py <board dir> --home "$HOME"`. The board dir is `skills.career.board.dir` in `~/.claude/skills/flagrare/config.json` (or `skills["senior-scan"].board.dir`). The build adds the initiative card, the promotion panel, and evidence per rubric row on its own, from the career folder. If no board folder is configured: interactive, ask once where it should live (default `~/career-board`) and save it as `skills.career.board.dir`; scheduled, skip the board and say so in the caveat line. If the sandbox blocks the write, rerun the build outside it; if the build fails, say so in the caveat line.
+Rebuild the board once, after everything else: update `<board dir>/data.json` with the impact scan's items, reading it first and keeping the items already there that are `waiting` or `done` (the impact-scan skill describes the shape), then run `python3 <plugin root>/lib/career/board/build.py <board dir> --home "$HOME"`. The board dir is `skills.career.board.dir` in `~/.claude/skills/flagrare/config.json` (or `skills["senior-scan"].board.dir`). The build adds the initiative card (including the candidates awaiting the user's decision), the promotion panel, and evidence per rubric row on its own, from the career folder. If no board folder is configured: interactive, ask once where it should live (default `~/career-board`) and save it as `skills.career.board.dir`; scheduled, skip the board and say so in the caveat line. If the sandbox blocks the write, rerun the build outside it; if the build fails, say so in the caveat line.
 
 ## Setting up a recurring run
 
