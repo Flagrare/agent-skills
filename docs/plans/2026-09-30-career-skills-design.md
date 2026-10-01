@@ -139,7 +139,7 @@ Everything in senior-scan v1.42.0, plus:
    - Evidence links go inside the draft.
    - Every claim is hedged, and the tone is casual.
    - No unverified claim goes into a draft.
-   - Resolved while building Milestone 4 (1.47.0): evidence inside the draft and no unverified claim were already impact-scan rules, and a draft saved into the chat tool now comes with its link. Hedging and tone are personal voice rules, so they live in each user's `voice.md` (which wins over the generic drafting floor) rather than in the shared skill text.
+   - Resolved while building Milestone 4 (1.47.0): evidence inside the draft and no unverified claim were already impact-scan rules, and a draft saved into the chat tool now comes with its link. Hedging beyond the generic floor (rule 4: hedge pushback collaboratively) and tone are personal voice rules, so they live in each user's `voice.md`, which wins over the floor.
 
 ## `opportunity-scan`
 
@@ -179,7 +179,7 @@ A freshness-driven scheduler. It decides what to run from timestamps and flags:
 |---|---|
 | No map | `promotion` first run, **after asking**: "full setup now (long), or scan only with today's config?" |
 | A map section older than 90 days, or flagged | `promotion` refresh of those sections |
-| No active initiative, or last opportunity-scan more than 30 days ago | `opportunity-scan` |
+| No active initiative, or last opportunity-scan more than 30 days ago | `opportunity-scan` (as built in 1.47.0: on its cadence only, since "no active initiative" alone would re-run the monthly sweep every day; the balance warning covers nothing being owned) |
 | Always | `impact-scan` |
 
 - **Interactive vs scheduled.** A run started by `/loop` or a schedule never asks questions and never posts. Interactive steps are listed in the digest as "pending, needs you".

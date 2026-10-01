@@ -88,7 +88,7 @@ Re-run any onboarding step when the user says "reconfigure", or when they say th
 
 ## Workflow
 
-**Called by `/flagrare:career`.** When the arguments say this run comes from the career coordinator, run the same workflow but end at the digest: return the table, the item blocks for rows with a draft, and the Cut, Flags raised and Handed off lines, without the closing question, and leave the board rebuild to the coordinator. When the arguments also say `scheduled`, never ask anything: an incomplete onboarding becomes one line for the coordinator's Needs you list instead of an interview, and drafts stay drafts.
+**Called by `/flagrare:career`.** When the arguments say this run comes from the career coordinator, run the same workflow but end at the digest: return the table, the item blocks for rows with a draft, and the Cut, Flags raised and Handed off lines, without the closing question. Still do step 6 (the `scan-state.json` write, and the contributions log when the user later says something was posted); only the board rebuild in step 7 belongs to the coordinator. When the arguments also say `scheduled`, never ask anything: an incomplete onboarding becomes one line for the coordinator's Needs you list instead of an interview, and drafts stay drafts.
 
 ### 1. Load state and window
 
@@ -195,7 +195,7 @@ When the user approves and posts a contribution (or says they handled it), set t
 - <date> | <link> | <one sentence: what the contribution was and what it changed> | behavior: <target behavior exercised> | row: <rubric row id>
 ```
 
-Add the `| row: <id>` field only when there is a map and the item moved one of its `open_rows`; otherwise end the line after `behavior:`. With a map, `behavior:` still names the closest configured target behavior, because the board's coverage panel counts those; the row id goes in `row:`. The format is in `<plugin root>/lib/career/STATE.md`.
+Add the `| row: <id>` field only when there is a map and the item moved one of its `open_rows`; otherwise end the line after `behavior:`. With a map, `behavior:` still names the closest configured target behavior (the board counts behaviors when the map has no rubric rows yet), and the row id goes in `row:`, which the board counts once there are rows. The format is in `<plugin root>/lib/career/STATE.md`.
 
 This log is the promotion evidence trail, the lagging indicator made legible. When the user later runs `/flagrare:brag-doc` or builds a promo packet, point them at it; brag-doc should treat it as a first-class source.
 
@@ -231,7 +231,7 @@ The board is the expected output of every scan, not an extra: a local page the u
 
 - `status`: `todo` (shown in the ranked list), `waiting` (raised, waiting on someone; set `waiting_on` and `since`, and after 3 days the board suggests a nudge), `done`, `dropped`.
 - `urgency`: `today` (could merge or close before the user acts), `week`, `later`. `deadline` says why.
-- `behaviors`: the configured target behaviors; the board shows evidence coverage for each.
+- `behaviors`: the configured target behaviors; the board shows evidence coverage for each until the map has rubric rows, then it counts per open row instead.
 - `rubric_rows`: optional; the ids of the map rows the item moves (from `open_rows`), empty or absent without a map.
 - An item carries either `draft` or `check_first`, never a draft built on an unverified claim. The same product-language rules as the digest table apply to `action`, `context` and `why`.
 - Keep ids stable across runs. Before adding an item, check for an existing one about the same thread: update it instead of adding a duplicate, and if the new scan contradicts its text, fix the text or flag the conflict to the user.

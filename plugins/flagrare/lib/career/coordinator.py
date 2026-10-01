@@ -19,7 +19,7 @@ from scoring import open_rows, unseen_people
 
 BALANCE_WINDOW_DAYS = 30
 BALANCE_MIN_CONTRIBUTIONS = 3
-NEEDS_USER = {"target", "people"}
+NEEDS_USER = {"target", "people", "manager_questions"}
 LOG_ENTRY = re.compile(r"- (\d{4}-\d{2}-\d{2}) \|.*?(?:\| row: (\S+))?$")
 
 
@@ -78,7 +78,7 @@ def due(home: str, today: str) -> list[dict]:
 
 def balance(home: str, today: str) -> dict:
     """The "all answering, nothing owned" check: recent contributions against an initiative the user owns."""
-    start = (date.fromisoformat(today) - timedelta(days=BALANCE_WINDOW_DAYS)).isoformat()
+    start = (date.fromisoformat(today) - timedelta(days=BALANCE_WINDOW_DAYS - 1)).isoformat()
     recent = sum(1 for d, _ in _log(home) if start <= d <= today)
     items = [i for i in career_state._load_list(Path(career_state.paths(home)["initiatives"])) if isinstance(i, dict)]
     active = next((i for i in items if i.get("status") == "active"), None)

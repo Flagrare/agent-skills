@@ -201,7 +201,7 @@ details.row[open] .caret { transform: rotate(90deg); }
     </main>
     <aside class="rail">
       <section class="card" aria-labelledby="h-promo" id="promo-card" hidden>
-        <h3 id="h-promo">Promotion <span class="n" id="n-promo"></span></h3>
+        <h3 id="h-promo">Promotion</h3>
         <dl class="promo-list" id="promo"></dl>
       </section>
       <section class="card" aria-labelledby="h-wait">
@@ -301,8 +301,8 @@ details.row[open] .caret { transform: rotate(90deg); }
       ["Target", PROMO.target_level],
       ["Open rubric rows", PROMO.open_rows],
       ["Rows with thin evidence", gaps],
-      ["Talk to your manager by", talk.comfortable_by ? talk.comfortable_by + (talk.absolute_by ? " (latest " + talk.absolute_by + ")" : "") : ""],
-      ["Packet due", dl.value ? dl.value + (dl.status && dl.status !== "verified" ? " (" + dl.status + ")" : "") : ""],
+      ["Talk to your manager by", talk.comfortable_by ? talk.comfortable_by + (talk.absolute_by ? " (latest " + talk.absolute_by + ")" : "") + (talk.status && talk.status !== "verified" ? " (" + talk.status + ")" : "") : ""],
+      ["Packet due", dl.value ? [].concat(dl.value).join(" / ") + (dl.status && dl.status !== "verified" ? " (" + dl.status + ")" : "") : ""],
       ["Haven't seen your work", (PROMO.unseen_people || []).join(", ")],
     ].filter(([, v]) => v !== undefined && v !== null && v !== "");
     document.getElementById("promo").innerHTML = rowsHtml.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(Array.isArray(v) ? v.join(" / ") : v)}</dd></div>`).join("");
@@ -377,7 +377,8 @@ details.row[open] .caret { transform: rotate(90deg); }
       <div class="cov-top"><span>${esc(b)}</span><b>${c}</b></div>
       <div class="bar"><i style="width:${Math.round((c / max) * 100)}%"></i></div>
     </div>`).join("");
-  const gaps = counts.filter(c => c[1] <= 1).map(c => c[0]);
+  const gaps = counts.filter(c => c[1] < (ROWS.length ? 3 : 2)).map(c => c[0]);
+  if (ROWS.length && !counts.length) document.getElementById("cov").innerHTML = `<div class="empty" style="padding:0">Every rubric row is done.</div>`;
   const gn = document.getElementById("gapnote");
   if (gaps.length) { gn.hidden = false; gn.textContent = "Thin evidence: " + gaps.join(", ") + ". Favor items that exercise these."; }
 

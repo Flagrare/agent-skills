@@ -6,7 +6,7 @@ One command for the whole career loop.
 
 ### New Skills
 
-- **`/flagrare:career`, the coordinator**: the career family had four parts that each had to be remembered on its own schedule: the map goes stale over months, opportunity-scan is monthly, impact-scan is daily, and the "am I only answering?" question had no home at all. Career decides what is due from timestamps and flags (`coordinator.py due`): the promotion first run when there is no map (after asking), a refresh of only the map sections older than 90 days or flagged by a scan, an opportunity scan when its cadence says so, and an impact scan every time. It runs each through the Skill tool and writes one capped digest: the initiative you own and its next step, three to five weigh-in rows under impact-scan's table rules, one map line (open rubric rows, who hasn't seen your work, when to talk to your manager, the packet deadline, inferred dates marked), what needs you, and the balance warning, "all answering, nothing owned", when the last 30 days hold three or more contributions and no initiative you own. A scheduled run never asks and never posts: anything that needs the user is listed under Needs you.
+- **`/flagrare:career`, the coordinator**: the career family had four parts that each had to be remembered on its own schedule: the map goes stale over months, opportunity-scan is monthly, impact-scan is daily, and the "am I only answering?" question had no home at all. Career decides what is due from timestamps and flags (`coordinator.py due`): the promotion first run when there is no map (after asking), a refresh of only the map sections older than 90 days or flagged by a scan (or the rest of an interrupted first run), an opportunity scan when its cadence says so, and an impact scan every time. It runs each through the Skill tool and writes one capped digest: the initiative you own and its next step, up to five weigh-in rows under impact-scan's table rules, one map line (open rubric rows, who hasn't seen your work, when to talk to your manager, the packet deadline, inferred dates marked), what needs you, and the balance warning, "all answering, nothing owned", when the last 30 days hold three or more contributions and no initiative you own. A scheduled run never asks and never posts: anything that needs the user is listed under Needs you.
 
 ### Improved Skills
 
@@ -16,7 +16,7 @@ One command for the whole career loop.
 
 ### Tooling
 
-- **Career library**: `coordinator.py` (`due`, `balance`, `readiness`, `map`, `board`), and `board/build.py` takes `--today` and embeds the career panel data. The opportunity-scan cadence now treats a last run dated in the future as today, reads a cadence written as text, and refuses a blank manager name when activating an initiative.
+- **Career library**: `coordinator.py` (`due`, `balance`, `readiness`, `map`, `board`), and `board/build.py` takes `--today` and embeds the career panel data. The opportunity-scan cadence now treats a last run dated in the future as today, reads a cadence written as a number in quotes, and refuses a blank manager name when activating an initiative.
 
 ## 1.46.0: 2026-09-30
 

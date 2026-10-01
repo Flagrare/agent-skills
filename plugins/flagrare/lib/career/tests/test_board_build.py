@@ -61,6 +61,18 @@ class Build(unittest.TestCase):
             self.assertEqual([r["id"] for r in data["career"]["readiness"]], ["scope.proactive-discovery"])
             self.assertIn("<title>Career Board</title>", page)
 
+    def test_given_a_malformed_map_when_building_then_the_board_renders_without_the_career_panel(self):
+        with tempfile.TemporaryDirectory() as home, tempfile.TemporaryDirectory() as board:
+            career = Path(home) / CAREER
+            career.mkdir(parents=True)
+            (career / "promotion-map.json").write_text(json.dumps({"target": "senior", "rubric": "rows"}))
+            (Path(board) / "data.json").write_text(json.dumps({"scan": {}, "items": []}))
+            out = subprocess.run([sys.executable, str(BOARD / "build.py"), board, "--home", home, "--today", "2026-10-01"], capture_output=True, text=True)
+            self.assertEqual(out.returncode, 0)
+            self.assertIn("career panel skipped", out.stderr)
+            data = json.loads((Path(board) / "board.html").read_text().split("/*DATA*/", 1)[1].split("/*END*/", 1)[0])
+            self.assertEqual(data["career"], {})
+
     def test_given_no_career_state_when_building_then_the_page_still_renders(self):
         with tempfile.TemporaryDirectory() as home, tempfile.TemporaryDirectory() as board:
             (Path(board) / "data.json").write_text(json.dumps({"scan": {}, "items": []}))
