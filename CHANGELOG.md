@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.55.0: 2026-10-01
+
+Proposed projects, ranked, with the reasons on show.
+
+### Improved Skills
+
+- **`/flagrare:opportunity-scan`, a ranking you can argue with**: the scan already scored each proposal on eight factors, but only in its head. The board listed proposals in the order they were found, so a small ticket sat next to a project that moves a company metric with nothing to tell them apart. The user asked for "a ranking system".
+  - **Scores are written down:** each proposal now records 0 to 2 on impact, your lever, fit, Senior behavior, who notices, standing, evidence and timing, each with a one-line reason that names its number, person or link. Impact counts double, so the most is 18.
+  - **The library does the sum:** `initiatives.py context` totals and sorts proposed projects and candidates, puts unscored ones last, and refuses an unknown factor or a value outside 0 to 2. A user who weighs things differently sets `skills["opportunity-scan"].weights` (1 to 3 per factor).
+  - **Waiting ones get ranked too:** a scan scores the candidates already on the table, so the ranking covers everything you could pick, not only this run's finds.
+- **Career Board, ranked proposals**: proposed projects show their place and total ("1, 16 of 18"). Opening one shows the metric as Measured by / Today / Goal, then "Why it ranks here", with each factor's points and reason. Anything that moves no company metric drops under "Fixes, not projects". "Ranking score" is in the glossary.
+
 ## 1.54.0: 2026-10-01
 
 One board, three jobs, each with room to breathe.
