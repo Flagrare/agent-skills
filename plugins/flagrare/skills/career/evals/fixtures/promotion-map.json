@@ -1,0 +1,160 @@
+{
+  "target": {
+    "current_level": {
+      "value": "Software Engineer III",
+      "source": "https://example.com/ladder",
+      "checked_at": "2026-09-30",
+      "status": "verified"
+    },
+    "target_level": {
+      "value": "Senior Software Engineer",
+      "source": "https://example.com/ladder",
+      "checked_at": "2026-09-30",
+      "status": "verified"
+    },
+    "cycle": {
+      "value": "January 2027",
+      "source": "https://example.com/ladder",
+      "checked_at": "2026-09-30",
+      "status": "inferred"
+    },
+    "why": "more say in what we build",
+    "more_of": [
+      "user-facing work"
+    ],
+    "less_of": [
+      "guild work"
+    ]
+  },
+  "process": {
+    "decision_process": {
+      "artifact": {
+        "value": "product gate document",
+        "source": "https://example.com/ladder",
+        "checked_at": "2026-09-30",
+        "status": "verified"
+      },
+      "usual_driver": {
+        "value": "PM",
+        "source": "https://example.com/ladder",
+        "checked_at": "2026-09-30",
+        "status": "verified"
+      }
+    }
+  },
+  "calendar": {
+    "cycle_name": "January 2027",
+    "packet_deadline": {
+      "value": "2027-01-07",
+      "source": "https://example.com/ladder",
+      "checked_at": "2026-09-30",
+      "status": "inferred"
+    },
+    "manager_conversation": {
+      "comfortable_by": "2026-10-30",
+      "absolute_by": "2026-11-14",
+      "status": "inferred",
+      "state": "ok"
+    }
+  },
+  "rubric": {
+    "rows": [
+      {
+        "id": "scope.proactive-discovery",
+        "area": "Scope & Impact",
+        "status": "partial",
+        "current_text": {
+          "value": "Given a problem, finds the right solution",
+          "source": "https://example.com/ladder",
+          "checked_at": "2026-09-30",
+          "status": "verified"
+        },
+        "target_text": {
+          "value": "Proactively discovers and solves problems the team is facing",
+          "source": "https://example.com/ladder",
+          "checked_at": "2026-09-30",
+          "status": "verified"
+        },
+        "evidence": []
+      }
+    ]
+  },
+  "org": {
+    "chain": [],
+    "options": [],
+    "changes": []
+  },
+  "people": [
+    {
+      "name": "Sam Rivera",
+      "role": {
+        "value": "Engineering Manager",
+        "source": "https://example.com/ladder",
+        "checked_at": "2026-09-30",
+        "status": "verified"
+      },
+      "relation": "current manager",
+      "seen_your_work": true,
+      "evidence": [],
+      "confirmed_by_user": true
+    },
+    {
+      "name": "Alex Chen",
+      "role": {
+        "value": "Director of Engineering",
+        "source": "https://example.com/ladder",
+        "checked_at": "2026-09-30",
+        "status": "verified"
+      },
+      "relation": "skip level",
+      "seen_your_work": false,
+      "evidence": [],
+      "confirmed_by_user": true
+    }
+  ],
+  "precedent": {
+    "tier": "announcements",
+    "caveat": "announcements are narratives, not audits",
+    "cases": []
+  },
+  "packet_readiness": [],
+  "manager_questions": [],
+  "sections": {
+    "target": {
+      "checked_at": "2026-09-30",
+      "sources": []
+    },
+    "process": {
+      "checked_at": "2026-09-30",
+      "sources": []
+    },
+    "calendar": {
+      "checked_at": "2026-09-30",
+      "sources": []
+    },
+    "rubric": {
+      "checked_at": "2026-09-30",
+      "sources": []
+    },
+    "org": {
+      "checked_at": "2026-09-30",
+      "sources": []
+    },
+    "people": {
+      "checked_at": "2026-09-30",
+      "sources": []
+    },
+    "precedent": {
+      "checked_at": "2026-09-30",
+      "sources": []
+    },
+    "packet_readiness": {
+      "checked_at": "2026-09-30",
+      "sources": []
+    },
+    "manager_questions": {
+      "checked_at": "2026-09-30",
+      "sources": []
+    }
+  }
+}

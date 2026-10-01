@@ -1,0 +1,42 @@
+{
+  "github_login": "jordan-dev",
+  "display_name": "Jordan",
+  "repo_scope": "org:example-org",
+  "skills": {
+    "impact-scan": {
+      "onboarding_complete": true,
+      "target_behaviors": [
+        "finding problems nobody assigned",
+        "unblocking others"
+      ],
+      "domains": [
+        {
+          "name": "partner notifications",
+          "keywords": [
+            "order email",
+            "delivery"
+          ]
+        }
+      ],
+      "surfaces": [
+        {
+          "type": "chat",
+          "mcp": "slack",
+          "scope": [
+            "#partner-support"
+          ]
+        },
+        {
+          "type": "tickets",
+          "mcp": "jira",
+          "scope": [
+            "PARTNER"
+          ]
+        }
+      ],
+      "audience": [
+        "Sam Rivera (manager)"
+      ]
+    }
+  }
+}
