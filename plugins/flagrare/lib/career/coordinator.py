@@ -14,11 +14,13 @@ from pathlib import Path
 
 import career_state
 import initiatives
+import recognition
 from map_schema import missing_sections, stale_sections
 from scoring import open_rows, unseen_people
 
 BALANCE_WINDOW_DAYS = 30
 BALANCE_MIN_CONTRIBUTIONS = 3
+READINESS_STRONG = 3
 NEEDS_USER = {"target", "people", "manager_questions"}
 LOG_ENTRY = re.compile(r"- (\d{4}-\d{2}-\d{2}) \|.*?(?:\| row: (\S+))?$")
 
@@ -103,7 +105,7 @@ def readiness(home: str) -> list[dict]:
         if not isinstance(row, dict) or not row.get("id"):
             continue
         count = tagged.get(row["id"], 0) + len(row.get("evidence") or [])
-        state = "strong" if count >= 3 else "thin" if count else "empty"
+        state = "strong" if count >= READINESS_STRONG else "thin" if count else "empty"
         out.append({"id": row["id"], "area": row.get("area", ""), "label": row.get("label", ""),
                     "next_step": row.get("next_step", ""), "status": row.get("status", ""),
                     "evidence": count, "state": state})
@@ -158,7 +160,8 @@ def board(home: str, today: str) -> dict:
     ctx = initiatives.context(home, today)["initiatives"]
     return {"initiatives": {"active": ctx["active"], "proposed": ctx["proposed"], "candidates": ctx["candidates"]},
             "promotion": map_line(home), "readiness": readiness(home), "balance": balance(home, today),
-            "packet": packet(home), "trend": trend(home, today)}
+            "packet": packet(home), "trend": trend(home, today),
+            "recognition": recognition.summary(home, today), "readiness_target": READINESS_STRONG}
 
 
 def main() -> None:
