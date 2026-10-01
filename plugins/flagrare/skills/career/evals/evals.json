@@ -1,0 +1,36 @@
+{
+  "skill_name": "career",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "run /flagrare:career (scheduled). I have not built a promotion map yet; impact-scan is set up (see the config fixture).",
+      "expected_output": "Agent runs coordinator.py due, treats the run as scheduled, asks no question at all, skips the promotion first run and lists it under 'Needs you', runs impact-scan (and opportunity-scan when due) through the Skill tool, and writes one combined digest whose map line says there is no promotion map yet. Nothing is posted.",
+      "files": [
+        "evals/fixtures/config.json"
+      ]
+    },
+    {
+      "id": 1,
+      "prompt": "Run my career check. My career folder has the promotion map, a calendar flag from the last scan, and an opportunity scan from last week (see the fixtures).",
+      "expected_output": "Agent runs coordinator.py due and gets a promotion refresh of only the calendar section (flagged, no user needed) and impact-scan, but not opportunity-scan (run 5 days ago). It runs the promotion refresh for the calendar section only, then impact-scan, and the digest header says which skills ran. The map line gives the manager-conversation dates and the packet deadline marked inferred.",
+      "files": [
+        "evals/fixtures/promotion-map.json",
+        "evals/fixtures/flags.json",
+        "evals/fixtures/opportunity-state.json",
+        "evals/fixtures/config.json"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Career digest please. I've been answering a lot of payout questions lately (see my contributions log and initiatives in the fixtures).",
+      "expected_output": "Agent runs coordinator.py balance, which warns: 4 contributions in 30 days and no active initiative. The digest's initiative line says none yet and names the proposal on the table (partner order emails), and the Heads up line carries the script's 'All answering, nothing owned' message plus one sentence suggesting bringing that proposal to the manager.",
+      "files": [
+        "evals/fixtures/contributions.log.md",
+        "evals/fixtures/initiatives.json",
+        "evals/fixtures/opportunity-state.json",
+        "evals/fixtures/promotion-map.json",
+        "evals/fixtures/config.json"
+      ]
+    }
+  ]
+}
