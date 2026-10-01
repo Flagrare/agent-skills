@@ -1189,3 +1189,34 @@ git add CHANGELOG.md plugins/flagrare/.claude-plugin/plugin.json
 git commit -m "🔖 release: v1.46.0"
 ```
 The controller tags after the final review and asks the user before pushing, the GitHub release, and `/flagrare:update`.
+
+---
+
+## As built
+
+The shipped 1.46.0 differs from the tasks above in these ways, each decided during review:
+
+- **Dismissing:**
+  - A new finding the user dismisses is not recorded. Only items already in `initiatives.json` are dismissed through the script.
+  - A dismissed problem that came back can be dismissed again: the new move `dropped` to `dropped` restamps `dropped_at`.
+  - Keeping a dismissed problem that has not been seen since goes through `status --status candidate` first.
+- **Cadence:** `context` reports `cadence_days` and `next_due`, so a scheduled run can say when the next scan is due.
+- **Impact-scan:**
+  - It matches earlier sightings against every entry in `initiatives.json`, whatever the entry's status.
+  - The Handed off line has a slot for "dismissed on <date>, seen again".
+  - It uses that slot only when this run added a new evidence link.
+- **Opportunity-scan digest:**
+  - The Owner check line names the owner, if there is one.
+  - The rubric row id sits in parentheses after the hypothesis, only with a map.
+  - Without a map, "Who cares" uses the configured audience.
+- **Evals:** they get a `config.json` fixture with impact-scan already onboarded, so the scan does not start onboarding.
+
+Parked for later:
+- Corrupt state files are replaced wholesale.
+- Malformed map or config shapes can raise.
+- A drop and a sighting on the same day count as "not seen again".
+- `seen_count` can drift from the number of evidence links when a proposal adds links.
+- Milestone 4 fixes these three:
+  - a `last_run` dated in the future;
+  - a cadence written as text;
+  - a blank manager name on activation.
