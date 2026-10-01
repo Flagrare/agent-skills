@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 """Render the career board.
 
-Usage: python3 build.py <board_dir> [--home HOME]
+Usage: python3 build.py <board_dir> [--home HOME] [--today YYYY-MM-DD]
 
-Reads <board_dir>/data.json and the contributions log (the union of the
-career and legacy senior-scan logs), embeds both into template.html (next to
-this script), and writes <board_dir>/board.html. The board folder is the
-user's own; this is the only file the library writes.
+Reads <board_dir>/data.json, the contributions log (the union of the career
+and legacy senior-scan logs), and, through coordinator.board, the active and
+proposed initiatives, the promotion map summary and evidence per rubric row.
+Embeds all of it into template.html (next to this script) and writes
+<board_dir>/board.html. The board folder is the user's own; this is the only
+file the library writes.
 """
 from __future__ import annotations
 
@@ -15,11 +17,13 @@ import html
 import json
 import re
 import sys
+import datetime
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent))
 import career_state  # noqa: E402
+import coordinator  # noqa: E402
 
 ICON = ("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E"
         "%3Crect width='32' height='32' rx='7' fill='%232c5b87'/%3E"
@@ -70,10 +74,13 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Render the career board.")
     parser.add_argument("board_dir")
     parser.add_argument("--home", default=str(Path.home()))
+    parser.add_argument("--today", help="defaults to the scan date in data.json, then today")
     args = parser.parse_args()
     board = Path(args.board_dir).expanduser()
     data = json.loads((board / "data.json").read_text(encoding="utf-8"))
     data["contributions"] = parse_contributions(career_state.read_contributions(args.home))
+    today = args.today or (data.get("scan") or {}).get("date") or datetime.date.today().isoformat()
+    data["career"] = coordinator.board(args.home, today)
     out = board / "board.html"
     out.write_text(render(data), encoding="utf-8")
     print(f"wrote {out}: {len(data.get('items', []))} items, {len(data['contributions'])} contributions")
