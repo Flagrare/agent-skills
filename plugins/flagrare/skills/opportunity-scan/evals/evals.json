@@ -25,7 +25,8 @@
       "prompt": "My manager agreed I should take the order emails problem. Make it my active initiative.",
       "expected_output": "Agent runs initiatives.py status to make order-emails-missing active, the script refuses because flaky-checkout-tests is already active, and the agent explains in plain words that only one initiative can be active and asks whether to finish or drop the current one first. It does not edit initiatives.json by hand to get around the refusal.",
       "files": [
-        "evals/fixtures/initiatives-with-active.json"
+        "evals/fixtures/initiatives-with-active.json",
+        "evals/fixtures/config.json"
       ]
     },
     {
