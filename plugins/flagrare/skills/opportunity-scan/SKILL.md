@@ -35,6 +35,8 @@ A script that refuses (exit code 2) prints the reason; tell the user in plain wo
 
 ## Workflow
 
+**Called by `/flagrare:career`.** When the arguments say this run comes from the career coordinator, end at the proposals digest without the closing question. When they also say `scheduled`, never ask anything: run only when `due`, and instead of step 6 record each proposal's problem as a candidate (`python3 <plugin root>/lib/career/career_state.py candidate --home "$HOME" --id <slug> --title "<problem>" --evidence <link> --today <date>`, once per evidence link) so the next interactive scan can propose it, then run `initiatives.py run`. Keeping, dismissing and activating always wait for the user.
+
 ### 1. Context and cadence
 
 Run `initiatives.py context`. It prints:

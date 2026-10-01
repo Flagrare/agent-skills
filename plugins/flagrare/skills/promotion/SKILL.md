@@ -27,6 +27,8 @@ The map's shape is in `reference/map-schema.md`, and the markdown layout is in `
 2. Read `~/.claude/skills/flagrare/config.json` (top-level identity keys, the `skills.promotion` block) and the existing map, if any. If the config file or the `skills.promotion` block is missing, continue with defaults.
 3. No map means a **first run** (section 3). A map whose `map_schema.py check` output lists `missing` sections means an interrupted first run: resume it at the earliest phase whose sections are missing. Otherwise run a **refresh** (section 4), unless the user asks for `packet` mode (section 5).
 
+**Called by `/flagrare:career`.** The arguments name a mode (`first_run`, `resume` or `refresh`) and the sections to work on: do only those. When they also say `scheduled`, never interview or ask: re-research and save only the sections that need no answer from the user (process, calendar, rubric, org, precedent), and return each one that needs the user (target, people, manager questions) as a line for the coordinator's Needs you list. In either case, return a short summary of what changed instead of the full map.
+
 ## 2. Rules for every fact
 
 - **Source, date, status.** Every fact gets a link or quoted location, the date you checked it, and a status: `verified` (read and quoted in the raw source), `unverified` (a summary, snippet or secondhand), or `inferred` (your reasoning).
@@ -71,7 +73,7 @@ Tell the user up front: the first run is long, often an hour or more, and it sav
 
 ### Phase 4: Plan
 1. **Deadlines:** run `deadlines.py` with the packet deadline. If this cycle's date is published, use it and pass `--published`. Otherwise project last year's date onto this cycle (same month and day, one year later) and leave it `inferred`. Ask the user which holiday or vacation windows are dead time where they are, and pass them as `--dead`. Record "comfortable by X, absolute by Y" with its status and state. If the state is `past`, say so plainly and name the next cycle.
-2. **Packet readiness:** for each template section, mark `strong`, `thin` or `empty` from the rubric rows and evidence.
+2. **Packet readiness:** run `python3 <plugin root>/lib/career/coordinator.py readiness --home "$HOME" --today <date>` for the evidence count of each rubric row (log entries tagged with the row plus the row's own evidence), then mark each template section `strong`, `thin` or `empty` from the rows it draws on.
 3. **Manager questions:** everything still unknown, plus the readiness question ("is <cycle> realistic, and what's missing?").
 4. Run `map_schema.py check`. Fix any errors, then save.
 5. Show the user a short summary: the target, the two conversation dates, open rubric gaps, who still needs to see their work, and the questions for their manager. Point to `promotion-map.md`.
