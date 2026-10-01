@@ -1,6 +1,6 @@
 # Career state files
 
-Shared by `/flagrare:promotion`, `/flagrare:impact-scan`, `/flagrare:opportunity-scan` and the career skills that follow. They live in `~/.claude/skills/flagrare/career/`, outside the plugin tree so they survive updates. Skills write them with the Write tool (a sandboxed shell cannot write there); the scripts in this folder only read and plan. `career_state.py plan` brings over and merges anything still in the old `~/.claude/skills/flagrare/senior-scan/` folder and never deletes it.
+Shared by `/flagrare:promotion`, `/flagrare:impact-scan`, `/flagrare:opportunity-scan` and `/flagrare:career`, which runs whichever of the others are due. They live in `~/.claude/skills/flagrare/career/`, outside the plugin tree so they survive updates. Skills write them with the Write tool (a sandboxed shell cannot write there); the scripts in this folder only read and plan. `career_state.py plan` brings over and merges anything still in the old `~/.claude/skills/flagrare/senior-scan/` folder and never deletes it.
 
 ## contributions.log.md
 
@@ -45,8 +45,8 @@ Signals that part of the promotion map may be stale. Other skills append through
 
 Work the user could own. When the user has a promotion map, impact-scan records problem-type items (a recurring problem the user could fix, as opposed to a thread to answer) through `career_state.py candidate`, once per scan run: a new evidence link adds a sighting (`seen_count` goes up) and keeps the item's `status`, a link already recorded changes nothing, so the same thread continuing never counts twice. The hand-off threshold is impact-scan's rule, not the script's: at `seen_count` 2 or more it stops drafting replies for that problem and marks the scan item `handed_off` in `scan-state.json`. `/flagrare:opportunity-scan` checks each candidate for an existing owner, ranks it with its own findings, and records what the user keeps through `initiatives.py`:
 
-- `propose` moves a candidate (or a new problem) to `proposed` and adds a `proposal` object. It keeps `seen_count`, `first_seen` and every evidence link, and `career_state.py candidate` keeps the proposal when the problem is seen again.
-- `status` makes one move at a time: `candidate` or `proposed` to `dropped`, `proposed` to `active`, `active` to `done` or `dropped`, `dropped` back to `candidate`, and `dropped` to `dropped` again (a dismissed problem that came back and was dismissed again, which restamps `dropped_at`). Each move stamps `<status>_at`.
+- `propose` moves a candidate (or a new problem, which needs at least one evidence link) to `proposed` and adds a `proposal` object; `problem`, `hypothesis`, `metric`, `first_step`, `pitch` and `owner_check` are required, the other fields optional. It refuses an item that is already `active` or `done`. It keeps `seen_count`, `first_seen` and every evidence link, and `career_state.py candidate` keeps the proposal when the problem is seen again.
+- `status` makes one move at a time: `candidate` or `proposed` to `dropped`, `proposed` to `active`, `active` to `done` or `dropped`, `dropped` back to `candidate`, and `dropped` to `dropped` again (a dismissed problem that came back and was dismissed again, which restamps `dropped_at`). Each move stamps `<status>_at`, and a note passed with it is kept as `<status>_note` (for `active`, inside `aligned`).
 - **At most one item is `active`, and only after manager alignment:** the script refuses a second one (naming the first) and refuses `active` without `aligned-with`, which it records as `aligned`.
 - A `dropped` item is proposed again only when it was seen after `dropped_at`.
 
@@ -62,7 +62,7 @@ Work the user could own. When the user has a promotion map, impact-scan records 
 
 ## opportunity-state.json
 
-When opportunity-scan last ran, so it (and later `/flagrare:career`) can tell when the next one is due (every `skills["opportunity-scan"].cadence_days`, default 30):
+When opportunity-scan last ran, so it and `/flagrare:career` can tell when the next one is due (every `skills["opportunity-scan"].cadence_days`, default 30):
 
 ```json
 { "last_run": "2026-10-01" }

@@ -88,6 +88,8 @@ Re-run any onboarding step when the user says "reconfigure", or when they say th
 
 ## Workflow
 
+**Called by `/flagrare:career`.** When the arguments say this run comes from the career coordinator, run the same workflow but end at the digest: return the table, the item blocks for rows with a draft, and the Cut, Flags raised and Handed off lines, without the closing question, and leave the board rebuild to the coordinator. When the arguments also say `scheduled`, never ask anything: an incomplete onboarding becomes one line for the coordinator's Needs you list instead of an interview, and drafts stay drafts.
+
 ### 1. Load state and window
 
 Run the load-state step from Setup first (`career_state.py plan`, applied with the Write tool), then read `career/scan-state.json` (`{ "last_run": iso8601, "seen": [{ "id", "source", "surfaced_at", "status" }] }`). The scan window is `last_run` to now; if no state exists, default to the last 48 hours, capped at 7 days. Items already in `seen` are only re-surfaced if they escalated: a new decision point, a new unanswered question, a thread reopened.
@@ -179,6 +181,7 @@ Read `voice.md` first if it exists; its observed rules win over the generic ones
 5. **Contextualize references.** Never a bare ticket number; say what the ticket is with the key in parentheses.
 6. **Cite PRs and commits, not people.** Explaining where a behavior came from means pointing at the PR or SHA, never naming who broke it.
 7. **Substance first.** Every draft must contain the specific fact, risk, or suggestion that justified surfacing the item. If someone without the user's context could have written the draft, the item fails the credibility bar: cut it instead of shipping filler.
+8. **Say where a saved draft lives.** When the user asks you to save a draft into the chat tool (for example a Slack draft) instead of keeping it here, give them the link to where it now lives.
 
 **Never post anything anywhere.** Every draft waits for the user's explicit approval of that specific message. Posting without it is the one unforgivable failure of this skill.
 

@@ -139,6 +139,7 @@ Everything in senior-scan v1.42.0, plus:
    - Evidence links go inside the draft.
    - Every claim is hedged, and the tone is casual.
    - No unverified claim goes into a draft.
+   - Resolved while building Milestone 4 (1.47.0): evidence inside the draft and no unverified claim were already impact-scan rules, and a draft saved into the chat tool now comes with its link. Hedging and tone are personal voice rules, so they live in each user's `voice.md` (which wins over the generic drafting floor) rather than in the shared skill text.
 
 ## `opportunity-scan`
 
