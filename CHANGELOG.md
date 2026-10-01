@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.49.0: 2026-10-01
+
+The reviewer stops signing off and starts asking.
+
+### Improved Skills
+
+- **`/flagrare:pr-reviewer`, a peer instead of a gatekeeper**: the review body was taught to "open on the thing you'd want fixed", and its own good example ended with "That's the one I'd want to sort out before merge" and "The rest looks right to me". Field-tested the hard way: a draft for a teammate's PR opened with "The one I'd want sorted before merge is the rollback inline" and closed with "the sociable tests look solid to me", which read as cocky and passive aggressive from someone who isn't in a position to set conditions on another person's merge. A new "You're a peer, not a gatekeeper" section bans conditions ("I'd want", "before merge", "blocker"), verdicts on the author's work ("looks solid to me"), and settled-fact gotchas, each with a before and after. Severity labels now stay in the chat summary, and the review body opens on what you noticed, said as a question.
+- **`/flagrare:pr-reviewer`, examples that follow their own rule**: several "friendly" examples dropped their subjects ("looks like", "Would be good", "Worth pulling out", "Might be worth"), the same clipped voice the skill tells you to avoid. They now say "it looks like", "it would be good", "do you think it's worth", and "it might be worth".
+
 ## 1.48.0: 2026-10-01
 
 Your evidence log finally shows up in your brag doc.
