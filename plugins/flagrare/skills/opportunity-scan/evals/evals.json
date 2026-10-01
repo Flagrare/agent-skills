@@ -36,6 +36,15 @@
       "files": [
         "evals/fixtures/config.json"
       ]
+    },
+    {
+      "id": 4,
+      "prompt": "Run an opportunity scan. My promotion map lists the company priorities (see the fixtures). This month: support keeps hearing from venues that never got the alert for an order, a flaky test in our repo gets rerun a lot, and the search team's booking conversion dipped.",
+      "expected_output": "Agent builds the metrics list first from the map's priorities. The missed order alerts become a proposal framed as an outcome for venues, naming the order-alert metric (12%, with its source), a target and a date, and the user's lever (partner notifications, one of their configured domains, which the map marks as theirs). The search conversion dip goes on the 'Offer to help' line because the lever sits with the Search team. The flaky test goes on 'Fixes worth mentioning' (or is cut as small), never as a proposal. Fewer than three proposals is acceptable; no small fixes pad the list.",
+      "files": [
+        "evals/fixtures/promotion-map.json",
+        "evals/fixtures/config.json"
+      ]
     }
   ]
 }

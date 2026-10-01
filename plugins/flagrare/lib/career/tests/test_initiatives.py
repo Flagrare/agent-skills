@@ -23,7 +23,8 @@ MAP = {
 }
 PROPOSAL = {"problem": "Partners miss order emails", "hypothesis": "We believe a delivery check will cut missed orders because failures are silent today",
             "metric": "missed-order reports per week", "first_step": "add the evidence to the PM's product gate doc",
-            "pitch": "Two incidents in a month, same cause; I can own the fix.", "owner_check": "searched open tickets and the team channel, no owner"}
+            "pitch": "Two incidents in a month, same cause; I can own the fix.", "owner_check": "searched open tickets and the team channel, no owner",
+            "lever": "the partner order email is sent by systems the user's squad owns"}
 
 
 def write(home: Path, rel: str, data: object) -> None:
@@ -88,6 +89,31 @@ class Context(unittest.TestCase):
             self.assertEqual(groups["active"]["id"], "c")
             self.assertEqual([i["id"] for i in groups["proposed"]], ["e"])
             self.assertEqual({i["id"]: i["seen_again"] for i in groups["dropped"]}, {"d": True, "f": False})
+
+
+class Priorities(unittest.TestCase):
+    def test_given_company_priorities_in_the_map_when_reading_context_then_lists_each_metric_and_the_users_lever(self):
+        with tempfile.TemporaryDirectory() as d:
+            home = Path(d)
+            m = {**MAP, "priorities": [
+                {"theme": "Merchant trust", "metric": {**FACT, "value": "share of merchants confused by their statements"},
+                 "baseline": {**FACT, "value": "27% confused"}, "owner_team": "Merchants", "user_lever": "input"},
+                {"theme": "Grow orders", "metric": {**FACT, "value": "orders per active member"}, "owner_team": "Growth", "user_lever": "none"},
+            ]}
+            write(home, f"{CAREER}/promotion-map.json", m)
+            prios = ini.context(str(home), "2026-10-01")["priorities"]
+            self.assertEqual(prios[0], {"theme": "Merchant trust", "metric": "share of merchants confused by their statements",
+                                        "baseline": "27% confused", "target": None, "owner_team": "Merchants", "user_lever": "input"})
+            self.assertEqual(prios[1]["user_lever"], "none")
+
+    def test_given_no_priorities_when_reading_context_then_the_list_is_empty(self):
+        with tempfile.TemporaryDirectory() as d:
+            self.assertEqual(ini.context(d, "2026-10-01")["priorities"], [])
+
+    def test_given_a_proposal_without_a_lever_when_proposing_then_refuses(self):
+        with tempfile.TemporaryDirectory() as d:
+            with self.assertRaisesRegex(ValueError, "lever"):
+                ini.plan_propose(d, "x", "t", ["https://example.com/1"], {k: v for k, v in PROPOSAL.items() if k != "lever"}, "2026-10-01")
 
 
 class Cadence(unittest.TestCase):
