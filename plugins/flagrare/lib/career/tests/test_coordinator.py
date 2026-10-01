@@ -182,6 +182,20 @@ class BoardExtras(unittest.TestCase):
             self.assertEqual(sum(w["count"] for w in trend["weeks"]), 3)
 
 
+class BoardRecognition(unittest.TestCase):
+    def test_given_a_recognition_cache_when_building_board_data_then_includes_its_summary(self):
+        with tempfile.TemporaryDirectory() as d:
+            home = Path(d)
+            write(home, f"{CAREER}/recognition.json", {"fetched_on": "2026-10-01", "received": [
+                {"id": "b1", "date": "2026-09-30", "giver": {"name": "Kai", "email": "kai@example.com"}, "value": "own-the-outcome"}], "given": []})
+            b = co.board(str(home), "2026-10-01")
+            self.assertEqual((b["recognition"]["received"], b["recognition"]["givers"][0]["name"], b["readiness_target"]), (1, "Kai", 3))
+
+    def test_given_no_recognition_cache_when_building_board_data_then_says_so(self):
+        with tempfile.TemporaryDirectory() as d:
+            self.assertEqual(co.board(d, "2026-10-01")["recognition"], {"has_recognition": False})
+
+
 class MapLine(unittest.TestCase):
     def test_given_a_map_when_summarizing_then_lists_gaps_people_and_dates(self):
         with tempfile.TemporaryDirectory() as d:
