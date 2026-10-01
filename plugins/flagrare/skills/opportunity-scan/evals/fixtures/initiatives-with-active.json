@@ -1,0 +1,45 @@
+[
+  {
+    "id": "flaky-checkout-tests",
+    "title": "Checkout tests fail at random",
+    "evidence": [
+      "https://example.com/ci/3"
+    ],
+    "seen_count": 1,
+    "first_seen": "2026-09-01",
+    "last_seen": "2026-09-01",
+    "status": "active",
+    "proposed_at": "2026-09-02",
+    "aligned": {
+      "with": "Sam Rivera",
+      "on": "2026-09-05",
+      "note": "agreed in 1:1"
+    },
+    "active_at": "2026-09-05"
+  },
+  {
+    "id": "order-emails-missing",
+    "title": "Partners not getting order emails",
+    "evidence": [
+      "https://example.com/incidents/41",
+      "https://example.com/support/9"
+    ],
+    "seen_count": 2,
+    "first_seen": "2026-09-23",
+    "last_seen": "2026-09-30",
+    "status": "proposed",
+    "proposed_at": "2026-10-01",
+    "proposal": {
+      "problem": "Partners are not getting order emails",
+      "hypothesis": "We believe a delivery check will cut missed orders because failures are silent today",
+      "metric": "missed-order reports per week",
+      "first_step": "add the evidence to the PM's product gate document",
+      "pitch": "Two incidents in a month with one cause; I'd like to own the engineering side.",
+      "owner_check": "searched open tickets and the team channel, no owner",
+      "decision_fit": "feeds the PM's document",
+      "rubric_rows": [
+        "scope.proactive-discovery"
+      ]
+    }
+  }
+]

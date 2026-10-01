@@ -1,0 +1,14 @@
+[
+  {
+    "id": "order-emails-missing",
+    "title": "Partners not getting order emails",
+    "evidence": [
+      "https://example.com/incidents/41",
+      "https://example.com/support/9"
+    ],
+    "seen_count": 2,
+    "first_seen": "2026-09-23",
+    "last_seen": "2026-09-30",
+    "status": "candidate"
+  }
+]
