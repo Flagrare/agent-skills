@@ -50,6 +50,8 @@ Notion tends to be low-yield per month; search it once per initiative (specs, te
 
 Before the loop, read the contributions log once by running `python3 <plugin root>/lib/career/career_state.py contributions --home "$HOME"` (the plugin root is two directories above this skill's base directory); it returns the entries from both `~/.claude/skills/flagrare/career/contributions.log.md` and the older `~/.claude/skills/flagrare/senior-scan/contributions.log.md`, without duplicates. If it returns nothing, skip this step. `/flagrare:impact-scan` (formerly senior-scan) appends dated, already-vetted contributions there (design-review interventions, unblocking threads, RFC comments), which are exactly the amplification evidence a git/tracker sweep cannot see. Fold entries into their months as amplification, not IC work.
 
+Also read `~/.claude/skills/flagrare/career/recognition.json` when it exists (peer recognition from a tool such as Bonusly, see `/flagrare:promotion`): fold each bonus into its month as recognition, using its cleaned `text`, giver, company value and link. It is evidence that someone saw the work, not work itself.
+
 ## Phase 3: Meeting-notes sweep
 
 After the month loop, run 2-3 broad natural-language queries over the full window against the meeting-notes tool (see playbook for phrasings that worked). This reliably surfaces what code archaeology cannot:

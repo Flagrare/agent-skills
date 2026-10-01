@@ -50,8 +50,10 @@ Absent sections mean "not researched yet", not an error.
   "precedent": {"tier": "announcements|deep", "caveat": "announcements are narratives, not audits", "cases": [{}]},
   "packet_readiness": [{"section": "...", "state": "strong|thin|empty", "evidence_rows": ["rubric row id"]}],
   "manager_questions": ["..."],
+  "priorities": [{"theme": "Partner trust", "metric": {}, "baseline": {}, "target": {},
+                  "owner_team": "Partners", "user_lever": "owner|input|none"}],
   "sections": {"target": {"checked_at": "YYYY-MM-DD", "sources": ["..."]}}
 }
 ```
 
-Rubric row ids are `<area>.<short-slug>`, lowercase with hyphens, and stay stable across refreshes. Impact-scan tags contributions with these ids. `label` is the plain name people read (on the board and in digests); `next_step` is set for rows that are not `done` and feeds the board's "biggest gaps" list. `packet_readiness` entries may carry a one-line `note`, which the board shows under the section's state.
+Rubric row ids are `<area>.<short-slug>`, lowercase with hyphens, and stay stable across refreshes. Impact-scan tags contributions with these ids. `label` is the plain name people read (on the board and in digests); `next_step` is set for rows that are not `done` and feeds the board's "biggest gaps" list. `priorities` is optional (older maps have none); it is written in Phase 1 with the process and calendar, and its facts are checked like the others. `packet_readiness` entries may carry a one-line `note`, which the board shows under the section's state.
