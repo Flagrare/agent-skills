@@ -247,24 +247,36 @@ def plan_flag(home: str, section: str, reason: str, source: str, today: str) -> 
     return [{"action": "write", "path": str(path), "content": json.dumps(flags, indent=2, ensure_ascii=False) + "\n", "reason": f"flag {section} as possibly stale"}]
 
 
-def plan_candidate(home: str, item_id: str, title: str, evidence: str, today: str) -> list[dict]:
-    """Plan initiatives.json with one sighting of a problem: add it, or, for a new evidence link, bump seen_count and add the link. The same link again changes nothing."""
+def plan_candidate(home: str, item_id: str, title: str, evidence: str, today: str, details: dict | None = None) -> list[dict]:
+    """Plan initiatives.json with one sighting of a problem: add it, or, for a new evidence link, bump seen_count and add the link. The same link again changes nothing.
+
+    `details` are the proposal fields an opportunity scan drafted but the user has not decided on yet. They are kept as
+    `draft_proposal` on items that are still candidates, without counting as a sighting, and never replace a kept `proposal`.
+    """
     path = Path(paths(home)["initiatives"])
     items = _load_list(path)
     for item in items:
         if isinstance(item, dict) and item.get("id") == item_id:
+            changed = False
             links = item.setdefault("evidence", [])
-            if not evidence or evidence in links:
+            if evidence and evidence not in links:
+                links.append(evidence)
+                item["seen_count"] = int(item.get("seen_count", 1)) + 1
+                item["last_seen"] = today
+                changed = True
+            if details and item.get("status") == "candidate" and item.get("draft_proposal") != details:
+                item["draft_proposal"] = details
+                changed = True
+            if not changed:
                 return []
-            links.append(evidence)
-            item["seen_count"] = int(item.get("seen_count", 1)) + 1
-            item["last_seen"] = today
             break
     else:
-        items.append({"id": item_id, "title": title, "evidence": [evidence] if evidence else [], "seen_count": 1,
-                      "first_seen": today, "last_seen": today, "status": "candidate"})
+        item = {"id": item_id, "title": title, "evidence": [evidence] if evidence else [], "seen_count": 1,
+                "first_seen": today, "last_seen": today, "status": "candidate"}
+        if details:
+            item["draft_proposal"] = details
+        items.append(item)
     return [{"action": "write", "path": str(path), "content": json.dumps(items, indent=2, ensure_ascii=False) + "\n", "reason": f"record a sighting of {item_id}"}]
-
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Plan-only state helper for the flagrare career skills.")
@@ -277,6 +289,7 @@ def main() -> None:
     parser.add_argument("--title")
     parser.add_argument("--evidence", default="")
     parser.add_argument("--today")
+    parser.add_argument("--details", help="candidate: the drafted proposal fields as a JSON object")
     args = parser.parse_args()
     if args.command == "paths":
         result: object = paths(args.home)
@@ -294,7 +307,15 @@ def main() -> None:
     else:
         if not (args.id and args.title and args.today):
             parser.error("candidate needs --id, --title and --today")
-        result = plan_candidate(args.home, args.id, args.title, args.evidence, args.today)
+        details = None
+        if args.details:
+            try:
+                details = json.loads(args.details)
+            except json.JSONDecodeError as exc:
+                parser.error(f"--details is not valid JSON: {exc}")
+            if not isinstance(details, dict):
+                parser.error("--details must be a JSON object")
+        result = plan_candidate(args.home, args.id, args.title, args.evidence, args.today, details)
     print(json.dumps(result, indent=2, ensure_ascii=False))
 
 
