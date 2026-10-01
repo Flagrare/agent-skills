@@ -160,6 +160,19 @@ details.row[open] .caret { transform: rotate(90deg); }
 .own .lbl { font-family: var(--display); font-size: 11.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-right: 6px; }
 .own.none { border-left-color: var(--line); }
 .cand { margin: 0; padding-left: 18px; display: grid; gap: 4px; color: var(--ink-2); }
+.stale { margin: 14px 0 0; padding: 8px 12px; border-radius: 8px; background: var(--week-soft); color: var(--week); font-weight: 700; font-size: 14px; }
+.packet { display: grid; gap: 10px; }
+.pk-top { display: flex; justify-content: space-between; gap: 8px; font-size: 13.5px; font-weight: 700; }
+.pk p { margin: 2px 0 0; font-size: 12.5px; color: var(--muted); }
+.chip.pk-strong { color: var(--good); background: var(--good-soft); }
+.chip.pk-thin { color: var(--week); background: var(--week-soft); }
+.chip.pk-empty { color: var(--now); background: var(--now-soft); }
+.spark { display: flex; align-items: flex-end; gap: 8px; margin: -4px 0 10px; font-size: 12px; color: var(--muted); }
+.spark svg { width: 96px; height: 28px; }
+.spark rect { fill: var(--accent); }
+.gapnote ul { margin: 6px 0 0; padding-left: 18px; display: grid; gap: 4px; }
+.gapnote b { color: var(--ink-2); }
+.gapnote li span { color: var(--ink); font-weight: 700; }
 .cand-d { font-size: 13px; color: var(--muted); margin-top: 2px; }
 .cand-d b { color: var(--ink-2); font-weight: 700; }
 .promo-list .left { display: block; font-weight: 500; font-size: 12.5px; color: var(--muted); }
@@ -200,6 +213,7 @@ details.row[open] .caret { transform: rotate(90deg); }
     </div>
     <div class="tally" id="tally"></div>
   </header>
+  <p class="stale" id="stale" hidden></p>
 
   <div class="grid">
     <main>
@@ -213,12 +227,17 @@ details.row[open] .caret { transform: rotate(90deg); }
         <h3 id="h-promo">Promotion</h3>
         <dl class="promo-list" id="promo"></dl>
       </section>
+      <section class="card" aria-labelledby="h-packet" id="packet-card" hidden>
+        <h3 id="h-packet">Packet readiness <span class="n">what calibration reads</span></h3>
+        <div class="packet" id="packet"></div>
+      </section>
       <section class="card" aria-labelledby="h-wait">
         <h3 id="h-wait">Waiting on others <span class="n" id="n-wait"></span></h3>
         <div id="wait"></div>
       </section>
       <section class="card" aria-labelledby="h-cov">
         <h3 id="h-cov">Evidence <span class="n" id="n-evi"></span></h3>
+        <div class="spark" id="spark"></div>
         <div class="cov" id="cov"></div>
         <p class="gapnote" id="gapnote" hidden></p>
         <div class="evi" id="evi"></div>
@@ -257,13 +276,20 @@ details.row[open] .caret { transform: rotate(90deg); }
   document.getElementById("scanline").textContent =
     (scan.date ? "Scan of " + new Date(scan.date + "T12:00:00").toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric" }) : "No scan yet") +
     (scan.caveats ? " · " + scan.caveats : "");
+  const realToday = new Date().toISOString().slice(0, 10);
+  const age = scan.date ? Math.round((new Date(realToday + "T12:00:00") - new Date(scan.date + "T12:00:00")) / 864e5) : null;
+  if (age !== null && age >= 2) {
+    const st = document.getElementById("stale");
+    st.hidden = false;
+    st.textContent = `This board is from a scan ${age} days ago, so some items may have moved. Run /flagrare:career to refresh it.`;
+  }
 
   const weekAgo = new Date(new Date(TODAY) - 7 * 864e5).toISOString().slice(0, 10);
   document.getElementById("tally").innerHTML =
     `<span class="t-now"><b>${byTier.today.length}</b> today</span>` +
     `<span><b>${byTier.week.length + byTier.later.length}</b> later</span>` +
     `<span class="t-wait"><b>${waiting.length}</b> waiting</span>` +
-    `<span class="t-good"><b>${contribs.filter(c => c.date >= weekAgo).length}</b> shipped this week</span>`;
+    `<span class="t-good"><b>${contribs.filter(c => c.date >= weekAgo).length}</b> logged this week</span>`;
 
   const statusChip = i => i.draft && !i.check_first ? `<span class="chip ready">Draft ready</span>` : (i.check_first ? `<span class="chip verify">Verify first</span>` : "");
   const srcChip = i => i.source ? `<span class="chip src">${esc(SRC[i.source] || i.source)}</span>` : "";
@@ -396,7 +422,7 @@ details.row[open] .caret { transform: rotate(90deg); }
   // Evidence coverage by target behavior
   const KEYWORD = { "raising the quality bar": "quality bar", "unblocking others": "unblocking", "influence beyond assigned tickets": "beyond assigned", "owning technical decisions": "owning" };
   const counts = ROWS.length
-    ? ROWS.filter(r => r.status !== "done").map(r => [r.area ? r.area + " (" + r.id.split(".").pop().replace(/-/g, " ") + ")" : r.id, r.evidence])
+    ? ROWS.filter(r => r.status !== "done").map(r => [r.label || (r.area ? r.area + " (" + r.id.split(".").pop().replace(/-/g, " ") + ")" : r.id), r.evidence])
     : BEHAVIORS.map(b => [b, contribs.filter(c => String(c.behavior || "").toLowerCase().includes((KEYWORD[b] || b).toLowerCase())).length]);
   const max = Math.max(1, ...counts.map(c => c[1]));
   document.getElementById("n-evi").textContent = contribs.length + " logged";
@@ -408,7 +434,28 @@ details.row[open] .caret { transform: rotate(90deg); }
   const gaps = counts.filter(c => c[1] < (ROWS.length ? 3 : 2)).map(c => c[0]);
   if (ROWS.length && !counts.length) document.getElementById("cov").innerHTML = `<div class="empty" style="padding:0">Every rubric row is done.</div>`;
   const gn = document.getElementById("gapnote");
-  if (gaps.length) { gn.hidden = false; gn.textContent = "Thin evidence: " + gaps.join(", ") + ". Favor items that exercise these."; }
+  if (ROWS.length) {
+    const topGaps = ROWS.filter(r => r.status !== "done" && r.state !== "strong")
+      .sort((a, b) => a.evidence - b.evidence || Number(!a.next_step) - Number(!b.next_step)).slice(0, 3);
+    if (topGaps.length) {
+      gn.hidden = false;
+      gn.innerHTML = `<b>Biggest gaps, and one step for each</b><ul>${topGaps.map(r => `<li><span>${esc(r.label || r.area || r.id)}</span>${r.next_step ? `: ${inline(r.next_step)}` : ""}</li>`).join("")}</ul>`;
+    }
+  } else if (gaps.length) { gn.hidden = false; gn.textContent = "Thin evidence: " + gaps.join(", ") + ". Favor items that exercise these."; }
+
+  // Packet readiness
+  const PACKET = CAREER.packet || [];
+  if (PACKET.length) {
+    document.getElementById("packet").innerHTML = PACKET.map(p => `<div class="pk"><div class="pk-top"><span>${esc(p.section)}</span><span class="chip pk-${esc(p.state)}">${esc(p.state)}</span></div>${p.note ? `<p>${inline(p.note)}</p>` : ""}</div>`).join("");
+    document.getElementById("packet-card").hidden = false;
+  }
+
+  // Weekly trend
+  const WEEKS = (CAREER.trend || {}).weeks || [];
+  if (WEEKS.length) {
+    const hi = Math.max(1, ...WEEKS.map(w => w.count));
+    document.getElementById("spark").innerHTML = `<svg viewBox="0 0 ${WEEKS.length * 12} 28" role="img" aria-label="Contributions per week, last ${WEEKS.length} weeks: ${WEEKS.map(w => w.count).join(", ")}">${WEEKS.map((w, i) => `<rect x="${i * 12 + 1}" y="${26 - Math.round((w.count / hi) * 24)}" width="9" height="${Math.max(1, Math.round((w.count / hi) * 24))}" rx="2"><title>Week ending ${esc(w.ending)}: ${w.count}</title></rect>`).join("")}</svg><span>last ${WEEKS.length} weeks</span>`;
+  }
 
   const evi = document.getElementById("evi");
   const renderEvi = all => {

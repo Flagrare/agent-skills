@@ -104,9 +104,34 @@ def readiness(home: str) -> list[dict]:
             continue
         count = tagged.get(row["id"], 0) + len(row.get("evidence") or [])
         state = "strong" if count >= 3 else "thin" if count else "empty"
-        out.append({"id": row["id"], "area": row.get("area", ""), "status": row.get("status", ""),
+        out.append({"id": row["id"], "area": row.get("area", ""), "label": row.get("label", ""),
+                    "next_step": row.get("next_step", ""), "status": row.get("status", ""),
                     "evidence": count, "state": state})
     return out
+
+
+TREND_WEEKS = 8
+
+
+def trend(home: str, today: str) -> dict:
+    """Contributions logged per week for the last eight weeks, oldest first; each week ends on `ending` and covers the 7 days up to it."""
+    end = date.fromisoformat(today)
+    dates = [d for d, _ in _log(home)]
+    weeks = []
+    for i in range(TREND_WEEKS - 1, -1, -1):
+        ending = end - timedelta(days=7 * i)
+        start = (ending - timedelta(days=6)).isoformat()
+        weeks.append({"ending": ending.isoformat(), "count": sum(1 for d in dates if start <= d <= ending.isoformat())})
+    return {"weeks": weeks}
+
+
+def packet(home: str) -> list[dict]:
+    """The map's packet readiness, one entry per packet section: what calibration will read."""
+    m = _map(home)
+    if m is None:
+        return []
+    return [{"section": p.get("section", ""), "state": p.get("state", ""), "note": p.get("note", "")}
+            for p in (m.get("packet_readiness") or []) if isinstance(p, dict)]
 
 
 def map_line(home: str) -> dict:
@@ -128,15 +153,16 @@ def map_line(home: str) -> dict:
 
 
 def board(home: str, today: str) -> dict:
-    """What the board adds to data.json: the initiative card (with the candidates still waiting for a decision), the promotion panel and row coverage."""
+    """What the board adds to data.json: the initiative card (with the candidates still waiting for a decision), the promotion and packet panels, row coverage and the weekly trend."""
     ctx = initiatives.context(home, today)["initiatives"]
     return {"initiatives": {"active": ctx["active"], "proposed": ctx["proposed"], "candidates": ctx["candidates"]},
-            "promotion": map_line(home), "readiness": readiness(home), "balance": balance(home, today)}
+            "promotion": map_line(home), "readiness": readiness(home), "balance": balance(home, today),
+            "packet": packet(home), "trend": trend(home, today)}
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Read-only inputs for /flagrare:career.")
-    parser.add_argument("command", choices=["due", "balance", "readiness", "map", "board"])
+    parser.add_argument("command", choices=["due", "balance", "readiness", "map", "board", "trend"])
     parser.add_argument("--home", default=str(Path.home()))
     parser.add_argument("--today", required=True)
     args = parser.parse_args()
@@ -150,6 +176,7 @@ def main() -> None:
         "readiness": lambda: readiness(args.home),
         "map": lambda: map_line(args.home),
         "board": lambda: board(args.home, args.today),
+        "trend": lambda: trend(args.home, args.today),
     }[args.command]()
     print(json.dumps(result, indent=2, ensure_ascii=False))
 

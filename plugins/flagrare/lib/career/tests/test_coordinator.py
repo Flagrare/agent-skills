@@ -149,6 +149,38 @@ class Board(unittest.TestCase):
             self.assertEqual([i["id"] for i in board["proposed"]], ["c"])
 
 
+class BoardExtras(unittest.TestCase):
+    def test_given_rows_with_labels_and_next_steps_when_rating_then_carries_them(self):
+        with tempfile.TemporaryDirectory() as d:
+            home = Path(d)
+            m = full_map()
+            m["rubric"]["rows"][0].update({"label": "Finding problems", "next_step": "Own one problem end to end"})
+            write(home, f"{CAREER}/promotion-map.json", m)
+            row = next(r for r in co.readiness(str(home)) if r["id"] == "scope.proactive-discovery")
+            self.assertEqual((row["label"], row["next_step"]), ("Finding problems", "Own one problem end to end"))
+
+    def test_given_a_map_with_packet_readiness_when_building_board_data_then_includes_it(self):
+        with tempfile.TemporaryDirectory() as d:
+            home = Path(d)
+            m = full_map(packet_readiness=[{"section": "Technical Craft", "state": "strong", "evidence_rows": [], "note": "reviews"}])
+            write(home, f"{CAREER}/promotion-map.json", m)
+            self.assertEqual(co.board(str(home), "2026-10-01")["packet"], [{"section": "Technical Craft", "state": "strong", "note": "reviews"}])
+
+    def test_given_log_entries_when_building_the_trend_then_counts_eight_weeks_oldest_first(self):
+        with tempfile.TemporaryDirectory() as d:
+            home = Path(d)
+            write(home, f"{CAREER}/contributions.log.md", log(
+                "- 2026-09-30 | https://example.com/1 | a | behavior: x",
+                "- 2026-09-25 | https://example.com/2 | b | behavior: x",
+                "- 2026-09-20 | https://example.com/3 | c | behavior: x",
+                "- 2026-07-01 | https://example.com/4 | too old | behavior: x"))
+            trend = co.trend(str(home), "2026-10-01")
+            self.assertEqual(len(trend["weeks"]), 8)
+            self.assertEqual(trend["weeks"][-1], {"ending": "2026-10-01", "count": 2})
+            self.assertEqual(trend["weeks"][-2], {"ending": "2026-09-24", "count": 1})
+            self.assertEqual(sum(w["count"] for w in trend["weeks"]), 3)
+
+
 class MapLine(unittest.TestCase):
     def test_given_a_map_when_summarizing_then_lists_gaps_people_and_dates(self):
         with tempfile.TemporaryDirectory() as d:
