@@ -34,18 +34,18 @@ A script that refuses (exit code 2) prints the reason; tell the user in plain wo
 ## Setup (every run)
 
 1. **Load state.** Run `python3 <plugin root>/lib/career/career_state.py plan --home "$HOME"` and apply each `write` action with the Write tool, reading the target first if it exists. **Never delete anything.**
-2. **Config.** Read `~/.claude/skills/flagrare/config.json`. This skill sweeps the same surfaces as impact-scan and reuses its onboarding: surfaces, domains, target behaviors and audience come from `skills["impact-scan"]` (or the older `skills["senior-scan"]`). If neither block has `onboarding_complete: true`, run the onboarding in `<plugin root>/skills/impact-scan/SKILL.md` (identity, career target, domains, surfaces; skip voice and board if the user wants to move on) and save it under `skills["impact-scan"]`. This skill's own block, `skills["opportunity-scan"]`, only holds `cadence_days` (default 30).
+2. **Config.** Read `~/.claude/skills/flagrare/config.json`. This skill sweeps the same surfaces as impact-scan and reuses its onboarding: surfaces, domains, target behaviors and audience come from `skills["impact-scan"]` (or the older `skills["senior-scan"]`). If neither block has `onboarding_complete: true`, run the onboarding in `<plugin root>/skills/impact-scan/SKILL.md` (identity, career target, domains, surfaces; skip voice and board if the user wants to move on) and save it under `skills["impact-scan"]`. This skill's own block, `skills["opportunity-scan"]`, holds `cadence_days` (default 30) and, optionally, `weights` for the ranking (step 4).
 
 ## Workflow
 
-**Called by `/flagrare:career`.** When the arguments say this run comes from the career coordinator, run only when `due`, and end at the proposals digest without the closing question; the coordinator asks once at the end, and when the user answers about a proposal, record it with step 6. Before returning, in both interactive and scheduled runs, record every proposal that is not already in `initiatives.json` as a candidate with one sighting (`python3 <plugin root>/lib/career/career_state.py candidate --home "$HOME" --id <slug> --title "<problem>" --evidence <its strongest link> --today <date> --details '<json>'`, where the details are the drafted `problem`, `hypothesis`, `metric`, `baseline`, `target`, `lever`, `first_step`, `pitch` and `owner_check`, so the board can show them while the user decides; reuse the id of a handed-off candidate or a dismissed problem instead of making a new one), so the proposals survive until the user decides, then run `initiatives.py run` and write `opportunity-state.json` with the Write tool so the cadence counts from today. When the arguments also say `scheduled`, never ask anything. Keeping, dismissing and activating always wait for the user.
+**Called by `/flagrare:career`.** When the arguments say this run comes from the career coordinator, run only when `due`, and end at the proposals digest without the closing question; the coordinator asks once at the end, and when the user answers about a proposal, record it with step 6. Before returning, in both interactive and scheduled runs, record every proposal that is not already in `initiatives.json` as a candidate with one sighting (`python3 <plugin root>/lib/career/career_state.py candidate --home "$HOME" --id <slug> --title "<problem>" --evidence <its strongest link> --today <date> --details '<json>'`, where the details are the drafted `problem`, `hypothesis`, `metric`, `baseline`, `target`, `lever`, `first_step`, `pitch`, `owner_check` and the step 4 `score`, so the board can show and rank them while the user decides; reuse the id of a handed-off candidate or a dismissed problem instead of making a new one), so the proposals survive until the user decides, then run `initiatives.py run` and write `opportunity-state.json` with the Write tool so the cadence counts from today. When the arguments also say `scheduled`, never ask anything. Keeping, dismissing and activating always wait for the user.
 
 ### 1. Context and cadence
 
 Run `initiatives.py context`. It prints:
 
 - `has_map`, and from the promotion map: `target` (`target_level`, `cycle`, `why`, `more_of`, `less_of`), `open_rows` (rubric rows not yet done), `unseen_people`, `decision_process` (`artifact`, `usual_driver`), and `packet_deadline`. `more_of` and `less_of` are lists by design; for the single-valued facts (`target_level`, `cycle`, the `decision_process` fields, `packet_deadline`), a list means the map's sources disagree: show every option, never pick one.
-- `initiatives`: the `active` one (or null), `proposed`, `candidates` (most seen first) and `dropped` (each with `seen_again`: seen since it was dismissed).
+- `initiatives`: the `active` one (or null), `proposed` and `candidates` (each ranked: highest score first, unscored last, with `rank` `{total, max, is_fix}`) and `dropped` (each with `seen_again`: seen since it was dismissed).
 - `cadence`: `last_run`, `days_since`, `cadence_days`, `due`, `next_due`, and `window_start`, the first day to sweep (the last run, or 30 days back the first time, never more than 90 days back).
 - `fallback`: the impact-scan config's `target_behaviors`, `domains` and `audience`.
 - `priorities`: the company's themes and the metrics leadership watches, from the promotion map, each with `metric`, `baseline`, `target`, `owner_team` and `user_lever` (`owner` when the user's seat owns the metric's main input, `input` when their systems feed it, `none` when the lever sits in another team).
@@ -103,18 +103,22 @@ Three more hard filters first:
 - **No lever:** when the metric's lever sits in another team (`user_lever` `none` and nothing in the user's seat feeds it), it goes on the "Offer to help" line with the owning team, never as the user's own project.
 - **Small or scheduled:** a fix a teammate would do in their normal work this month, or one already on a plan, is cut with that reason.
 
-Then score each survivor 0-2 on these factors. Impact counts double:
+Then score each survivor 0-2 on these factors (the key in parentheses is the name the score is stored under). Impact counts double, so the most is 18:
 
-- **Impact (x2):** how much the metric would move, sized from a number with a source (orders, partners, revenue, a complaint rate). A guess with no number scores 0 and gets a `Check first:` for where the number lives.
-- **Lever:** the user's seat owns the input (2), feeds it (1).
-- **Fit:** it matches what the user wants more of, and is not something they want less of (with no map: their configured target behaviors).
-- **Rubric:** it closes one of the `open_rows`; pick the row from `open_rows` only, never invent one (no map: skip, score 1).
-- **Who cares:** people who would notice the result, with extra weight when they are in `unseen_people` (with no map: the configured `fallback.audience`).
-- **Standing:** the user knows the area (one of their domains, systems they have worked in).
-- **Evidence:** how often it came up and from how many places; a handed-off candidate with `seen_count` 2 or more starts at 2.
-- **Timing:** it can show a result before the `packet_deadline` (no map or no deadline: skip, score 1).
+- **Impact (`impact`, x2):** how much the metric would move, sized from a number with a source (orders, partners, revenue, a complaint rate). A guess with no number scores 0 and gets a `Check first:` for where the number lives.
+- **Lever (`lever`):** the user's seat owns the input (2), feeds it (1).
+- **Fit (`fit`):** it matches what the user wants more of, and is not something they want less of (with no map: their configured target behaviors).
+- **Rubric (`rubric`):** it closes one of the `open_rows`; pick the row from `open_rows` only, never invent one (no map: skip, score 1).
+- **Who notices (`who_notices`):** people who would notice the result, with extra weight when they are in `unseen_people` (with no map: the configured `fallback.audience`).
+- **Standing (`standing`):** the user knows the area (one of their domains, systems they have worked in).
+- **Evidence (`evidence`):** how often it came up and from how many places; a handed-off candidate with `seen_count` 2 or more starts at 2.
+- **Timing (`timing`):** it can show a result before the `packet_deadline` (no map or no deadline: skip, score 1).
+
+Write each score down with a one-line reason, as `score` in the proposal: `{"impact": {"value": 2, "why": "about 300 partners a month ask where their money is"}, ...}`. The reason names the number, person or link behind the value, so the user can argue with it. The library adds the total and sorts by it (`rank` in `context`: `total`, `max`, and `is_fix` when impact is 0), and the board shows the ranking with each reason. A user who weighs factors differently sets `skills["opportunity-scan"].weights` (whole numbers 1 to 3 per factor, for example `{"fit": 2}`), and the library applies them; never re-weigh by hand.
 
 Drop anything scoring 0 on Impact, Standing or Evidence. Keep the top 3. Fewer than three good ones is a fine result: say so instead of padding with small fixes.
+
+**Rank the ones already waiting too.** Candidates and earlier proposals without a `score` (the `rank.total` in `context` is null) get scored the same way in this run, so the board's ranking covers everything on the table. Record them with `career_state.py candidate --details` (a candidate) or `propose` (a kept proposal), adding the `score` and keeping every field already there.
 
 ### 5. Proposals
 
@@ -125,7 +129,7 @@ The digest is short: the user should know what each proposal is from its first l
 <one line on the active initiative, when there is one>
 <Still on the table: each earlier `proposed` item, one line each with its title and when it was proposed, when there are any>
 
-### 1. <the outcome, for whom: "Partners understand what they earned", not "Fix the payout page">
+### 1. <the outcome, for whom: "Partners understand what they earned", not "Fix the payout page">, <total> of <max>
 **Moves:** <metric> from <baseline, with its source> to <target> by <date, the written case's deadline when there is one>. **Your lever:** <what in your seat moves it>.
 **Evidence:** <links, each with three words on what it shows>
 **Owner check:** <what was searched, in one sentence, and who owns it, if anyone>
@@ -158,13 +162,13 @@ Stop after the Cut line. Ask which proposals to keep, which to dismiss, and whet
 
 After the user answers, write each change with the Write tool, one script call at a time (each reads the file the previous one wrote):
 
-- **Keep:** `initiatives.py propose` with the fields below. Start from the candidate's `draft_proposal` when it has one, draft any required field it lacks (`pitch` and `lever` often are), and show the user the full proposal before recording it. For a handed-off candidate, reuse its id so its sightings carry over. For a problem the user dismissed before, compare this run's findings with the `dropped` entries in step 2: when the user keeps one that has not been seen since it was dismissed, run `status --status candidate` first, then `propose`.
+- **Keep:** `initiatives.py propose` with the fields below. Start from the candidate's `draft_proposal` when it has one, draft any required field it lacks (`pitch` and `lever` often are), carry its `score` over, and show the user the full proposal before recording it. For a handed-off candidate, reuse its id so its sightings carry over. For a problem the user dismissed before, compare this run's findings with the `dropped` entries in step 2: when the user keeps one that has not been seen since it was dismissed, run `status --status candidate` first, then `propose`.
 - **Dismiss:** for an item already in `initiatives.json` (a handed-off candidate, an earlier proposal, a dismissed problem seen again), `initiatives.py status --status dropped --note "<why, in the user's words>"`; it will not come back unless it is seen again. A new finding from this run that the user dismisses is simply not recorded (under the coordinator it was already recorded as a candidate, so dismiss it through the script like any other entry). A handed-off candidate the user neither keeps nor dismisses stays a candidate and comes back next run.
 - **Agreed with the manager:** keep it first (`propose`, if it is not already proposed), then `initiatives.py status --status active --aligned-with "<who>" --note "<where or how it was agreed>"`. Only a proposal can become active, only one at a time, and never without the user saying their manager agreed. Do not suggest skipping that conversation.
 - **Finished or abandoned** (when the user says so later): `--status done` or `--status dropped`.
 - **Bring back a dismissed problem** that has not been seen again (only when the user asks): `--status candidate` first, then `propose`.
 
-The `--proposal` JSON holds: `problem`, `hypothesis`, `metric`, `impact`, `who_cares`, `why_now`, `first_step`, `pitch`, `owner_check`, `lever` (what in the user's seat moves the metric), `baseline`, `target`, `by`, `decision_fit` (how the first step fits the decision process), and `rubric_rows` (ids from `open_rows`, empty without a map). The script refuses a proposal missing `problem`, `hypothesis`, `metric`, `first_step`, `pitch`, `owner_check` or `lever`.
+The `--proposal` JSON holds: `problem`, `hypothesis`, `metric`, `impact`, `who_cares`, `why_now`, `first_step`, `pitch`, `owner_check`, `lever` (what in the user's seat moves the metric), `baseline`, `target`, `by`, `decision_fit` (how the first step fits the decision process), `score` (step 4, checked by the script), and `rubric_rows` (ids from `open_rows`, empty without a map). The script refuses a proposal missing `problem`, `hypothesis`, `metric`, `first_step`, `pitch`, `owner_check` or `lever`.
 
 Finally run `initiatives.py run` and write `opportunity-state.json`, even when nothing was kept, so the cadence counts from today. If a write fails, say so: the next scan would re-propose the same things.
 
