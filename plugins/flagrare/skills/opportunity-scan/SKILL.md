@@ -100,8 +100,8 @@ The digest is short: the user should know what each proposal is from its first l
 
 ### 1. <the problem in plain words, as the thing to own>
 **Evidence:** <links, each with three words on what it shows>
-**Owner check:** <what was searched, in one sentence, and that nobody owns it>
-**Hypothesis:** We believe <change> will <result> because <reason>. **Success:** <metric, measured how, decided before building>.
+**Owner check:** <what was searched, in one sentence, and who owns it, if anyone>
+**Hypothesis:** We believe <change> will <result> because <reason>. **Success:** <metric, measured how, decided before building>. (<rubric row id>, only with a map)
 **Rough impact:** <who gets what, in plain words>. **Who cares:** <people or teams, and why now>.
 **First step:** <the smallest step, fitted to how decisions are made>
 **Pitch for your manager:** <three sentences at most, in the user's voice>
@@ -128,8 +128,8 @@ Stop after the Cut line. Ask which proposals to keep, which to dismiss, and whet
 After the user answers, write each change with the Write tool, one script call at a time (each reads the file the previous one wrote):
 
 - **Keep:** `initiatives.py propose` with the fields below. For a handed-off candidate, reuse its id so its sightings carry over.
-- **Dismiss:** `initiatives.py status --status dropped --note "<why, in the user's words>"`. It will not come back unless it is seen again.
-- **Agreed with the manager:** `initiatives.py status --status active --aligned-with "<who>" --note "<where or how it was agreed>"`. Only a proposal can become active, only one at a time, and never without the user saying their manager agreed. Do not suggest skipping that conversation.
+- **Dismiss:** for an item already in `initiatives.json` (a handed-off candidate, an earlier proposal, a dismissed problem seen again), `initiatives.py status --status dropped --note "<why, in the user's words>"`; it will not come back unless it is seen again. A new finding from this run that the user dismisses is simply not recorded. A handed-off candidate the user neither keeps nor dismisses stays a candidate and comes back next run.
+- **Agreed with the manager:** keep it first (`propose`, if it is not already proposed), then `initiatives.py status --status active --aligned-with "<who>" --note "<where or how it was agreed>"`. Only a proposal can become active, only one at a time, and never without the user saying their manager agreed. Do not suggest skipping that conversation.
 - **Finished or abandoned** (when the user says so later): `--status done` or `--status dropped`.
 - **Bring back a dismissed problem** that has not been seen again (only when the user asks): `--status candidate` first, then `propose`.
 
