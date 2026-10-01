@@ -78,6 +78,15 @@ def clean_text(reason: str) -> str:
     return re.sub(r"\s+", " ", text).strip(" ,")
 
 
+PLATFORM_DOMAINS = ("bonus.ly",)
+
+
+def is_automatic(giver: dict) -> bool:
+    """Birthdays, anniversaries and welcomes come from the platform's own accounts, not from a person."""
+    email = str((giver or {}).get("email") or "").lower()
+    return email.startswith("bot+") or email.rsplit("@", 1)[-1] in PLATFORM_DOMAINS
+
+
 def normalize(bonus: dict) -> dict:
     """One bonus as proof: who gave it, for what, tagged with which company value, and the +1s others added."""
     giver = bonus.get("giver") or {}
@@ -87,6 +96,7 @@ def normalize(bonus: dict) -> dict:
         "id": bonus.get("id"),
         "date": str(bonus.get("created_at", ""))[:10],
         "giver": {"name": giver.get("full_name", ""), "email": giver.get("email", "")},
+        "automatic": is_automatic(giver),
         "receivers": [r.get("full_name", "") for r in (bonus.get("receivers") or []) if isinstance(r, dict)],
         "value": bonus.get("value") or str(bonus.get("hashtag") or "").lstrip("#"),
         "reason": bonus.get("reason_decoded") or bonus.get("reason", ""),
@@ -143,11 +153,15 @@ def load(home: str) -> dict | None:
 
 
 def summary(home: str, today: str) -> dict:
-    """What the cache says: totals, the last 30 days, company values, and who recognized the user most (first-hand witnesses)."""
+    """What the cache says: totals, the last 30 days, company values, and who recognized the user most (first-hand witnesses).
+
+    Thanks from the platform's automatic accounts (birthdays, welcomes) are counted apart as `automatic` and left out of everything else.
+    """
     data = load(home)
     if data is None:
         return {"has_recognition": False}
-    received = [b for b in data.get("received") or [] if isinstance(b, dict)]
+    every = [b for b in data.get("received") or [] if isinstance(b, dict)]
+    received = [b for b in every if not (b.get("automatic") or is_automatic(b.get("giver") or {}))]
     given = [b for b in data.get("given") or [] if isinstance(b, dict)]
     start = (date.fromisoformat(today) - timedelta(days=29)).isoformat()
     givers: dict[str, dict] = {}
@@ -166,6 +180,7 @@ def summary(home: str, today: str) -> dict:
         "has_recognition": True,
         "fetched_on": data.get("fetched_on"),
         "received": len(received),
+        "automatic": len(every) - len(received),
         "received_last_30_days": sum(1 for b in received if start <= b.get("date", "") <= today),
         "given": len(given),
         "values": Counter(b["value"] for b in received if b.get("value")).most_common(),
