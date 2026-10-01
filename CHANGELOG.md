@@ -1,12 +1,23 @@
 # Changelog
 
-## 1.48.1: 2026-10-01
+## 1.50.0: 2026-10-01
 
-The board now shows the proposals waiting on you.
+A board you can trust at a glance.
 
-### Fixes
+A note on numbering: 1.48.1 was published after 1.49.0 and set the plugin's version number backwards. 1.50.0 contains everything from both.
 
-- **Career Board, undecided proposals were invisible**: an opportunity scan run by `/flagrare:career` records its proposals as candidates until you keep or dismiss them, but the board's initiative card only showed kept proposals and the active initiative. Found on the first real career run: three proposals sat in `initiatives.json` and the board showed none of them, right next to the "all answering, nothing owned" warning. The card now lists them under "Awaiting your decision" (most seen first, each linked to its evidence), and mentions them in one line when an initiative is already active. `coordinator.py board` returns them as `initiatives.candidates`.
+### Improved Skills
+
+- **`/flagrare:impact-scan`, reconciles the board before every scan**: open items lingered after the world moved on. On the first real career run, four "to do" items pointed at PRs that had already merged, and one draft would have gone onto a merged PR. Each scan now checks every open and waiting item at its source first (PR state through `gh`, the newest replies in a thread, whether a doc comment was resolved): merged or answered items are dropped with a note saying why, waiting items whose reply arrived move on, and the digest's caveat line says how many closed since the last scan.
+- **`/flagrare:opportunity-scan`, proposals keep their details while you decide**: when the career coordinator runs it, each undecided proposal is now saved with its drafted problem, hypothesis, success metric, first step and owner check, so the board can show them. The details are a draft: they never count as a sighting, never replace a proposal you kept, and keeping one replaces them.
+- **Career Board**:
+  - Undecided proposals show their hypothesis, success metric and first step, so you can decide from the board.
+  - The manager-conversation and packet dates count down ("28 days left"), turning amber when close and red once past.
+  - The ranked list is numbered from 1 under the "Next up" card.
+
+### Tooling
+
+- **Career library**: `career_state.py candidate --details '<json>'` stores a `draft_proposal` on a candidate, and `initiatives.py propose` removes it when the proposal is kept. There are 3 new tests (119 in total).
 
 ## 1.49.0: 2026-10-01
 
@@ -16,6 +27,14 @@ The reviewer stops signing off and starts asking.
 
 - **`/flagrare:pr-reviewer`, a peer instead of a gatekeeper**: the review body was taught to "open on the thing you'd want fixed", and its own good example ended with "That's the one I'd want to sort out before merge" and "The rest looks right to me". Field-tested the hard way: a draft for a teammate's PR opened with "The one I'd want sorted before merge is the rollback inline" and closed with "the sociable tests look solid to me", which read as cocky and passive aggressive from someone who isn't in a position to set conditions on another person's merge. A new "You're a peer, not a gatekeeper" section bans conditions ("I'd want", "before merge", "blocker"), verdicts on the author's work ("looks solid to me"), and settled-fact gotchas, each with a before and after. Severity labels now stay in the chat summary, and the review body opens on what you noticed, said as a question.
 - **`/flagrare:pr-reviewer`, examples that follow their own rule**: several "friendly" examples dropped their subjects ("looks like", "Would be good", "Worth pulling out", "Might be worth"), the same clipped voice the skill tells you to avoid. They now say "it looks like", "it would be good", "do you think it's worth", and "it might be worth".
+
+## 1.48.1: 2026-10-01
+
+The board now shows the proposals waiting on you.
+
+### Fixes
+
+- **Career Board, undecided proposals were invisible**: an opportunity scan run by `/flagrare:career` records its proposals as candidates until you keep or dismiss them, but the board's initiative card only showed kept proposals and the active initiative. Found on the first real career run: three proposals sat in `initiatives.json` and the board showed none of them, right next to the "all answering, nothing owned" warning. The card now lists them under "Awaiting your decision" (most seen first, each linked to its evidence), and mentions them in one line when an initiative is already active. `coordinator.py board` returns them as `initiatives.candidates`.
 
 ## 1.48.0: 2026-10-01
 
