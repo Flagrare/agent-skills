@@ -20,9 +20,9 @@ Last full check: <date>. Sources and statuses for every fact are in `promotion-m
 **Talk to your manager:** comfortable by <date>, absolute by <date> (<status>, <state>).
 
 ## 4. The gap
-| Area | Your level | Target level | Status | Evidence |
-|---|---|---|---|---|
-<one row per rubric row>
+| Area | Your level | Target level | Status | Evidence | Next step |
+|---|---|---|---|---|---|
+<one row per rubric row, named by its label; the next step only for rows not done>
 
 <Any mismatch between the rubric file and prose about it.>
 
