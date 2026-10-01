@@ -57,7 +57,7 @@ Tell the user up front: the first run is long, often an hour or more, and it sav
 
 ### Phase 2: Rubric gap
 1. **Find the artifact managers rate against** (a ladder spreadsheet, a check-in workbook), not prose written about it. Ask the user whether their manager uses a check-in workbook. If prose and artifact disagree, use the artifact and record the mismatch in `rubric.prose_mismatches`.
-2. Build one `rubric.rows` entry per behavior: the current-level text, the target-level text, and a stable id (`<area>.<short-slug>`).
+2. Build one `rubric.rows` entry per behavior: the current-level text, the target-level text, a stable id (`<area>.<short-slug>`), and a `label`, the behavior in two to four plain words ("Finding problems", "Sought-after reviewer"), which the board and digests show instead of the id.
 3. Mark each row `done`, `partial` or `not_started`, with evidence from `career_state.py contributions`, the user's reviews and work, and prior review notes the user shares.
 4. Save.
 
@@ -73,10 +73,11 @@ Tell the user up front: the first run is long, often an hour or more, and it sav
 
 ### Phase 4: Plan
 1. **Deadlines:** run `deadlines.py` with the packet deadline. If this cycle's date is published, use it and pass `--published`. Otherwise project last year's date onto this cycle (same month and day, one year later) and leave it `inferred`. Ask the user which holiday or vacation windows are dead time where they are, and pass them as `--dead`. Record "comfortable by X, absolute by Y" with its status and state. If the state is `past`, say so plainly and name the next cycle.
-2. **Packet readiness:** run `python3 <plugin root>/lib/career/coordinator.py readiness --home "$HOME" --today <date>` for the evidence count of each rubric row (log entries tagged with the row plus the row's own evidence), then mark each template section `strong`, `thin` or `empty` from the rows it draws on.
-3. **Manager questions:** everything still unknown, plus the readiness question ("is <cycle> realistic, and what's missing?").
-4. Run `map_schema.py check`. Fix any errors, then save.
-5. Show the user a short summary: the target, the two conversation dates, open rubric gaps, who still needs to see their work, and the questions for their manager. Point to `promotion-map.md`.
+2. **One next step per open row:** for every row not `done`, write `next_step`: the single cheapest concrete action that would add evidence, fitted to what you found about the company ("type /interview in the recruiting channel", "offer one pairing session on the partner dashboard", "ask your manager for one piece of the roadmap to co-own"). The board lists the three biggest gaps with these steps, so make each one doable in a week, not a goal.
+3. **Packet readiness:** run `python3 <plugin root>/lib/career/coordinator.py readiness --home "$HOME" --today <date>` for the evidence count of each rubric row (log entries tagged with the row plus the row's own evidence), then mark each template section `strong`, `thin` or `empty` from the rows it draws on.
+4. **Manager questions:** everything still unknown, plus the readiness question ("is <cycle> realistic, and what's missing?").
+5. Run `map_schema.py check`. Fix any errors, then save.
+6. Show the user a short summary: the target, the two conversation dates, open rubric gaps, who still needs to see their work, and the questions for their manager. Point to `promotion-map.md`.
 
 ## 4. Refresh
 
@@ -84,7 +85,8 @@ Tell the user up front: the first run is long, often an hour or more, and it sav
 2. Re-research only the stale or flagged sections. Keep every other section as it is.
 3. Ask the user "anything changed?", covering target, manager, team, and people who have seen their work.
 4. If the calendar section is re-checked, or a flag says the calendar was published, re-run `deadlines.py` and update `calendar.manager_conversation`.
-5. Update `checked_at` for each re-checked section, clear the flags you handled, and save.
+5. Refresh each open row's `next_step` when the evidence for it has moved (a step that's done or no longer the cheapest gets replaced), and add any missing `label`.
+6. Update `checked_at` for each re-checked section, clear the flags you handled, and save.
 
 ## 5. Packet mode (`/flagrare:promotion packet`)
 

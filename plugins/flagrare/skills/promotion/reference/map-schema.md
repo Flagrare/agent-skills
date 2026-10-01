@@ -39,9 +39,10 @@ Absent sections mean "not researched yet", not an error.
   },
   "rubric": {
     "artifact": {}, "prose_mismatches": [{}],
-    "rows": [{"id": "scope.proactive-discovery", "area": "Scope & Impact",
+    "rows": [{"id": "scope.proactive-discovery", "area": "Scope & Impact", "label": "Finding problems",
               "current_text": {}, "target_text": {},
-              "status": "done|partial|not_started", "evidence": ["log line or link"]}]
+              "status": "done|partial|not_started", "evidence": ["log line or link"],
+              "next_step": "the single cheapest action that would add evidence this week"}]
   },
   "org": {"chain": [{}], "options": [{}], "changes": [{}]},
   "people": [{"name": "...", "role": {}, "relation": "...", "seen_your_work": true,
@@ -53,4 +54,4 @@ Absent sections mean "not researched yet", not an error.
 }
 ```
 
-Rubric row ids are `<area>.<short-slug>`, lowercase with hyphens, and stay stable across refreshes. Impact-scan tags contributions with these ids.
+Rubric row ids are `<area>.<short-slug>`, lowercase with hyphens, and stay stable across refreshes. Impact-scan tags contributions with these ids. `label` is the plain name people read (on the board and in digests); `next_step` is set for rows that are not `done` and feeds the board's "biggest gaps" list. `packet_readiness` entries may carry a one-line `note`, which the board shows under the section's state.

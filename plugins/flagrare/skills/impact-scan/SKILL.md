@@ -209,7 +209,14 @@ The board is the expected output of every scan, not an extra: a local page the u
 
 **First scan, or no board yet.** If no board directory is configured under either `skills.career.board.dir` or `skills["senior-scan"].board.dir` (including users onboarded before the board existed) or the folder has no `data.json`, create it at the end of this run: ask for the location once (default `~/career-board`), save it as `skills.career.board.dir`, write `data.json` from this scan, build, and tell the user how to open it. Never finish a scan with no board and no caveat saying why.
 
-**Every update.** Write `<board dir>/data.json` with the Write tool, then run `python3 <plugin root>/lib/career/board/build.py <board dir>`, which renders `board.html` from the bundled template plus the contributions log (it reads the career log and any entries still only in the old senior-scan log). If the sandbox blocks the write outside the working folder, rerun the build outside the sandbox. Rebuild after the scan AND whenever an item changes (a draft posted, an item now waiting on someone, done, dropped), in the same turn you update `scan-state.json` or the log, so the board never lags the conversation. If the build fails, say so in the caveat line.
+**Every update.** Write `<board dir>/data.json` with the Write tool, then run `python3 <plugin root>/lib/career/board/build.py <board dir>`, which renders `board.html` from the bundled template plus the contributions log (it reads the career log and any entries still only in the old senior-scan log). When the user has a promotion map, the build also adds the career panels:
+- initiatives;
+- promotion dates;
+- packet readiness;
+- evidence per rubric row with the biggest gaps and their next steps;
+- a weekly trend.
+
+The header counts contributions logged this week, and it warns when the scan is two or more days old. If the sandbox blocks the write outside the working folder, rerun the build outside the sandbox. Rebuild after the scan AND whenever an item changes (a draft posted, an item now waiting on someone, done, dropped), in the same turn you update `scan-state.json` or the log, so the board never lags the conversation. If the build fails, say so in the caveat line.
 
 `data.json` shape:
 
