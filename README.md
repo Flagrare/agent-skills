@@ -1,8 +1,8 @@
 # agent-skills
 
-Thirty-six skills that wrap around your development cycle in Claude Code. They turn tickets into ATDD plans, smoke-test features against a running app or service, hunt down bugs with runtime evidence, guard commits against doc drift, run seven-axis code review, draft changelogs that read like patch notes, and review PRs with full context from your tracker and design tools.
+Thirty-seven skills that wrap around your development cycle in Claude Code. They turn tickets into ATDD plans, smoke-test features against a running app or service, hunt down bugs with runtime evidence, guard commits against doc drift, run seven-axis code review, draft changelogs that read like patch notes, and review PRs with full context from your tracker and design tools.
 
-All skills are namespaced under `flagrare:*` to avoid collisions with other plugins. Installing this marketplace adds `/flagrare:intake`, `/flagrare:work-prep`, `/flagrare:smoke-test`, `/flagrare:wrap-up`, `/flagrare:pr-reviewer`, and thirty-one more to every Claude Code session.
+All skills are namespaced under `flagrare:*` to avoid collisions with other plugins. Installing this marketplace adds `/flagrare:intake`, `/flagrare:work-prep`, `/flagrare:smoke-test`, `/flagrare:wrap-up`, `/flagrare:pr-reviewer`, and thirty-two more to every Claude Code session.
 
 ## Install
 
@@ -10,7 +10,7 @@ All skills are namespaced under `flagrare:*` to avoid collisions with other plug
 bash <(curl -sL https://raw.githubusercontent.com/Flagrare/agent-skills/main/install.sh)
 ```
 
-One command. It registers the marketplace, installs the `flagrare` plugin, and makes all thirty-six skills available. Restart Claude Code or run `/reload-plugins` afterward.
+One command. It registers the marketplace, installs the `flagrare` plugin, and makes all thirty-seven skills available. Restart Claude Code or run `/reload-plugins` afterward.
 
 If you prefer to clone first:
 
@@ -89,6 +89,8 @@ After this one-time bootstrap, `/flagrare:update` works for all future versions 
 `/flagrare:impact-scan` (formerly `/flagrare:senior-scan`, which still works as an alias) scans your org's communication surfaces for openings to operate at the next level, decisions still being formed, people stuck or circling, discussions missing context only you have, cross-team changes touching systems you own. One read-only sweep agent per surface (chat, code review, docs and tickets, chosen at onboarding from the MCPs actually connected) feeds a five-axis score (leverage, credibility, stretch, audience, timing) behind a hard anti-performative filter: no leverage or no credibility kills an item no matter how visible the thread, because shallow drive-bys hurt the promotion case they were meant to build. Output is a max-5 digest with fully contextualized items and draft replies in your own voice (distilled from your real messages at onboarding), gated behind per-message approval. Posted contributions append to an evidence log in the shared `~/.claude/skills/flagrare/career/` folder that `/flagrare:impact-timeline` and `/flagrare:promotion` read. Every scan also keeps a local board current (open items ranked by urgency, what is waiting on whom, and the evidence log), created on the first run and rebuilt whenever an item changes. With a promotion map from `/flagrare:promotion`, it scores items against your open rubric rows and the people who haven't seen your work yet, raises flags when part of the map goes stale, and hands problems that keep coming back to `initiatives.json` instead of drafting another reply.
 
 `/flagrare:opportunity-scan` proposes work you could own end to end, instead of threads to reply to. About once a month it sweeps the same surfaces as impact-scan over the last few weeks for recurring pain, silent degradation, ownership gaps, unanswered invitations and leadership priorities, and picks up the problems impact-scan handed off. Before ranking anything it checks whether someone already owns the problem, and cuts it if so. Each of the two or three proposals that survive carries evidence links, a hypothesis and success metric set before building, the smallest first step (fitted to how your company decides, so a PM-driven decision gets your evidence instead of a competing document), and a short pitch for your manager. With a promotion map it ranks by what you want more and less of, which open rubric row the work closes, and who would notice; without one it falls back to impact-scan's config. It keeps at most one initiative active, and only after your manager agrees.
+
+`/flagrare:career` runs whichever of the career skills are due and folds them into one short digest and one board. It decides from timestamps and flags: the promotion map's first run when there is none (after asking), a refresh of only the map sections that are older than 90 days or that a scan flagged, an opportunity scan when the last one is a month old, and an impact scan every time. The digest leads with the initiative you own and its next step, then three to five threads worth weighing in on, one line on the map (open rubric rows, who hasn't seen your work, when to talk to your manager, the packet deadline), anything that needs you, and an "all answering, nothing owned" warning when you keep replying but own nothing. A scheduled run (from `/loop` or a schedule) never asks and never posts: it lists what needs you instead. The board, now the Career Board, gains a card for the initiative you own (or what is on the table), a promotion panel, and evidence counted per rubric row.
 
 ### Implementation support
 
