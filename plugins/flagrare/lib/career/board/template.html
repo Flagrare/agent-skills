@@ -1,9 +1,9 @@
-<title>Senior Scan Board</title>
+<title>Career Board</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap">
 <style>
-/* Layout: a dispatch desk. One "next up" ticket on top, then a triage queue grouped by urgency (numbered = real order), with a narrow rail for what you're waiting on and the promo evidence coverage. */
+/* Layout: a dispatch desk. The initiative you own on top, then one "next up" ticket, then a triage queue grouped by urgency (numbered = real order), with a narrow rail for the promotion summary, what you're waiting on, and the evidence coverage. */
 :root {
   --bg: #eef0ec;
   --panel: #ffffff;
@@ -154,6 +154,16 @@ details.row[open] .caret { transform: rotate(90deg); }
 .evi-item a:hover { text-decoration: underline; }
 .evi-item .w { color: var(--ink-2); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .more { font: inherit; font-size: 13px; font-weight: 700; color: var(--accent); background: none; border: 0; padding: 0; cursor: pointer; justify-self: start; }
+.own { background: var(--panel); border: 1px solid var(--line); border-left: 6px solid var(--accent); border-radius: 12px; box-shadow: var(--shadow); padding: 18px 22px; display: grid; gap: 8px; margin-bottom: 24px; }
+.own h2 { font-family: var(--display); font-size: 20px; font-weight: 800; line-height: 1.25; margin: 0; }
+.own p { margin: 0; max-width: 72ch; color: var(--ink-2); }
+.own .lbl { font-family: var(--display); font-size: 11.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-right: 6px; }
+.own.none { border-left-color: var(--line); }
+.warn { background: var(--now-soft); color: var(--now); border-radius: 8px; padding: 8px 12px; font-size: 14px; font-weight: 700; }
+.promo-list { display: grid; gap: 7px; margin: 0; font-size: 13.5px; }
+.promo-list div { display: flex; justify-content: space-between; gap: 10px; }
+.promo-list dt { color: var(--muted); }
+.promo-list dd { margin: 0; text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
 .foot { margin-top: 36px; font-size: 12.5px; color: var(--muted); }
 .empty { padding: 16px; color: var(--muted); font-size: 14px; }
 
@@ -175,7 +185,7 @@ details.row[open] .caret { transform: rotate(90deg); }
         <svg width="22" height="22" viewBox="0 0 32 32"><circle cx="16" cy="16" r="11" fill="none" stroke="#fff" stroke-width="3"/><circle cx="16" cy="16" r="5.5" fill="none" stroke="#fff" stroke-width="3"/><circle cx="16" cy="16" r="2" fill="#f0b35c"/></svg>
       </div>
       <div>
-        <h1>Senior Scan Board</h1>
+        <h1>Career Board</h1>
         <p id="scanline">Loading…</p>
       </div>
     </div>
@@ -184,24 +194,29 @@ details.row[open] .caret { transform: rotate(90deg); }
 
   <div class="grid">
     <main>
+      <div id="own"></div>
       <p class="eyebrow">Next up</p>
       <div id="next"></div>
       <div class="queue" id="queue"></div>
     </main>
     <aside class="rail">
+      <section class="card" aria-labelledby="h-promo" id="promo-card" hidden>
+        <h3 id="h-promo">Promotion <span class="n" id="n-promo"></span></h3>
+        <dl class="promo-list" id="promo"></dl>
+      </section>
       <section class="card" aria-labelledby="h-wait">
         <h3 id="h-wait">Waiting on others <span class="n" id="n-wait"></span></h3>
         <div id="wait"></div>
       </section>
       <section class="card" aria-labelledby="h-cov">
-        <h3 id="h-cov">Promo evidence <span class="n" id="n-evi"></span></h3>
+        <h3 id="h-cov">Evidence <span class="n" id="n-evi"></span></h3>
         <div class="cov" id="cov"></div>
         <p class="gapnote" id="gapnote" hidden></p>
         <div class="evi" id="evi"></div>
       </section>
     </aside>
   </div>
-  <p class="foot">Rebuilt after each scan from <code>data.json</code>. Tell Claude in chat when something changes ("sent the Otter one") and it updates this board. Nothing is ever posted from here.</p>
+  <p class="foot">Rebuilt after each scan from <code>data.json</code>. Tell Claude in chat when something changes ("sent the reply on the billing thread") and it updates this board. Nothing is ever posted from here.</p>
 </div>
 
 <script>
@@ -212,6 +227,11 @@ details.row[open] .caret { transform: rotate(90deg); }
   const scan = DATA.scan || {};
   const BEHAVIORS = DATA.behaviors || [];
   const TODAY = scan.date || new Date().toISOString().slice(0, 10);
+  const CAREER = DATA.career || {};
+  const OWN = CAREER.initiatives || {};
+  const PROMO = CAREER.promotion || {};
+  const ROWS = CAREER.readiness || [];
+  const BAL = CAREER.balance || {};
 
   const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const inline = s => esc(s).replace(/`([^`]+)`/g, "<code>$1</code>");
@@ -251,6 +271,42 @@ details.row[open] .caret { transform: rotate(90deg); }
         ${url ? `<a class="btn primary" href="${esc(url)}" target="_blank" rel="noopener">Open in ${esc(SRC[i.source] || "source")} ↗</a>` : ""}
         ${i.draft ? `<button class="btn ghost" type="button" data-copy="${esc(i.id)}">Copy draft</button><span class="copied" hidden>Copied</span>` : ""}
       </div>`;
+  }
+
+  // The initiative you own, or what is proposed, and the balance warning
+  const act = OWN.active, prop = OWN.proposed || [];
+  const firstLink = it => (it.evidence || []).map(safeUrl).find(Boolean);
+  document.getElementById("own").innerHTML = act ? `
+    <article class="own" aria-label="Your initiative">
+      <p class="eyebrow" style="margin:0">Your initiative</p>
+      <h2>${esc(act.title)}</h2>
+      ${act.proposal?.hypothesis ? `<p><span class="lbl">Hypothesis</span>${inline(act.proposal.hypothesis)}</p>` : ""}
+      ${act.proposal?.metric ? `<p><span class="lbl">Success</span>${inline(act.proposal.metric)}</p>` : ""}
+      ${act.proposal?.first_step ? `<p><span class="lbl">Next step</span>${inline(act.proposal.first_step)}</p>` : ""}
+      <p><span class="lbl">Agreed</span>${esc(act.aligned?.with || "")}${act.aligned?.on ? " on " + esc(act.aligned.on) : ""}</p>
+      ${firstLink(act) ? `<div class="btns"><a class="btn ghost" href="${esc(firstLink(act))}" target="_blank" rel="noopener">Evidence ↗</a></div>` : ""}
+    </article>` : (prop.length || BAL.warn) ? `
+    <article class="own none" aria-label="Initiatives">
+      <p class="eyebrow" style="margin:0">Nothing owned yet</p>
+      ${BAL.warn ? `<div class="warn">${esc(BAL.message)}</div>` : ""}
+      ${prop.length ? `<p><span class="lbl">On the table</span>${prop.map(p => esc(p.title)).join(" · ")}</p><p>Bring one to your manager; it becomes yours once they agree.</p>` : `<p>Run an opportunity scan to find something to own.</p>`}
+    </article>` : "";
+
+  // Promotion summary
+  if (PROMO.has_map) {
+    const gaps = ROWS.filter(r => r.status !== "done" && r.state !== "strong").length;
+    const talk = PROMO.talk_to_manager || {};
+    const dl = PROMO.packet_deadline || {};
+    const rowsHtml = [
+      ["Target", PROMO.target_level],
+      ["Open rubric rows", PROMO.open_rows],
+      ["Rows with thin evidence", gaps],
+      ["Talk to your manager by", talk.comfortable_by ? talk.comfortable_by + (talk.absolute_by ? " (latest " + talk.absolute_by + ")" : "") : ""],
+      ["Packet due", dl.value ? dl.value + (dl.status && dl.status !== "verified" ? " (" + dl.status + ")" : "") : ""],
+      ["Haven't seen your work", (PROMO.unseen_people || []).join(", ")],
+    ].filter(([, v]) => v !== undefined && v !== null && v !== "");
+    document.getElementById("promo").innerHTML = rowsHtml.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(Array.isArray(v) ? v.join(" / ") : v)}</dd></div>`).join("");
+    document.getElementById("promo-card").hidden = false;
   }
 
   // Next up
@@ -311,7 +367,9 @@ details.row[open] .caret { transform: rotate(90deg); }
 
   // Evidence coverage by target behavior
   const KEYWORD = { "raising the quality bar": "quality bar", "unblocking others": "unblocking", "influence beyond assigned tickets": "beyond assigned", "owning technical decisions": "owning" };
-  const counts = BEHAVIORS.map(b => [b, contribs.filter(c => String(c.behavior || "").toLowerCase().includes(KEYWORD[b] || b)).length]);
+  const counts = ROWS.length
+    ? ROWS.filter(r => r.status !== "done").map(r => [r.area ? r.area + " (" + r.id.split(".").pop().replace(/-/g, " ") + ")" : r.id, r.evidence])
+    : BEHAVIORS.map(b => [b, contribs.filter(c => String(c.behavior || "").toLowerCase().includes((KEYWORD[b] || b).toLowerCase())).length]);
   const max = Math.max(1, ...counts.map(c => c[1]));
   document.getElementById("n-evi").textContent = contribs.length + " logged";
   document.getElementById("cov").innerHTML = counts.map(([b, c]) => `

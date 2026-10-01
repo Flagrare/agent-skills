@@ -40,6 +40,34 @@ class Build(unittest.TestCase):
             self.assertIn("legacy only", page)
             self.assertIn("career only", page)
 
+    def test_given_an_active_initiative_and_a_map_when_building_then_the_page_carries_both(self):
+        with tempfile.TemporaryDirectory() as home, tempfile.TemporaryDirectory() as board:
+            career = Path(home) / CAREER
+            career.mkdir(parents=True)
+            fact = {"source": "https://example.com", "checked_at": "2026-09-30", "status": "inferred"}
+            (career / "promotion-map.json").write_text(json.dumps({
+                "target": {"target_level": {**fact, "value": "Senior Software Engineer"}},
+                "calendar": {"packet_deadline": {**fact, "value": "2027-01-07"}},
+                "rubric": {"rows": [{"id": "scope.proactive-discovery", "area": "Scope & Impact", "status": "partial", "evidence": []}]},
+                "people": [{"name": "Alex Chen", "seen_your_work": False}]}))
+            (career / "initiatives.json").write_text(json.dumps([{"id": "order-emails", "title": "Partners not getting order emails",
+                "status": "active", "aligned": {"with": "Sam Rivera", "on": "2026-09-05"}, "evidence": ["https://example.com/1"]}]))
+            (Path(board) / "data.json").write_text(json.dumps({"scan": {"date": "2026-10-01"}, "items": []}))
+            subprocess.run([sys.executable, str(BOARD / "build.py"), board, "--home", home], check=True, capture_output=True)
+            page = (Path(board) / "board.html").read_text()
+            data = json.loads(page.split("/*DATA*/", 1)[1].split("/*END*/", 1)[0])
+            self.assertEqual(data["career"]["initiatives"]["active"]["id"], "order-emails")
+            self.assertEqual(data["career"]["promotion"]["unseen_people"], ["Alex Chen"])
+            self.assertEqual([r["id"] for r in data["career"]["readiness"]], ["scope.proactive-discovery"])
+            self.assertIn("<title>Career Board</title>", page)
+
+    def test_given_no_career_state_when_building_then_the_page_still_renders(self):
+        with tempfile.TemporaryDirectory() as home, tempfile.TemporaryDirectory() as board:
+            (Path(board) / "data.json").write_text(json.dumps({"scan": {}, "items": []}))
+            subprocess.run([sys.executable, str(BOARD / "build.py"), board, "--home", home, "--today", "2026-10-01"], check=True, capture_output=True)
+            data = json.loads((Path(board) / "board.html").read_text().split("/*DATA*/", 1)[1].split("/*END*/", 1)[0])
+            self.assertEqual((data["career"]["promotion"], data["career"]["initiatives"]["active"]), ({"has_map": False}, None))
+
 
 if __name__ == "__main__":
     unittest.main()
