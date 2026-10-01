@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.48.0: 2026-10-01
+
+Your evidence log finally shows up in your brag doc.
+
+### Improved Skills
+
+- **`/flagrare:brag-doc`, reads the contributions log**: impact-scan has kept a log of every contribution you chose to post (a review that changed a decision, a question answered with evidence, a problem found and handed to the right team), and impact-timeline already read it, but brag-doc never did, so weekly and monthly recaps missed the work that never became a PR or a ticket. Brag-doc now pulls the log entries in its window through `career_state.py contributions`, treats them as first-class evidence for "What I unblocked" (and "What I shipped" when you drove the work), and keeps the rubric row an entry is tagged with when the recap is for a review packet.
+
+### Removed
+
+- **`/flagrare:senior-scan`**: the deprecated alias for `/flagrare:impact-scan` is gone after three releases. Saying "senior scan" still triggers impact-scan, and its old config block and state folder are still read.
+
+### Docs
+
+- The research behind the career skills (what gets engineers promoted, and how product engineering works at PostHog) is now cataloged in `docs/research/` and linked from the design. A research index row that pointed at a file that was never committed is removed, and the README notes that the career skills run outside the feature cycle.
+
 ## 1.47.0: 2026-10-01
 
 One command for the whole career loop.
