@@ -385,6 +385,13 @@ class CandidateDetails(unittest.TestCase):
             self.assertEqual(cs.plan_candidate(str(home), "p", "t", "https://example.com/1", "2026-10-01", self.DETAILS), [])
 
 
+class CandidateScore(unittest.TestCase):
+    def test_given_a_score_outside_zero_to_two_when_recording_a_candidate_then_refuses(self):
+        with tempfile.TemporaryDirectory() as d:
+            with self.assertRaisesRegex(ValueError, "0, 1 or 2"):
+                cs.plan_candidate(d, "p", "t", "https://example.com/1", "2026-10-01", {"score": {"impact": {"value": 5, "why": "x"}}})
+
+
 class Config(unittest.TestCase):
     def test_given_only_legacy_key_when_reading_impact_scan_config_then_falls_back(self):
         cfg = {"skills": {"senior-scan": {"domains": ["x"]}}}

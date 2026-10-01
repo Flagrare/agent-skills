@@ -47,6 +47,7 @@ Work the user could own. Two skills record candidates through `career_state.py c
 
 - `propose` moves a candidate (or a new problem, which needs at least one evidence link) to `proposed` and adds a `proposal` object; `problem`, `hypothesis`, `metric`, `first_step`, `pitch`, `owner_check` and `lever` (what in the user's seat moves the metric) are required; `baseline`, `target` and `by` are expected, the other fields optional. It refuses an item that is already `active` or `done`. It keeps `seen_count`, `first_seen` and every evidence link, and `career_state.py candidate` keeps the proposal when the problem is seen again.
 - A candidate an opportunity scan drafted but the user has not decided on carries the drafted fields as `draft_proposal` (from `career_state.py candidate --details`). It is not a sighting, it never replaces a kept `proposal`, and `propose` removes it.
+- **Ranking.** A `proposal` or `draft_proposal` can carry `score`: one entry per factor (`impact`, `lever`, `fit`, `rubric`, `who_notices`, `standing`, `evidence`, `timing`), each `{"value": 0|1|2, "why": "<one line>"}`. The scripts refuse an unknown factor or a value outside 0 to 2. `initiatives.py context` ranks `proposed` and `candidates` by the weighted total (impact counts double, so the most is 18; `skills["opportunity-scan"].weights` can set any factor to 1, 2 or 3) and adds `rank` `{total, max, is_fix}` to each; `is_fix` means impact scored 0, so the board lists it under "Fixes, not projects". Unscored items come last, most seen first.
 - `status` makes one move at a time: `candidate` or `proposed` to `dropped`, `proposed` to `active`, `active` to `done` or `dropped`, `dropped` back to `candidate`, and `dropped` to `dropped` again (a dismissed problem that came back and was dismissed again, which restamps `dropped_at`). Each move stamps `<status>_at`, and a note passed with it is kept as `<status>_note` (for `active`, inside `aligned`).
 - **At most one item is `active`, and only after manager alignment:** the script refuses a second one (naming the first) and refuses `active` without `aligned-with`, which it records as `aligned`.
 - A `dropped` item is proposed again only when it was seen after `dropped_at`.
@@ -56,7 +57,8 @@ Work the user could own. Two skills record candidates through `career_state.py c
    "first_seen": "2026-09-25", "last_seen": "2026-09-30", "status": "candidate|proposed|active|done|dropped",
    "proposal": { "problem": "...", "hypothesis": "We believe X will Y because Z", "metric": "...", "impact": "...",
                  "who_cares": "...", "why_now": "...", "first_step": "...", "pitch": "...", "owner_check": "what was searched",
-                 "decision_fit": "...", "rubric_rows": ["scope.proactive-discovery"] },
+                 "decision_fit": "...", "rubric_rows": ["scope.proactive-discovery"],
+                 "score": { "impact": { "value": 2, "why": "..." }, "lever": { "value": 1, "why": "..." } } },
    "proposed_at": "2026-10-01", "aligned": { "with": "...", "on": "2026-10-03", "note": "..." }, "active_at": "2026-10-03",
    "dropped_at": "...", "dropped_note": "..." }]
 ```

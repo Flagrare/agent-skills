@@ -285,6 +285,19 @@ details.row.plain .detail { padding-left: var(--s-5); }
 .facts div { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: var(--s-3); }
 .facts dt { font-size: var(--t-sm); font-weight: 700; color: var(--muted); padding-top: 1px; }
 .facts dd { margin: 0; color: var(--ink-2); max-width: 64ch; }
+.score { font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
+details.row.fix .row-title { color: var(--ink-2); font-weight: 600; }
+.fix-head { margin: var(--s-5) 0 var(--s-2); font-size: var(--t-sm); color: var(--muted); }
+.fix-head b { color: var(--ink-2); }
+.score-break { margin-top: var(--s-3); display: grid; gap: 6px; }
+.score-break .lbl { margin: 0 0 2px; }
+.sb-row { display: grid; grid-template-columns: minmax(0, 14rem) auto minmax(0, 1fr); gap: var(--s-3); align-items: baseline; font-size: var(--t-sm); }
+.sb-k { color: var(--ink-2); font-weight: 600; }
+.sb-why { color: var(--muted); }
+.dots { display: inline-flex; gap: 3px; }
+.dots i { width: 9px; height: 9px; border-radius: 50%; background: var(--line); display: inline-block; }
+.dots i.on { background: var(--accent); }
+@media (max-width: 560px) { .sb-row { grid-template-columns: minmax(0, 1fr) auto; } .sb-why { grid-column: 1 / -1; } }
 .cand-meta { font-size: var(--t-sm); color: var(--muted); }
 .people { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-3) var(--s-4); padding: var(--s-5); }
 .person { display: flex; align-items: center; gap: var(--s-3); font-weight: 700; font-size: 15px; min-width: 0; }
@@ -587,6 +600,7 @@ dialog.keys dd { margin: 0; color: var(--ink-2); }
     committee: "The meeting where managers and directors review promotion cases together (calibration). Most people in it don't know your work.",
     project: "One piece of work you own end to end, agreed with your manager (an initiative). It's what turns answering into owning.",
     proposed: "Problems a scan found that you could own. Nothing is yours until you keep one and your manager agrees. Tell Claude to keep or dismiss each one.",
+    score: "How a proposed project ranks: 0 to 2 points on eight questions (does it move a company metric, can you move it yourself, is it work you want, does it show a Senior behavior, will the people who decide see it, do you know the area, how often it came up, does it land before your written case is due). Moving a metric counts double, so the most is 18. A project that moves no metric is a fix, not a project.",
     bet: "What a project expects to change, written down before you build it: we believe X will cause Y, because Z.",
     check: "The one thing to confirm before you act or send a reply, so what you send is right.",
     draft: "A reply is already written and nothing needs checking first. Read it in the item, copy it, and send it yourself.",
@@ -595,7 +609,7 @@ dialog.keys dd { margin: 0; color: var(--ink-2); }
     recognition: "Thanks peers gave you in the company's recognition tool (Bonusly, for example). Each one is proof someone saw your work, and the people who give them are good picks for peer feedback in your written case.",
   };
   const GLOSS = [["Senior behaviors", "behaviors"], ["Proof", "proof"], ["Your written case", "case"], ["Promotion committee", "committee"],
-    ["The project you own", "project"], ["Proposed projects", "proposed"], ["The bet", "bet"], ["Check first", "check"],
+    ["The project you own", "project"], ["Proposed projects", "proposed"], ["Ranking score", "score"], ["The bet", "bet"], ["Check first", "check"],
     ["Draft ready", "draft"], ["Estimate", "estimate"], ["Waiting on others", "waiting"], ["Recognition", "recognition"]];
   const term = (text, key) => `<a class="term" href="#g-${key}" data-term="${key}" title="${esc(DEF[key])}">${esc(text)}</a>`;
 
@@ -892,27 +906,41 @@ dialog.keys dd { margin: 0; color: var(--ink-2); }
   }
 
   // ---- Promotion: the project you own, or the proposed projects ----
-  const candRows = cand.length ? `<div class="list">${cand.map(c => {
-    const u = firstLink(c), dp = c.draft_proposal || {};
-    return `<details class="row plain" id="cand-${esc(c.id)}">
+  const FACTOR_LABEL = { impact: "Moves a company metric", lever: "Your lever", fit: "Work you want more of", rubric: "Shows a Senior behavior",
+    who_notices: "Seen by the people who decide", standing: "You know the area", evidence: "How often it came up", timing: "Lands before your written case is due" };
+  const scoreOf = c => (c.proposal && c.proposal.score) || (c.draft_proposal && c.draft_proposal.score) || null;
+  const dots = v => `<span class="dots" aria-label="${esc(v)} of 2">${[0, 1].map(i => `<i class="${i < v ? "on" : ""}"></i>`).join("")}</span>`;
+  const candRow = (c, n) => {
+    const u = firstLink(c), dp = c.draft_proposal || {}, rk = c.rank || {}, sc = scoreOf(c);
+    const breakdown = sc ? `<div class="score-break"><p class="lbl">Why it ranks here</p>${Object.keys(FACTOR_LABEL).filter(f => sc[f] !== undefined).map(f => {
+      const e = sc[f], v = Number(typeof e === "object" ? e.value : e) || 0, why = typeof e === "object" ? e.why : "";
+      return `<div class="sb-row"><span class="sb-k">${esc(FACTOR_LABEL[f])}${f === "impact" ? ' <span class="muted">(counts double)</span>' : ""}</span>${dots(v)}<span class="sb-why">${inline(why || "")}</span></div>`;
+    }).join("")}</div>` : "";
+    return `<details class="row${n ? "" : " plain"}${rk.is_fix ? " fix" : ""}" id="cand-${esc(c.id)}">
       <summary>
+        ${n ? `<span class="rank">${esc(n)}</span>` : ""}
         <span class="row-main">
           <span class="row-title">${esc(c.title)}</span>
-          ${(c.seen_count || 0) > 1 ? `<span class="row-meta">Seen in ${esc(c.seen_count)} scans</span>` : ""}
+          <span class="row-meta">${rk.total !== null && rk.total !== undefined ? `<span class="score">${esc(rk.total)} of ${esc(rk.max)}</span>` : `<span class="muted">Not scored yet</span>`}${(c.seen_count || 0) > 1 ? ` · seen in ${esc(c.seen_count)} scans` : ""}</span>
         </span>
         <span class="row-end"><span class="caret" aria-hidden="true">▸</span></span>
       </summary>
       <div class="detail">
+        ${dp.metric ? `<dl class="facts">${[["Measured by", dp.metric], ["Today", dp.baseline], ["Goal", dp.target]].filter(([, v]) => v).map(([k, v]) => `<div><dt>${k}</dt><dd>${inline(v)}</dd></div>`).join("")}</dl>` : ""}
         ${dp.hypothesis ? `<p><b class="k">${term("The bet", "bet")}.</b> ${inline(dp.hypothesis)}</p>` : ""}
-        ${dp.metric ? `<p><b class="k">Success.</b> ${inline(dp.metric)}</p>` : ""}
+        ${dp.lever ? `<p><b class="k">Your lever.</b> ${inline(dp.lever)}</p>` : ""}
         ${dp.first_step ? `<p><b class="k">First step.</b> ${inline(dp.first_step)}</p>` : ""}
+        ${breakdown}
         <div class="btns">
           ${u ? `<a class="btn" href="${esc(u)}" target="_blank" rel="noopener">See where it came up <span class="ext" aria-hidden="true">↗</span></a>` : ""}
           ${tell(c.id, [["keep", "Keep it"], ["dismiss", "Dismiss it"]])}
         </div>
       </div>
     </details>`;
-  }).join("")}</div>` : "";
+  };
+  const candProjects = cand.filter(c => !(c.rank && c.rank.is_fix)), candFixes = cand.filter(c => c.rank && c.rank.is_fix);
+  const candRows = cand.length ? `${candProjects.length ? `<div class="list">${candProjects.map((c, i) => candRow(c, i + 1)).join("")}</div>` : ""}
+    ${candFixes.length ? `<p class="fix-head"><b>Fixes, not projects.</b> They move no company metric, so they're worth doing but not worth owning.</p><div class="list">${candFixes.map(c => candRow(c, 0)).join("")}</div>` : ""}` : "";
   const balance = () => {
     if (!BAL.warn) return "";
     const m = String(BAL.message || ""), k = m.indexOf(": ");
@@ -936,7 +964,7 @@ dialog.keys dd { margin: 0; color: var(--ink-2); }
     $("own").innerHTML = `
       <div class="sec"><h2 id="h-own">${cand.length ? (cand.length === 1 ? "Proposed project" : "Proposed projects") : "No project you own yet"}</h2>${cand.length ? `<span class="n">${cand.length} waiting on your decision</span>` : ""}</div>
       ${balance()}
-      ${cand.length ? `<p class="sec-sub">${term(cand.length === 1 ? "A problem a scan found" : "Problems a scan found", "proposed")} that you could own. Open one to read the bet, then tell Claude to keep it or dismiss it. A ${term("project", "project")} becomes yours once your manager agrees.</p>` : ""}
+      ${cand.length ? `<p class="sec-sub">${term(cand.length === 1 ? "A problem a scan found" : "Problems a scan found", "proposed")} that you could own, best first by ${term("ranking score", "score")}. Open one to see why it ranks there, then tell Claude to keep it or dismiss it. A ${term("project", "project")} becomes yours once your manager agrees.</p>` : ""}
       ${prop.length ? `<p class="sec-sub">Kept, not started: ${prop.map(p => esc(p.title)).join("; ")}. Bring one to your manager.</p>` : ""}
       ${candRows}
       ${!prop.length && !cand.length ? `<p class="sec-sub">Run an opportunity scan (<code>/flagrare:opportunity-scan</code>) to find a problem you could own.</p>` : ""}`;

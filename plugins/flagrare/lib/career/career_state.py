@@ -253,6 +253,9 @@ def plan_candidate(home: str, item_id: str, title: str, evidence: str, today: st
     `details` are the proposal fields an opportunity scan drafted but the user has not decided on yet. They are kept as
     `draft_proposal` on items that are still candidates, without counting as a sighting, and never replace a kept `proposal`.
     """
+    if details and "score" in details:
+        from initiatives import check_score
+        check_score(details["score"])
     path = Path(paths(home)["initiatives"])
     items = _load_list(path)
     for item in items:

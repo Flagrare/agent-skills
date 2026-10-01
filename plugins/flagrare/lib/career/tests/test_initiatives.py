@@ -116,6 +116,50 @@ class Priorities(unittest.TestCase):
                 ini.plan_propose(d, "x", "t", ["https://example.com/1"], {k: v for k, v in PROPOSAL.items() if k != "lever"}, "2026-10-01")
 
 
+def scored(impact, **rest):
+    base = {f: 1 for f in ini.FACTORS}
+    base.update(rest)
+    base["impact"] = impact
+    return {f: {"value": v, "why": f"{f} reason"} for f, v in base.items()}
+
+
+class Ranking(unittest.TestCase):
+    def test_given_a_score_when_totalling_then_impact_counts_double(self):
+        total, top = ini.score_total(scored(2, lever=2, fit=2, rubric=2, who_notices=2, standing=2, evidence=2, timing=2))
+        self.assertEqual((total, top), (18, 18))
+        self.assertEqual(ini.score_total(scored(1))[0], 9)
+
+    def test_given_custom_weights_when_totalling_then_uses_them(self):
+        total, top = ini.score_total(scored(2, fit=2), {"impact": 2, "fit": 2})
+        self.assertEqual((total, top), (2 * 2 + 2 * 2 + 6 * 1, 20))
+
+    def test_given_candidates_with_scores_when_reading_context_then_ranks_by_total_and_marks_fixes(self):
+        with tempfile.TemporaryDirectory() as d:
+            home = Path(d)
+            write(home, f"{CAREER}/initiatives.json", [
+                candidate(id="small", seen_count=3, draft_proposal={"score": scored(0)}),
+                candidate(id="big", seen_count=1, draft_proposal={"score": scored(2, lever=2)}),
+                candidate(id="mid", seen_count=1, draft_proposal={"score": scored(1)}),
+                candidate(id="unscored", seen_count=5),
+            ])
+            groups = ini.context(str(home), "2026-10-01")["initiatives"]
+            self.assertEqual([i["id"] for i in groups["candidates"]], ["big", "mid", "small", "unscored"])
+            ranks = {i["id"]: i["rank"] for i in groups["candidates"]}
+            self.assertEqual((ranks["big"]["total"], ranks["big"]["max"], ranks["small"]["is_fix"], ranks["unscored"]["total"]), (12, 18, True, None))
+
+    def test_given_a_score_outside_zero_to_two_when_proposing_then_refuses(self):
+        with tempfile.TemporaryDirectory() as d:
+            bad = {**PROPOSAL, "score": scored(3)}
+            with self.assertRaisesRegex(ValueError, "0, 1 or 2"):
+                ini.plan_propose(d, "x", "t", ["https://example.com/1"], bad, "2026-10-01")
+
+    def test_given_an_unknown_factor_when_proposing_then_refuses(self):
+        with tempfile.TemporaryDirectory() as d:
+            bad = {**PROPOSAL, "score": {"vibes": {"value": 2, "why": "x"}}}
+            with self.assertRaisesRegex(ValueError, "vibes"):
+                ini.plan_propose(d, "x", "t", ["https://example.com/1"], bad, "2026-10-01")
+
+
 class Cadence(unittest.TestCase):
     def test_given_no_previous_run_when_reading_context_then_is_due_with_a_30_day_window(self):
         with tempfile.TemporaryDirectory() as d:

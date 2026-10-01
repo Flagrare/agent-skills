@@ -18,6 +18,9 @@ from scoring import open_rows, unseen_people
 CADENCE_DAYS = 30
 WINDOW_CAP_DAYS = 90
 REQUIRED = ["problem", "hypothesis", "metric", "first_step", "pitch", "owner_check", "lever"]
+# Each factor scores 0, 1 or 2; impact counts double unless the user's config says otherwise.
+FACTORS = ["impact", "lever", "fit", "rubric", "who_notices", "standing", "evidence", "timing"]
+WEIGHTS = {"impact": 2}
 MOVES = {
     ("candidate", "dropped"), ("proposed", "dropped"),
     ("proposed", "active"), ("active", "done"), ("active", "dropped"),
@@ -41,6 +44,51 @@ def _load_json(path: Path) -> object:
         return json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
         return None
+
+
+def check_score(score: object) -> None:
+    """Refuse a score that isn't {factor: {"value": 0|1|2, "why": "..."}} over the known factors."""
+    if not isinstance(score, dict):
+        raise ValueError("score must be an object of factors")
+    for factor, entry in score.items():
+        if factor not in FACTORS:
+            raise ValueError(f"unknown score factor {factor}; use {FACTORS}")
+        value = entry.get("value") if isinstance(entry, dict) else entry
+        if value not in (0, 1, 2) or isinstance(value, bool):
+            raise ValueError(f"{factor} must score 0, 1 or 2")
+
+
+def score_total(score: dict, weights: dict | None = None) -> tuple[int, int]:
+    """The weighted total and the most it could be."""
+    w = {f: 1 for f in FACTORS} | WEIGHTS | (weights or {})
+    total = 0
+    for f in FACTORS:
+        entry = score.get(f, 0)
+        total += int(entry.get("value", 0) if isinstance(entry, dict) else entry or 0) * w[f]
+    return total, sum(2 * w[f] for f in FACTORS)
+
+
+def _score_of(item: dict) -> dict | None:
+    for key in ("proposal", "draft_proposal"):
+        block = item.get(key)
+        if isinstance(block, dict) and isinstance(block.get("score"), dict):
+            return block["score"]
+    return None
+
+
+def _ranked(items: list[dict], weights: dict | None) -> list[dict]:
+    """Highest total first; unscored after scored, then by sightings. Each item gains `rank` {total, max, is_fix}."""
+    out = []
+    for i in items:
+        score = _score_of(i)
+        if score is None:
+            out.append({**i, "rank": {"total": None, "max": None, "is_fix": False}})
+            continue
+        total, top = score_total(score, weights)
+        impact = score.get("impact", 0)
+        impact = impact.get("value", 0) if isinstance(impact, dict) else impact
+        out.append({**i, "rank": {"total": total, "max": top, "is_fix": impact == 0}})
+    return sorted(out, key=lambda i: (i["rank"]["total"] is None, -(i["rank"]["total"] or 0), -int(i.get("seen_count") or 0)))
 
 
 def _items(home: str) -> list:
@@ -77,6 +125,9 @@ def context(home: str, today: str) -> dict:
     except (TypeError, ValueError):
         cadence_days = CADENCE_DAYS
     scan = scan if isinstance(scan, dict) else {}
+    raw_weights = own.get("weights") if isinstance(own, dict) else None
+    weights = {f: int(v) for f, v in (raw_weights or {}).items()
+               if f in FACTORS and isinstance(v, int) and not isinstance(v, bool) and 1 <= v <= 3} if isinstance(raw_weights, dict) else None
     items = [i for i in _items(home) if isinstance(i, dict) and i.get("id")]
     by_status = lambda s: [i for i in items if i.get("status") == s]
     dropped = [{**i, "seen_again": str(i.get("last_seen", "")) > str(i.get("dropped_at", ""))} for i in by_status("dropped")]
@@ -86,8 +137,8 @@ def context(home: str, today: str) -> dict:
         "decision_process": None, "packet_deadline": None,
         "initiatives": {
             "active": (by_status("active") or [None])[0],
-            "proposed": by_status("proposed"),
-            "candidates": sorted(by_status("candidate"), key=lambda i: -int(i.get("seen_count") or 0)),
+            "proposed": _ranked(by_status("proposed"), weights),
+            "candidates": _ranked(by_status("candidate"), weights),
             "dropped": dropped,
         },
         "cadence": _cadence(home, today, cadence_days),
@@ -121,6 +172,8 @@ def plan_propose(home: str, item_id: str, title: str, evidence: list[str], propo
     missing = [k for k in REQUIRED if not proposal.get(k)]
     if missing:
         raise ValueError(f"proposal is missing {', '.join(missing)}")
+    if "score" in proposal:
+        check_score(proposal["score"])
     path = career_state.paths(home)["initiatives"]
     items = _items(home)
     for item in items:
