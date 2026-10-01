@@ -83,7 +83,7 @@ def balance(home: str, today: str) -> dict:
     items = [i for i in career_state._load_list(Path(career_state.paths(home)["initiatives"])) if isinstance(i, dict)]
     active = next((i for i in items if i.get("status") == "active"), None)
     warn = active is None and recent >= BALANCE_MIN_CONTRIBUTIONS
-    message = (f"All answering, nothing owned: {recent} contributions in the last {BALANCE_WINDOW_DAYS} days and no initiative you own."
+    message = (f"Lots of answering, nothing owned: {recent} contributions in the last {BALANCE_WINDOW_DAYS} days, but no project you own yet."
                if warn else "")
     return {"window_start": start, "contributions": recent, "active": active.get("id") if active else None,
             "warn": warn, "message": message}
@@ -146,6 +146,7 @@ def map_line(home: str) -> dict:
         "has_map": True,
         "target_level": initiatives._value((m.get("target") or {}).get("target_level")),
         "open_rows": len(open_rows(m)),
+        "total_rows": len([r for r in ((m.get("rubric") or {}).get("rows") or []) if isinstance(r, dict) and r.get("id")]),
         "unseen_people": unseen_people(m),
         "talk_to_manager": {k: talk.get(k) for k in ("comfortable_by", "absolute_by", "state", "status") if talk.get(k)},
         "packet_deadline": {"value": initiatives._value(deadline), "status": deadline.get("status")} if isinstance(deadline, dict) else None,

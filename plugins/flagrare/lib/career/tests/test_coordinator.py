@@ -100,7 +100,8 @@ class Balance(unittest.TestCase):
             write(home, f"{CAREER}/contributions.log.md", log(*[f"- 2026-09-2{i} | https://example.com/{i} | answered | behavior: unblocking others" for i in range(3)]))
             b = co.balance(str(home), "2026-10-01")
             self.assertTrue(b["warn"])
-            self.assertIn("All answering, nothing owned", b["message"])
+            self.assertIn("nothing owned", b["message"])
+            self.assertIn("no project you own yet", b["message"])
 
     def test_given_an_active_initiative_when_checking_then_does_not_warn(self):
         with tempfile.TemporaryDirectory() as d:
@@ -187,7 +188,7 @@ class MapLine(unittest.TestCase):
             home = Path(d)
             write(home, f"{CAREER}/promotion-map.json", full_map())
             line = co.map_line(str(home))
-            self.assertEqual((line["open_rows"], line["unseen_people"], line["target_level"]), (1, ["Alex Chen"], "Senior Software Engineer"))
+            self.assertEqual((line["open_rows"], line["total_rows"], line["unseen_people"], line["target_level"]), (1, 2, ["Alex Chen"], "Senior Software Engineer"))
             self.assertEqual(line["talk_to_manager"]["absolute_by"], "2026-11-14")
             self.assertEqual(line["packet_deadline"], {"value": "2027-01-07", "status": "inferred"})
 
