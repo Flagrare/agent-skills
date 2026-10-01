@@ -160,6 +160,13 @@ details.row[open] .caret { transform: rotate(90deg); }
 .own .lbl { font-family: var(--display); font-size: 11.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-right: 6px; }
 .own.none { border-left-color: var(--line); }
 .cand { margin: 0; padding-left: 18px; display: grid; gap: 4px; color: var(--ink-2); }
+.term { text-decoration: underline dotted; text-underline-offset: 3px; cursor: help; }
+.sub { margin: -4px 0 10px; font-size: 12.5px; color: var(--muted); }
+.glossary { margin-top: 32px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 16px; }
+.glossary summary { cursor: pointer; font-weight: 700; }
+.glossary dl { display: grid; gap: 8px; margin: 12px 0 0; }
+.glossary dt { font-weight: 700; font-size: 14px; }
+.glossary dd { margin: 2px 0 0; color: var(--ink-2); font-size: 14px; max-width: 80ch; }
 .stale { margin: 14px 0 0; padding: 8px 12px; border-radius: 8px; background: var(--week-soft); color: var(--week); font-weight: 700; font-size: 14px; }
 .packet { display: grid; gap: 10px; }
 .pk-top { display: flex; justify-content: space-between; gap: 8px; font-size: 13.5px; font-weight: 700; }
@@ -228,7 +235,8 @@ details.row[open] .caret { transform: rotate(90deg); }
         <dl class="promo-list" id="promo"></dl>
       </section>
       <section class="card" aria-labelledby="h-packet" id="packet-card" hidden>
-        <h3 id="h-packet">Packet readiness <span class="n">what calibration reads</span></h3>
+        <h3 id="h-packet">Your written case <span class="n">how it would read today</span></h3>
+        <p class="sub">Each section of the document your manager takes to the promotion committee, and how much proof it has.</p>
         <div class="packet" id="packet"></div>
       </section>
       <section class="card" aria-labelledby="h-wait">
@@ -236,7 +244,8 @@ details.row[open] .caret { transform: rotate(90deg); }
         <div id="wait"></div>
       </section>
       <section class="card" aria-labelledby="h-cov">
-        <h3 id="h-cov">Evidence <span class="n" id="n-evi"></span></h3>
+        <h3 id="h-cov">Proof by behavior <span class="n" id="n-evi"></span></h3>
+        <p class="sub" id="cov-sub" hidden>How many logged contributions show each Senior behavior you haven't fully shown yet.</p>
         <div class="spark" id="spark"></div>
         <div class="cov" id="cov"></div>
         <p class="gapnote" id="gapnote" hidden></p>
@@ -244,6 +253,10 @@ details.row[open] .caret { transform: rotate(90deg); }
       </section>
     </aside>
   </div>
+  <details class="glossary">
+    <summary>What the words on this board mean</summary>
+    <dl id="glossary"></dl>
+  </details>
   <p class="foot">Rebuilt after each scan from <code>data.json</code>. Tell Claude in chat when something changes ("sent the reply on the billing thread") and it updates this board. Nothing is ever posted from here.</p>
 </div>
 
@@ -256,6 +269,15 @@ details.row[open] .caret { transform: rotate(90deg); }
   const BEHAVIORS = DATA.behaviors || [];
   const TODAY = scan.date || new Date().toISOString().slice(0, 10);
   const CAREER = DATA.career || {};
+  const DEF = {
+    behaviors: "The behaviors on your company's ladder for the level you're going for (the Senior tab, for example). Each one is a line managers rate you against; the promotion map calls them rubric rows.",
+    proof: "Something you did that shows a behavior, with a link: a review that changed a decision, a problem you found. Every contribution you log counts as proof.",
+    case: "The written document your manager takes into the promotion decision (often called the promotion packet). Its sections are what the deciders read.",
+    committee: "The meeting where managers and directors review promotion cases together (calibration). Most people in it don't know your work.",
+    project: "One piece of work you own end to end, agreed with your manager (an initiative). It's what turns answering into owning.",
+    proposed: "Problems a scan found that you could own. Nothing is yours until you keep one and your manager agrees.",
+  };
+  const term = (text, key) => `<span class="term" tabindex="0" title="${esc(DEF[key])}">${esc(text)}</span>`;
   const OWN = CAREER.initiatives || {};
   const PROMO = CAREER.promotion || {};
   const ROWS = CAREER.readiness || [];
@@ -291,7 +313,7 @@ details.row[open] .caret { transform: rotate(90deg); }
     `<span class="t-wait"><b>${waiting.length}</b> waiting</span>` +
     `<span class="t-good"><b>${contribs.filter(c => c.date >= weekAgo).length}</b> logged this week</span>`;
 
-  const statusChip = i => i.draft && !i.check_first ? `<span class="chip ready">Draft ready</span>` : (i.check_first ? `<span class="chip verify">Verify first</span>` : "");
+  const statusChip = i => i.draft && !i.check_first ? `<span class="chip ready">Draft ready</span>` : (i.check_first ? `<span class="chip verify">Check first</span>` : "");
   const srcChip = i => i.source ? `<span class="chip src">${esc(SRC[i.source] || i.source)}</span>` : "";
 
   function detailBody(i) {
@@ -300,7 +322,7 @@ details.row[open] .caret { transform: rotate(90deg); }
       ${i.context ? `<p><span class="lbl">What's going on</span>${inline(i.context)}</p>` : ""}
       ${i.why ? `<p><span class="lbl">Why it matters</span>${inline(i.why)} ${i.behavior ? `<span class="chip beh">${esc(i.behavior)}</span>` : ""}</p>` : ""}
       ${i.next_step ? `<p><span class="lbl">What we know</span>${inline(i.next_step)}</p>` : ""}
-      ${i.check_first ? `<p><span class="lbl">Verify before drafting</span>${inline(i.check_first)}</p>` : ""}
+      ${i.check_first ? `<p><span class="lbl">Check this before drafting a reply</span>${inline(i.check_first)}</p>` : ""}
       ${i.draft ? `<div><span class="lbl">Draft (${esc(i.draft_where || "reply")})</span><div class="draft" data-draft="${esc(i.id)}">${inline(i.draft)}</div></div>` : ""}
       <div class="btns">
         ${url ? `<a class="btn primary" href="${esc(url)}" target="_blank" rel="noopener">Open in ${esc(SRC[i.source] || "source")} ↗</a>` : ""}
@@ -308,33 +330,38 @@ details.row[open] .caret { transform: rotate(90deg); }
       </div>`;
   }
 
+  document.getElementById("glossary").innerHTML = [
+    ["Senior behaviors", "behaviors"], ["Proof", "proof"], ["Your written case", "case"],
+    ["Promotion committee", "committee"], ["The project you own", "project"], ["Proposed projects", "proposed"],
+  ].map(([t, k]) => `<div><dt>${esc(t)}</dt><dd>${esc(DEF[k])}</dd></div>`).join("");
+
   // The initiative you own, or what is proposed, and the balance warning
   const act = OWN.active, prop = OWN.proposed || [], cand = OWN.candidates || [];
   const firstLink = it => (it.evidence || []).map(safeUrl).find(Boolean);
-  const candList = cand.length ? `<p><span class="lbl">Awaiting your decision</span></p><ul class="cand">${cand.map(c => {
+  const candList = cand.length ? `<p><span class="lbl">${term("Proposed projects", "proposed")}, waiting on your decision</span></p><ul class="cand">${cand.map(c => {
       const u = firstLink(c);
       const dp = c.draft_proposal || {};
       return `<li>${u ? `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(c.title)}</a>` : esc(c.title)}${(c.seen_count || 0) > 1 ? ` <span class="chip src">seen ${esc(c.seen_count)} times</span>` : ""}
         ${dp.hypothesis ? `<div class="cand-d">${inline(dp.hypothesis)}${dp.metric ? ` <b>Success:</b> ${inline(dp.metric)}` : ""}</div>` : ""}
         ${dp.first_step ? `<div class="cand-d"><b>First step:</b> ${inline(dp.first_step)}</div>` : ""}</li>`;
-    }).join("")}</ul><p>Keep or dismiss each one: run an opportunity scan, or tell Claude in chat.</p>` : "";
+    }).join("")}</ul><p>Keep or dismiss each one by telling Claude in chat (or run an opportunity scan). A kept one becomes yours once your manager agrees.</p>` : "";
   document.getElementById("own").innerHTML = act ? `
     <article class="own" aria-label="Your initiative">
-      <p class="eyebrow" style="margin:0">Your initiative</p>
+      <p class="eyebrow" style="margin:0">${term("The project you own", "project")}</p>
       <h2>${esc(act.title)}</h2>
-      ${act.proposal?.hypothesis ? `<p><span class="lbl">Hypothesis</span>${inline(act.proposal.hypothesis)}</p>` : ""}
+      ${act.proposal?.hypothesis ? `<p><span class="lbl">The bet</span>${inline(act.proposal.hypothesis)}</p>` : ""}
       ${act.proposal?.metric ? `<p><span class="lbl">Success</span>${inline(act.proposal.metric)}</p>` : ""}
       ${act.proposal?.first_step ? `<p><span class="lbl">Next step</span>${inline(act.proposal.first_step)}</p>` : ""}
-      <p><span class="lbl">Agreed</span>${esc(act.aligned?.with || "")}${act.aligned?.on ? " on " + esc(act.aligned.on) : ""}</p>
+      <p><span class="lbl">Agreed with</span>${esc(act.aligned?.with || "")}${act.aligned?.on ? " on " + esc(act.aligned.on) : ""}</p>
       ${firstLink(act) ? `<div class="btns"><a class="btn ghost" href="${esc(firstLink(act))}" target="_blank" rel="noopener">Evidence ↗</a></div>` : ""}
-      ${cand.length ? `<p><span class="lbl">Also awaiting your decision</span>${cand.map(c => esc(c.title)).join(" · ")}</p>` : ""}
+      ${cand.length ? `<p><span class="lbl">Also proposed, waiting on your decision</span>${cand.map(c => esc(c.title)).join(" · ")}</p>` : ""}
     </article>` : (prop.length || cand.length || BAL.warn) ? `
     <article class="own none" aria-label="Initiatives">
-      <p class="eyebrow" style="margin:0">Nothing owned yet</p>
+      <p class="eyebrow" style="margin:0">No ${term("project you own", "project")} yet</p>
       ${BAL.warn ? `<div class="warn">${esc(BAL.message)}</div>` : ""}
-      ${prop.length ? `<p><span class="lbl">On the table</span>${prop.map(p => esc(p.title)).join(" · ")}</p><p>Bring one to your manager; it becomes yours once they agree.</p>` : ""}
+      ${prop.length ? `<p><span class="lbl">Kept, not started</span>${prop.map(p => esc(p.title)).join(" · ")}</p><p>Bring one to your manager; it becomes yours once they agree.</p>` : ""}
       ${candList}
-      ${!prop.length && !cand.length ? `<p>Run an opportunity scan to find something to own.</p>` : ""}
+      ${!prop.length && !cand.length ? `<p>Run an opportunity scan to find a problem you could own.</p>` : ""}
     </article>` : "";
 
   // Promotion summary
@@ -352,14 +379,14 @@ details.row[open] .caret { transform: rotate(90deg); }
     };
     const inferred = s => s && s !== "verified" ? s : "";
     const rowsHtml = [
-      ["Target", esc(PROMO.target_level || "")],
-      ["Open rubric rows", esc(PROMO.open_rows ?? "")],
-      ["Rows with thin evidence", esc(gaps)],
+      ["Going for", esc(PROMO.target_level || "")],
+      [term("Senior behaviors", "behaviors") + " not shown yet", PROMO.total_rows ? `${esc(PROMO.open_rows)} of ${esc(PROMO.total_rows)}` : esc(PROMO.open_rows ?? "")],
+      ["Behaviors with little " + term("proof", "proof"), esc(gaps)],
       ["Talk to your manager by", talk.comfortable_by ? countdown(talk.comfortable_by, 14, [talk.absolute_by ? "latest " + fmt(talk.absolute_by) : "", inferred(talk.status)].filter(Boolean).join(", ")) : ""],
-      ["Packet due", dl.value ? (Array.isArray(dl.value) ? esc(dl.value.join(" / ")) : countdown(dl.value, 30, inferred(dl.status))) : ""],
-      ["Haven't seen your work", esc((PROMO.unseen_people || []).join(", "))],
+      [term("Written case", "case") + " due", dl.value ? (Array.isArray(dl.value) ? esc(dl.value.join(" / ")) : countdown(dl.value, 30, inferred(dl.status))) : ""],
+      ["Haven't seen your work yet", esc((PROMO.unseen_people || []).join(", "))],
     ].filter(([, v]) => v !== undefined && v !== null && v !== "");
-    document.getElementById("promo").innerHTML = rowsHtml.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${v}</dd></div>`).join("");
+    document.getElementById("promo").innerHTML = rowsHtml.map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join("");
     document.getElementById("promo-card").hidden = false;
   }
 
@@ -426,13 +453,14 @@ details.row[open] .caret { transform: rotate(90deg); }
     : BEHAVIORS.map(b => [b, contribs.filter(c => String(c.behavior || "").toLowerCase().includes((KEYWORD[b] || b).toLowerCase())).length]);
   const max = Math.max(1, ...counts.map(c => c[1]));
   document.getElementById("n-evi").textContent = contribs.length + " logged";
+  if (ROWS.length) document.getElementById("cov-sub").hidden = false;
   document.getElementById("cov").innerHTML = counts.map(([b, c]) => `
     <div class="cov-row${c === 0 ? " gap" : ""}">
       <div class="cov-top"><span>${esc(b)}</span><b>${c}</b></div>
       <div class="bar"><i style="width:${Math.round((c / max) * 100)}%"></i></div>
     </div>`).join("");
   const gaps = counts.filter(c => c[1] < (ROWS.length ? 3 : 2)).map(c => c[0]);
-  if (ROWS.length && !counts.length) document.getElementById("cov").innerHTML = `<div class="empty" style="padding:0">Every rubric row is done.</div>`;
+  if (ROWS.length && !counts.length) document.getElementById("cov").innerHTML = `<div class="empty" style="padding:0">You already show every Senior behavior.</div>`;
   const gn = document.getElementById("gapnote");
   if (ROWS.length) {
     const topGaps = ROWS.filter(r => r.status !== "done" && r.state !== "strong")
@@ -441,12 +469,13 @@ details.row[open] .caret { transform: rotate(90deg); }
       gn.hidden = false;
       gn.innerHTML = `<b>Biggest gaps, and one step for each</b><ul>${topGaps.map(r => `<li><span>${esc(r.label || r.area || r.id)}</span>${r.next_step ? `: ${inline(r.next_step)}` : ""}</li>`).join("")}</ul>`;
     }
-  } else if (gaps.length) { gn.hidden = false; gn.textContent = "Thin evidence: " + gaps.join(", ") + ". Favor items that exercise these."; }
+  } else if (gaps.length) { gn.hidden = false; gn.textContent = "Little proof yet: " + gaps.join(", ") + ". Favor items that show these."; }
 
   // Packet readiness
   const PACKET = CAREER.packet || [];
   if (PACKET.length) {
-    document.getElementById("packet").innerHTML = PACKET.map(p => `<div class="pk"><div class="pk-top"><span>${esc(p.section)}</span><span class="chip pk-${esc(p.state)}">${esc(p.state)}</span></div>${p.note ? `<p>${inline(p.note)}</p>` : ""}</div>`).join("");
+    const STATE = { strong: "strong", thin: "some proof", empty: "no proof yet" };
+    document.getElementById("packet").innerHTML = PACKET.map(p => `<div class="pk"><div class="pk-top"><span>${esc(p.section)}</span><span class="chip pk-${esc(p.state)}">${esc(STATE[p.state] || p.state)}</span></div>${p.note ? `<p>${inline(p.note)}</p>` : ""}</div>`).join("");
     document.getElementById("packet-card").hidden = false;
   }
 
