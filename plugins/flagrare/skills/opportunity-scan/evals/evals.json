@@ -1,0 +1,36 @@
+{
+  "skill_name": "opportunity-scan",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "Run an opportunity scan. My promotion map and initiatives are in ~/.claude/skills/flagrare/career/ (see the fixtures). Nobody has picked up the order email problem as far as I know.",
+      "expected_output": "Agent runs initiatives.py context, includes the handed-off candidate order-emails-missing, searches tickets, PRs and the thread for an existing owner and states what it checked, and proposes it with evidence links, a 'We believe ... because ...' hypothesis and a success metric. Because the map's decision process is driven by a PM, the first step feeds evidence into the PM's product gate document instead of writing a competing one. The rubric row id appears only in parentheses after the hypothesis, and the scan proposes at most 3 items and asks which to keep.",
+      "files": [
+        "evals/fixtures/promotion-map.json",
+        "evals/fixtures/initiatives.json"
+      ]
+    },
+    {
+      "id": 1,
+      "prompt": "Run an opportunity scan. In the support channel people keep asking why partner payouts show as pending, but there's a ticket in progress assigned to another engineer who posted an update yesterday.",
+      "expected_output": "Agent finds the recurring payout question, checks for an owner, finds the in-progress ticket and the recent update, and does not propose it as the user's own: it appears on the Cut line naming the owner.",
+      "files": [
+        "evals/fixtures/promotion-map.json"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "My manager agreed I should take the order emails problem. Make it my active initiative.",
+      "expected_output": "Agent runs initiatives.py status to make order-emails-missing active, the script refuses because flaky-checkout-tests is already active, and the agent explains in plain words that only one initiative can be active and asks whether to finish or drop the current one first. It does not edit initiatives.json by hand to get around the refusal.",
+      "files": [
+        "evals/fixtures/initiatives-with-active.json"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Run an opportunity scan. I haven't built a promotion map.",
+      "expected_output": "Agent runs the scan anyway, ranks with the configured target behaviors and domains, skips the rubric and target-cycle factors, makes the first step of each proposal bringing it to the manager, and says once in the header that /flagrare:promotion would sharpen the ranking.",
+      "files": []
+    }
+  ]
+}
