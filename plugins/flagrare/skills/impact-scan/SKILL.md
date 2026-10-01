@@ -7,6 +7,8 @@ description: Scan the org's communication surfaces (chat like Slack or Teams, op
 
 > **No em-dashes.** Nothing this skill writes may contain an em-dash; use a comma, colon, or parentheses instead. Enforced by a repo hook. See `/flagrare:write-docs`.
 
+> **Plain words.** In anything the user reads, use the plain names in `<plugin root>/lib/career/GLOSSARY.md` ("Senior behaviors", not "rubric rows"; "your written case", not "packet"; "the project you own", not "initiative"). The first time a term appears, say what it means in a few words and add the company's own word in parentheses when the user will hear it at work.
+
 Promotions lag behavior: you operate at the next level first, and the title follows. This skill hunts the openings where that operating can happen, decisions being shaped, people stuck, questions only this user can answer well, cross-team work touching their systems, and turns them into a ranked digest with ready-to-approve drafts.
 
 The failure mode it must never enable is performative commenting. Shallow opinions dropped in ten visible threads read as noise, not seniority, and actively hurt a promotion case. The bar for surfacing an item: **would this user's contribution change the outcome, and do they have specific knowledge or context that gives them standing?** If either answer is no, the item dies, no matter how visible the thread is. Two substantive contributions beat ten drive-bys.

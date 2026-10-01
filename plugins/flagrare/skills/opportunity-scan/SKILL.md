@@ -7,6 +7,8 @@ description: Propose two or three pieces of work the user could own end to end, 
 
 > **No em-dashes.** Nothing this skill writes may contain an em-dash; use a comma, colon, or parentheses instead. Enforced by a repo hook. See `/flagrare:write-docs`.
 
+> **Plain words.** In anything the user reads, use the plain names in `<plugin root>/lib/career/GLOSSARY.md` ("Senior behaviors", not "rubric rows"; "your written case", not "packet"; "the project you own", not "initiative"). The first time a term appears, say what it means in a few words and add the company's own word in parentheses when the user will hear it at work.
+
 Impact-scan finds threads to weigh in on. The next level asks for more: finding a problem nobody assigned, and owning it through to a result someone can measure. This skill looks for those problems on purpose, checks nobody already owns them, and brings back two or three proposals the user could take to their manager.
 
 The failure modes it must never enable:

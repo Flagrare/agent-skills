@@ -39,7 +39,8 @@ Last full check: <date>. Sources and statuses for every fact are in `promotion-m
 ## 7. What got people promoted here
 <Precedent cases. Announcements are narratives, not audits.>
 
-## 8. Packet readiness
+## 8. Your written case (packet readiness)
+<One line on what the written case is: the document the manager takes into the promotion decision.>
 | Packet section | State | Evidence |
 |---|---|---|
 
