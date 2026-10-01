@@ -1,5 +1,23 @@
 # Changelog
 
+## 1.47.0: 2026-10-01
+
+One command for the whole career loop.
+
+### New Skills
+
+- **`/flagrare:career`, the coordinator**: the career family had four parts that each had to be remembered on its own schedule: the map goes stale over months, opportunity-scan is monthly, impact-scan is daily, and the "am I only answering?" question had no home at all. Career decides what is due from timestamps and flags (`coordinator.py due`): the promotion first run when there is no map (after asking), a refresh of only the map sections older than 90 days or flagged by a scan, an opportunity scan when its cadence says so, and an impact scan every time. It runs each through the Skill tool and writes one capped digest: the initiative you own and its next step, three to five weigh-in rows under impact-scan's table rules, one map line (open rubric rows, who hasn't seen your work, when to talk to your manager, the packet deadline, inferred dates marked), what needs you, and the balance warning, "all answering, nothing owned", when the last 30 days hold three or more contributions and no initiative you own. A scheduled run never asks and never posts: anything that needs the user is listed under Needs you.
+
+### Improved Skills
+
+- **The Career Board**: the board was still titled "Senior Scan Board" and counted evidence against the behaviors typed at onboarding. It now opens with the initiative you own (hypothesis, success metric, next step, who agreed) or what is on the table and the balance warning, adds a promotion panel (target, open rows, rows with thin evidence, the manager-conversation dates, the packet deadline, who hasn't seen your work), and counts evidence per open rubric row when there is a map.
+- **`/flagrare:impact-scan`, `/flagrare:opportunity-scan` and `/flagrare:promotion`** each know when the coordinator calls them: they return their digest without the closing question, and in a scheduled run they never ask. A scheduled opportunity scan keeps its findings as candidates, so the next interactive scan can propose them. Impact-scan now gives the link when a draft is saved into the chat tool.
+- **`/flagrare:promotion`, packet readiness from evidence**: Phase 4 counts the evidence for each rubric row (contributions tagged with the row plus the row's own evidence) through `coordinator.py readiness` before marking packet sections strong, thin or empty.
+
+### Tooling
+
+- **Career library**: `coordinator.py` (`due`, `balance`, `readiness`, `map`, `board`), and `board/build.py` takes `--today` and embeds the career panel data. The opportunity-scan cadence now treats a last run dated in the future as today, reads a cadence written as text, and refuses a blank manager name when activating an initiative.
+
 ## 1.46.0: 2026-09-30
 
 Something to own, not just something to answer.
