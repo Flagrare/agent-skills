@@ -59,6 +59,8 @@ class Build(unittest.TestCase):
             self.assertEqual(data["career"]["initiatives"]["active"]["id"], "order-emails")
             self.assertEqual(data["career"]["promotion"]["unseen_people"], ["Alex Chen"])
             self.assertEqual([r["id"] for r in data["career"]["readiness"]], ["scope.proactive-discovery"])
+            self.assertEqual(len(data["career"]["trend"]["weeks"]), 8)
+            self.assertEqual(data["career"]["packet"], [])
             self.assertIn("<title>Career Board</title>", page)
 
     def test_given_a_malformed_map_when_building_then_the_board_renders_without_the_career_panel(self):
