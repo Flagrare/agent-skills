@@ -26,6 +26,14 @@ class ParseContributions(unittest.TestCase):
         self.assertEqual(c["row"], "scope.proactive-discovery")
 
 
+class LinkTitle(unittest.TestCase):
+    def test_given_a_link_with_no_known_shape_when_titling_then_names_the_host(self):
+        self.assertEqual(build.link_title("https://www.example.com/some/page"), "example.com")
+
+    def test_given_a_pull_request_link_when_titling_then_names_repo_and_number(self):
+        self.assertEqual(build.link_title("https://github.com/acme/payments/pull/12#review"), "payments #12")
+
+
 class Build(unittest.TestCase):
     def test_given_legacy_and_career_logs_when_building_then_board_shows_entries_from_both(self):
         with tempfile.TemporaryDirectory() as home, tempfile.TemporaryDirectory() as board:
@@ -62,8 +70,9 @@ class Build(unittest.TestCase):
             self.assertEqual(len(data["career"]["trend"]["weeks"]), 8)
             self.assertEqual(data["career"]["packet"], [])
             self.assertIn("<title>Career Board</title>", page)
+            self.assertIn("fill=&#x27;%230d6b66&#x27;", page)
 
-    def test_given_a_malformed_map_when_building_then_the_board_renders_without_the_career_panel(self):
+    def test_given_a_malformed_map_when_building_then_the_board_renders_and_carries_the_read_error(self):
         with tempfile.TemporaryDirectory() as home, tempfile.TemporaryDirectory() as board:
             career = Path(home) / CAREER
             career.mkdir(parents=True)
@@ -73,7 +82,7 @@ class Build(unittest.TestCase):
             self.assertEqual(out.returncode, 0)
             self.assertIn("career panel skipped", out.stderr)
             data = json.loads((Path(board) / "board.html").read_text().split("/*DATA*/", 1)[1].split("/*END*/", 1)[0])
-            self.assertEqual(data["career"], {})
+            self.assertIn("error", data["career"])
 
     def test_given_no_career_state_when_building_then_the_page_still_renders(self):
         with tempfile.TemporaryDirectory() as home, tempfile.TemporaryDirectory() as board:

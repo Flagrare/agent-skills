@@ -19,6 +19,7 @@ import re
 import sys
 import datetime
 from pathlib import Path
+from urllib.parse import urlparse
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent))
@@ -26,7 +27,7 @@ import career_state  # noqa: E402
 import coordinator  # noqa: E402
 
 ICON = ("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E"
-        "%3Crect width='32' height='32' rx='7' fill='%232c5b87'/%3E"
+        "%3Crect width='32' height='32' rx='7' fill='%230d6b66'/%3E"
         "%3Ccircle cx='16' cy='16' r='10' fill='none' stroke='white' stroke-width='2.5'/%3E"
         "%3Ccircle cx='16' cy='16' r='5' fill='none' stroke='white' stroke-width='2.5'/%3E"
         "%3Ccircle cx='16' cy='16' r='1.8' fill='%23f0b35c'/%3E%3C/svg%3E")
@@ -44,7 +45,8 @@ def link_title(link: str) -> str:
         return "Slack thread"
     if "notion." in link:
         return "Notion page"
-    return "Link"
+    host = urlparse(link).netloc.removeprefix("www.")
+    return host or "Link"
 
 
 def parse_contributions(lines: list[str]) -> list[dict]:
@@ -83,7 +85,7 @@ def main() -> None:
     try:
         data["career"] = coordinator.board(args.home, today)
     except (AttributeError, TypeError, ValueError, KeyError) as exc:
-        data["career"] = {}
+        data["career"] = {"error": str(exc)}
         print(f"warning: career panel skipped, the career state could not be read ({exc})", file=sys.stderr)
     out = board / "board.html"
     out.write_text(render(data), encoding="utf-8")
