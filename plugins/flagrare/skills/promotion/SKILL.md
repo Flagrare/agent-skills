@@ -7,6 +7,8 @@ description: Build and maintain a sourced promotion map for the user's next leve
 
 > **No em-dashes.** Nothing this skill writes may contain an em-dash; use a comma, colon, or parentheses instead. Enforced by a repo hook. See `/flagrare:write-docs`.
 
+> **Plain words.** In anything the user reads, use the plain names in `<plugin root>/lib/career/GLOSSARY.md` ("Senior behaviors", not "rubric rows"; "your written case", not "packet"; "the project you own", not "initiative"). The first time a term appears, say what it means in a few words and add the company's own word in parentheses when the user will hear it at work.
+
 A promotion is decided in a room the user isn't in, from a written case, by people who mostly don't know them, on a calendar set months ahead. This skill makes those facts visible early: where the user wants to go and why, how the company actually decides, what the rubric asks for, who has first-hand knowledge of their work, and when the key conversations must happen.
 
 It writes a **promotion map**: `promotion-map.md` for the user to read and bring to a 1:1, and `promotion-map.json` with the same facts for the other career skills. The map is local and private. **This skill never posts, sends, or publishes anything.**
@@ -77,7 +79,7 @@ Tell the user up front: the first run is long, often an hour or more, and it sav
 3. **Packet readiness:** run `python3 <plugin root>/lib/career/coordinator.py readiness --home "$HOME" --today <date>` for the evidence count of each rubric row (log entries tagged with the row plus the row's own evidence), then mark each template section `strong`, `thin` or `empty` from the rows it draws on.
 4. **Manager questions:** everything still unknown, plus the readiness question ("is <cycle> realistic, and what's missing?").
 5. Run `map_schema.py check`. Fix any errors, then save.
-6. Show the user a short summary: the target, the two conversation dates, open rubric gaps, who still needs to see their work, and the questions for their manager. Point to `promotion-map.md`.
+6. Show the user a short summary: the target, the two conversation dates, the Senior behaviors not shown yet (by label), who still needs to see their work, and the questions for their manager. Point to `promotion-map.md`.
 
 ## 4. Refresh
 

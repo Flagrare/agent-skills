@@ -7,6 +7,8 @@ description: Run the career skills that are due, in one pass, and return one sho
 
 > **No em-dashes.** Nothing this skill writes may contain an em-dash; use a comma, colon, or parentheses instead. Enforced by a repo hook. See `/flagrare:write-docs`.
 
+> **Plain words.** In anything the user reads, use the plain names in `<plugin root>/lib/career/GLOSSARY.md` ("Senior behaviors", not "rubric rows"; "your written case", not "packet"; "the project you own", not "initiative"). The first time a term appears, say what it means in a few words and add the company's own word in parentheses when the user will hear it at work.
+
 Four skills share one folder of state (`~/.claude/skills/flagrare/career/`): `/flagrare:promotion` keeps the map of where the user is going, `/flagrare:opportunity-scan` finds work to own, `/flagrare:impact-scan` finds threads to weigh in on, and this skill runs whichever are due and folds their results into one digest and one board. It decides from timestamps and flags, not from a fixed routine, so a daily run is cheap on days when only the impact scan is due.
 
 **This skill never posts, sends, or publishes anything**, and neither do the skills it runs.
@@ -51,13 +53,13 @@ Run `coordinator.py board` (the active initiative with its proposal, the proposa
 ```
 ## Career: <date>, <interactive|scheduled>. Ran: <skills>. <caveats: failed steps, surfaces skipped, no map>
 
-**Your initiative:** <title>: <its next step, from proposal.first_step or the latest evidence> (or "none yet", plus the top proposal on the table when there is one)
+**The project you own:** <title>: <its next step, from proposal.first_step or the latest evidence> (or "none yet", plus the top proposed project when there is one)
 
 | # | What's going on | What you'd do | Why it matters | Next step |
 |---|---|---|---|---|
 <up to 5 rows from the impact scan, same rules as its table>
 
-**Map:** <N> open rubric rows (<thin or empty ones in plain words>); haven't seen your work: <names>; talk to your manager by <comfortable_by> (latest <absolute_by>); packet due <date> (<status>).
+**Promotion:** <N> of <total> Senior behaviors not shown yet (<the ones with little proof, by label>); haven't seen your work yet: <names>; talk to your manager by <comfortable_by> (latest <absolute_by>); written case due <date> (<status>).
 **Needs you:** <each pending interactive step, one line with why>
 **Heads up:** <balance message, only when warn is true>
 ```
@@ -67,7 +69,7 @@ Rules:
 - **Cap it.** Initiative line, at most 5 table rows, one map line, the Needs you list, the warning. Item blocks with drafts follow the table only for rows that have a draft, in the impact-scan item format. Opportunity proposals appear as one line each under Needs you or the initiative line, with a pointer to the full proposals ("run /flagrare:opportunity-scan to see them in full").
 - **The table follows impact-scan's rules:** plain product language, no ticket keys or row ids in cells, verb-first actions, a next step in every row.
 - **The map line marks inferred dates as inferred**, and when the map has no people, rubric or calendar yet, it says which part is missing instead of guessing.
-- **The balance warning lives only here.** Show it when `warn` is true, in the script's words, and add one sentence on what would fix it (the top proposal, or running an opportunity scan).
+- **The "lots of answering, nothing owned" warning lives only here.** Show it when `warn` is true, in the script's words, and add one sentence on what would fix it (the top proposal, or running an opportunity scan).
 - **Without a map** the map line reads "No promotion map yet: run /flagrare:promotion to build one", and the first-run question goes under Needs you in a scheduled run.
 
 Interactive: end with one question: which rows to act on, which proposals to keep or dismiss (recorded with opportunity-scan's step 6), and anything under Needs you to do now. Scheduled: end after the last line.
