@@ -124,6 +124,22 @@ class Cadence(unittest.TestCase):
             write(home, f"{CAREER}/opportunity-state.json", {"last_run": "2026-09-21"})
             self.assertTrue(ini.context(str(home), "2026-10-01")["cadence"]["due"])
 
+    def test_given_a_last_run_dated_tomorrow_when_reading_context_then_treats_it_as_today(self):
+        with tempfile.TemporaryDirectory() as d:
+            home = Path(d)
+            write(home, f"{CAREER}/opportunity-state.json", {"last_run": "2026-10-02"})
+            cad = ini.context(str(home), "2026-10-01")["cadence"]
+            self.assertEqual((cad["due"], cad["days_since"], cad["window_start"]), (False, 0, "2026-10-01"))
+
+    def test_given_a_cadence_written_as_text_when_reading_context_then_uses_the_number_or_the_default(self):
+        with tempfile.TemporaryDirectory() as d:
+            home = Path(d)
+            write(home, f"{CAREER}/opportunity-state.json", {"last_run": "2026-09-21"})
+            write(home, CONFIG, {"skills": {"opportunity-scan": {"cadence_days": "7"}}})
+            self.assertTrue(ini.context(str(home), "2026-10-01")["cadence"]["due"])
+            write(home, CONFIG, {"skills": {"opportunity-scan": {"cadence_days": "monthly"}}})
+            self.assertFalse(ini.context(str(home), "2026-10-01")["cadence"]["due"])
+
     def test_given_a_run_when_recording_it_then_keeps_other_keys(self):
         with tempfile.TemporaryDirectory() as d:
             home = Path(d)
@@ -199,6 +215,13 @@ class Status(unittest.TestCase):
             [item] = json.loads(a["content"])
             self.assertEqual((item["status"], item["active_at"]), ("active", "2026-10-01"))
             self.assertEqual(item["aligned"], {"with": "my manager", "on": "2026-10-01", "note": "agreed in our 1:1"})
+
+    def test_given_blank_alignment_when_activating_then_refuses(self):
+        with tempfile.TemporaryDirectory() as d:
+            home = Path(d)
+            write(home, f"{CAREER}/initiatives.json", [candidate(status="proposed")])
+            with self.assertRaisesRegex(ValueError, "manager alignment"):
+                ini.plan_status(str(home), "order-emails", "active", "2026-10-01", "   ")
 
     def test_given_one_active_when_activating_another_then_refuses_and_names_the_active_one(self):
         with tempfile.TemporaryDirectory() as d:
