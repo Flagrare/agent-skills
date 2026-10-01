@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.52.0: 2026-10-01
+
+Plain words first, and the real terms explained.
+
+### Improved Skills
+
+- **Career Board, in plain words**: the board spoke the skills' internal language, so a user looking at their own promotion status had to decode it. "Open rubric rows" turned out to mean "Senior behaviors you haven't shown yet", and "packet readiness" meant "how your written case would read". The user's own question was "what does open rubric rows even mean".
+  - **Renamed:** every label is now plain. "Senior behaviors not shown yet: 14 of 21", "Behaviors with little proof", "Your written case" with sections rated strong, some proof or no proof yet, "Proof by behavior", "The project you own", "Proposed projects", "Check first".
+  - **Explained:** the terms people will hear at work (packet, calibration, initiative, rubric) appear in plain definitions. Underlined terms show the definition on hover, and a "What the words on this board mean" section at the bottom explains each one.
+  - **Warning:** the "lots of answering, nothing owned" warning says what it means.
+- **`/flagrare:promotion`, `/flagrare:impact-scan`, `/flagrare:opportunity-scan` and `/flagrare:career`, one vocabulary**: a new shared glossary (`lib/career/GLOSSARY.md`) lists the plain name, the internal name and the meaning of each term. All four skills now use the plain names in anything the user reads, explain a term the first time it appears, and add the company's own word in parentheses when the user will hear it at work. The career digest's map line becomes a "Promotion" line ("14 of 21 Senior behaviors not shown yet"), and the promotion map's written-case section says what that document is.
+
+### Tooling
+
+- **Career library**: `coordinator.py map` adds `total_rows`, so the board can say "14 of 21".
+
 ## 1.51.0: 2026-10-01
 
 The board tells you what calibration will read, and what to do about the gaps.
