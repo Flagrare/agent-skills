@@ -132,5 +132,65 @@ class PlanUpsert(unittest.TestCase):
             with self.assertRaises(m.CorruptFile):
                 m.plan_upsert(d, entry(), "2026-10-02")
 
+def saved(home: str, items: list[dict]) -> None:
+    write(Path(home), f"{CAREER}/measurements.json", json.dumps(items))
+
+
+class PlanLaunch(unittest.TestCase):
+    def test_given_a_launch_date_when_launching_then_checks_fall_two_and_six_weeks_later(self):
+        with tempfile.TemporaryDirectory() as d:
+            saved(d, [entry()])
+            items = applied(m.plan_launch(d, "acme-reorder", "2026-10-01", "2026-10-02"))
+            self.assertEqual(items[0]["launch_date"], "2026-10-01")
+            self.assertEqual([c["due"] for c in items[0]["checks"]], ["2026-10-15", "2026-11-12"])
+
+    def test_given_a_done_check_when_relaunching_then_keeps_it_and_moves_only_undone_ones(self):
+        with tempfile.TemporaryDirectory() as d:
+            done = {"due": "2026-10-15", "done_at": "2026-10-15", "value": "150", "verdict": "worked"}
+            saved(d, [entry(launch_date="2026-10-01", checks=[done, {"due": "2026-11-12", "done_at": None, "value": None, "verdict": None}])])
+            items = applied(m.plan_launch(d, "acme-reorder", "2026-10-08", "2026-10-16"))
+            self.assertEqual(items[0]["checks"][0], done)
+            self.assertEqual(items[0]["checks"][1]["due"], "2026-11-19")
+
+    def test_given_an_unknown_id_when_launching_then_refuses(self):
+        with tempfile.TemporaryDirectory() as d:
+            with self.assertRaisesRegex(ValueError, "no measurement with id"):
+                m.plan_launch(d, "nope", "2026-10-01", "2026-10-02")
+
+
+class PlanCheck(unittest.TestCase):
+    def test_given_a_due_check_when_recording_it_then_marks_it_done_and_the_entry_after(self):
+        with tempfile.TemporaryDirectory() as d:
+            saved(d, [entry(launch_date="2026-10-01", checks=[{"due": "2026-10-15", "done_at": None, "value": None, "verdict": None}])])
+            items = applied(m.plan_check(d, "acme-reorder", "2026-10-15", "150 a week", "worked", "2026-10-16"))
+            self.assertEqual(items[0]["checks"][0], {"due": "2026-10-15", "done_at": "2026-10-16", "value": "150 a week", "verdict": "worked"})
+            self.assertEqual(items[0]["stage"], "after")
+
+    def test_given_an_unknown_verdict_when_recording_then_refuses(self):
+        with tempfile.TemporaryDirectory() as d:
+            saved(d, [entry(checks=[{"due": "2026-10-15", "done_at": None, "value": None, "verdict": None}])])
+            with self.assertRaisesRegex(ValueError, "verdict must be one of"):
+                m.plan_check(d, "acme-reorder", "2026-10-15", "150", "great", "2026-10-16")
+
+    def test_given_no_check_on_that_date_when_recording_then_refuses(self):
+        with tempfile.TemporaryDirectory() as d:
+            saved(d, [entry(checks=[{"due": "2026-10-15", "done_at": None, "value": None, "verdict": None}])])
+            with self.assertRaisesRegex(ValueError, "no check due on 2026-10-20"):
+                m.plan_check(d, "acme-reorder", "2026-10-20", "150", "worked", "2026-10-21")
+
+
+class PlanSkip(unittest.TestCase):
+    def test_given_a_small_fix_when_skipping_then_records_it_with_the_reason(self):
+        with tempfile.TemporaryDirectory() as d:
+            items = applied(m.plan_skip(d, "typo-fix", "Fix a typo on the menu page", "https://tracker.example/T-9", "ticket", "small fix, nothing users notice", "2026-10-02"))
+            self.assertEqual((items[0]["stage"], items[0]["skipped_reason"]), ("skipped", "small fix, nothing users notice"))
+
+    def test_given_an_existing_measurement_when_skipping_then_keeps_its_history(self):
+        with tempfile.TemporaryDirectory() as d:
+            saved(d, [entry()])
+            items = applied(m.plan_skip(d, "acme-reorder", "Reorder button for Acme Pizza", "https://tracker.example/T-1", "ticket", "dropped from the sprint", "2026-10-02"))
+            self.assertEqual(len(items), 1)
+            self.assertEqual((items[0]["stage"], items[0]["bet"]["range"]), ("skipped", "130 to 160 a week"))
+
 if __name__ == "__main__":
     unittest.main()
