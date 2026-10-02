@@ -1,0 +1,10 @@
+[
+  { "id": "acme-reorder", "work": { "title": "Reorder button for Acme Pizza", "link": "https://tracker.example/T-1", "kind": "ticket" },
+    "stage": "before", "metric": { "name": "repeat orders per week", "why": "the button exists to bring people back" },
+    "source": { "category": "data warehouse", "tool": "warehouse", "query": "select count(*) from orders where repeat = true and week = current_week", "run_at": "2026-09-15" },
+    "baseline": { "value": "120 a week", "as_of": "2026-09-15", "confidence": "direct" },
+    "bet": { "sentence": "We believe a reorder button will lift repeat orders, because Sam's survey says people retype orders", "range": "130 to 160 a week", "confidence": "inferred" },
+    "ownership": "mine", "launch_date": "2026-09-20",
+    "checks": [ { "due": "2026-10-04", "done_at": null, "value": null, "verdict": null }, { "due": "2026-11-01", "done_at": null, "value": null, "verdict": null } ],
+    "created_at": "2026-09-15", "updated_at": "2026-09-20" }
+]
