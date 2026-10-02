@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.59.0: 2026-10-02
+
+Measuring impact is now part of the flow, not a separate chore.
+
+### Improved Skills
+
+- **The skills that sit at measurable moments now hand off to `/flagrare:measure-impact`** instead of guessing numbers themselves:
+  - **Before building:** `/flagrare:tdd-writer` sets the bet and opens every TDD with a short "For product" paragraph; `/flagrare:work-prep` sets a quick bet (or records a skip for small fixes) and passes missing tracking to `/flagrare:atdd-plan`, which adds it before the feature.
+  - **Shipping and scans:** `/flagrare:open-pr` adds one "how we'll know" line when a bet exists; `/flagrare:opportunity-scan` sizes the impact factor from a measured baseline and saves the bet only once a project is agreed with your manager, so proposals you never start don't come back as reminders; `/flagrare:impact-scan` asks "Measure it? (yes / skip)" right after logging a win, and a skip is remembered.
+  - **Write-ups:** `/flagrare:brag-doc`, `/flagrare:impact-timeline` and `/flagrare:promotion` (packet mode) lead with measured results and their confidence, and never give a win a number it doesn't have.
+- **`/flagrare:measure-impact`**: a quick run now also says whether the change can be tracked today, so the plan can add the missing event before the feature. Work saved from a proposal keeps the same entry when it comes back as a ticket or TDD.
+
 ## 1.58.1: 2026-10-02
 
 ### Bug Fixes
