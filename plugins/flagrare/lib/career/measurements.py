@@ -112,3 +112,59 @@ def plan_upsert(home: str, entry: dict, today: str) -> list[dict]:
             return _write(home, items, f"update measurement {entry['id']}")
     items.append({**entry, "created_at": today, "updated_at": today})
     return _write(home, items, f"save measurement {entry['id']}")
+
+
+def _find(items: list[dict], item_id: str) -> dict:
+    for item in items:
+        if isinstance(item, dict) and item.get("id") == item_id:
+            return item
+    raise ValueError(f"no measurement with id {item_id}")
+
+
+def _days_after(day: str, n: int) -> str:
+    return (date.fromisoformat(day) + timedelta(days=n)).isoformat()
+
+
+def plan_launch(home: str, item_id: str, launch_date: str, today: str) -> list[dict]:
+    _check_date("launch_date", launch_date)
+    _check_date("today", today)
+    items = load(home)
+    item = _find(items, item_id)
+    done = [c for c in item.get("checks") or [] if isinstance(c, dict) and c.get("done_at")]
+    undone_dues = [_days_after(launch_date, n) for n in CHECK_DAYS[len(done):]]
+    item["launch_date"] = launch_date
+    item["checks"] = done + [{"due": d, "done_at": None, "value": None, "verdict": None} for d in undone_dues]
+    item["updated_at"] = today
+    return _write(home, items, f"set launch of {item_id} to {launch_date}")
+
+
+def plan_check(home: str, item_id: str, due: str, value: str, verdict: str, today: str) -> list[dict]:
+    if verdict not in VERDICTS:
+        raise ValueError(f"verdict must be one of {VERDICTS}")
+    _check_date("due", due)
+    _check_date("today", today)
+    items = load(home)
+    item = _find(items, item_id)
+    for check in item.get("checks") or []:
+        if isinstance(check, dict) and check.get("due") == due:
+            check.update({"done_at": today, "value": value, "verdict": verdict})
+            item["stage"] = "after"
+            item["updated_at"] = today
+            return _write(home, items, f"record the {due} check of {item_id}: {verdict}")
+    raise ValueError(f"no check due on {due} for {item_id}")
+
+
+def plan_skip(home: str, item_id: str, title: str, link: str, kind: str, reason: str, today: str) -> list[dict]:
+    if kind not in KINDS:
+        raise ValueError(f"work kind must be one of {KINDS}")
+    if not reason:
+        raise ValueError("a skip needs a reason")
+    _check_date("today", today)
+    items = load(home)
+    for item in items:
+        if isinstance(item, dict) and item.get("id") == item_id:
+            item.update({"stage": "skipped", "skipped_reason": reason, "updated_at": today})
+            return _write(home, items, f"skip {item_id}")
+    items.append({"id": item_id, "work": {"title": title, "link": link, "kind": kind}, "stage": "skipped",
+                  "skipped_reason": reason, "created_at": today, "updated_at": today})
+    return _write(home, items, f"skip {item_id}")
