@@ -1,0 +1,29 @@
+{
+  "skill_name": "measure-impact",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "Before I build it: how will we know if the new 'save my usual order' shortcut for Acme Pizza works? Ticket https://tracker.example/T-5. My files are in ~/.claude/skills/flagrare/ (see the fixtures).",
+      "expected_output": "Agent treats it as the before stage at quick size, names the kind of impact, picks a number (repeat or faster orders), looks for a baseline in the connected tools and either gives it with its query and date or says it could not be found and how to get it, writes 'We believe ... because ...' with a range and a confidence level, and saves it through measurements.py plan with the Write tool. No number appears without a source or a confidence level.",
+      "files": ["evals/fixtures/config.json", "evals/fixtures/measurements.json", "evals/fixtures/contributions.log.md"]
+    },
+    {
+      "id": 1,
+      "prompt": "What impact did my Sep 24 contribution have? No data tools are connected in this session.",
+      "expected_output": "Agent treats it as the past stage for the 2026-09-24 log entry, uses the number already in the entry (20% of emails held back) as direct with the log as its source, says it cannot measure what changed after the removal because no data tool is reachable, marks that part unknown and names what it would query, writes the action, result, impact sentence without inventing an after number, and offers to save it.",
+      "files": ["evals/fixtures/config.json", "evals/fixtures/contributions.log.md", "evals/fixtures/measurements.json"]
+    },
+    {
+      "id": 2,
+      "prompt": "The two-week check on the reorder button is due. The same query now returns 124 a week, and a big holiday promotion ran that week.",
+      "expected_output": "Agent re-runs or uses the saved query's result, compares 120 to 124 against the bet's 130 to 160 range, and gives the verdict can't tell (or didn't work), explaining the promotion as a confounder, not worked. It records the check with measurements.py check, verdict cant_tell or didnt_work, and does not soften the result.",
+      "files": ["evals/fixtures/measurements.json"]
+    },
+    {
+      "id": 3,
+      "prompt": "I fixed a typo on the menu page, should I measure it?",
+      "expected_output": "Agent says it is a small fix with no user-visible impact worth measuring, records a skip with measurements.py skip and a reason, and does not build a bet.",
+      "files": ["evals/fixtures/measurements.json"]
+    }
+  ]
+}

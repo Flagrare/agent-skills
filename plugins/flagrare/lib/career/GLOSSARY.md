@@ -25,5 +25,9 @@ Clarity comes first, and the user still learns the terms their company uses. The
 | Recognition | bonuses | Thanks peers gave the user in the company's recognition tool. Proof someone saw the work, and a source of peer-feedback picks. |
 | Ranking score, "15 of 18" | score, rank, weights | How a proposed project ranks: 0 to 2 on eight questions, with moving a company metric counting double. Zero on that one makes it a fix, not a project. |
 | The bet | hypothesis | "We believe X will Y because Z": what a proposed project expects to change, set before building. |
+| Baseline | baseline, before value | The number today, with where it came from and when it was taken. |
+| Check | after check, follow-up | Measuring again with the same query, 2 and 6 weeks after launch, and saying whether the bet worked. |
+| Confidence level | confidence, certainty | How sure a number or claim is: direct (a source says it), supported (several sources agree), inferred (a reasonable reading), speculative (a guess), unknown (searched, not found). |
+| Win with no number | unmeasured log entry | A contribution in the log that has no measurement yet. |
 
 Row ids (`scope.proactive-discovery`), file names and statuses like `handed_off` are code: they belong in item blocks, logs and files, never in a table cell or a sentence written for the user. Each behavior's plain name is its `label` in the promotion map.
