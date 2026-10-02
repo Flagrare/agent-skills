@@ -56,3 +56,114 @@ def session_start(home: str, today: str) -> dict | None:
     context = ("measure-impact items due (from measurements.py due): " + json.dumps(due, ensure_ascii=False)
                + ". Mention them once, at a natural point; never interrupt the user's current task for them.")
     return {"systemMessage": line, "hookSpecificOutput": {"hookEventName": "SessionStart", "additionalContext": context}}
+
+
+MOMENT_SKILLS = {
+    "flagrare:tdd-writer": ("a TDD is being written", "before"),
+    "flagrare:work-prep": ("a ticket is being picked up", "before"),
+    "flagrare:intake": ("a ticket is being picked up", "before"),
+    "flagrare:opportunity-scan": ("projects are being proposed", "before"),
+    "flagrare:open-pr": ("a PR is being opened", "before"),
+    "flagrare:release-check": ("a release is being checked", "launch"),
+}
+
+
+def moment_of(event: dict) -> tuple[str, str, str] | None:
+    tool = event.get("tool_name")
+    data = event.get("tool_input") if isinstance(event.get("tool_input"), dict) else {}
+    if tool == "Skill" and data.get("skill") in MOMENT_SKILLS:
+        what, stage = MOMENT_SKILLS[data["skill"]]
+        return f"skill:{data['skill']}:{str(data.get('args', ''))[:120]}", what, stage
+    if tool == "Bash":
+        command = str(data.get("command", ""))
+        if "gh pr merge" in command:
+            return f"merge:{command[:120]}", "a PR was merged", "launch"
+        if "gh pr create" in command:
+            return f"create:{command[:120]}", "a PR was opened", "before"
+        if "contributions.log.md" in command:
+            return "log", "a contribution was logged", "past"
+    if tool in ("Write", "Edit") and str(data.get("file_path", "")).endswith("career/contributions.log.md"):
+        return "log", "a contribution was logged", "past"
+    return None
+
+
+def _skipped(event: dict, home: str) -> bool:
+    try:
+        items = measurements.load(home)
+    except measurements.CorruptFile:
+        return False
+    text = json.dumps(event.get("tool_input") or {}, ensure_ascii=False)
+    for item in items:
+        if isinstance(item, dict) and item.get("stage") == "skipped":
+            link = (item.get("work") or {}).get("link") or ""
+            last = link.rstrip("/").rsplit("/", 1)[-1] if link else ""
+            if (link and link in text) or (len(last) > 2 and last in text) or (len(str(item.get("id", ""))) > 3 and str(item["id"]) in text):
+                return True
+    return False
+
+
+def _first_time(session_id: str, key: str, state_dir: str) -> bool:
+    if not session_id:
+        return True
+    path = Path(state_dir) / f"flagrare-measure-{session_id}.json"
+    try:
+        seen = json.loads(path.read_text(encoding="utf-8"))
+        seen = seen if isinstance(seen, list) else []
+    except (OSError, json.JSONDecodeError):
+        seen = []
+    if key in seen:
+        return False
+    try:
+        path.write_text(json.dumps(seen + [key]), encoding="utf-8")
+    except OSError:
+        pass
+    return True
+
+
+def moment(event: dict, home: str, state_dir: str) -> dict | None:
+    if not isinstance(event, dict):
+        return None
+    found = moment_of(event)
+    if not found or not reminders_on(home):
+        return None
+    key, what, stage = found
+    if _skipped(event, home) or not _first_time(str(event.get("session_id") or ""), key, state_dir):
+        return None
+    if stage == "launch":
+        ask = ("if this work has a saved measurement, ask the user when it reaches users and record that date with "
+               "measurements.py launch, so the checks come due on their own; if it has none, offer /flagrare:measure-impact (before stage)")
+    else:
+        ask = f"offer /flagrare:measure-impact ({stage} stage)"
+    note = (f"Measure-impact moment: {what}. Unless this is a small fix, the user already measured or skipped this work, "
+            f"or this is a scheduled run, {ask} in one short line at the end of your reply. "
+            "Do not interrupt the current task for it, and do not offer it again for this work in this session.")
+    return {"hookSpecificOutput": {"hookEventName": "PostToolUse", "additionalContext": note}}
+
+
+def main(argv: list[str], stdin_text: str, home: str, today: str, state_dir: str) -> str:
+    mode = argv[1] if len(argv) > 1 else ""
+    try:
+        if mode == "session-start":
+            out = session_start(home, today)
+        elif mode == "moment":
+            event = json.loads(stdin_text) if stdin_text.strip() else {}
+            if isinstance(event, dict):
+                out = moment(event, home, str(event.get("scratchpad_dir") or state_dir))
+            else:
+                out = None
+        else:
+            out = None
+    except Exception:  # a reminder must never break the session
+        return ""
+    return json.dumps(out, ensure_ascii=False) if out else ""
+
+
+if __name__ == "__main__":
+    try:
+        text = sys.stdin.read()
+    except Exception:
+        text = ""
+    printed = main(sys.argv, text, os.path.expanduser("~"), date.today().isoformat(), tempfile.gettempdir())
+    if printed:
+        print(printed)
+    sys.exit(0)
