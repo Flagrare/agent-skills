@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.58.0: 2026-10-02
+
+Reminders, so measuring impact doesn't depend on remembering it.
+
+### Improved Skills
+
+- **`/flagrare:measure-impact`, reminders**: the skill measured what your work changed, but only when you thought to ask, and the steps people skip are exactly the before and the after. Now hooks bring it up:
+  - **When a session starts or resumes:** one line when something is due, for example "Impact: 1 check due (Reorder button). Ask Claude to measure it when you have a minute." Nothing when nothing is due.
+  - **At a measurable moment:** a TDD being written, a ticket picked up, a PR opened, a win logged, whether Claude runs the skill or you type it. Claude offers it in one line at the end of its reply instead of interrupting.
+  - **When a PR merges or a release goes out:** Claude asks when the work reaches users and records the launch date, naming the measurements still waiting for one, so the 2- and 6-week checks schedule themselves.
+  - **No nagging:** each moment once per session, tickets you skipped stay quiet, commands that only mention a PR (a `--help`, a queued `--auto` merge, a commit message) don't count, and `reminders: false` in the config turns it all off. A hook problem never breaks your session.
+
 ## 1.57.0: 2026-10-02
 
 Measure what your work changed, before and after you build it.
