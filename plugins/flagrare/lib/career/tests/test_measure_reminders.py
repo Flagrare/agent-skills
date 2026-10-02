@@ -150,5 +150,21 @@ class CommandLine(unittest.TestCase):
             self.assertEqual([p.name for p in Path(pad).iterdir()], ["flagrare-measure-s1.json"])
             self.assertEqual(list(Path(fallback).iterdir()), [])
 
+class Registration(unittest.TestCase):
+    def test_given_the_plugin_hooks_file_when_read_then_both_reminders_are_registered_on_an_existing_script(self):
+        config = json.loads((HOOKS / "hooks.json").read_text())
+        commands = {}
+        for event, groups in config["hooks"].items():
+            for group in groups:
+                for hook in group.get("hooks", []):
+                    if "measure_reminders.py" in hook.get("command", ""):
+                        commands[event] = (group.get("matcher"), hook["command"])
+        self.assertEqual(set(commands), {"SessionStart", "PostToolUse"})
+        self.assertEqual(commands["SessionStart"][0], "startup|resume")
+        self.assertEqual(commands["PostToolUse"][0], "Skill|Bash|Write|Edit")
+        self.assertTrue(commands["SessionStart"][1].endswith("measure_reminders.py session-start"))
+        self.assertTrue(commands["PostToolUse"][1].endswith("measure_reminders.py moment"))
+        self.assertTrue((HOOKS / "measure_reminders.py").is_file())
+
 if __name__ == "__main__":
     unittest.main()
