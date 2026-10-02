@@ -89,10 +89,11 @@ This gate is light by design, it's one button click when the synthesis is correc
 
 Write a plan-mode plan. Follow Claude Code's normal plan-mode conventions for shape, length, and tone, narrative + targeted lists, scannable, no padding.
 
-**Two requirements layered on top of plan mode's defaults:**
+**Requirements layered on top of plan mode's defaults (the third only when a bet is present):**
 
 1. Include the **Acceptance Tests** section described above (3-5 ATs).
 2. **Name the design patterns** for any non-trivial structural decisions, with one-line rationale each. Or explicitly state none are needed.
+3. When the opening context carries a bet from `/flagrare:measure-impact` whose tracking does not exist yet, add the event or metric as an early step and one acceptance test that it records the change. Without a bet, add nothing.
 
 **Do NOT add**:
 

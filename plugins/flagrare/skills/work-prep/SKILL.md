@@ -47,6 +47,7 @@ Call `/flagrare:intake` with the ticket reference prefixed by `[work-prep] ` (e.
 5. **Ground the brief in the codebase** via `/flagrare:codebase-explore`, finding the files, utilities, and prior attempts the plan will touch
 6. Ask **codebase-informed** clarifying questions (specific: "extend `src/x.ts` or fork it?", not abstract: "where should this live?")
 7. Resolve open questions with the user
+8. Set the bet with `/flagrare:measure-impact` (quick), or record a skip for a small fix, and pass it to `/flagrare:atdd-plan`. Intake does this in its `[work-prep]` hand-off, right before invoking atdd-plan.
 
 **Wait for `/flagrare:intake` to complete before proceeding.** The context brief must be finalized, codebase findings populated, and open questions resolved.
 

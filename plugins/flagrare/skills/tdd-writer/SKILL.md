@@ -98,6 +98,10 @@ After gathering, explicitly list what could NOT be verified:
 - Unconfirmed business logic
 - Pending decisions
 
+### Phase 1.5: Set the bet
+
+Before drafting, run `/flagrare:measure-impact` with `before <ticket, doc or initiative link> full called by /flagrare:tdd-writer`. Use what it returns in two places: the **For product** paragraph at the top of the Introduction (the bet, the number it should move with today's value and its source, how sure we are, what is out of scope), and the Analytics or Observability section (how the change will be tracked). When it reports a baseline as unknown, keep that visible in the doc ("baseline unknown: <how to get it>") instead of inventing a number.
+
 ### Phase 2: Draft Structure
 
 The template below is a **coverage checklist for the author, not a layout for the reader**. It lists what a good TDD considers. It does not mean each heading gets three bullets and a code block. As you fill it, follow one rule above all others: **write each section as prose a colleague could read aloud.** Reach for a list or table only when the content is genuinely parallel and order-independent, a roster of endpoints, a t-shirt-size scale, a test matrix. The moment a "list" has bullets that depend on each other (this happens, *then* that, *because* of the other), it's a paragraph wearing a list costume. Write the paragraph.
@@ -119,6 +123,9 @@ Drop sections that don't apply rather than filling them with "N/A" noise. Mark A
 ---
 
 ## Introduction
+
+### For product
+[3 to 5 plain sentences a product manager can read without the rest of the doc: what changes for users, the bet from /flagrare:measure-impact (the number it should move, today's value and its source, how sure we are), and what is out of scope.]
 
 ### Context
 [1-2 paragraphs: What problem are we solving? Business-oriented terms.]
