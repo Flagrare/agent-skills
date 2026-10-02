@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.58.1: 2026-10-02
+
+### Bug Fixes
+
+- **`/flagrare:measure-impact` reminders no longer open with your whole log**: with an existing contributions log, the first session-start line read "21 recent wins with no number", every entry from before you ever measured anything. Wins without a number now count from the first measurement you save, at most 30 days back, and nothing before that. Going through older work is still one ask away ("measure my past wins").
+
 ## 1.58.0: 2026-10-02
 
 Reminders, so measuring impact doesn't depend on remembering it.
