@@ -66,5 +66,89 @@ class SessionStart(unittest.TestCase):
             self.assertNotIn("Traceback", out["systemMessage"])
 
 
+def skill_event(name: str, args: str = "", sid: str = "s1") -> dict:
+    return {"session_id": sid, "hook_event_name": "PostToolUse", "tool_name": "Skill", "tool_input": {"skill": name, "args": args}}
+
+
+class Moment(unittest.TestCase):
+    def test_given_a_tdd_was_drafted_when_the_tool_finishes_then_tells_claude_to_offer_a_before_measurement(self):
+        with tempfile.TemporaryDirectory() as d, tempfile.TemporaryDirectory() as s:
+            out = mr.moment(skill_event("flagrare:tdd-writer", "T-5"), d, s)
+            note = out["hookSpecificOutput"]["additionalContext"]
+            self.assertEqual(out["hookSpecificOutput"]["hookEventName"], "PostToolUse")
+            self.assertIn("a TDD is being written", note)
+            self.assertIn("before stage", note)
+
+    def test_given_an_unrelated_skill_when_the_tool_finishes_then_says_nothing(self):
+        with tempfile.TemporaryDirectory() as d, tempfile.TemporaryDirectory() as s:
+            self.assertIsNone(mr.moment(skill_event("flagrare:design-review"), d, s))
+
+    def test_given_a_pr_merge_command_when_it_finishes_then_asks_to_record_the_launch_date(self):
+        with tempfile.TemporaryDirectory() as d, tempfile.TemporaryDirectory() as s:
+            event = {"session_id": "s1", "tool_name": "Bash", "tool_input": {"command": "gh pr merge 42 --squash"}}
+            note = mr.moment(event, d, s)["hookSpecificOutput"]["additionalContext"]
+            self.assertIn("measurements.py launch", note)
+            self.assertNotIn("after stage", note)
+
+    def test_given_a_log_entry_appended_from_a_shell_command_when_it_finishes_then_offers_a_past_measurement(self):
+        with tempfile.TemporaryDirectory() as d, tempfile.TemporaryDirectory() as s:
+            event = {"session_id": "s1", "tool_name": "Bash", "tool_input": {"command": "python3 - <<EOF\nopen('contributions.log.md','a')\nEOF"}}
+            self.assertIn("past stage", mr.moment(event, d, s)["hookSpecificOutput"]["additionalContext"])
+
+    def test_given_a_contributions_log_write_when_it_finishes_then_offers_a_past_measurement(self):
+        with tempfile.TemporaryDirectory() as d, tempfile.TemporaryDirectory() as s:
+            event = {"session_id": "s1", "tool_name": "Edit", "tool_input": {"file_path": f"{d}/{CAREER}/contributions.log.md"}}
+            self.assertIn("past stage", mr.moment(event, d, s)["hookSpecificOutput"]["additionalContext"])
+
+    def test_given_the_same_moment_twice_in_a_session_when_it_finishes_then_the_second_is_silent(self):
+        with tempfile.TemporaryDirectory() as d, tempfile.TemporaryDirectory() as s:
+            self.assertIsNotNone(mr.moment(skill_event("flagrare:work-prep", "T-5"), d, s))
+            self.assertIsNone(mr.moment(skill_event("flagrare:work-prep", "T-5"), d, s))
+            self.assertIsNotNone(mr.moment(skill_event("flagrare:work-prep", "T-6"), d, s))
+
+    def test_given_reminders_turned_off_when_a_moment_happens_then_says_nothing(self):
+        with tempfile.TemporaryDirectory() as d, tempfile.TemporaryDirectory() as s:
+            write(Path(d), CONFIG, json.dumps({"skills": {"measure-impact": {"reminders": False}}}))
+            self.assertIsNone(mr.moment(skill_event("flagrare:tdd-writer"), d, s))
+
+    def test_given_skipped_work_when_its_moment_happens_then_says_nothing(self):
+        with tempfile.TemporaryDirectory() as d, tempfile.TemporaryDirectory() as s:
+            skipped = {"id": "typo-fix", "work": {"title": "Fix a typo", "link": "https://tracker.example/T-9", "kind": "ticket"},
+                       "stage": "skipped", "skipped_reason": "small fix"}
+            write(Path(d), f"{CAREER}/measurements.json", json.dumps([skipped]))
+            self.assertIsNone(mr.moment(skill_event("flagrare:work-prep", "https://tracker.example/T-9"), d, s))
+            self.assertIsNone(mr.moment(skill_event("flagrare:work-prep", "T-9", sid="s2"), d, s))
+
+    def test_given_no_session_id_when_a_moment_happens_then_still_notes_it(self):
+        with tempfile.TemporaryDirectory() as d, tempfile.TemporaryDirectory() as s:
+            self.assertIsNotNone(mr.moment(skill_event("flagrare:tdd-writer", sid=""), d, s))
+
+    def test_given_an_unwritable_state_folder_when_a_moment_happens_then_still_notes_it(self):
+        with tempfile.TemporaryDirectory() as d:
+            self.assertIsNotNone(mr.moment(skill_event("flagrare:tdd-writer"), d, "/nonexistent/folder/for/state"))
+
+
+class CommandLine(unittest.TestCase):
+    def test_given_garbage_on_stdin_when_the_moment_hook_runs_then_prints_nothing_and_exits_0(self):
+        for text in ["", "not json", "[1, 2]"]:
+            with self.subTest(text=text):
+                with tempfile.TemporaryDirectory() as d, tempfile.TemporaryDirectory() as s:
+                    self.assertEqual(mr.main(["x", "moment"], text, d, "2026-10-16", s), "")
+                script = HOOKS / "measure_reminders.py"
+                done = subprocess.run([sys.executable, str(script), "moment"], input=text, capture_output=True, text=True)
+                self.assertEqual((done.returncode, done.stdout), (0, ""))
+
+    def test_given_a_moment_on_stdin_when_the_hook_runs_then_prints_the_json_note(self):
+        with tempfile.TemporaryDirectory() as d, tempfile.TemporaryDirectory() as s:
+            out = mr.main(["x", "moment"], json.dumps(skill_event("flagrare:open-pr")), d, "2026-10-16", s)
+            self.assertIn("a PR is being opened", json.loads(out)["hookSpecificOutput"]["additionalContext"])
+
+    def test_given_a_scratchpad_in_the_event_when_the_hook_runs_then_keeps_its_once_per_session_list_there(self):
+        with tempfile.TemporaryDirectory() as d, tempfile.TemporaryDirectory() as fallback, tempfile.TemporaryDirectory() as pad:
+            event = {**skill_event("flagrare:open-pr"), "scratchpad_dir": pad}
+            mr.main(["x", "moment"], json.dumps(event), d, "2026-10-16", fallback)
+            self.assertEqual([p.name for p in Path(pad).iterdir()], ["flagrare-measure-s1.json"])
+            self.assertEqual(list(Path(fallback).iterdir()), [])
+
 if __name__ == "__main__":
     unittest.main()
