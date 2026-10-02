@@ -21,7 +21,7 @@ Impact claims without a method go wrong in three ways: targets that are wishes, 
 - `launch --id <id> --launch-date <date>`: set the launch date; creates checks 14 and 42 days later. The measurement must exist: when work launches with nothing saved, `plan` it first from what is known, then `launch`.
 - `check --id <id> --due <date> --value "<text>" --verdict worked|didnt_work|cant_tell`: record a check.
 - `skip --id <id> --title "<work>" --link <link> --kind ticket|tdd|project|log_entry --reason "<why>"`: record a skip.
-- `due`: checks past their date, bets with no launch after 30 days, and contributions-log entries from the last 30 days with no measurement (`--all-wins` for every entry, when the user asks to go through old work).
+- `due`: checks past their date, bets with no launch after 30 days, and contributions-log entries with no measurement, counted from the first saved measurement (at most 30 days back; nothing before the user has saved one). Use `--all-wins` for every entry when the user asks to go through old work.
 - `show`: everything saved.
 
 The file's shape is in `<plugin root>/lib/career/STATE.md`.
