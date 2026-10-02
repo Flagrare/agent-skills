@@ -14,6 +14,7 @@ from pathlib import Path
 
 import career_state
 import initiatives
+import measurements
 import recognition
 from map_schema import missing_sections, stale_sections
 from scoring import open_rows, unseen_people
@@ -155,13 +156,26 @@ def map_line(home: str) -> dict:
     }
 
 
+def measure(home: str, today: str) -> dict:
+    """The Measure card and digest line: what is due, from the same list the session-start reminder uses.
+    A broken measurements file is reported here, so it never hides the rest of the board."""
+    try:
+        saved = measurements.load(home)
+        return {"has_measurements": bool(saved), "reminders": measurements.reminders_on(home), **measurements.due(home, today)}
+    except measurements.CorruptFile as exc:
+        return {"error": str(exc)}
+    except (TypeError, ValueError, AttributeError) as exc:
+        return {"error": f"{measurements.file_path(home)} has an entry that could not be read ({exc})"}
+
+
 def board(home: str, today: str) -> dict:
     """What the board adds to data.json: the initiative card (with the candidates still waiting for a decision), the promotion and packet panels, row coverage and the weekly trend."""
     ctx = initiatives.context(home, today)["initiatives"]
     return {"initiatives": {"active": ctx["active"], "proposed": ctx["proposed"], "candidates": ctx["candidates"]},
             "promotion": map_line(home), "readiness": readiness(home), "balance": balance(home, today),
             "packet": packet(home), "trend": trend(home, today),
-            "recognition": recognition.summary(home, today), "readiness_target": READINESS_STRONG}
+            "recognition": recognition.summary(home, today), "measure": measure(home, today),
+            "readiness_target": READINESS_STRONG}
 
 
 def main() -> None:

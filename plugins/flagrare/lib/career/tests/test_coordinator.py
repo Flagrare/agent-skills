@@ -196,6 +196,44 @@ class BoardRecognition(unittest.TestCase):
             self.assertEqual(co.board(d, "2026-10-01")["recognition"], {"has_recognition": False})
 
 
+class BoardMeasure(unittest.TestCase):
+    def test_given_a_check_past_its_date_when_building_board_data_then_lists_it(self):
+        with tempfile.TemporaryDirectory() as d:
+            home = Path(d)
+            write(home, f"{CAREER}/measurements.json", [{"id": "faster-search", "work": {"title": "Faster search", "link": "https://example.com/t/1", "kind": "ticket"},
+                "stage": "after", "created_at": "2026-08-01", "launch_date": "2026-09-01", "checks": [{"after_days": 14, "due": "2026-09-15", "done_at": None}]}])
+            m = co.board(str(home), "2026-10-01")["measure"]
+            self.assertEqual((m["has_measurements"], m["count"], m["checks_due"][0]["title"]), (True, 1, "Faster search"))
+
+    def test_given_no_measurements_when_building_board_data_then_says_none_saved(self):
+        with tempfile.TemporaryDirectory() as d:
+            m = co.board(d, "2026-10-01")["measure"]
+            self.assertEqual((m["has_measurements"], m["count"]), (False, 0))
+
+    def test_given_a_broken_measurements_file_when_building_board_data_then_the_rest_still_builds(self):
+        with tempfile.TemporaryDirectory() as d:
+            p = Path(d) / CAREER / "measurements.json"
+            p.parent.mkdir(parents=True)
+            p.write_text("{not json")
+            b = co.board(d, "2026-10-01")
+            self.assertIn("measurements.json", b["measure"]["error"])
+            self.assertEqual(b["promotion"], {"has_map": False})
+
+    def test_given_a_saved_check_with_a_malformed_date_when_building_board_data_then_the_rest_still_builds(self):
+        with tempfile.TemporaryDirectory() as d:
+            home = Path(d)
+            write(home, f"{CAREER}/measurements.json", [{"id": "x", "work": {"title": "X", "link": "https://example.com/x"}, "stage": "after", "checks": [{"due": 5}]}])
+            b = co.board(str(home), "2026-10-01")
+            self.assertIn("measurements.json", b["measure"]["error"])
+            self.assertEqual(b["promotion"], {"has_map": False})
+
+    def test_given_reminders_off_when_building_board_data_then_says_so(self):
+        with tempfile.TemporaryDirectory() as d:
+            home = Path(d)
+            write(home, ".claude/skills/flagrare/config.json", {"skills": {"measure-impact": {"reminders": "off"}}})
+            self.assertFalse(co.board(str(home), "2026-10-01")["measure"]["reminders"])
+
+
 class MapLine(unittest.TestCase):
     def test_given_a_map_when_summarizing_then_lists_gaps_people_and_dates(self):
         with tempfile.TemporaryDirectory() as d:

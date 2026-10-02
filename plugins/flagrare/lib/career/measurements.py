@@ -21,10 +21,22 @@ VERDICTS = ["worked", "didnt_work", "cant_tell"]
 CHECK_DAYS = (14, 42)
 BET_WAIT_DAYS = 30
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+OFF_VALUES = (False, "false", "off", "no", "0", 0)
 
 
 class CorruptFile(ValueError):
     """measurements.json exists but can't be read; never plan over it."""
+
+
+def reminders_on(home: str) -> bool:
+    """`skills["measure-impact"].reminders` in the shared config; a missing or unreadable config means on."""
+    try:
+        config = json.loads(Path(career_state.paths(home)["config"]).read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return True
+    block = ((config.get("skills") or {}).get("measure-impact") or {}) if isinstance(config, dict) else {}
+    value = block.get("reminders", True) if isinstance(block, dict) else True
+    return (value.strip().lower() if isinstance(value, str) else value) not in OFF_VALUES
 
 
 def file_path(home: str) -> Path:
