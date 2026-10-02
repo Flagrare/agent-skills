@@ -252,5 +252,41 @@ class Due(unittest.TestCase):
             saved(d, [entry(stage="skipped", skipped_reason="dropped", checks=[{"due": "2026-10-15", "done_at": None, "value": None, "verdict": None}])])
             self.assertEqual(m.due(d, "2026-10-20")["checks_due"], [])
 
+class ReviewFixes(unittest.TestCase):
+    def test_given_an_entry_sent_with_empty_checks_and_launch_when_planning_again_then_keeps_the_saved_ones(self):
+        with tempfile.TemporaryDirectory() as d:
+            done = {"due": "2026-10-15", "done_at": "2026-10-15", "value": "150", "verdict": "worked", "after_days": 14}
+            saved(d, [{**entry(), "stage": "after", "launch_date": "2026-10-01", "checks": [done], "created_at": "2026-09-20"}])
+            items = applied(m.plan_upsert(d, {**entry(stage="after"), "launch_date": None, "checks": [], "created_at": "2026-10-20"}, "2026-10-20"))
+            self.assertEqual((items[0]["launch_date"], items[0]["checks"], items[0]["created_at"]), ("2026-10-01", [done], "2026-09-20"))
+
+    def test_given_common_credential_shapes_in_a_query_when_planning_then_refuses_each(self):
+        shapes = ['curl -d \'{"password": "hunter2"}\' https://api.example',
+                  '{"token": "abc123"}',
+                  'curl -u kai:hunter2 https://api.example',
+                  'snowsql -a acct --password hunter2',
+                  'curl -H "x: ghp_abcdefghijklmnop1234" https://api.example',
+                  'aws s3 ls --key AKIAABCDEFGHIJKLMNOP']
+        for q in shapes:
+            with self.subTest(q=q), tempfile.TemporaryDirectory() as d:
+                with self.assertRaisesRegex(ValueError, "credential"):
+                    m.plan_upsert(d, entry(source={"category": "api", "tool": "http", "query": q, "run_at": "2026-10-01"}), "2026-10-02")
+
+    def test_given_a_port_flag_in_a_query_when_planning_then_does_not_mistake_it_for_a_password(self):
+        with tempfile.TemporaryDirectory() as d:
+            q = "psql -h db.example -p 5432 -c 'select 1'"
+            items = applied(m.plan_upsert(d, entry(source={"category": "db", "tool": "psql", "query": q, "run_at": "2026-10-01"}), "2026-10-02"))
+            self.assertEqual(items[0]["source"]["query"], q)
+
+    def test_given_only_the_six_week_check_done_when_relaunching_then_keeps_it_and_moves_the_two_week_one(self):
+        with tempfile.TemporaryDirectory() as d:
+            six = {"due": "2026-11-12", "done_at": "2026-11-12", "value": "160", "verdict": "worked", "after_days": 42}
+            two = {"due": "2026-10-15", "done_at": None, "value": None, "verdict": None, "after_days": 14}
+            saved(d, [entry(launch_date="2026-10-01", checks=[two, six])])
+            items = applied(m.plan_launch(d, "acme-reorder", "2026-10-08", "2026-11-13"))
+            self.assertEqual(sorted((c["after_days"], c["due"], bool(c["done_at"])) for c in items[0]["checks"]),
+                             [(14, "2026-10-22", False), (42, "2026-11-12", True)])
+
+
 if __name__ == "__main__":
     unittest.main()

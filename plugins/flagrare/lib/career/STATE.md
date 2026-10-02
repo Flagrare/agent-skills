@@ -102,13 +102,13 @@ Impact measurements, written by `/flagrare:measure-impact` through `measurements
    "bet": { "sentence": "We believe ...", "range": "...", "confidence": "inferred" },
    "ownership": "mine|team|contributed",
    "launch_date": null,
-   "checks": [{ "due": "2026-10-19", "done_at": null, "value": null, "verdict": "worked|didnt_work|cant_tell" }],
+   "checks": [{ "due": "2026-10-19", "after_days": 14, "done_at": null, "value": null, "verdict": "worked|didnt_work|cant_tell" }],
    "result": { "sentence": "", "confidence": "" },
    "created_at": "2026-10-02", "updated_at": "2026-10-02" }]
 ```
 
 - Confidence levels: `direct`, `supported`, `inferred`, `speculative`, `unknown`. The script refuses anything else, an unknown stage, kind or ownership, dates not written `YYYY-MM-DD`, and a query that looks like it holds a credential.
-- `plan` adds an entry or updates the one with the same id, keeping its checks and launch date. `launch` sets the launch date and creates checks 14 and 42 days later; re-launching keeps checks already done and moves only the rest. `check` records a check and moves the entry to `after`. `skip` records a skip with its reason.
+- `plan` adds an entry or updates the one with the same id. It never changes `checks`, `launch_date` or `created_at`, even when the entry sends them: `launch` sets the launch date and creates checks 14 and 42 days later (`after_days`), and re-launching keeps each check already done and moves only the undone ones. `check` records a check and moves the entry to `after`. `skip` records a skip with its reason.
 - `due` lists undone checks whose date has passed, `before` entries with no launch date 30 days after they were saved, and contributions-log entries from the last 30 days whose link matches no measurement (`--all-wins` counts every entry). Skipped entries never appear.
 - `plan` never moves an entry back from `after` to `before`.
 - A corrupt file is never overwritten: every command refuses until it is fixed.

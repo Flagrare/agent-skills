@@ -79,9 +79,14 @@ def check_entry(entry: dict) -> None:
 
 
 SECRET_RE = re.compile(
-    r"(authorization\s*:|bearer\s+\S|password\s*[=:]|passwd\s*[=:]|api[_-]?key\s*[=:]|secret\s*[=:]|token\s*[=:]|://[^/\s:@]+:[^/\s@]+@)",
+    r"(authorization\s*:|bearer\s+\S"
+    r"|(password|passwd|pwd|api[_-]?key|secret|token)[\"']?\s*[=:]"
+    r"|--password[=\s]+\S|(^|\s)-u\s+[^\s:]+:\S+"
+    r"|://[^/\s:@]+:[^/\s@]+@"
+    r"|\bgh[pousr]_[A-Za-z0-9]{10,}|\bAKIA[0-9A-Z]{12,}|\bxox[abpr]-[A-Za-z0-9-]{10,})",
     re.IGNORECASE,
 )
+SCRIPT_OWNED = ("checks", "launch_date", "created_at")
 
 
 def check_query(query: str) -> None:
@@ -102,15 +107,17 @@ def plan_upsert(home: str, entry: dict, today: str) -> list[dict]:
     for i, current in enumerate(items):
         if isinstance(current, dict) and current.get("id") == entry["id"]:
             merged = {**current, **entry}
-            for keep in ("checks", "launch_date", "created_at"):
-                if keep not in entry and keep in current:
-                    merged[keep] = current[keep]
+            for owned in SCRIPT_OWNED:
+                if owned in current:
+                    merged[owned] = current[owned]
+                else:
+                    merged.pop(owned, None)
             if current.get("stage") == "after" and entry.get("stage") == "before":
                 merged["stage"] = "after"
             merged["updated_at"] = today
             items[i] = merged
             return _write(home, items, f"update measurement {entry['id']}")
-    items.append({**entry, "created_at": today, "updated_at": today})
+    items.append({**{k: v for k, v in entry.items() if k not in SCRIPT_OWNED}, "created_at": today, "updated_at": today})
     return _write(home, items, f"save measurement {entry['id']}")
 
 
@@ -130,10 +137,15 @@ def plan_launch(home: str, item_id: str, launch_date: str, today: str) -> list[d
     _check_date("today", today)
     items = load(home)
     item = _find(items, item_id)
-    done = [c for c in item.get("checks") or [] if isinstance(c, dict) and c.get("done_at")]
-    undone_dues = [_days_after(launch_date, n) for n in CHECK_DAYS[len(done):]]
+    current = [c for c in item.get("checks") or [] if isinstance(c, dict)]
+    done_by_offset = {}
+    for i, check in enumerate(sorted(current, key=lambda c: c.get("due") or "")):
+        offset = check.get("after_days", CHECK_DAYS[i] if i < len(CHECK_DAYS) else None)
+        if check.get("done_at") and offset is not None:
+            done_by_offset[offset] = check
     item["launch_date"] = launch_date
-    item["checks"] = done + [{"due": d, "done_at": None, "value": None, "verdict": None} for d in undone_dues]
+    item["checks"] = [done_by_offset.get(n) or {"due": _days_after(launch_date, n), "done_at": None, "value": None,
+                                                "verdict": None, "after_days": n} for n in CHECK_DAYS]
     item["updated_at"] = today
     return _write(home, items, f"set launch of {item_id} to {launch_date}")
 

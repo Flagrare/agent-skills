@@ -10,7 +10,7 @@
     {
       "id": 1,
       "prompt": "What impact did my Sep 24 contribution have? No data tools are connected in this session.",
-      "expected_output": "Agent treats it as the past stage for the 2026-09-24 log entry, uses the number already in the entry (20% of emails held back) as direct with the log as its source, says it cannot measure what changed after the removal because no data tool is reachable, marks that part unknown and names what it would query, writes the action, result, impact sentence without inventing an after number, and offers to save it.",
+      "expected_output": "Agent treats it as the past stage for the 2026-09-24 log entry, uses the number already in the entry (3% of customers got duplicate receipts) as direct with the log as its source, says it cannot measure what changed after the removal because no data tool is reachable, marks that part unknown and names what it would query, writes the action, result, impact sentence without inventing an after number, and saves it with measurements.py plan using the log line's link as work.link and kind log_entry.",
       "files": ["evals/fixtures/config.json", "evals/fixtures/contributions.log.md", "evals/fixtures/measurements.json"]
     },
     {
