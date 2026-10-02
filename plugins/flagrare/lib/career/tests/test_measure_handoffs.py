@@ -29,5 +29,12 @@ class Handoffs(unittest.TestCase):
             "impact-scan": "called by /flagrare:impact-scan",
         })
 
+    def test_given_the_write_ups_skills_when_read_then_each_leads_with_measured_results(self):
+        self.check({
+            "brag-doc": "### 8b. Measured results",
+            "impact-timeline": "**saved measurements**",
+            "promotion": "results saved by `/flagrare:measure-impact`",
+        })
+
 if __name__ == "__main__":
     unittest.main()
