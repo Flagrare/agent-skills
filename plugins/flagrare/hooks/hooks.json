@@ -1,5 +1,5 @@
 {
-  "description": "Skill orchestration hooks: (1) research-catalog reminder after external fetches, (2) PostToolUse chains (wrap-up\u2192implementation-review, staleness-audit\u2192release-check), (3) PreToolUse gate (atdd-plan requires codebase-explore first). Note: intake\u2192atdd-plan handoff is handled inside intake's Step 6 via the [work-prep] prefix convention, not by a hook. (4) measure-impact reminders: one line at session start or resume when measurements are due, and a note to Claude at measurable moments (TDD written, ticket picked up, PR opened or merged, contribution logged, release).",
+  "description": "Skill orchestration hooks: (1) research-catalog reminder after external fetches, (2) PostToolUse chains (wrap-up→implementation-review, staleness-audit→release-check), (3) PreToolUse gate (atdd-plan requires codebase-explore first). Note: intake→atdd-plan handoff is handled inside intake's Step 6 via the [work-prep] prefix convention, not by a hook. (4) measure-impact reminders: one line at session start or resume when measurements are due, and a note to Claude at measurable moments, whether Claude runs the skill or the user types it, (TDD written, ticket picked up, PR opened or merged, contribution logged, release).",
   "hooks": {
     "PreToolUse": [
       {
@@ -49,6 +49,18 @@
           {
             "type": "command",
             "command": "python3 ${CLAUDE_PLUGIN_ROOT}/hooks/measure_reminders.py session-start",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "UserPromptExpansion": [
+      {
+        "matcher": "(flagrare:)?(tdd-writer|work-prep|intake|opportunity-scan|open-pr|release-check)",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ${CLAUDE_PLUGIN_ROOT}/hooks/measure_reminders.py expansion",
             "timeout": 10
           }
         ]
