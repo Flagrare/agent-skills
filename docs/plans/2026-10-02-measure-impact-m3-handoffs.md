@@ -25,8 +25,8 @@
 1. **An anchor that moved** since this plan was written: the edit must land at the right spot or stop; never append blindly at the end of a file. Each task checks its anchor exists exactly once before inserting.
 2. **Double prompting:** work-prep runs intake; intake must not also suggest measuring when called by work-prep (its line says so).
 3. **A user with no measurements file:** open-pr, brag-doc, impact-timeline and promotion read `measurements.py show`, which returns `[]`; each must then simply leave the measured line out.
-4. **Friction after logging a win:** impact-scan's past measurement must be skippable in one word, or it becomes a nag.
-5. **atdd-plan without a bet** must add nothing (its new item says so).
+4. **Nag entries from proposals the user dismisses:** opportunity-scan measures with `nosave` and saves only kept proposals.
+5. **Friction after logging a win:** impact-scan's past measurement must be skippable in one word, or it becomes a nag.
 
 ---
 
@@ -65,8 +65,8 @@ class Handoffs(unittest.TestCase):
     def test_given_the_skills_used_before_building_when_read_then_each_hands_off_to_measure_impact(self):
         self.check({
             "tdd-writer": 'called by /flagrare:tdd-writer',
-            "work-prep": 'called by /flagrare:work-prep',
-            "intake": '`/flagrare:measure-impact` can set the bet',
+            "work-prep": 'Set the bet with `/flagrare:measure-impact`',
+            "intake": 'called by /flagrare:work-prep',
             "atdd-plan": 'bet from `/flagrare:measure-impact`',
         })
 
@@ -99,18 +99,28 @@ In `plugins/flagrare/skills/tdd-writer/SKILL.md`, insert this block immediately 
 [3 to 5 plain sentences a product manager can read without the rest of the doc: what changes for users, the bet from /flagrare:measure-impact (the number it should move, today's value and its source, how sure we are), and what is out of scope.]
 ````
 
-In `plugins/flagrare/skills/work-prep/SKILL.md`, insert this block immediately before the anchor line `### Step 2: Invoke `/flagrare:atdd-plan``:
+In `plugins/flagrare/skills/work-prep/SKILL.md`, insert this text as new line(s) right after the line that starts with the anchor `7. Resolve open questions with the user`:
 
 ````markdown
-### Step 1.5: Set the bet
-
-Once the brief is complete, run `/flagrare:measure-impact` with `before <ticket link> quick called by /flagrare:work-prep`. A small fix with nothing users notice gets a recorded skip and nothing else. Otherwise pass its bet sentence, the number with its source, and any missing tracking into `/flagrare:atdd-plan`'s opening context, so the plan can add the tracking before the feature.
+8. Set the bet with `/flagrare:measure-impact` (quick), or record a skip for a small fix, and pass it to `/flagrare:atdd-plan`. Intake does this in its `[work-prep]` hand-off, right before invoking atdd-plan.
 ````
 
 In `plugins/flagrare/skills/intake/SKILL.md`, insert this text as new line(s) right after the line that starts with the anchor `1. **Overview**: 4-6 lines:`:
 
 ````markdown
    When the ticket changes something users notice and intake was not called by `/flagrare:work-prep`, add one line to the overview: `/flagrare:measure-impact` can set the bet (the number this should move, from what) before planning.
+````
+
+In `plugins/flagrare/skills/intake/SKILL.md`, insert this text as new line(s) right after the line that starts with the anchor `If invoked through `/flagrare:work-prep`, skip the prompt`:
+
+````markdown
+Before that hand-off, run `/flagrare:measure-impact` with `before <ticket link> quick called by /flagrare:work-prep`. A small fix with nothing users notice gets a recorded skip and nothing else. Otherwise include its bet sentence, the number with its source, and any missing tracking in the args you pass to `/flagrare:atdd-plan`, so the plan can add the tracking before the feature.
+````
+
+In `plugins/flagrare/skills/atdd-plan/SKILL.md`, replace the anchor text with `**Two requirements layered on top of plan mode's defaults:**`:
+
+````markdown
+**Requirements layered on top of plan mode's defaults (the third only when a bet is present):**
 ````
 
 In `plugins/flagrare/skills/atdd-plan/SKILL.md`, insert this text as new line(s) right after the line that starts with the anchor `2. **Name the design patterns** for any non-trivial structural decisions`:
@@ -136,10 +146,11 @@ git commit -m "✨ feat(measure-impact): before building skills hand off to meas
 
 ---
 
-### Task 2: Shipping and scans: open-pr, opportunity-scan, impact-scan
+### Task 2: Shipping and scans: open-pr, opportunity-scan, impact-scan (and nosave in measure-impact)
 
 **Files:**
 - Modify: `plugins/flagrare/skills/open-pr/SKILL.md`
+- Modify: `plugins/flagrare/skills/measure-impact/SKILL.md`
 - Modify: `plugins/flagrare/skills/opportunity-scan/SKILL.md`
 - Modify: `plugins/flagrare/skills/impact-scan/SKILL.md`
 - Modify: `plugins/flagrare/lib/career/tests/test_measure_handoffs.py`
@@ -155,7 +166,8 @@ Add this method to the `Handoffs` class in `test_measure_handoffs.py`:
 ```python
     def test_given_the_shipping_and_scans_skills_when_read_then_each_hands_off_to_measure_impact(self):
         self.check({
-            "open-pr": "How we'll know",
+            "open-pr": "how we'll know it worked",
+            "measure-impact": '`nosave`',
             "opportunity-scan": 'called by /flagrare:opportunity-scan',
             "impact-scan": 'called by /flagrare:impact-scan',
         })
@@ -170,16 +182,28 @@ Expected: failures, one per skill not yet wired.
 
 For each edit, first confirm the anchor appears exactly once in the file (`grep -c`); if not, stop and re-anchor.
 
-In `plugins/flagrare/skills/open-pr/SKILL.md`, insert this text as new line(s) right after the line that starts with the anchor `- **Testing:** What you did to convince yourself it works`:
+In `plugins/flagrare/skills/open-pr/SKILL.md`, append this text to the end of the line that starts with the anchor `- **What changed (product perspective):**`:
 
 ````markdown
-- **How we'll know (only when a bet exists):** run `python3 <plugin root>/lib/career/measurements.py show --home "$HOME"` (the plugin root is two directories above this skill's base directory) and look for the entry whose `work.link` is this PR's ticket or TDD. When there is one, add one sentence: the number this should move, from what, and when it gets checked. When there is none, leave the line out; never invent a number.
+ When a bet exists for this work (run `python3 <plugin root>/lib/career/measurements.py show --home "$HOME"`, the plugin root being two directories above this skill's base directory, and match `work.link` to this PR's ticket or TDD), end the paragraph with one sentence on how we'll know it worked: the number it should move, from what, and when it gets checked. With no bet, leave it out; never invent a number.
+````
+
+In `plugins/flagrare/skills/measure-impact/SKILL.md`, append this text to the end of the line that starts with the anchor `**Called by another skill** (`called by /flagrare:<skill>` in the arguments)`:
+
+````markdown
+ When the arguments also say `nosave`, return the same result without saving anything: the caller saves later, only if the user keeps the work.
 ````
 
 In `plugins/flagrare/skills/opportunity-scan/SKILL.md`, insert this text as new line(s) right after the line that starts with the anchor `- **Impact (`impact`, x2):**`:
 
 ````markdown
-  Size it with `/flagrare:measure-impact` (`before <the problem's strongest link> quick called by /flagrare:opportunity-scan`): its baseline, or its comparable scaled by the right base, with the confidence level, is the impact reason. A baseline it reports as unknown scores 0 here and carries its `Check first:`.
+  Size it with `/flagrare:measure-impact` (`before <the problem's strongest link> quick nosave called by /flagrare:opportunity-scan`), only for findings that survived the hard filters, at most the top 3: its baseline, or its comparable scaled by the right base, with the confidence level, is the impact reason. A baseline it reports as unknown scores 0 here and carries its `Check first:`. Nothing is saved at this point.
+````
+
+In `plugins/flagrare/skills/opportunity-scan/SKILL.md`, append this text to the end of the line that starts with the anchor `- **Keep:** `initiatives.py propose``:
+
+````markdown
+ Then save its measurement by running `/flagrare:measure-impact` (before) for the kept proposal, so its bet is followed after launch.
 ````
 
 In `plugins/flagrare/skills/impact-scan/SKILL.md`, insert this text as new line(s) right after the line that starts with the anchor `This log is the promotion evidence trail`:
@@ -225,7 +249,7 @@ Add this method to the `Handoffs` class in `test_measure_handoffs.py`:
     def test_given_the_write_ups_skills_when_read_then_each_hands_off_to_measure_impact(self):
         self.check({
             "brag-doc": '### 8b. Measured results',
-            "impact-timeline": '**Saved measurements**',
+            "impact-timeline": '**saved measurements**',
             "promotion": 'results saved by `/flagrare:measure-impact`',
         })
 ```
@@ -247,10 +271,10 @@ In `plugins/flagrare/skills/brag-doc/SKILL.md`, insert this block immediately be
 Run `python3 <plugin root>/lib/career/measurements.py show --home "$HOME"`. For work in the window that has a measurement (match by `work.link` against the PRs, tickets and log entries you collected), lead with its result sentence (action, measured result, impact) and keep its confidence level and source next to it. Work without a measurement is described as what was done, never given a number it does not have; when it matters for a review packet, suggest `/flagrare:measure-impact` past for it.
 ````
 
-In `plugins/flagrare/skills/impact-timeline/SKILL.md`, insert this text as a new line right before the line that starts with the anchor `1. **The company data platform.**`:
+In `plugins/flagrare/skills/impact-timeline/SKILL.md`, append this text to the end of the line that starts with the anchor `Attach a "**Measured by:**" block to every month`:
 
 ````markdown
-0. **Saved measurements** (`python3 <plugin root>/lib/career/measurements.py show --home "$HOME"`): results the user already measured with `/flagrare:measure-impact`, each with its query, date and confidence level. Use them first, and re-run their saved queries for the window when the data platform is reachable.
+ Start with the user's **saved measurements** (`python3 <plugin root>/lib/career/measurements.py show --home "$HOME"`): results already measured with `/flagrare:measure-impact`, each with its query, date and confidence level. Use them first, and re-run their saved queries for the window when the data platform is reachable.
 ````
 
 In `plugins/flagrare/skills/promotion/SKILL.md`, append this text to the end of the line that starts with the anchor `3. Write each project as action, then measurable result, then impact.`:

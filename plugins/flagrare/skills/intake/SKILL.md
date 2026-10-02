@@ -219,9 +219,7 @@ Present:
 
    Do NOT offer `/flagrare:ticket-creator` or `/flagrare:tdd-writer` here, those run *before* intake in different workflows (decomposing specs into tickets, drafting design docs for new multi-week projects). They are not downstream of a single-ticket intake.
 
-If invoked through `/flagrare:work-prep`, skip the prompt and proceed directly to `/flagrare:atdd-plan`, work-prep already decided the next step. Detect this by checking whether the args passed to this skill started with `[work-prep]`. If so, do NOT issue an AskUserQuestion, instead, immediately invoke `/flagrare:atdd-plan` via the Skill tool, passing the complete context brief as the args parameter.
-
-Before that hand-off, run `/flagrare:measure-impact` with `before <ticket link> quick called by /flagrare:work-prep`. A small fix with nothing users notice gets a recorded skip and nothing else. Otherwise include its bet sentence, the number with its source, and any missing tracking in the args you pass to `/flagrare:atdd-plan`, so the plan can add the tracking before the feature.
+If invoked through `/flagrare:work-prep`, skip the prompt and proceed directly to `/flagrare:atdd-plan`, work-prep already decided the next step. Detect this by checking whether the args passed to this skill started with `[work-prep]`. If so, do NOT issue an AskUserQuestion. First run `/flagrare:measure-impact` with `before <ticket link> quick called by /flagrare:work-prep` (a small fix with nothing users notice gets a recorded skip and nothing else), then immediately invoke `/flagrare:atdd-plan` via the Skill tool, passing the complete context brief, plus the bet sentence, the number with its source and whether its tracking exists, as the args parameter, so the plan can add missing tracking before the feature.
 
 Never end intake with a context dump and silence. The user should always know what happens next and have a button to direct it, same UX contract as the plan-mode accept tool.
 
