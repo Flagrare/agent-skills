@@ -82,5 +82,55 @@ class CheckEntry(unittest.TestCase):
             m.check_entry(bad)
 
 
+def applied(actions: list[dict]) -> list[dict]:
+    assert len(actions) == 1 and actions[0]["action"] == "write"
+    return json.loads(actions[0]["content"])
+
+
+class PlanUpsert(unittest.TestCase):
+    def test_given_no_file_when_planning_then_writes_the_entry_with_its_query_verbatim(self):
+        with tempfile.TemporaryDirectory() as d:
+            q = "select count(*)\n  from orders where venue = 'acme'  -- kept as typed"
+            items = applied(m.plan_upsert(d, entry(source={"category": "data warehouse", "tool": "warehouse", "query": q, "run_at": "2026-10-01"}), "2026-10-02"))
+            self.assertEqual(items[0]["source"]["query"], q)
+            self.assertEqual((items[0]["created_at"], items[0]["updated_at"]), ("2026-10-02", "2026-10-02"))
+
+    def test_given_the_same_id_when_planning_again_then_updates_instead_of_duplicating(self):
+        with tempfile.TemporaryDirectory() as d:
+            first = applied(m.plan_upsert(d, entry(), "2026-10-01"))
+            first[0]["checks"] = [{"due": "2026-10-15", "done_at": "2026-10-15", "value": "150", "verdict": "worked"}]
+            first[0]["launch_date"] = "2026-10-01"
+            write(Path(d), f"{CAREER}/measurements.json", json.dumps(first))
+            items = applied(m.plan_upsert(d, entry(bet={"sentence": "We believe more", "range": "140 to 170", "confidence": "inferred"}), "2026-10-03"))
+            self.assertEqual(len(items), 1)
+            self.assertEqual(items[0]["bet"]["range"], "140 to 170")
+            self.assertEqual(items[0]["checks"][0]["verdict"], "worked")
+            self.assertEqual((items[0]["created_at"], items[0]["updated_at"]), ("2026-10-01", "2026-10-03"))
+
+    def test_given_a_checked_measurement_when_planning_it_again_as_before_then_it_stays_after(self):
+        with tempfile.TemporaryDirectory() as d:
+            write(Path(d), f"{CAREER}/measurements.json", json.dumps([{**entry(), "stage": "after", "created_at": "2026-10-01"}]))
+            items = applied(m.plan_upsert(d, entry(), "2026-10-20"))
+            self.assertEqual(items[0]["stage"], "after")
+
+    def test_given_a_query_with_a_credential_when_planning_then_refuses_without_echoing_it(self):
+        with tempfile.TemporaryDirectory() as d:
+            bad = entry(source={"category": "api", "tool": "http", "query": "curl -H 'Authorization: Bearer abc123secret' https://api.example", "run_at": "2026-10-01"})
+            with self.assertRaises(ValueError) as ctx:
+                m.plan_upsert(d, bad, "2026-10-02")
+            self.assertNotIn("abc123secret", str(ctx.exception))
+
+    def test_given_a_password_in_a_query_when_planning_then_refuses(self):
+        with tempfile.TemporaryDirectory() as d:
+            bad = entry(source={"category": "db", "tool": "psql", "query": "psql postgres://u:pw@h/db password=hunter2", "run_at": "2026-10-01"})
+            with self.assertRaisesRegex(ValueError, "credential"):
+                m.plan_upsert(d, bad, "2026-10-02")
+
+    def test_given_a_corrupt_file_when_planning_then_refuses_instead_of_overwriting(self):
+        with tempfile.TemporaryDirectory() as d:
+            write(Path(d), f"{CAREER}/measurements.json", "[{oops")
+            with self.assertRaises(m.CorruptFile):
+                m.plan_upsert(d, entry(), "2026-10-02")
+
 if __name__ == "__main__":
     unittest.main()

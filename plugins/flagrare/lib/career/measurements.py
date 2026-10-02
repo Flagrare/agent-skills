@@ -76,3 +76,39 @@ def check_entry(entry: dict) -> None:
     _check_date("baseline as_of", (entry.get("baseline") or {}).get("as_of"))
     _check_date("source run_at", (entry.get("source") or {}).get("run_at"))
     _check_date("launch_date", entry.get("launch_date"))
+
+
+SECRET_RE = re.compile(
+    r"(authorization\s*:|bearer\s+\S|password\s*[=:]|passwd\s*[=:]|api[_-]?key\s*[=:]|secret\s*[=:]|token\s*[=:]|://[^/\s:@]+:[^/\s@]+@)",
+    re.IGNORECASE,
+)
+
+
+def check_query(query: str) -> None:
+    if query and SECRET_RE.search(query):
+        raise ValueError("the query looks like it contains a credential; save it without the secret (use an env var or a connection name)")
+
+
+def _write(home: str, items: list[dict], reason: str) -> list[dict]:
+    return [{"action": "write", "path": str(file_path(home)),
+             "content": json.dumps(items, indent=2, ensure_ascii=False) + "\n", "reason": reason}]
+
+
+def plan_upsert(home: str, entry: dict, today: str) -> list[dict]:
+    _check_date("today", today)
+    check_entry(entry)
+    check_query((entry.get("source") or {}).get("query", ""))
+    items = load(home)
+    for i, current in enumerate(items):
+        if isinstance(current, dict) and current.get("id") == entry["id"]:
+            merged = {**current, **entry}
+            for keep in ("checks", "launch_date", "created_at"):
+                if keep not in entry and keep in current:
+                    merged[keep] = current[keep]
+            if current.get("stage") == "after" and entry.get("stage") == "before":
+                merged["stage"] = "after"
+            merged["updated_at"] = today
+            items[i] = merged
+            return _write(home, items, f"update measurement {entry['id']}")
+    items.append({**entry, "created_at": today, "updated_at": today})
+    return _write(home, items, f"save measurement {entry['id']}")
