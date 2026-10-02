@@ -92,5 +92,18 @@ class Build(unittest.TestCase):
             self.assertEqual((data["career"]["promotion"], data["career"]["initiatives"]["active"]), ({"has_map": False}, None))
 
 
+    def test_given_a_check_due_when_building_then_the_page_carries_the_measure_block(self):
+        with tempfile.TemporaryDirectory() as home, tempfile.TemporaryDirectory() as board:
+            career = Path(home) / CAREER
+            career.mkdir(parents=True)
+            (career / "measurements.json").write_text(json.dumps([{"id": "faster-search", "work": {"title": "Faster search", "link": "https://example.com/t/1", "kind": "ticket"},
+                "stage": "after", "created_at": "2026-08-01", "launch_date": "2026-09-01", "checks": [{"after_days": 14, "due": "2026-09-15", "done_at": None}]}]))
+            (Path(board) / "data.json").write_text(json.dumps({"scan": {}, "items": []}))
+            subprocess.run([sys.executable, str(BOARD / "build.py"), board, "--home", home, "--today", "2026-10-01"], check=True, capture_output=True)
+            html = (Path(board) / "board.html").read_text()
+            data = json.loads(html.split("/*DATA*/", 1)[1].split("/*END*/", 1)[0])
+            self.assertEqual(data["career"]["measure"]["checks_due"][0]["id"], "faster-search")
+            self.assertIn('id="measure-sec"', html)
+
 if __name__ == "__main__":
     unittest.main()

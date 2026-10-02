@@ -350,6 +350,11 @@ details.cov-more > .cov-row { border-top: 1px solid var(--hair); }
 .recog-sum { color: var(--ink-2); font-size: 15px; }
 .recog-sum b { color: var(--ink); }
 .recog h4 { font-size: var(--t-sm); font-weight: 700; color: var(--muted); margin: 0 0 var(--s-2); }
+.measure { padding: var(--s-5); display: grid; gap: var(--s-5); }
+.measure > div + div { border-top: 1px solid var(--hair); padding-top: var(--s-4); }
+.measure h4 { font-size: var(--t-sm); font-weight: 700; color: var(--muted); margin: 0 0 var(--s-2); }
+.measure .evi-item .w { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.measure .more-n { margin-top: var(--s-2); }
 .vals { display: flex; flex-wrap: wrap; gap: 6px; }
 .givers { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s-2); }
 .givers li { display: flex; justify-content: space-between; gap: var(--s-3); font-size: 15px; align-items: baseline; }
@@ -425,7 +430,7 @@ dialog.keys dd { margin: 0; color: var(--ink-2); }
   .evi-item button.w { min-height: 44px; }
   .people { grid-template-columns: minmax(0, 1fr); padding: var(--s-4); }
   .case-item { padding: var(--s-4); }
-  .logged, .recog { padding: var(--s-4); }
+  .logged, .recog, .measure { padding: var(--s-4); }
   .facts div { grid-template-columns: minmax(0, 1fr); gap: 2px; }
   .glossary dl { grid-template-columns: minmax(0, 1fr); }
   .quiet-btn { min-height: 44px; }
@@ -523,6 +528,10 @@ dialog.keys dd { margin: 0; color: var(--ink-2); }
         <div class="list" id="cov"></div>
       </section>
       <div class="proof-side">
+        <section id="measure-sec" aria-labelledby="h-measure" hidden>
+          <div class="sec"><h2 id="h-measure">Measure</h2><span class="n" id="n-measure"></span></div>
+          <div class="box measure" id="measure-body"></div>
+        </section>
         <section aria-labelledby="h-evi">
           <div class="sec"><h2 id="h-evi">Logged contributions</h2><span class="n" id="n-evi"></span></div>
           <div class="box logged"><div class="trend" id="spark" hidden></div><div class="evi" id="evi"></div></div>
@@ -602,6 +611,7 @@ dialog.keys dd { margin: 0; color: var(--ink-2); }
     proposed: "Problems a scan found that you could own. Nothing is yours until you keep one and your manager agrees. Tell Claude to keep or dismiss each one.",
     score: "How a proposed project ranks: 0 to 2 points on eight questions (does it move a company metric, can you move it yourself, is it work you want, does it show a Senior behavior, will the people who decide see it, do you know the area, how often it came up, does it land before your written case is due). Moving a metric counts double, so the most is 18. A project that moves no metric is a fix, not a project.",
     bet: "What a project expects to change, written down before you build it: we believe X will cause Y, because Z.",
+    measure: "Work whose effect you haven't checked yet: launched work that is due for its check, bets still waiting for a launch date, and wins in your log with no number. Ask Claude to run /flagrare:measure-impact on one.",
     check: "The one thing to confirm before you act or send a reply, so what you send is right.",
     draft: "A reply is already written and nothing needs checking first. Read it in the item, copy it, and send it yourself.",
     estimate: "A date worked out from the usual promotion calendar. Nobody has confirmed it yet, so check it with your manager.",
@@ -609,7 +619,7 @@ dialog.keys dd { margin: 0; color: var(--ink-2); }
     recognition: "Thanks peers gave you in the company's recognition tool (Bonusly, for example). Each one is proof someone saw your work, and the people who give them are good picks for peer feedback in your written case.",
   };
   const GLOSS = [["Senior behaviors", "behaviors"], ["Proof", "proof"], ["Your written case", "case"], ["Promotion committee", "committee"],
-    ["The project you own", "project"], ["Proposed projects", "proposed"], ["Ranking score", "score"], ["The bet", "bet"], ["Check first", "check"],
+    ["The project you own", "project"], ["Proposed projects", "proposed"], ["Ranking score", "score"], ["The bet", "bet"], ["Measure", "measure"], ["Check first", "check"],
     ["Draft ready", "draft"], ["Estimate", "estimate"], ["Waiting on others", "waiting"], ["Recognition", "recognition"]];
   const term = (text, key) => `<a class="term" href="#g-${key}" data-term="${key}" title="${esc(DEF[key])}">${esc(text)}</a>`;
 
@@ -1069,6 +1079,31 @@ dialog.keys dd { margin: 0; color: var(--ink-2); }
       ${top5 ? `<div><h4>Who recognized you most</h4><ol class="givers">${top5}</ol></div>` : ""}
       ${vals ? `<div><h4>Company values they tagged</h4><p class="vals">${vals}</p></div>` : ""}`;
     $("recog-sec").hidden = false;
+  }
+
+  // ---- Proof: what needs measuring ----
+  const MEAS = CAREER.measure || {};
+  if (!CAREER.error && MEAS.reminders !== false) {
+    const skill = `<code>/flagrare:measure-impact</code>`;
+    const group = (title, list, row) => list.length ? `<div><h4>${esc(title)}</h4><div class="evi">${list.slice(0, 3).map(row).join("")}</div>${list.length > 3 ? `<p class="wait-who more-n">and ${esc(list.length - 3)} more</p>` : ""}</div>` : "";
+    const named = (title, note) => `<div class="evi-item"><span class="evi-top"><b>${inline(title || "Untitled")}</b></span><span class="d">${esc(note)}</span></div>`;
+    const win = w => {
+      const u = safeUrl(w.link);
+      return `<div class="evi-item"><span class="evi-top"><span class="d">${esc(fmt(w.date))}</span>${u ? `<a href="${esc(u)}" target="_blank" rel="noopener">Open <span class="ext" aria-hidden="true">↗</span></a>` : ""}</span><span class="w">${inline(w.text || "")}</span></div>`;
+    };
+    let body;
+    if (MEAS.error) body = `<p class="wait-who">Couldn't read your saved measurements: ${esc(MEAS.error)}</p>`;
+    else if (!MEAS.count && !MEAS.has_measurements) body = `<p class="recog-sum">Nothing measured yet. Before you build something, ask Claude to run ${skill} on it to set its ${term("bet", "bet")}.</p>`;
+    else if (!MEAS.count) body = `<p class="recog-sum">Nothing to measure right now.</p>`;
+    else body = [
+      group("Launched, time to check the number", MEAS.checks_due || [], c => named(c.title, "due " + fmt(c.due))),
+      group("Bets waiting for a launch date", MEAS.bets_waiting || [], b => named(b.title, "bet set " + fmt(b.since))),
+      group("Wins with no number", MEAS.unmeasured_wins || [], win),
+    ].join("") + `<p class="recog-sum">Ask Claude to measure one with ${skill}.</p>`;
+    $("h-measure").innerHTML = term("Measure", "measure");
+    $("n-measure").textContent = MEAS.count ? String(MEAS.count) : "";
+    $("measure-body").innerHTML = body;
+    $("measure-sec").hidden = false;
   }
 
   // ---- folded panels (view preference, remembered per viewer) ----
