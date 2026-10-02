@@ -17,7 +17,6 @@ from datetime import date
 from pathlib import Path
 
 LIB = Path(__file__).resolve().parents[1] / "lib" / "career"
-OFF_VALUES = (False, "false", "off", "no", "0", 0)
 
 
 def _lib():
@@ -30,14 +29,7 @@ def _lib():
 
 
 def reminders_on(home: str) -> bool:
-    career_state, _ = _lib()
-    try:
-        config = json.loads(Path(career_state.paths(home)["config"]).read_text(encoding="utf-8"))
-    except (OSError, ValueError):
-        return True
-    block = ((config.get("skills") or {}).get("measure-impact") or {}) if isinstance(config, dict) else {}
-    value = block.get("reminders", True)
-    return (value.strip().lower() if isinstance(value, str) else value) not in OFF_VALUES
+    return _lib()[1].reminders_on(home)
 
 
 def _plural(n: int, word: str) -> str:
