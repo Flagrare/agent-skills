@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-> No em-dashes anywhere in this plan's output. Check a file with `grep -n $'—' <files>` (no output means clean).
+> No em-dashes anywhere in this plan's output. Check a file with `grep -n $'\u2014' <files>` (no output means clean).
 
 **Goal:** Remind the user to measure impact at the right moments, without nagging: one line at session start when something is due, and a short note to Claude when a measurable moment happens in a session.
 
@@ -543,7 +543,7 @@ Expected: `ok`.
 Run: `echo '{"session_id":"x","tool_name":"Skill","tool_input":{"skill":"flagrare:tdd-writer"}}' | python3 plugins/flagrare/hooks/measure_reminders.py moment; echo "exit $?"`
 Expected: one JSON line with `additionalContext`, then `exit 0`.
 
-Run: `grep -rn $'—' plugins/flagrare/hooks plugins/flagrare/skills/measure-impact README.md`
+Run: `grep -rn $'\u2014' plugins/flagrare/hooks plugins/flagrare/skills/measure-impact README.md`
 Expected: no output.
 
 - [ ] **Step 7: Commit**
