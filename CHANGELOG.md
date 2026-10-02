@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.57.0: 2026-10-02
+
+Measure what your work changed, before and after you build it.
+
+### New Skills
+
+- **`/flagrare:measure-impact`**: the career skills found work worth doing and logged what you did, but nothing measured what it changed, so most log entries read as activity. Now one skill runs the same method every time:
+  - **Before you build:** an educated guess with a measured baseline (or a comparable scaled per booking, order or user), a range, a confidence level, and the exact query saved.
+  - **After launch:** the same query re-run at 2 and 6 weeks, with an honest verdict: worked, didn't work, or can't tell.
+  - **Past work:** the best number still findable for wins already in your log, or a plain "unknown, searched X and Y".
+  - Every result comes out as action, measured result, impact, ready for your written case.
+  - Small fixes are skipped and remembered, so you're never asked twice. A query that looks like it holds a password or token is refused, so no secret ends up in your saved measurements.
+- Credits: confidence levels and the old-vs-new check are adapted from pstack (MIT, Lauren Tan; Claude Code port by Lucas Faria).
+
 ## 1.56.0: 2026-10-02
 
 A title says what someone will do, not where things end up.
