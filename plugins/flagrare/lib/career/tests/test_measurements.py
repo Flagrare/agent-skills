@@ -227,6 +227,7 @@ class Due(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             write(Path(d), LOG, "- 2026-08-01 | https://chat.example/old | An old win | behavior: x\n"
                   "- 2026-09-25 | https://chat.example/new | A recent win | behavior: x\n")
+            saved(d, [{**entry(), "created_at": "2026-07-01"}])
             self.assertEqual([w["link"] for w in m.due(d, "2026-10-02")["unmeasured_wins"]], ["https://chat.example/new"])
             self.assertEqual(len(m.due(d, "2026-10-02", wins_since="")["unmeasured_wins"]), 2)
 
@@ -286,6 +287,25 @@ class ReviewFixes(unittest.TestCase):
             items = applied(m.plan_launch(d, "acme-reorder", "2026-10-08", "2026-11-13"))
             self.assertEqual(sorted((c["after_days"], c["due"], bool(c["done_at"])) for c in items[0]["checks"]),
                              [(14, "2026-10-22", False), (42, "2026-11-12", True)])
+
+
+class WinsBaseline(unittest.TestCase):
+    def test_given_no_measurements_yet_when_asking_then_old_log_entries_are_not_counted_as_wins(self):
+        with tempfile.TemporaryDirectory() as d:
+            write(Path(d), LOG, "- 2026-10-10 | https://chat.example/p1 | Helped Sam | behavior: x\n")
+            self.assertEqual(m.due(d, "2026-10-16")["unmeasured_wins"], [])
+
+    def test_given_the_first_measurement_was_saved_recently_when_asking_then_only_wins_since_then_count(self):
+        with tempfile.TemporaryDirectory() as d:
+            write(Path(d), LOG, "- 2026-10-05 | https://chat.example/before | Before measuring | behavior: x\n"
+                  "- 2026-10-12 | https://chat.example/after | After measuring | behavior: x\n")
+            saved(d, [{**entry(), "created_at": "2026-10-10"}])
+            self.assertEqual([w["link"] for w in m.due(d, "2026-10-16")["unmeasured_wins"]], ["https://chat.example/after"])
+
+    def test_given_no_measurements_when_asking_for_all_wins_then_every_entry_counts(self):
+        with tempfile.TemporaryDirectory() as d:
+            write(Path(d), LOG, "- 2026-08-01 | https://chat.example/old | Old win | behavior: x\n")
+            self.assertEqual(len(m.due(d, "2026-10-16", wins_since="")["unmeasured_wins"]), 1)
 
 
 if __name__ == "__main__":

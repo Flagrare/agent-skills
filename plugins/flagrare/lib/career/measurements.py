@@ -197,12 +197,17 @@ WINS_WINDOW_DAYS = 30
 
 
 def due(home: str, today: str, wins_since: str | None = None) -> dict:
-    """What needs the user now. Log entries count as wins with no number only from `wins_since` on
-    (default: the last 30 days), so an old log is not reported all at once; pass "" for every entry."""
+    """What needs the user now. Log entries count as wins with no number only from `wins_since` on.
+    By default that is the later of 30 days ago and the first saved measurement, and nothing before the
+    user has saved one, so an old log is not reported all at once; pass "" for every entry."""
     _check_date("today", today)
-    if wins_since is None:
-        wins_since = (date.fromisoformat(today) - timedelta(days=WINS_WINDOW_DAYS)).isoformat()
     items = [i for i in load(home) if isinstance(i, dict)]
+    count_wins = True
+    if wins_since is None:
+        window = (date.fromisoformat(today) - timedelta(days=WINS_WINDOW_DAYS)).isoformat()
+        starts = sorted(str(i["created_at"]) for i in items if i.get("created_at"))
+        count_wins = bool(items)
+        wins_since = max(window, starts[0]) if starts else window
     known_links = {((i.get("work") or {}).get("link") or "").rstrip(").,;") for i in items}
     checks_due, waiting = [], []
     wait_cutoff = (date.fromisoformat(today) - timedelta(days=BET_WAIT_DAYS)).isoformat()
@@ -217,7 +222,7 @@ def due(home: str, today: str, wins_since: str | None = None) -> dict:
         if item.get("stage") == "before" and not item.get("launch_date") and created and created <= wait_cutoff:
             waiting.append({"id": item.get("id"), "title": title, "since": created})
     wins = []
-    for line in career_state.read_contributions(home):
+    for line in career_state.read_contributions(home) if count_wins else []:
         link = _log_link(line)
         parts = [p.strip() for p in line[2:].split("|")]
         if wins_since and (parts[0] if parts else "") < wins_since:
