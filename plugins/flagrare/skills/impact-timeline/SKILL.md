@@ -67,7 +67,7 @@ Fold findings back into the relevant months, marked "(from meeting records)" so 
 
 ## Phase 4: Metrics pass
 
-Attach a "**Measured by:**" block to every month, and restructure the summary around three categories: **Product** (users, engagement, adoption), **Technical** (latency, errors, reliability), **Business** (money moved, cost/time saved, OKR outcomes). Sources in descending order of strength:
+Attach a "**Measured by:**" block to every month, and restructure the summary around three categories: **Product** (users, engagement, adoption), **Technical** (latency, errors, reliability), **Business** (money moved, cost/time saved, OKR outcomes). Sources in descending order of strength: Start with the user's **saved measurements** (`python3 <plugin root>/lib/career/measurements.py show --home "$HOME"`): results already measured with `/flagrare:measure-impact`, each with its query, date and confidence level. Use them first, and re-run their saved queries for the window when the data platform is reachable.
 
 1. **The company data platform.** Find it (search Notion/wiki for "data wiki", "Mode", "Snowflake", "Amplitude", "Looker", "Metabase"). If it is browser-SSO gated, the user's own Google session in the automation browser often works; product dashboards frequently hold exactly the numbers needed (member growth, payment volumes, adoption rates). Pull raw query results via the platform's own API from the authenticated page rather than scraping rendered charts (playbook has the Mode recipe). Compute tenure-window slices (value at start date vs. now) for growth claims.
 2. **Meeting/OKR records**: all-hands numbers, OKR grades, before/after states quoted by others (these carry independent credibility).

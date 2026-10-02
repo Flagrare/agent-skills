@@ -197,6 +197,10 @@ Slack threads, calendar events, anything else the user opted into. Treat as narr
 
 Run `python3 <plugin root>/lib/career/career_state.py contributions --home "$HOME"` (the plugin root is two directories above this skill's base directory). It returns the entries of the career contributions log that `/flagrare:impact-scan` keeps, from both `~/.claude/skills/flagrare/career/contributions.log.md` and the older `senior-scan/` copy, without duplicates. Keep the entries dated inside the window. Each one is a contribution the user already chose to make and post (a review that changed a decision, a question answered with evidence, a problem found and handed to the right team), with its link and one sentence on what it changed: this is first-class evidence, not seasoning. It feeds **What I unblocked** for answers and reviews, and **What I shipped** when the entry is work the user drove. When an entry carries `| row: <id>`, it names the promotion rubric row it demonstrates; keep that tie when the output is for a review packet. If the command returns nothing, skip this source.
 
+### 8b. Measured results
+
+Run `python3 <plugin root>/lib/career/measurements.py show --home "$HOME"`. For work in the window that has a measurement (match by `work.link` against the PRs, tickets and log entries you collected), lead with its result sentence (action, measured result, impact) and keep its confidence level and source next to it. Work without a measurement is described as what was done, never given a number it does not have; when it matters for a review packet, suggest `/flagrare:measure-impact` past for it.
+
 ### 9. Recognition from peers
 
 When `~/.claude/skills/flagrare/career/recognition.json` exists (a peer-recognition tool such as Bonusly is set up; see `/flagrare:promotion`), read the bonuses received in the window with `python3 <plugin root>/lib/career/recognition.py summary --home "$HOME" --today <date>` or straight from the file. Each is a peer saying what the user did, with a link: use the `text` (the thanks, cleaned) as supporting evidence for the work it names, never as a headline on its own, and quote only what is about the user.
