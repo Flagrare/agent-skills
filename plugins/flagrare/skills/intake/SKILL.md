@@ -209,6 +209,7 @@ Once the brief is complete (Open Questions resolved, or explicitly deferred by t
 Present:
 
 1. **Overview**: 4-6 lines: what the ticket is, the codebase context the plan will work within, and what's now resolved. Skip if the user just answered clarifying questions (they have the context fresh; don't repeat it).
+   When the ticket changes something users notice and intake was not called by `/flagrare:work-prep`, add one line to the overview: `/flagrare:measure-impact` can set the bet (the number this should move, from what) before planning.
 2. **Next-step prompt**: issue an `AskUserQuestion` tool call. This is the same interaction shape as plan-mode's accept-plan tool: the user gets a discrete set of buttons, picks one, and the flow continues without freeform typing. Do NOT phrase this as a prose question, that produces ambiguity and frequently ends the turn with no answer captured.
 
    Intake's natural successor is `/flagrare:atdd-plan`. The brief is built specifically to be planning input, so the prompt is a simple two-way:
@@ -219,6 +220,8 @@ Present:
    Do NOT offer `/flagrare:ticket-creator` or `/flagrare:tdd-writer` here, those run *before* intake in different workflows (decomposing specs into tickets, drafting design docs for new multi-week projects). They are not downstream of a single-ticket intake.
 
 If invoked through `/flagrare:work-prep`, skip the prompt and proceed directly to `/flagrare:atdd-plan`, work-prep already decided the next step. Detect this by checking whether the args passed to this skill started with `[work-prep]`. If so, do NOT issue an AskUserQuestion, instead, immediately invoke `/flagrare:atdd-plan` via the Skill tool, passing the complete context brief as the args parameter.
+
+Before that hand-off, run `/flagrare:measure-impact` with `before <ticket link> quick called by /flagrare:work-prep`. A small fix with nothing users notice gets a recorded skip and nothing else. Otherwise include its bet sentence, the number with its source, and any missing tracking in the args you pass to `/flagrare:atdd-plan`, so the plan can add the tracking before the feature.
 
 Never end intake with a context dump and silence. The user should always know what happens next and have a button to direct it, same UX contract as the plan-mode accept tool.
 
