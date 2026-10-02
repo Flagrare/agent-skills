@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
-# PostToolUse hook: enforce mandatory skill-to-skill handoffs.
+# PostToolUse hook: remind Claude of mandatory skill-to-skill handoffs.
 #
-# Fires on every Skill tool call. Reads stdin JSON to identify the completed
-# skill, then prints a mandatory next-step directive if a chain applies.
+# Fires on every Skill tool call, which is when the skill loads, not when it
+# finishes, so each note says what to do once the skill is done. The note goes
+# to Claude as additionalContext; plain output with exit 0 reaches nobody.
 
 input=$(cat)
 skill_name=$(echo "$input" | jq -r '.tool_input.skill // empty')
@@ -10,21 +11,11 @@ skill_name=$(echo "$input" | jq -r '.tool_input.skill // empty')
 case "$skill_name" in
 
   flagrare:wrap-up)
-    cat >&2 <<'EOF'
-MANDATORY: /flagrare:wrap-up has completed. You MUST now invoke
-/flagrare:implementation-review via the Skill tool. Pass the staged diff
-context. Do NOT commit yet. Do NOT skip this step. The implementation
-review must pass before any commit is made.
-EOF
+    msg="MANDATORY: When /flagrare:wrap-up finishes, you MUST invoke /flagrare:implementation-review via the Skill tool, passing the staged diff context. Do NOT commit before the implementation review passes. Do NOT skip this step."
     ;;
 
   flagrare:staleness-audit)
-    cat >&2 <<'EOF'
-MANDATORY: /flagrare:staleness-audit has completed. After the commit
-lands, you MUST invoke /flagrare:release-check via the Skill tool.
-This determines whether a release is due and drafts a CHANGELOG entry.
-Do NOT skip this step.
-EOF
+    msg="MANDATORY: When /flagrare:staleness-audit finishes and its commit lands, you MUST invoke /flagrare:release-check via the Skill tool. It decides whether a release is due and drafts a CHANGELOG entry. Do NOT skip this step."
     ;;
 
   *)
@@ -32,4 +23,5 @@ EOF
     ;;
 esac
 
+jq -n --arg msg "$msg" '{hookSpecificOutput: {hookEventName: "PostToolUse", additionalContext: $msg}}'
 exit 0
