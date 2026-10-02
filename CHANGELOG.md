@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.60.0: 2026-10-02
+
+What needs measuring now shows up where you already look every day.
+
+### Improved Skills
+
+- **The career board has a Measure card** at the top of the Proof tab: launched work that is due for its check, bets still waiting for a launch date, and recent wins with no number, at most three of each with "and N more". Before you have measured anything, it tells you how to start. Turning `reminders` off for `measure-impact` hides it.
+- **`/flagrare:career`'s daily digest gets one "Measure:" line**, labeled by kind and left out when nothing is due.
+- **A broken entry in your saved measurements only affects that entry:** the board names it and keeps showing the rest, and the other panels never go blank because of it.
+
+### Bug Fixes
+
+- **The skill-chain and research-catalog reminders now reach Claude.** Both hooks printed to a place Claude Code shows to nobody, so the "run implementation-review after wrap-up" and "run release-check after a staleness audit" hand-offs, and the research-catalog reminder after web research, never fired. They now arrive as context Claude reads, and the hand-off notes say what to do once the skill finishes (the hook fires when a skill loads, not when it ends).
+
 ## 1.59.0: 2026-10-02
 
 Measuring impact is now part of the flow, not a separate chore.
