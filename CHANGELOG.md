@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.56.0: 2026-10-02
+
+A title says what someone will do, not where things end up.
+
+### Improved Skills
+
+- **`/flagrare:ticket-creator`, titles name the work**: a 27-ticket backlog came back with six titles that described an end state instead of a job: "Reviewers can find reports on orders", "CX is ready to close reports on orders before launch", "Monitor the Report SKU User feature after rollout", "Orders list says who was already reported". Each read fine on its own, and none told the person picking it up what to change. The user's verdict on the first one: "too vague", followed by a review of every ticket in the backlog.
+  - **Where it came from:** the title rule asked for "plain language describing the outcome", and the self-check applied the bug rule ("say what the user sees") to every ticket. Together they pushed task titles toward results and states and away from the work.
+  - **The new rule:** a Story or Task title is a verb, the thing that changes and where, with the outcome after "so" when it fits: "Update the review query and Hex links so reviewers see order reports". An outcome or a state alone is never a title.
+  - **Checklist:** the symptom test now covers bug titles only, and a new check asks whether someone could start the work from the title alone. Goals get the same bar: no "make sure" or "get ready".
+
 ## 1.55.0: 2026-10-01
 
 Proposed projects, ranked, with the reasons on show.
