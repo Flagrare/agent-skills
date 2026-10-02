@@ -27,10 +27,11 @@
 ## Review Focus
 
 1. **A corrupt `measurements.json`** (hand-edited, half-written): every planning command must refuse with a clear error instead of planning a write that replaces the user's file with an almost empty list. Test in Task 1.
-2. **Planning the same measurement twice** (the skill re-runs after a failed write): the second call updates the entry with the same id, never appends a duplicate, and keeps checks already done. Test in Task 2.
-3. **Contributions-log lines that don't match the usual shape** (no link, a link with a trailing `)` or `.`, extra spaces): `due` must not crash and must still match the link against measured work. Test in Task 4.
-4. **Re-launching** (the launch date was wrong and is set again): checks already done stay as they are; only undone checks move. Test in Task 3.
-5. **A query that contains a credential** (`Authorization: Bearer abc`, `password=...`): refused before anything is planned, and the error never echoes the secret. Test in Task 2.
+2. **Planning the same measurement twice** (the skill re-runs after a failed write, or after a check): the second call updates the entry with the same id, never appends a duplicate, keeps checks already done, and never moves a checked entry back from `after` to `before`. Tests in Task 2.
+3. **A long contributions log on the first run:** `due` counts only the last 30 days of entries by default, so the first reminder is not "21 wins with no number". Test in Task 4.
+4. **Contributions-log lines that don't match the usual shape** (no link, a link with a trailing `)` or `.`, extra spaces): `due` must not crash and must still match the link against measured work. Test in Task 4.
+5. **Re-launching** (the launch date was wrong and is set again): checks already done stay as they are; only undone checks move. Test in Task 3.
+6. **A query that contains a credential** (`Authorization: Bearer abc`, `password=...`): refused before anything is planned, and the error never echoes the secret. Test in Task 2.
 
 ---
 
@@ -40,7 +41,8 @@
 - Create `plugins/flagrare/lib/career/tests/test_measurements.py`: its tests.
 - Modify `plugins/flagrare/lib/career/career_state.py`: add `"measurements"` to `paths()`.
 - Create `plugins/flagrare/skills/measure-impact/SKILL.md`: the skill.
-- Create `plugins/flagrare/skills/measure-impact/evals/evals.json` and `plugins/flagrare/skills/measure-impact/evals/fixtures/` (`config.json`, `promotion-map.json`, `contributions.log.md`, `measurements.json`).
+- Create `plugins/flagrare/skills/measure-impact/evals/evals.json` and `plugins/flagrare/skills/measure-impact/evals/fixtures/` (`config.json`, `contributions.log.md`, `measurements.json`).
+- Modify `README.md`: one paragraph for the new skill.
 - Modify `plugins/flagrare/lib/career/STATE.md` (new `measurements.json` section) and `plugins/flagrare/lib/career/GLOSSARY.md` (four rows).
 - Modify `CHANGELOG.md` and `plugins/flagrare/.claude-plugin/plugin.json` (release, Task 6).
 
@@ -314,6 +316,12 @@ class PlanUpsert(unittest.TestCase):
             self.assertEqual(items[0]["checks"][0]["verdict"], "worked")
             self.assertEqual((items[0]["created_at"], items[0]["updated_at"]), ("2026-10-01", "2026-10-03"))
 
+    def test_given_a_checked_measurement_when_planning_it_again_as_before_then_it_stays_after(self):
+        with tempfile.TemporaryDirectory() as d:
+            write(Path(d), f"{CAREER}/measurements.json", json.dumps([{**entry(), "stage": "after", "created_at": "2026-10-01"}]))
+            items = applied(m.plan_upsert(d, entry(), "2026-10-20"))
+            self.assertEqual(items[0]["stage"], "after")
+
     def test_given_a_query_with_a_credential_when_planning_then_refuses_without_echoing_it(self):
         with tempfile.TemporaryDirectory() as d:
             bad = entry(source={"category": "api", "tool": "http", "query": "curl -H 'Authorization: Bearer abc123secret' https://api.example", "run_at": "2026-10-01"})
@@ -371,6 +379,8 @@ def plan_upsert(home: str, entry: dict, today: str) -> list[dict]:
             for keep in ("checks", "launch_date", "created_at"):
                 if keep not in entry and keep in current:
                     merged[keep] = current[keep]
+            if current.get("stage") == "after" and entry.get("stage") == "before":
+                merged["stage"] = "after"
             merged["updated_at"] = today
             items[i] = merged
             return _write(home, items, f"update measurement {entry['id']}")
@@ -381,7 +391,7 @@ def plan_upsert(home: str, entry: dict, today: str) -> list[dict]:
 - [ ] **Step 4: Run the tests to see them pass**
 
 Run: `cd plugins/flagrare/lib/career && python3 -m unittest tests.test_measurements -q`
-Expected: `OK` (15 tests).
+Expected: `OK` (16 tests).
 
 - [ ] **Step 5: Commit**
 
@@ -540,7 +550,7 @@ def plan_skip(home: str, item_id: str, title: str, link: str, kind: str, reason:
 - [ ] **Step 4: Run the tests to see them pass**
 
 Run: `cd plugins/flagrare/lib/career && python3 -m unittest tests.test_measurements -q`
-Expected: `OK` (23 tests).
+Expected: `OK` (24 tests).
 
 - [ ] **Step 5: Commit**
 
@@ -560,7 +570,7 @@ git commit -m "✨ feat(measure-impact): launch dates, checks after launch, and 
 **Interfaces:**
 - Consumes: `load`, `BET_WAIT_DAYS`, `career_state.read_contributions(home) -> list[str]` (lines starting `- `).
 - Produces:
-  - `due(home: str, today: str) -> dict` with keys `checks_due` (list of `{id, title, due}`), `bets_waiting` (list of `{id, title, since}`), `unmeasured_wins` (list of `{date, link, text}`) and `count` (int);
+  - `due(home: str, today: str, wins_since: str | None = None) -> dict` (log entries count only from `wins_since`, default the last 30 days; `""` means all) with keys `checks_due` (list of `{id, title, due}`), `bets_waiting` (list of `{id, title, since}`), `unmeasured_wins` (list of `{date, link, text}`) and `count` (int);
   - `_log_link(line: str) -> str` (normalized link or `""`);
   - the CLI `main()` with commands `plan|launch|check|skip|due|show`.
 
@@ -600,11 +610,29 @@ class Due(unittest.TestCase):
             wins = m.due(d, "2026-10-02")["unmeasured_wins"]
             self.assertEqual([w["link"] for w in wins], ["https://chat.example/p1"])
 
+    def test_given_an_old_log_when_asking_then_only_the_last_30_days_count_unless_asked_for_all(self):
+        with tempfile.TemporaryDirectory() as d:
+            write(Path(d), LOG, "- 2026-08-01 | https://chat.example/old | An old win | behavior: x\n"
+                  "- 2026-09-25 | https://chat.example/new | A recent win | behavior: x\n")
+            self.assertEqual([w["link"] for w in m.due(d, "2026-10-02")["unmeasured_wins"]], ["https://chat.example/new"])
+            self.assertEqual(len(m.due(d, "2026-10-02", wins_since="")["unmeasured_wins"]), 2)
+
     def test_given_odd_log_lines_when_asking_then_does_not_crash(self):
         with tempfile.TemporaryDirectory() as d:
             write(Path(d), LOG, "- 2026-09-20 | Shipped without a link\n-   \n- not | enough\n")
             result = m.due(d, "2026-10-02")
             self.assertIsInstance(result["unmeasured_wins"], list)
+
+    def test_given_a_query_with_quotes_in_an_entry_file_when_planning_from_the_command_line_then_keeps_it_verbatim(self):
+        import subprocess
+        with tempfile.TemporaryDirectory() as d:
+            q = "select count(*) from orders where venue = 'acme' and note = \"it's\""
+            f = Path(d) / "entry.json"
+            f.write_text(json.dumps(entry(source={"category": "data warehouse", "tool": "warehouse", "query": q, "run_at": "2026-10-01"})))
+            script = Path(__file__).resolve().parents[1] / "measurements.py"
+            out = subprocess.run([sys.executable, str(script), "plan", "--home", d, "--today", "2026-10-02", "--entry-file", str(f)],
+                                 capture_output=True, text=True, check=True).stdout
+            self.assertEqual(json.loads(json.loads(out)[0]["content"])[0]["source"]["query"], q)
 
     def test_given_a_skipped_entry_with_an_overdue_check_when_asking_then_stays_silent(self):
         with tempfile.TemporaryDirectory() as d:
@@ -633,8 +661,15 @@ def _log_link(line: str) -> str:
     return found.group(0).rstrip(").,;") if found else ""
 
 
-def due(home: str, today: str) -> dict:
+WINS_WINDOW_DAYS = 30
+
+
+def due(home: str, today: str, wins_since: str | None = None) -> dict:
+    """What needs the user now. Log entries count as wins with no number only from `wins_since` on
+    (default: the last 30 days), so an old log is not reported all at once; pass "" for every entry."""
     _check_date("today", today)
+    if wins_since is None:
+        wins_since = (date.fromisoformat(today) - timedelta(days=WINS_WINDOW_DAYS)).isoformat()
     items = [i for i in load(home) if isinstance(i, dict)]
     known_links = {((i.get("work") or {}).get("link") or "").rstrip(").,;") for i in items}
     checks_due, waiting = [], []
@@ -652,8 +687,10 @@ def due(home: str, today: str) -> dict:
     wins = []
     for line in career_state.read_contributions(home):
         link = _log_link(line)
+        parts = [p.strip() for p in line[2:].split("|")]
+        if wins_since and (parts[0] if parts else "") < wins_since:
+            continue
         if link and link not in known_links:
-            parts = [p.strip() for p in line[2:].split("|")]
             wins.append({"date": parts[0], "link": link, "text": parts[2] if len(parts) > 2 else ""})
     return {"checks_due": checks_due, "bets_waiting": waiting, "unmeasured_wins": wins,
             "count": len(checks_due) + len(waiting) + len(wins)}
@@ -670,6 +707,8 @@ def main() -> None:
     parser.add_argument("--home", default=str(Path.home()))
     parser.add_argument("--today")
     parser.add_argument("--entry", help="plan: the measurement as a JSON object")
+    parser.add_argument("--entry-file", help="plan: a file holding the measurement JSON (use this when the query has quotes)")
+    parser.add_argument("--all-wins", action="store_true", help="due: count every log entry, not only the last 30 days")
     parser.add_argument("--id")
     parser.add_argument("--launch-date")
     parser.add_argument("--due")
@@ -686,10 +725,11 @@ def main() -> None:
         elif not args.today:
             parser.error(f"{args.command} needs --today")
         elif args.command == "due":
-            result = due(args.home, args.today)
+            result = due(args.home, args.today, "" if args.all_wins else None)
         elif args.command == "plan":
+            text = Path(args.entry_file).read_text(encoding="utf-8") if args.entry_file else (args.entry or "")
             try:
-                entry = json.loads(args.entry or "")
+                entry = json.loads(text)
             except json.JSONDecodeError as exc:
                 parser.error(f"--entry is not valid JSON: {exc}")
             result = plan_upsert(args.home, entry, args.today)
@@ -711,7 +751,7 @@ if __name__ == "__main__":
 - [ ] **Step 5: Run the tests, then try the CLI**
 
 Run: `cd plugins/flagrare/lib/career && python3 -m unittest discover -s tests -q`
-Expected: `OK`.
+Expected: `OK` (32 tests in `test_measurements.py`).
 
 Run: `cd plugins/flagrare/lib/career && python3 measurements.py due --home "$(mktemp -d)" --today 2026-10-02`
 Expected: JSON with `"count": 0`.
@@ -733,11 +773,11 @@ git commit -m "✨ feat(measure-impact): what is due today, from checks, waiting
 **Files:**
 - Create: `plugins/flagrare/skills/measure-impact/SKILL.md`
 - Create: `plugins/flagrare/skills/measure-impact/evals/evals.json`
-- Create: `plugins/flagrare/skills/measure-impact/evals/fixtures/config.json`, `promotion-map.json`, `contributions.log.md`, `measurements.json`
+- Create: `plugins/flagrare/skills/measure-impact/evals/fixtures/config.json`, `contributions.log.md`, `measurements.json`
 - Modify: `plugins/flagrare/lib/career/STATE.md`, `plugins/flagrare/lib/career/GLOSSARY.md`
 
 **Interfaces:**
-- Consumes: the CLI from Task 4 (`measurements.py plan|launch|check|skip|due|show`), `scoring.py context` (promotion map `priorities`), `career_state.py plan`.
+- Consumes: the CLI from Task 4 (`measurements.py plan|launch|check|skip|due|show`), `initiatives.py context` (its `has_map` and `priorities`).
 - Produces: the skill name `measure-impact` and its arguments contract `<before|after|past> <link or title> [quick|full] [called by /flagrare:<skill>]`, which Milestones 2 and 3 rely on.
 
 - [ ] **Step 1: Write the skill**
@@ -764,11 +804,11 @@ Impact claims without a method go wrong in three ways: targets that are wishes, 
 
 `python3 <plugin root>/lib/career/measurements.py <command> --home "$HOME" --today <YYYY-MM-DD> ...` prints planned writes as JSON. Apply each `write` action with the Write tool, reading `measurements.json` first if it exists. A refusal (exit code 2) prints the reason: tell the user in plain words and do not work around it. If it says the file is corrupt, stop and show the user the path.
 
-- `plan --entry '<json>'`: save a new measurement, or update one with the same id.
+- `plan --entry-file <path>`: save a new measurement, or update one with the same id. Write the JSON to a file in `$TMPDIR` first and pass its path, because queries contain quotes that break a shell argument (`--entry '<json>'` also works for JSON without quotes).
 - `launch --id <id> --launch-date <date>`: set the launch date; creates checks 14 and 42 days later.
 - `check --id <id> --due <date> --value "<text>" --verdict worked|didnt_work|cant_tell`: record a check.
 - `skip --id <id> --title "<work>" --link <link> --kind ticket|tdd|project|log_entry --reason "<why>"`: record a skip.
-- `due`: checks past their date, bets with no launch after 30 days, and contributions-log entries with no measurement.
+- `due`: checks past their date, bets with no launch after 30 days, and contributions-log entries from the last 30 days with no measurement (`--all-wins` for every entry, when the user asks to go through old work).
 - `show`: everything saved.
 
 The file's shape is in `<plugin root>/lib/career/STATE.md`.
@@ -788,7 +828,7 @@ Sizes: **quick** (about 5 minutes; steps 1, 2, 4 and 9) for tickets and log entr
 ## The method, every time
 
 1. **The work and its kind of impact:** for users or partners, technical (speed, errors, reliability, cost), business (revenue, orders, cost), or for the team (time saved, fewer interruptions). Often more than one.
-2. **The number that shows it.** Prefer a number leadership already watches. When `<plugin root>/lib/career/scoring.py context --home "$HOME"` reports `has_map: true`, read the promotion map's `priorities` (theme, metric, baseline, target, owner team, the user's lever) and connect to one of them first; name the theme.
+2. **The number that shows it.** Prefer a number leadership already watches. Run `<plugin root>/lib/career/initiatives.py context --home "$HOME" --today <date>`; when it reports `has_map: true`, read its `priorities` (theme, metric, baseline, target, owner team, the user's lever) and connect to one of them first; name the theme.
 3. **Where the data lives.** List the connected tools by category and use what exists: source control (git, GitHub), tickets, docs, chat, observability (Datadog, New Relic, Grafana), errors (Sentry), product analytics and the data warehouse (Snowflake, BigQuery, Segment, PostHog). Never assume a tool the session does not have.
 4. **The baseline:** today's value, with the exact query or link and the date. Run the query read-only. If it cannot be found, say why and what would get it.
 5. **A comparable, when there is no direct baseline:** the closest thing that can be measured (a similar feature, team, market or past launch), scaled by the right base (per booking, venue, order, user or week), never compared as a raw count. Example: reports per 10,000 bookings in one product, applied to the order volume of the other.
@@ -855,20 +895,6 @@ Create `plugins/flagrare/skills/measure-impact/evals/fixtures/config.json`:
   "github_login": "kai-dev",
   "display_name": "Kai",
   "skills": { "impact-scan": { "onboarding_complete": true, "target_level": "senior" } }
-}
-```
-
-Create `plugins/flagrare/skills/measure-impact/evals/fixtures/promotion-map.json` with only what the skill reads:
-
-```json
-{
-  "target": { "target_level": { "value": "Senior", "source": "ladder", "checked_at": "2026-10-01", "status": "verified" } },
-  "priorities": [
-    { "theme": "Merchant trust", "metric": { "value": "Share of merchants unhappy with how they understand payouts", "source": "themes doc", "checked_at": "2026-10-01", "status": "verified" },
-      "baseline": { "value": "20%", "source": "themes doc", "checked_at": "2026-10-01", "status": "verified" },
-      "owner_team": "Payments", "user_lever": "input" }
-  ],
-  "sections": {}
 }
 ```
 
@@ -960,7 +986,8 @@ Impact measurements, written by `/flagrare:measure-impact` through `measurements
 
 - Confidence levels: `direct`, `supported`, `inferred`, `speculative`, `unknown`. The script refuses anything else, an unknown stage, kind or ownership, dates not written `YYYY-MM-DD`, and a query that looks like it holds a credential.
 - `plan` adds an entry or updates the one with the same id, keeping its checks and launch date. `launch` sets the launch date and creates checks 14 and 42 days later; re-launching keeps checks already done and moves only the rest. `check` records a check and moves the entry to `after`. `skip` records a skip with its reason.
-- `due` lists undone checks whose date has passed, `before` entries with no launch date 30 days after they were saved, and contributions-log entries whose link matches no measurement. Skipped entries never appear.
+- `due` lists undone checks whose date has passed, `before` entries with no launch date 30 days after they were saved, and contributions-log entries from the last 30 days whose link matches no measurement (`--all-wins` counts every entry). Skipped entries never appear.
+- `plan` never moves an entry back from `after` to `before`.
 - A corrupt file is never overwritten: every command refuses until it is fixed.
 ````
 
@@ -975,21 +1002,29 @@ In `plugins/flagrare/lib/career/GLOSSARY.md`, add these rows to the table, after
 | Win with no number | unmeasured log entry | A contribution in the log that has no measurement yet. |
 ```
 
-- [ ] **Step 6: Check for em-dashes and run everything**
+- [ ] **Step 6: Add the skill to the README**
 
-Run: `grep -rn $'\u2014' plugins/flagrare/skills/measure-impact plugins/flagrare/lib/career/STATE.md plugins/flagrare/lib/career/GLOSSARY.md`
+In `README.md`, add this paragraph right after the paragraph that starts with "`/flagrare:impact-timeline` is brag-doc at tenure scale":
+
+```markdown
+`/flagrare:measure-impact` measures what a piece of your work changed, the same way every time, at any stage. Before you build, it makes an educated guess: a measured baseline (or the closest comparable, scaled per booking, order or user), a range, a confidence level, and the exact query that will measure it, saved so it can be re-run. After launch it re-runs that same query at two and six weeks and gives an honest verdict: worked, didn't work, or can't tell. For wins already in your contributions log, it finds the best number still available or says plainly that none exists. Every result comes out as action, measured result, impact, ready for your written case, and small fixes are skipped and remembered. Where `/flagrare:impact-timeline` reconstructs impact after the fact, this sets the measurement up before the work and follows it through.
+```
+
+- [ ] **Step 7: Check for em-dashes and run everything**
+
+Run: `grep -rn $'\u2014' plugins/flagrare/skills/measure-impact plugins/flagrare/lib/career/STATE.md plugins/flagrare/lib/career/GLOSSARY.md README.md`
 Expected: no output.
 
-Run: `python3 -c "import json;json.load(open('plugins/flagrare/skills/measure-impact/evals/evals.json'));[json.load(open(f'plugins/flagrare/skills/measure-impact/evals/fixtures/{n}')) for n in ('config.json','promotion-map.json','measurements.json')];print('ok')"`
+Run: `python3 -c "import json;json.load(open('plugins/flagrare/skills/measure-impact/evals/evals.json'));[json.load(open(f'plugins/flagrare/skills/measure-impact/evals/fixtures/{n}')) for n in ('config.json','measurements.json')];print('ok')"`
 Expected: `ok`.
 
 Run: `cd plugins/flagrare/lib/career && python3 -m unittest discover -s tests -q`
 Expected: `OK`.
 
-- [ ] **Step 7: Commit**
+- [ ] **Step 8: Commit**
 
 ```bash
-git add plugins/flagrare/skills/measure-impact plugins/flagrare/lib/career/STATE.md plugins/flagrare/lib/career/GLOSSARY.md
+git add plugins/flagrare/skills/measure-impact plugins/flagrare/lib/career/STATE.md plugins/flagrare/lib/career/GLOSSARY.md README.md
 git commit -m "✨ feat(measure-impact): the skill, its evals, and the shared docs"
 ```
 
@@ -1035,6 +1070,8 @@ Measure what your work changed, before and after you build it.
 
 - [ ] **Step 4: Commit, tag, publish, update**
 
+Run this whole block with the sandbox disabled: the commit, the push, `gh release` and the update all write outside the working folder or reach the network.
+
 ```bash
 git add CHANGELOG.md plugins/flagrare/.claude-plugin/plugin.json
 git commit -m "🔖 release: v<version>"
@@ -1045,5 +1082,4 @@ gh release create v<version> --title v<version> --notes-file "$TMPDIR/notes.md"
 bash <(curl -sL https://raw.githubusercontent.com/Flagrare/agent-skills/main/update.sh)
 ```
 
-Run the last line with the sandbox disabled (it rewrites `~/.claude/plugins/`).
 Expected: "Plugin flagrare updated from <old> to <version>".
