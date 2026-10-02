@@ -26,7 +26,7 @@ Impact claims without a method go wrong in three ways: targets that are wishes, 
 
 The file's shape is in `<plugin root>/lib/career/STATE.md`.
 
-**One entry per piece of work.** Before `plan`, run `show` and look for an entry with the same `work.link`; when there is one, reuse its `id`, so the same work is never saved twice. Otherwise make a short stable id from the work's title. For a contributions-log entry, set `work.link` to the link written in that log line and `kind` to `log_entry`, so `due` stops listing it.
+**One entry per piece of work.** Before `plan`, run `show` and look for an entry with the same `work.link`; when there is one, reuse its `id`, so the same work is never saved twice. The same goes for the same work saved earlier under another link (a project saved from its proposal, now arriving as a ticket or TDD): reuse that `id` and set `work.link` to the new link. Otherwise make a short stable id from the work's title. For a contributions-log entry, set `work.link` to the link written in that log line and `kind` to `log_entry`, so `due` stops listing it.
 
 **When a query is refused** as looking like a credential, never save the secret. If the only trigger is a column named like one (`token`, `password`), save the query with that column described in words, and tell the user why.
 
@@ -40,7 +40,7 @@ Decide the stage from what you were given, or take it from the arguments:
 | something shipped with a launch date, or a check from `due` | after |
 | a contributions-log entry or past work with no number | past |
 
-Sizes: **quick** (about 5 minutes; steps 1, 2, 4, 6 and 9) for tickets and log entries; **full** (all steps) for TDDs, projects and written-case entries. When the arguments name no size, use quick for tickets and log entries and full otherwise. Small fixes with no user-visible change get `skip` with the reason, and nothing else.
+Sizes: **quick** (about 5 minutes; steps 1, 2, 4, 6, 8 and 9) for tickets and log entries; **full** (all steps) for TDDs, projects and written-case entries. When the arguments name no size, use quick for tickets and log entries and full otherwise. Small fixes with no user-visible change get `skip` with the reason, and nothing else.
 
 ## The method, every time
 
@@ -89,7 +89,7 @@ Show the user, in plain words:
 
 Then save with `plan` (or `check` / `skip`). When something launches, ask for the launch date and run `launch`.
 
-**Called by another skill** (`called by /flagrare:<skill>` in the arguments): do the work, save it, and return only the sentence, the number with its source and confidence level, and the id. The calling skill presents it. When the arguments also say `nosave`, return the same result without saving anything: the caller saves later, only if the user keeps the work.
+**Called by another skill** (`called by /flagrare:<skill>` in the arguments): do the work, save it, and return only the sentence, the number with its source and confidence level, whether its tracking exists (and what to add when it does not), and the id. The calling skill presents it. When the arguments also say `nosave`, return the same result without saving anything: the caller saves later, only if the user keeps the work.
 
 ## Reminders
 

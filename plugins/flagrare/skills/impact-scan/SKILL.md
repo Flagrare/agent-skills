@@ -207,7 +207,7 @@ Add the `| row: <id>` field only when there is a map and the item moved one of i
 
 This log is the promotion evidence trail, the lagging indicator made legible. When the user later runs `/flagrare:brag-doc` or builds a promo packet, point them at it; brag-doc should treat it as a first-class source.
 
-Right after logging, run `/flagrare:measure-impact` with `past <the log line's link> quick called by /flagrare:impact-scan`, unless the user says to skip it. It saves the number the win already carries, or a recorded skip, so the win does not come back as "no number" in the reminders.
+Right after logging, ask one line: "Measure it? (yes / skip)". On yes, run `/flagrare:measure-impact` with `past <the log line's link> quick called by /flagrare:impact-scan`; it saves the number the win already carries. On skip, record it so the win does not come back as "no number" in the reminders: `python3 <plugin root>/lib/career/measurements.py skip --home "$HOME" --id <short slug> --title "<the win in plain words>" --link <the log line's link> --kind log_entry --reason "<the user's words, or: skipped after logging>" --today <YYYY-MM-DD>`, written with the Write tool. A scheduled run never asks; the reminders bring the win up later.
 
 Every log entry is also a board update: rebuild so the evidence log shows it, and move the item to `waiting` (a reply is expected) or `done`.
 
