@@ -17,14 +17,18 @@ Impact claims without a method go wrong in three ways: targets that are wishes, 
 
 `python3 <plugin root>/lib/career/measurements.py <command> --home "$HOME" --today <YYYY-MM-DD> ...` prints planned writes as JSON. Apply each `write` action with the Write tool, reading `measurements.json` first if it exists. A refusal (exit code 2) prints the reason: tell the user in plain words and do not work around it. If it says the file is corrupt, stop and show the user the path.
 
-- `plan --entry-file <path>`: save a new measurement, or update one with the same id. Write the JSON to a file in `$TMPDIR` first and pass its path, because queries contain quotes that break a shell argument (`--entry '<json>'` also works for JSON without quotes).
-- `launch --id <id> --launch-date <date>`: set the launch date; creates checks 14 and 42 days later.
+- `plan --entry-file <path>`: save a new measurement, or update one with the same id. Write the JSON to a file in `$TMPDIR` first and pass its path, because queries contain quotes that break a shell argument (`--entry '<json>'` also works for JSON without quotes). Delete the file afterwards, whether the script accepted it or not. `plan` never changes `checks`, `launch_date` or `created_at`: only `launch` and `check` do.
+- `launch --id <id> --launch-date <date>`: set the launch date; creates checks 14 and 42 days later. The measurement must exist: when work launches with nothing saved, `plan` it first from what is known, then `launch`.
 - `check --id <id> --due <date> --value "<text>" --verdict worked|didnt_work|cant_tell`: record a check.
 - `skip --id <id> --title "<work>" --link <link> --kind ticket|tdd|project|log_entry --reason "<why>"`: record a skip.
 - `due`: checks past their date, bets with no launch after 30 days, and contributions-log entries from the last 30 days with no measurement (`--all-wins` for every entry, when the user asks to go through old work).
 - `show`: everything saved.
 
 The file's shape is in `<plugin root>/lib/career/STATE.md`.
+
+**One entry per piece of work.** Before `plan`, run `show` and look for an entry with the same `work.link`; when there is one, reuse its `id`, so the same work is never saved twice. Otherwise make a short stable id from the work's title. For a contributions-log entry, set `work.link` to the link written in that log line and `kind` to `log_entry`, so `due` stops listing it.
+
+**When a query is refused** as looking like a credential, never save the secret. If the only trigger is a column named like one (`token`, `password`), save the query with that column described in words, and tell the user why.
 
 ## Stages
 
@@ -36,7 +40,7 @@ Decide the stage from what you were given, or take it from the arguments:
 | something shipped with a launch date, or a check from `due` | after |
 | a contributions-log entry or past work with no number | past |
 
-Sizes: **quick** (about 5 minutes; steps 1, 2, 4 and 9) for tickets and log entries; **full** (all steps) for TDDs, projects and written-case entries. When the arguments name no size, use quick for tickets and log entries and full otherwise. Small fixes with no user-visible change get `skip` with the reason, and nothing else.
+Sizes: **quick** (about 5 minutes; steps 1, 2, 4, 6 and 9) for tickets and log entries; **full** (all steps) for TDDs, projects and written-case entries. When the arguments name no size, use quick for tickets and log entries and full otherwise. Small fixes with no user-visible change get `skip` with the reason, and nothing else.
 
 ## The method, every time
 
