@@ -68,7 +68,7 @@ Fill the template section by section, applying the write-docs craft from the REQ
 
 **Description sections:**
 
-- **What changed (product perspective):** One paragraph. What does the user/partner/admin experience differently after this merges? Not "changed line 47 of MenuSelector" but "newly created menus now appear active in the selector instead of incorrectly showing as disabled."
+- **What changed (product perspective):** One paragraph. What does the user/partner/admin experience differently after this merges? Not "changed line 47 of MenuSelector" but "newly created menus now appear active in the selector instead of incorrectly showing as disabled." When a bet exists for this work (run `python3 <plugin root>/lib/career/measurements.py show --home "$HOME"`, the plugin root being two directories above this skill's base directory, and match `work.link` to this PR's ticket or TDD), end the paragraph with one sentence on how we'll know it worked: the number it should move, from what, and when it gets checked. With no bet, leave it out; never invent a number.
 
 - **What changed (code perspective):** One or two sentences on the *approach and the key decision*, not a list of changes. Name the shape of the solution, not the files: "Switched the disabled-state derivation from `published` to `enabled`, since `published` is ClassPass-controlled and shouldn't affect partner-facing status." If a structural decision deserves a reviewer's attention (a new pattern, a tricky trade-off), say it in a sentence. Resist the urge to inventory the changeset; the reviewer reads the diff for that.
 

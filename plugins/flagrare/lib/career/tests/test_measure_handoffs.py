@@ -21,5 +21,13 @@ class Handoffs(unittest.TestCase):
         })
 
 
+    def test_given_the_shipping_and_scans_skills_when_read_then_each_hands_off_to_measure_impact(self):
+        self.check({
+            "open-pr": "how we'll know it worked",
+            "measure-impact": "`nosave`",
+            "opportunity-scan": "called by /flagrare:opportunity-scan",
+            "impact-scan": "called by /flagrare:impact-scan",
+        })
+
 if __name__ == "__main__":
     unittest.main()
