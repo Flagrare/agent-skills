@@ -6,7 +6,7 @@
 
 **Goal:** Remind the user to measure impact at the right moments, without nagging: one line at session start when something is due, and a short note to Claude when a measurable moment happens in a session.
 
-**Architecture:** One Python hook module, `plugins/flagrare/hooks/measure_reminders.py`, with two entry points (`session-start`, `moment`) and pure functions the tests call directly. It reuses `lib/career/measurements.py` (Milestone 1) for "what is due" and the saved skips, reads the shared config for `skills["measure-impact"].reminders`, and keeps a per-session list of moments already mentioned in the temp folder. It never fails a session: any error means no output and exit 0. `hooks.json` registers it for `SessionStart` (matcher `startup`) and `PostToolUse` (matcher `Skill|Bash|Write|Edit`).
+**Architecture:** One Python hook module, `plugins/flagrare/hooks/measure_reminders.py`, with two entry points (`session-start`, `moment`) and pure functions the tests call directly. It reuses `lib/career/measurements.py` (Milestone 1) for "what is due" and the saved skips, reads the shared config for `skills["measure-impact"].reminders`, and keeps a per-session list of moments already mentioned in the session's scratchpad folder (falling back to the temp folder). It never fails a session: any error means no output and exit 0. `hooks.json` registers it for `SessionStart` (matcher `startup|resume`) and `PostToolUse` (matcher `Skill|Bash|Write|Edit`).
 
 **Tech Stack:** Python 3 standard library, `unittest`, Claude Code plugin hooks (`hooks/hooks.json`, `${CLAUDE_PLUGIN_ROOT}`).
 
@@ -244,17 +244,24 @@ class Moment(unittest.TestCase):
             out = mr.moment(skill_event("flagrare:tdd-writer", "T-5"), d, s)
             note = out["hookSpecificOutput"]["additionalContext"]
             self.assertEqual(out["hookSpecificOutput"]["hookEventName"], "PostToolUse")
-            self.assertIn("a TDD was drafted", note)
+            self.assertIn("a TDD is being written", note)
             self.assertIn("before stage", note)
 
     def test_given_an_unrelated_skill_when_the_tool_finishes_then_says_nothing(self):
         with tempfile.TemporaryDirectory() as d, tempfile.TemporaryDirectory() as s:
             self.assertIsNone(mr.moment(skill_event("flagrare:design-review"), d, s))
 
-    def test_given_a_pr_merge_command_when_it_finishes_then_offers_an_after_measurement(self):
+    def test_given_a_pr_merge_command_when_it_finishes_then_asks_to_record_the_launch_date(self):
         with tempfile.TemporaryDirectory() as d, tempfile.TemporaryDirectory() as s:
             event = {"session_id": "s1", "tool_name": "Bash", "tool_input": {"command": "gh pr merge 42 --squash"}}
-            self.assertIn("after stage", mr.moment(event, d, s)["hookSpecificOutput"]["additionalContext"])
+            note = mr.moment(event, d, s)["hookSpecificOutput"]["additionalContext"]
+            self.assertIn("measurements.py launch", note)
+            self.assertNotIn("after stage", note)
+
+    def test_given_a_log_entry_appended_from_a_shell_command_when_it_finishes_then_offers_a_past_measurement(self):
+        with tempfile.TemporaryDirectory() as d, tempfile.TemporaryDirectory() as s:
+            event = {"session_id": "s1", "tool_name": "Bash", "tool_input": {"command": "python3 - <<EOF\nopen('contributions.log.md','a')\nEOF"}}
+            self.assertIn("past stage", mr.moment(event, d, s)["hookSpecificOutput"]["additionalContext"])
 
     def test_given_a_contributions_log_write_when_it_finishes_then_offers_a_past_measurement(self):
         with tempfile.TemporaryDirectory() as d, tempfile.TemporaryDirectory() as s:
@@ -278,6 +285,7 @@ class Moment(unittest.TestCase):
                        "stage": "skipped", "skipped_reason": "small fix"}
             write(Path(d), f"{CAREER}/measurements.json", json.dumps([skipped]))
             self.assertIsNone(mr.moment(skill_event("flagrare:work-prep", "https://tracker.example/T-9"), d, s))
+            self.assertIsNone(mr.moment(skill_event("flagrare:work-prep", "T-9", sid="s2"), d, s))
 
     def test_given_no_session_id_when_a_moment_happens_then_still_notes_it(self):
         with tempfile.TemporaryDirectory() as d, tempfile.TemporaryDirectory() as s:
@@ -301,7 +309,14 @@ class CommandLine(unittest.TestCase):
     def test_given_a_moment_on_stdin_when_the_hook_runs_then_prints_the_json_note(self):
         with tempfile.TemporaryDirectory() as d, tempfile.TemporaryDirectory() as s:
             out = mr.main(["x", "moment"], json.dumps(skill_event("flagrare:open-pr")), d, "2026-10-16", s)
-            self.assertIn("a PR was opened", json.loads(out)["hookSpecificOutput"]["additionalContext"])
+            self.assertIn("a PR is being opened", json.loads(out)["hookSpecificOutput"]["additionalContext"])
+
+    def test_given_a_scratchpad_in_the_event_when_the_hook_runs_then_keeps_its_once_per_session_list_there(self):
+        with tempfile.TemporaryDirectory() as d, tempfile.TemporaryDirectory() as fallback, tempfile.TemporaryDirectory() as pad:
+            event = {**skill_event("flagrare:open-pr"), "scratchpad_dir": pad}
+            mr.main(["x", "moment"], json.dumps(event), d, "2026-10-16", fallback)
+            self.assertEqual([p.name for p in Path(pad).iterdir()], ["flagrare-measure-s1.json"])
+            self.assertEqual(list(Path(fallback).iterdir()), [])
 ```
 
 - [ ] **Step 2: Run them to see them fail**
@@ -315,12 +330,12 @@ Append to `measure_reminders.py`:
 
 ```python
 MOMENT_SKILLS = {
-    "flagrare:tdd-writer": ("a TDD was drafted", "before"),
-    "flagrare:work-prep": ("a ticket was picked up", "before"),
-    "flagrare:intake": ("a ticket was picked up", "before"),
-    "flagrare:opportunity-scan": ("projects were proposed", "before"),
-    "flagrare:open-pr": ("a PR was opened", "before"),
-    "flagrare:release-check": ("a release went out", "after"),
+    "flagrare:tdd-writer": ("a TDD is being written", "before"),
+    "flagrare:work-prep": ("a ticket is being picked up", "before"),
+    "flagrare:intake": ("a ticket is being picked up", "before"),
+    "flagrare:opportunity-scan": ("projects are being proposed", "before"),
+    "flagrare:open-pr": ("a PR is being opened", "before"),
+    "flagrare:release-check": ("a release is being checked", "launch"),
 }
 
 
@@ -333,9 +348,11 @@ def moment_of(event: dict) -> tuple[str, str, str] | None:
     if tool == "Bash":
         command = str(data.get("command", ""))
         if "gh pr merge" in command:
-            return f"merge:{command[:120]}", "a PR was merged", "after"
+            return f"merge:{command[:120]}", "a PR was merged", "launch"
         if "gh pr create" in command:
             return f"create:{command[:120]}", "a PR was opened", "before"
+        if "contributions.log.md" in command:
+            return "log", "a contribution was logged", "past"
     if tool in ("Write", "Edit") and str(data.get("file_path", "")).endswith("career/contributions.log.md"):
         return "log", "a contribution was logged", "past"
     return None
@@ -350,7 +367,8 @@ def _skipped(event: dict, home: str) -> bool:
     for item in items:
         if isinstance(item, dict) and item.get("stage") == "skipped":
             link = (item.get("work") or {}).get("link") or ""
-            if (link and link in text) or (len(str(item.get("id", ""))) > 3 and str(item["id"]) in text):
+            last = link.rstrip("/").rsplit("/", 1)[-1] if link else ""
+            if (link and link in text) or (len(last) > 2 and last in text) or (len(str(item.get("id", ""))) > 3 and str(item["id"]) in text):
                 return True
     return False
 
@@ -374,16 +392,21 @@ def _first_time(session_id: str, key: str, state_dir: str) -> bool:
 
 
 def moment(event: dict, home: str, state_dir: str) -> dict | None:
-    if not isinstance(event, dict) or not reminders_on(home):
+    if not isinstance(event, dict):
         return None
     found = moment_of(event)
-    if not found:
+    if not found or not reminders_on(home):
         return None
     key, what, stage = found
     if _skipped(event, home) or not _first_time(str(event.get("session_id") or ""), key, state_dir):
         return None
+    if stage == "launch":
+        ask = ("if this work has a saved measurement, ask the user when it reaches users and record that date with "
+               "measurements.py launch, so the checks come due on their own; if it has none, offer /flagrare:measure-impact (before stage)")
+    else:
+        ask = f"offer /flagrare:measure-impact ({stage} stage)"
     note = (f"Measure-impact moment: {what}. Unless this is a small fix, the user already measured or skipped this work, "
-            f"or this is a scheduled run, offer /flagrare:measure-impact ({stage} stage) in one short line at the end of your reply. "
+            f"or this is a scheduled run, {ask} in one short line at the end of your reply. "
             "Do not interrupt the current task for it, and do not offer it again for this work in this session.")
     return {"hookSpecificOutput": {"hookEventName": "PostToolUse", "additionalContext": note}}
 
@@ -395,7 +418,10 @@ def main(argv: list[str], stdin_text: str, home: str, today: str, state_dir: str
             out = session_start(home, today)
         elif mode == "moment":
             event = json.loads(stdin_text) if stdin_text.strip() else {}
-            out = moment(event, home, state_dir) if isinstance(event, dict) else None
+            if isinstance(event, dict):
+                out = moment(event, home, str(event.get("scratchpad_dir") or state_dir))
+            else:
+                out = None
         else:
             out = None
     except Exception:  # a reminder must never break the session
@@ -417,7 +443,7 @@ if __name__ == "__main__":
 - [ ] **Step 4: Run them to see them pass**
 
 Run: `cd plugins/flagrare/lib/career && python3 -m unittest tests.test_measure_reminders -q`
-Expected: `OK` (16 tests).
+Expected: `OK` (18 tests).
 
 Run: `cd plugins/flagrare/lib/career && python3 -m unittest discover -s tests -q`
 Expected: `OK`.
@@ -458,7 +484,7 @@ class Registration(unittest.TestCase):
                     if "measure_reminders.py" in hook.get("command", ""):
                         commands[event] = (group.get("matcher"), hook["command"])
         self.assertEqual(set(commands), {"SessionStart", "PostToolUse"})
-        self.assertEqual(commands["SessionStart"][0], "startup")
+        self.assertEqual(commands["SessionStart"][0], "startup|resume")
         self.assertEqual(commands["PostToolUse"][0], "Skill|Bash|Write|Edit")
         self.assertTrue(commands["SessionStart"][1].endswith("measure_reminders.py session-start"))
         self.assertTrue(commands["PostToolUse"][1].endswith("measure_reminders.py moment"))
@@ -474,13 +500,13 @@ Expected: 1 failure (`set()` is not `{'SessionStart', 'PostToolUse'}`).
 
 In `plugins/flagrare/hooks/hooks.json`:
 
-- Append to the `description` string: ` (4) measure-impact reminders: one line at session start when measurements are due, and a note to Claude after measurable moments (TDD drafted, ticket picked up, PR opened or merged, contribution logged, release).`
+- Append to the `description` string: ` (4) measure-impact reminders: one line at session start or resume when measurements are due, and a note to Claude at measurable moments (TDD written, ticket picked up, PR opened or merged, contribution logged, release).`
 - Add a `SessionStart` key inside `"hooks"`:
 
 ```json
     "SessionStart": [
       {
-        "matcher": "startup",
+        "matcher": "startup|resume",
         "hooks": [
           {
             "type": "command",
@@ -517,7 +543,7 @@ In `plugins/flagrare/skills/measure-impact/SKILL.md`, add this section right bef
 Two plugin hooks bring measuring up without the user having to remember:
 
 - **At session start:** when something is due (a check after launch, a bet with no launch date after 30 days, a recent win with no number), the user sees one line, and you get the list. Bring it up once, at a natural point, never in the middle of their task.
-- **After a measurable moment:** a TDD drafted, a ticket picked up, projects proposed, a PR opened or merged, a contribution logged, a release. You get a short note; offer this skill in one line at the end of your reply, unless the work is a small fix, was already measured or skipped, or the run is scheduled.
+- **At a measurable moment:** a TDD being written, a ticket being picked up, projects being proposed, a PR opened, a contribution logged: you get a short note; offer this skill in one line at the end of your reply, unless the work is a small fix, was already measured or skipped, or the run is scheduled. When a PR is merged or a release is checked, the note asks you to record the launch date with `launch` instead, so the checks come due on their own.
 
 Each moment is mentioned at most once per session, and skipped work stays silent. To turn all reminders off, set `skills["measure-impact"].reminders` to `false` in `~/.claude/skills/flagrare/config.json`.
 
@@ -578,7 +604,7 @@ Reminders, so measuring impact doesn't depend on remembering it.
 
 - **`/flagrare:measure-impact`, reminders**: the skill measured what your work changed, but only when you thought to ask, and the steps people skip are exactly the before and the after. Now two hooks bring it up:
   - **When a session starts:** one line when something is due, for example "Impact: 1 check due (Reorder button). Ask Claude to measure it when you have a minute." Nothing when nothing is due.
-  - **After a measurable moment:** a TDD drafted, a ticket picked up, a PR opened or merged, a win logged, a release. Claude offers it in one line at the end of its reply instead of interrupting.
+  - **At a measurable moment:** a TDD being written, a ticket picked up, a PR opened, a win logged: Claude offers it in one line at the end of its reply instead of interrupting. When a PR merges or a release goes out, it asks when the work reaches users, so the 2- and 6-week checks schedule themselves.
   - **No nagging:** each moment once per session, skipped work stays silent, small fixes and scheduled runs are left alone, and `reminders: false` in the config turns it all off. A hook error never breaks your session.
 ```
 
