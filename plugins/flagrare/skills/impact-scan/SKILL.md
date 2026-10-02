@@ -207,6 +207,8 @@ Add the `| row: <id>` field only when there is a map and the item moved one of i
 
 This log is the promotion evidence trail, the lagging indicator made legible. When the user later runs `/flagrare:brag-doc` or builds a promo packet, point them at it; brag-doc should treat it as a first-class source.
 
+Right after logging, run `/flagrare:measure-impact` with `past <the log line's link> quick called by /flagrare:impact-scan`, unless the user says to skip it. It saves the number the win already carries, or a recorded skip, so the win does not come back as "no number" in the reminders.
+
 Every log entry is also a board update: rebuild so the evidence log shows it, and move the item to `waiting` (a reply is expected) or `done`.
 
 ### 7. Keep the board current

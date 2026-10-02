@@ -89,7 +89,7 @@ Show the user, in plain words:
 
 Then save with `plan` (or `check` / `skip`). When something launches, ask for the launch date and run `launch`.
 
-**Called by another skill** (`called by /flagrare:<skill>` in the arguments): do the work, save it, and return only the sentence, the number with its source and confidence level, and the id. The calling skill presents it.
+**Called by another skill** (`called by /flagrare:<skill>` in the arguments): do the work, save it, and return only the sentence, the number with its source and confidence level, and the id. The calling skill presents it. When the arguments also say `nosave`, return the same result without saving anything: the caller saves later, only if the user keeps the work.
 
 ## Reminders
 
