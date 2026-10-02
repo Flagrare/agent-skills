@@ -224,8 +224,7 @@ class BoardMeasure(unittest.TestCase):
             home = Path(d)
             write(home, f"{CAREER}/measurements.json", [{"id": "x", "work": {"title": "X", "link": "https://example.com/x"}, "stage": "after", "checks": [{"due": 5}]}])
             b = co.board(str(home), "2026-10-01")
-            self.assertIn("measurements.json", b["measure"]["error"])
-            self.assertEqual(b["promotion"], {"has_map": False})
+            self.assertEqual(([p["id"] for p in b["measure"]["problems"]], b["promotion"]), (["x"], {"has_map": False}))
 
     def test_given_reminders_off_when_building_board_data_then_says_so(self):
         with tempfile.TemporaryDirectory() as d:

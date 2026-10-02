@@ -220,19 +220,19 @@ def due(home: str, today: str, wins_since: str | None = None) -> dict:
         starts = sorted(str(i["created_at"]) for i in items if i.get("created_at"))
         count_wins = bool(items)
         wins_since = max(window, starts[0]) if starts else window
-    known_links = {((i.get("work") or {}).get("link") or "").rstrip(").,;") for i in items}
-    checks_due, waiting = [], []
+    known_links = {str(_work(i).get("link") or "").rstrip(").,;") for i in items}
+    checks_due, waiting, problems = [], [], []
     wait_cutoff = (date.fromisoformat(today) - timedelta(days=BET_WAIT_DAYS)).isoformat()
     for item in items:
         if item.get("stage") == "skipped":
             continue
-        title = (item.get("work") or {}).get("title", "")
-        for check in item.get("checks") or []:
-            if isinstance(check, dict) and not check.get("done_at") and check.get("due") and check["due"] <= today:
-                checks_due.append({"id": item.get("id"), "title": title, "due": check["due"]})
-        created = item.get("created_at") or ""
-        if item.get("stage") == "before" and not item.get("launch_date") and created and created <= wait_cutoff:
-            waiting.append({"id": item.get("id"), "title": title, "since": created})
+        try:
+            found_checks, found_wait = _due_in(item, today, wait_cutoff)
+        except (TypeError, ValueError, AttributeError):
+            problems.append({"id": item.get("id"), "problem": "a date or field in it is not in the expected shape"})
+            continue
+        checks_due += found_checks
+        waiting += found_wait
     wins = []
     for line in career_state.read_contributions(home) if count_wins else []:
         link = _log_link(line)
@@ -241,8 +241,33 @@ def due(home: str, today: str, wins_since: str | None = None) -> dict:
             continue
         if link and link not in known_links:
             wins.append({"date": parts[0], "link": link, "text": parts[2] if len(parts) > 2 else ""})
-    return {"checks_due": checks_due, "bets_waiting": waiting, "unmeasured_wins": wins,
+    return {"checks_due": checks_due, "bets_waiting": waiting, "unmeasured_wins": wins, "problems": problems,
             "count": len(checks_due) + len(waiting) + len(wins)}
+
+
+def _work(item: dict) -> dict:
+    work = item.get("work")
+    return work if isinstance(work, dict) else {}
+
+
+def _due_in(item: dict, today: str, wait_cutoff: str) -> tuple[list[dict], list[dict]]:
+    """One entry's checks past their date, and its bet when it has waited too long for a launch.
+    Raises when a field has the wrong shape, so `due` can name the entry and keep the rest."""
+    if not isinstance(item.get("work"), dict):
+        raise TypeError("work must be an object")
+    title = _work(item).get("title", "")
+    checks = item.get("checks") or []
+    if not isinstance(checks, list):
+        raise TypeError("checks must be a list")
+    found = []
+    for check in checks:
+        if isinstance(check, dict) and not check.get("done_at") and check.get("due") and check["due"] <= today:
+            found.append({"id": item.get("id"), "title": title, "due": check["due"]})
+    waiting = []
+    created = item.get("created_at") or ""
+    if item.get("stage") == "before" and not item.get("launch_date") and created and created <= wait_cutoff:
+        waiting.append({"id": item.get("id"), "title": title, "since": created})
+    return found, waiting
 
 
 def main() -> None:

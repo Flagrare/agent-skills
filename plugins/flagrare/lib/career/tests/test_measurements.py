@@ -253,6 +253,15 @@ class Due(unittest.TestCase):
             saved(d, [entry(stage="skipped", skipped_reason="dropped", checks=[{"due": "2026-10-15", "done_at": None, "value": None, "verdict": None}])])
             self.assertEqual(m.due(d, "2026-10-20")["checks_due"], [])
 
+class OneBadEntry(unittest.TestCase):
+    def test_given_one_malformed_entry_when_asking_then_the_valid_ones_are_still_listed_and_the_bad_one_is_named(self):
+        with tempfile.TemporaryDirectory() as d:
+            good = entry(launch_date="2026-10-01", checks=[{"due": "2026-10-15", "done_at": None}])
+            saved(d, [{"id": "bad", "work": "not a dict", "stage": "after", "checks": [{"due": 5}]}, good])
+            result = m.due(d, "2026-10-16")
+            self.assertEqual(([c["id"] for c in result["checks_due"]], [p["id"] for p in result["problems"]]), (["acme-reorder"], ["bad"]))
+
+
 class ReviewFixes(unittest.TestCase):
     def test_given_an_entry_sent_with_empty_checks_and_launch_when_planning_again_then_keeps_the_saved_ones(self):
         with tempfile.TemporaryDirectory() as d:

@@ -1100,6 +1100,8 @@ dialog.keys dd { margin: 0; color: var(--ink-2); }
       group("Bets waiting for a launch date", MEAS.bets_waiting || [], b => named(b.title, "bet set " + fmt(b.since))),
       group("Wins with no number", MEAS.unmeasured_wins || [], win),
     ].join("") + `<p class="recog-sum">Ask Claude to measure one with ${skill}.</p>`;
+    const bad = MEAS.problems || [];
+    if (bad.length && !MEAS.error) body += `<p class="wait-who">${esc(bad.length)} saved ${bad.length === 1 ? "measurement" : "measurements"} could not be read (${bad.map(p => esc(p.id || "no id")).join(", ")}). Ask Claude to fix ${bad.length === 1 ? "it" : "them"} in <code>measurements.json</code>.</p>`;
     $("h-measure").innerHTML = term("Measure", "measure");
     $("n-measure").textContent = MEAS.count ? String(MEAS.count) : "";
     $("measure-body").innerHTML = body;

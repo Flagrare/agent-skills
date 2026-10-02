@@ -47,7 +47,10 @@ class Handoffs(unittest.TestCase):
         })
 
     def test_given_the_career_digest_when_read_then_it_has_a_measure_line(self):
-        self.check({"career": "**Measure:**"})
+        self.check({"career": "**Measure:** check due:"})
+
+    def test_given_the_career_digest_when_a_measure_group_is_empty_then_it_is_left_out(self):
+        self.assertIn("omit any empty group", bullet(read("career"), "- **The Measure line**"))
 
 
 class HandoffSafety(unittest.TestCase):
