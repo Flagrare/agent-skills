@@ -168,3 +168,96 @@ def plan_skip(home: str, item_id: str, title: str, link: str, kind: str, reason:
     items.append({"id": item_id, "work": {"title": title, "link": link, "kind": kind}, "stage": "skipped",
                   "skipped_reason": reason, "created_at": today, "updated_at": today})
     return _write(home, items, f"skip {item_id}")
+
+
+LINK_RE = re.compile(r"https?://\S+")
+
+
+def _log_link(line: str) -> str:
+    parts = [p.strip() for p in line[2:].split("|")] if line.startswith("- ") else []
+    if len(parts) < 2:
+        return ""
+    found = LINK_RE.search(parts[1])
+    return found.group(0).rstrip(").,;") if found else ""
+
+
+WINS_WINDOW_DAYS = 30
+
+
+def due(home: str, today: str, wins_since: str | None = None) -> dict:
+    """What needs the user now. Log entries count as wins with no number only from `wins_since` on
+    (default: the last 30 days), so an old log is not reported all at once; pass "" for every entry."""
+    _check_date("today", today)
+    if wins_since is None:
+        wins_since = (date.fromisoformat(today) - timedelta(days=WINS_WINDOW_DAYS)).isoformat()
+    items = [i for i in load(home) if isinstance(i, dict)]
+    known_links = {((i.get("work") or {}).get("link") or "").rstrip(").,;") for i in items}
+    checks_due, waiting = [], []
+    wait_cutoff = (date.fromisoformat(today) - timedelta(days=BET_WAIT_DAYS)).isoformat()
+    for item in items:
+        if item.get("stage") == "skipped":
+            continue
+        title = (item.get("work") or {}).get("title", "")
+        for check in item.get("checks") or []:
+            if isinstance(check, dict) and not check.get("done_at") and check.get("due") and check["due"] <= today:
+                checks_due.append({"id": item.get("id"), "title": title, "due": check["due"]})
+        created = item.get("created_at") or ""
+        if item.get("stage") == "before" and not item.get("launch_date") and created and created <= wait_cutoff:
+            waiting.append({"id": item.get("id"), "title": title, "since": created})
+    wins = []
+    for line in career_state.read_contributions(home):
+        link = _log_link(line)
+        parts = [p.strip() for p in line[2:].split("|")]
+        if wins_since and (parts[0] if parts else "") < wins_since:
+            continue
+        if link and link not in known_links:
+            wins.append({"date": parts[0], "link": link, "text": parts[2] if len(parts) > 2 else ""})
+    return {"checks_due": checks_due, "bets_waiting": waiting, "unmeasured_wins": wins,
+            "count": len(checks_due) + len(waiting) + len(wins)}
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Plan-only helper for /flagrare:measure-impact.")
+    parser.add_argument("command", choices=["plan", "launch", "check", "skip", "due", "show"])
+    parser.add_argument("--home", default=str(Path.home()))
+    parser.add_argument("--today")
+    parser.add_argument("--entry", help="plan: the measurement as a JSON object")
+    parser.add_argument("--entry-file", help="plan: a file holding the measurement JSON (use this when the query has quotes)")
+    parser.add_argument("--all-wins", action="store_true", help="due: count every log entry, not only the last 30 days")
+    parser.add_argument("--id")
+    parser.add_argument("--launch-date")
+    parser.add_argument("--due")
+    parser.add_argument("--value", default="")
+    parser.add_argument("--verdict")
+    parser.add_argument("--title", default="")
+    parser.add_argument("--link", default="")
+    parser.add_argument("--kind")
+    parser.add_argument("--reason", default="")
+    args = parser.parse_args()
+    try:
+        if args.command == "show":
+            result: object = load(args.home)
+        elif not args.today:
+            parser.error(f"{args.command} needs --today")
+        elif args.command == "due":
+            result = due(args.home, args.today, "" if args.all_wins else None)
+        elif args.command == "plan":
+            text = Path(args.entry_file).read_text(encoding="utf-8") if args.entry_file else (args.entry or "")
+            try:
+                entry = json.loads(text)
+            except json.JSONDecodeError as exc:
+                parser.error(f"--entry is not valid JSON: {exc}")
+            result = plan_upsert(args.home, entry, args.today)
+        elif args.command == "launch":
+            result = plan_launch(args.home, args.id or "", args.launch_date or "", args.today)
+        elif args.command == "check":
+            result = plan_check(args.home, args.id or "", args.due or "", args.value, args.verdict or "", args.today)
+        else:
+            result = plan_skip(args.home, args.id or "", args.title, args.link, args.kind or "", args.reason, args.today)
+    except ValueError as exc:
+        parser.error(str(exc))
+    print(json.dumps(result, indent=2, ensure_ascii=False))
+
+
+if __name__ == "__main__":
+    main()

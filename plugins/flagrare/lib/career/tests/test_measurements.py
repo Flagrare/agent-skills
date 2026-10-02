@@ -192,5 +192,65 @@ class PlanSkip(unittest.TestCase):
             self.assertEqual(len(items), 1)
             self.assertEqual((items[0]["stage"], items[0]["bet"]["range"]), ("skipped", "130 to 160 a week"))
 
+LOG = ".claude/skills/flagrare/career/contributions.log.md"
+
+
+class Due(unittest.TestCase):
+    def test_given_nothing_saved_when_asking_then_nothing_is_due(self):
+        with tempfile.TemporaryDirectory() as d:
+            self.assertEqual(m.due(d, "2026-10-02")["count"], 0)
+
+    def test_given_a_check_past_its_date_when_asking_then_lists_it_and_not_a_future_one(self):
+        with tempfile.TemporaryDirectory() as d:
+            checks = [{"due": "2026-10-15", "done_at": None, "value": None, "verdict": None},
+                      {"due": "2026-11-12", "done_at": None, "value": None, "verdict": None}]
+            saved(d, [entry(launch_date="2026-10-01", checks=checks)])
+            result = m.due(d, "2026-10-16")
+            self.assertEqual(result["checks_due"], [{"id": "acme-reorder", "title": "Reorder button for Acme Pizza", "due": "2026-10-15"}])
+
+    def test_given_a_bet_with_no_launch_after_30_days_when_asking_then_lists_it_as_waiting(self):
+        with tempfile.TemporaryDirectory() as d:
+            saved(d, [{**entry(), "created_at": "2026-09-01"}, {**entry(id="fresh"), "created_at": "2026-09-25"}])
+            self.assertEqual([b["id"] for b in m.due(d, "2026-10-02")["bets_waiting"]], ["acme-reorder"])
+
+    def test_given_log_entries_when_asking_then_lists_only_those_with_no_measurement(self):
+        with tempfile.TemporaryDirectory() as d:
+            write(Path(d), LOG, "# log\n\n"
+                  "- 2026-09-20 | https://tracker.example/T-1 | Shipped the reorder button | behavior: x\n"
+                  "- 2026-09-21 | https://chat.example/p1 | Answered Sam on payouts | behavior: y\n"
+                  "- 2026-09-22 | https://docs.example/d2). | Wrote the onboarding doc | behavior: z\n")
+            saved(d, [entry(), {"id": "d2", "work": {"title": "doc", "link": "https://docs.example/d2", "kind": "log_entry"}, "stage": "skipped", "skipped_reason": "no number possible"}])
+            wins = m.due(d, "2026-10-02")["unmeasured_wins"]
+            self.assertEqual([w["link"] for w in wins], ["https://chat.example/p1"])
+
+    def test_given_an_old_log_when_asking_then_only_the_last_30_days_count_unless_asked_for_all(self):
+        with tempfile.TemporaryDirectory() as d:
+            write(Path(d), LOG, "- 2026-08-01 | https://chat.example/old | An old win | behavior: x\n"
+                  "- 2026-09-25 | https://chat.example/new | A recent win | behavior: x\n")
+            self.assertEqual([w["link"] for w in m.due(d, "2026-10-02")["unmeasured_wins"]], ["https://chat.example/new"])
+            self.assertEqual(len(m.due(d, "2026-10-02", wins_since="")["unmeasured_wins"]), 2)
+
+    def test_given_odd_log_lines_when_asking_then_does_not_crash(self):
+        with tempfile.TemporaryDirectory() as d:
+            write(Path(d), LOG, "- 2026-09-20 | Shipped without a link\n-   \n- not | enough\n")
+            result = m.due(d, "2026-10-02")
+            self.assertIsInstance(result["unmeasured_wins"], list)
+
+    def test_given_a_query_with_quotes_in_an_entry_file_when_planning_from_the_command_line_then_keeps_it_verbatim(self):
+        import subprocess
+        with tempfile.TemporaryDirectory() as d:
+            q = "select count(*) from orders where venue = 'acme' and note = \"it's\""
+            f = Path(d) / "entry.json"
+            f.write_text(json.dumps(entry(source={"category": "data warehouse", "tool": "warehouse", "query": q, "run_at": "2026-10-01"})))
+            script = Path(__file__).resolve().parents[1] / "measurements.py"
+            out = subprocess.run([sys.executable, str(script), "plan", "--home", d, "--today", "2026-10-02", "--entry-file", str(f)],
+                                 capture_output=True, text=True, check=True).stdout
+            self.assertEqual(json.loads(json.loads(out)[0]["content"])[0]["source"]["query"], q)
+
+    def test_given_a_skipped_entry_with_an_overdue_check_when_asking_then_stays_silent(self):
+        with tempfile.TemporaryDirectory() as d:
+            saved(d, [entry(stage="skipped", skipped_reason="dropped", checks=[{"due": "2026-10-15", "done_at": None, "value": None, "verdict": None}])])
+            self.assertEqual(m.due(d, "2026-10-20")["checks_due"], [])
+
 if __name__ == "__main__":
     unittest.main()
