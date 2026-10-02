@@ -232,7 +232,7 @@ Optionally include service name: `[BE][billing-service] Summary`
 
 Summary should be concise and action-oriented. If you have seen the ticket before, it should fully remind you what it is about.
 
-Titles pass the same three-reader bar as bodies, and they matter more, because the board shows nothing else. Plain language describing the outcome; no internal field names (`flip_back_at`), no coined shorthand ("sweep", "wire", "passthrough"), nothing that requires the meeting. "Hourly job: put things back on sale when their return time passes" beats "Sold-out sweep: flip past-due rows back". If the title needs the body to be understood, rewrite the title.
+Titles pass the same three-reader bar as bodies, and they matter more, because the board shows nothing else. A Story or Task title names the WORK: a verb, the thing that changes, and where. "Update the review query and Hex links so reviewers see order reports" says what someone will do; "Reviewers can find reports on orders" only describes the end state and hides the work. An outcome or a state alone ("X can do Y", "CX is ready for launch", "Monitor the feature") is never a title; add the outcome after "so" when it fits. Plain language, no internal field names (`flip_back_at`), no coined shorthand ("sweep", "wire", "passthrough"), nothing that requires the meeting. "Hourly job: put things back on sale when their return time passes" beats "Sold-out sweep: flip past-due rows back". If the title needs the body to be understood, rewrite the title.
 
 Write the title in the reporter's vocabulary, not the investigation's. After debugging, the mechanism feels like the point; it isn't, the reader recognizes the symptom. For bugs, the title states what the user sees, quoting the on-screen error text when it's short: `Modifier saves show "Could not save" errors for changes that actually saved` beats `Save reports failure even though the write committed`. Words like "committed", "read-back", "misclassifies" belong in the body, never the title.
 
@@ -409,7 +409,8 @@ Specific and testable:
 - [ ] No local file numbers anywhere (text, dependency lines, epic, charts); other tickets are named by what they do or by tracker key.
 - [ ] (Backlogs) The breakdown follows the team's precedent from Step 0.25: same seams, same cross-cutting tickets, the precedent's late additions pre-empted, deviations stated in the INDEX.
 - [ ] Passes the three-reader test: a junior dev knows exactly what to build, a PM sees the value, a manager gets it from the Goal alone.
-- [ ] Title and Goal pass the symptom test: they say what the user sees (quoting real error/UI text when short), not the mechanism the investigation found.
+- [ ] Bug titles pass the symptom test: they say what the user sees (quoting real error/UI text when short), not the mechanism the investigation found.
+- [ ] Story and Task titles start with a verb and name what changes and where. Read the title alone: could someone start the work from it? "Monitor the feature", "X is ready" and "Users can do Y" fail. The Goal names the work too, not "make sure" or "get ready".
 - [ ] No unglossed acronym or team shorthand (glossed once: in the epic for a backlog, in the ticket for a standalone one); nothing that requires having been in the meeting.
 - [ ] No decision provenance ("decided at X meeting", dates of syncs); decisions stated as facts with a link to the write-up.
 - [ ] Identifiers carry code marks and links have text; the push will render rich, not flat.
