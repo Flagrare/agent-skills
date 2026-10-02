@@ -91,6 +91,17 @@ Then save with `plan` (or `check` / `skip`). When something launches, ask for th
 
 **Called by another skill** (`called by /flagrare:<skill>` in the arguments): do the work, save it, and return only the sentence, the number with its source and confidence level, and the id. The calling skill presents it.
 
+## Reminders
+
+Two plugin hooks bring measuring up without the user having to remember:
+
+- **At session start:** when something is due (a check after launch, a bet with no launch date after 30 days, a recent win with no number), the user sees one line, and you get the list. Bring it up once, at a natural point, never in the middle of their task.
+- **At a measurable moment:** a TDD being written, a ticket being picked up, projects being proposed, a PR opened, a contribution logged: you get a short note; offer this skill in one line at the end of your reply, unless the work is a small fix, was already measured or skipped, or the run is scheduled. When a PR is merged or a release is checked, the note asks you to record the launch date with `launch` instead, so the checks come due on their own.
+
+Each moment is mentioned at most once per session, and skipped work stays silent. To turn all reminders off, set `skills["measure-impact"].reminders` to `false` in `~/.claude/skills/flagrare/config.json`.
+
+The hooks cannot see plain conversation ("I shipped it yesterday"). The first time you run for a user, suggest they add this line to their CLAUDE.md or memory, and do not add it yourself: `When I mention work I finished, shipped or launched, offer /flagrare:measure-impact in one line.`
+
 ## Rules
 
 - Never invent a number. Every number has a source, or a confidence level and its reasoning.
