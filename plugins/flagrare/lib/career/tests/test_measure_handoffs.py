@@ -46,6 +46,9 @@ class Handoffs(unittest.TestCase):
             "promotion": "results saved by `/flagrare:measure-impact`",
         })
 
+    def test_given_the_career_digest_when_read_then_it_has_a_measure_line(self):
+        self.check({"career": "**Measure:**"})
+
 
 class HandoffSafety(unittest.TestCase):
     def test_given_any_skill_that_runs_measure_impact_when_read_then_it_passes_stage_link_size_and_caller(self):

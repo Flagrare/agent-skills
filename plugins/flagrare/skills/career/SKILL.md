@@ -48,7 +48,7 @@ If a step fails (a missing MCP, a failed write, a script error), keep going with
 
 ### 3. Combined digest
 
-Run `coordinator.py board` (the active initiative with its proposal, the proposals on the table, the candidates still waiting for the user's decision, the map line, readiness per rubric row, and the balance check, in one call), then write one digest. It replaces the separate digests of the skills it ran: do not repeat them in full.
+Run `coordinator.py board` (the active initiative with its proposal, the proposals on the table, the candidates still waiting for the user's decision, the map line, readiness per rubric row, the balance check, and what needs measuring, in one call), then write one digest. It replaces the separate digests of the skills it ran: do not repeat them in full.
 
 ```
 ## Career: <date>, <interactive|scheduled>. Ran: <skills>. <caveats: failed steps, surfaces skipped, no map>
@@ -60,14 +60,16 @@ Run `coordinator.py board` (the active initiative with its proposal, the proposa
 <up to 5 rows from the impact scan, same rules as its table>
 
 **Promotion:** <N> of <total> Senior behaviors not shown yet (<the ones with little proof, by label>); haven't seen your work yet: <names>; talk to your manager by <comfortable_by> (latest <absolute_by>); written case due <date> (<status>).
+**Measure:** <checks due after launch, by title>; <bets waiting for a launch date, by title>; <N wins with no number> (only when there is something to measure)
 **Needs you:** <each pending interactive step, one line with why>
 **Heads up:** <balance message, only when warn is true>
 ```
 
 Rules:
 
-- **Cap it.** Initiative line, at most 5 table rows, one map line, the Needs you list, the warning. Item blocks with drafts follow the table only for rows that have a draft, in the impact-scan item format. Opportunity proposals appear as one line each under Needs you or the initiative line, with a pointer to the full proposals ("run /flagrare:opportunity-scan to see them in full").
+- **Cap it.** Initiative line, at most 5 table rows, one map line, one Measure line, the Needs you list, the warning. Item blocks with drafts follow the table only for rows that have a draft, in the impact-scan item format. Opportunity proposals appear as one line each under Needs you or the initiative line, with a pointer to the full proposals ("run /flagrare:opportunity-scan to see them in full").
 - **The table follows impact-scan's rules:** plain product language, no ticket keys or row ids in cells, verb-first actions, a next step in every row.
+- **The Measure line** comes from `measure` in the board data. Leave it out when `count` is 0 or `reminders` is false. When `measure.error` is set, put "measurements file unreadable" in the caveat line instead. Interactive: the closing question may offer to measure one of them with `/flagrare:measure-impact`; scheduled: only list them.
 - **The map line marks inferred dates as inferred**, and when the map has no people, rubric or calendar yet, it says which part is missing instead of guessing.
 - **The "lots of answering, nothing owned" warning lives only here.** Show it when `warn` is true, in the script's words, and add one sentence on what would fix it (the top proposal, or running an opportunity scan).
 - **Without a map** the map line reads "No promotion map yet: run /flagrare:promotion to build one", and the first-run question goes under Needs you in a scheduled run.
