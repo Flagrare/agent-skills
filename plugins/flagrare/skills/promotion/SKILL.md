@@ -25,6 +25,8 @@ The map's shape is in `reference/map-schema.md`, and the markdown layout is in `
 
 ## 1. Load state (every run)
 
+**Read the clock first.** Run `date '+%Y-%m-%d %a %H:%M %Z'` (or take `now` from the arguments when `/flagrare:career` called you) and use its date as `--today` for `map_schema.py`, `deadlines.py` and every other script, and as `checked_at` on every section you save. A cycle date, manager-conversation date or written-case deadline before now is past, not upcoming. An org or process change counts as new only when it happened after the section's `checked_at`: a recent meeting that mentions an older reorg or departure does not make the map stale.
+
 1. Run `career_state.py plan`. Apply each `write` action with the Write tool, reading the target first if it already exists (the Write tool will not overwrite a file it has not read). A `mkdir` action needs no separate step: the folder is created by the first file written into it. Do not write a placeholder map. **Never delete anything.**
 2. Read `~/.claude/skills/flagrare/config.json` (top-level identity keys, the `skills.promotion` block) and the existing map, if any. If the config file or the `skills.promotion` block is missing, continue with defaults.
 3. No map means a **first run** (section 3). A map whose `map_schema.py check` output lists `missing` sections means an interrupted first run: resume it at the earliest phase whose sections are missing. Otherwise run a **refresh** (section 4), unless the user asks for `packet` mode (section 5).
