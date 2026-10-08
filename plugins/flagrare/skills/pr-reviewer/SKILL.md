@@ -188,6 +188,8 @@ For each reported finding, before it earns a comment draft:
 4. **Reproduce the reasoning for anything security or concurrency related.** Walk the interleaving yourself. State the ordering that produces the bad outcome. If you cannot construct it, the finding does not ship as an assertion. When the downside-if-true is critical (a race, a security hole, data loss), it may ship as a genuine question that states the specific mechanism you suspect and why you could not confirm it. At most one or two of these per review; more than that and they become the faux-questions Step 6 forbids.
 5. **Kill it if it does not survive, and say what killed it.** A drop cites the specific fact that disproved it: the test it claimed was missing, by file and line; the caller it claimed would break, unbroken; the sibling that does the same thing. "Could not confirm" is not a reason to drop, it is a reason to soften (rule 4) or to state the uncertainty in the draft. Report every drop to the user in Step 7 rather than silently padding the review.
 
+**A link that fails for you is not yet broken.** When a link in the PR description will not open through an MCP (a Notion "not found", a 404 from a tool), open it as the user in their browser before saying anything. A page that exists but is private reads very differently from a dead link: say "it might be private, I get 'No access to this page'", and ask the author to share it, rather than calling it broken.
+
 Also verify the author's own claims where a finding depends on them. PR descriptions that argue a design decision at length are usually right, and checking beats assuming in both directions: a claim that checks out is worth one clause of confirmation, and a claim that doesn't is often the most valuable thing in the review.
 
 Findings that survive this step carry their evidence into the draft: the file and line of the rule broken, the name of the pattern to copy, the interleaving that triggers the race.
@@ -242,6 +244,14 @@ Before and after, from a review that pointed at a design frame the author had no
 - Clear: `Design already has the read-only version of it: [node 4051-28381](https://figma.com/design/<key>?node-id=4051-28381) shows the same modal with one full-width Close button in place of Cancel/Save.`
 
 Same sentence, same length budget. The difference is whether the author can act on it without a round trip.
+
+**Make an edge case concrete with the author's own values.** A finding about a boundary, an ordering, a rounding or a race reads as hand-waving when it only names the rule ("the edge the half-open windows protect"). Show the case: take the numbers from the author's own fixtures or test data (the dates, ids or sizes already in their test file), lay them out where a layout helps (a small markdown table of windows, the two interleaved steps of a race), and name the exact input that hits the edge and what should happen to it. Values the author wrote themselves are recognized at a glance; values you invented have to be checked first.
+
+| Abstract | Concrete |
+|---|---|
+| `It might be nice to have one order sitting exactly at the start of a window and check it shows up once, since that's the edge the half-open windows protect.` | A table of the four August windows from their own `windows` fixture (from included, to excluded), then: ``An order with pickup at exactly `2026-08-08T18:00:00Z` should only come back from window 2, so it shows up once in the CSV. Today's tests only have orders in the middle of a window, so if that boundary ever changed by accident, the order could come out twice (or not at all) without any test failing.`` |
+
+This is the one place a comment may run past the length budget: an example the author can act on beats a short sentence they have to decode.
 
 **Read each draft back as the author before it ships.** They have not seen your other tabs, your subagent reports, or the branch you were on ten minutes ago. Every proper noun in the comment (a PR, a ticket, a file, a symbol, a design frame, a person) either resolves from what is in front of them or gets one clause of context attached. This is the last check before Step 6 output, and it is cheap: reread, and for each name ask "could they follow this from this page alone?"
 
@@ -448,6 +458,7 @@ gh api --method POST /repos/{owner}/{repo}/pulls/{n}/reviews --input review.json
 - Report the review ID and the anchored lines back, then let the user submit.
 - To submit on request: `POST .../reviews/{id}/events -f event=COMMENT|REQUEST_CHANGES|APPROVE`. Recommend an event, but the user chooses.
 - To revise after posting: `PATCH /repos/{owner}/{repo}/pulls/comments/{comment_id}` for a comment, `PUT .../pulls/{n}/reviews/{id}` for the body. Both work after submission.
+- **To revise a comment while the review is still pending**, the REST `PATCH .../pulls/comments/{id}` returns 404. Use GraphQL with the comment's `node_id` (from `GET .../pulls/{n}/reviews/{review_id}/comments`): `gh api graphql -f query='mutation($id:ID!,$body:String!){updatePullRequestReviewComment(input:{pullRequestReviewCommentId:$id,body:$body}){pullRequestReviewComment{state}}}' -f id=<node_id> -f body=<new text>`. The review stays pending.
 
 ---
 
