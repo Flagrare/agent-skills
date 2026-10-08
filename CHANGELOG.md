@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.64.0: 2026-10-08
+
+Docs stop asking the reader to take things on faith.
+
+### Improved Skills
+
+- **`/flagrare:write-docs` learns to show what it names.** A new "Show what you name" section covers any doc that proposes changing an existing system: link every existing thing at first mention, with code pinned to a commit; add a cropped dev screenshot for every screen named, with a caption that says what to look at; draw flows as Mermaid diagrams, today and the proposal as two separate diagrams; build a clickable HTML mockup for a proposed UI, written in its users' words and run through `/flagrare:ux-audit` and `/flagrare:design-review`; fold code citations into collapsible toggles; compare existing surfaces in one table. Before saying "nothing like this exists", click through the product's own menus too. Field-tested the hard way: a launch-readiness discovery read the code thoroughly and still missed that admin already had a launch dashboard doing exactly that for classes, until the screenshots were retaken by walking the dev admin menu. The first draft of that doc named a dozen admin screens and showed none of them.
+- **`/flagrare:editorial-pass` checks illustration.** It lists every system, screen, file and flow a document names and flags the ones with no link, no screenshot, a code link not pinned to a commit, or a flow told in prose that a diagram would carry. Missing screenshots become visible `[TBD: screenshot of X]` anchors, never invented images.
+- **`/flagrare:tdd-writer` points to the same moves**, right after its guidance on diagrams.
+
 ## 1.63.0: 2026-10-08
 
 Edge cases come with the author's own numbers attached.
