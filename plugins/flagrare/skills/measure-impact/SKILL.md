@@ -15,6 +15,8 @@ Impact claims without a method go wrong in three ways: targets that are wishes, 
 
 ## Library
 
+**Read the clock first.** Run `date '+%Y-%m-%d %a %H:%M %Z'` once at the start (or take `now` from the arguments when another flagrare skill called you) and use its date as `--today` for every script and as the date on every baseline. A launch or check date before now is in the past: the check is due, not upcoming. Relative dates in a source ("shipped yesterday", "launching next week") resolve against when that source was written.
+
 `python3 <plugin root>/lib/career/measurements.py <command> --home "$HOME" --today <YYYY-MM-DD> ...` prints planned writes as JSON. Apply each `write` action with the Write tool, reading `measurements.json` first if it exists. A refusal (exit code 2) prints the reason: tell the user in plain words and do not work around it. If it says the file is corrupt, stop and show the user the path.
 
 - `plan --entry-file <path>`: save a new measurement, or update one with the same id. Write the JSON to a file in `$TMPDIR` first and pass its path, because queries contain quotes that break a shell argument (`--entry '<json>'` also works for JSON without quotes). Delete the file afterwards, whether the script accepted it or not. `plan` never changes `checks`, `launch_date` or `created_at`: only `launch` and `check` do.

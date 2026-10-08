@@ -122,7 +122,7 @@ Run these in parallel across PRs where possible. If you hit rate limits, back of
 | Needs attention | `updated_at` > 12 hours ago |
 | Parked draft | draft + `updated_at` > 30 days ago |
 
-Calculate hours (or days for parked drafts) since `updated_at` relative to now. Round to the nearest whole number.
+Calculate hours (or days for parked drafts) since `updated_at` relative to now. Read now from the clock once, at the start of the run (`date -u '+%Y-%m-%dT%H:%M:%SZ'`), and use that value for every PR; never estimate the current time or weekday from context. Round to the nearest whole number.
 
 ### Review state
 

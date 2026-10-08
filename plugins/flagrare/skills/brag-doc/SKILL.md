@@ -106,6 +106,8 @@ If the user says "reconfigure" or "edit setup", re-run, but only rewrite the `sk
 
 ## Resolve the time window
 
+**Read the clock first.** Run `date '+%Y-%m-%d %a %H:%M %Z'` before resolving any window, and use its output for "today", "this week", "this month" and the report header. Never work out the date or weekday from context, the same rule `/flagrare:standup-report` follows.
+
 At every invocation, ask `AskUserQuestion` what window to cover. The user explicitly opted for no default, the question runs every time so the answer is always fresh.
 
 Offer these preset options (the tool auto-adds an "Other" free-form field for custom ranges):
