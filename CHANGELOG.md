@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.63.0: 2026-10-08
+
+Edge cases come with the author's own numbers attached.
+
+### Improved Skills
+
+- **`/flagrare:pr-reviewer` shows an edge case instead of naming it.** A comment about a boundary, an ordering or a race now uses the author's own fixture values, laid out in a small table when that helps, and names the exact input that hits the edge and what should happen to it. Field-tested the hard way: "an order sitting exactly at the start of a window" needed two rounds of explanation, while a table of the four August windows from the author's own test file and one pickup time at `2026-08-08T18:00:00Z` landed at once.
+- **A link that fails through a tool is checked in the browser before it is called broken.** A private Notion page and a dead link get different comments: "it might be private, could you share it?" instead of "the link is broken".
+- **Pending review comments can be reworded in place.** GitHub's REST edit returns 404 while a review is pending, so the skill now uses the GraphQL `updatePullRequestReviewComment` mutation and the review stays pending.
+
 ## 1.62.0: 2026-10-08
 
 The rest of the date-aware skills now check the clock too.
