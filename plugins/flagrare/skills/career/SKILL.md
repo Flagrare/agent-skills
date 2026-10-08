@@ -33,11 +33,11 @@ Decide this first, and say it in the digest header.
 
 ### 1. Load state
 
-Run `python3 <plugin root>/lib/career/career_state.py plan --home "$HOME"` and apply each `write` action with the Write tool, reading the target first if it exists. **Never delete anything.** Then run `coordinator.py due`.
+First anchor the clock the way `/flagrare:impact-scan` step 0 describes: run `date '+%Y-%m-%d %a %H:%M %Z'`, keep it as **now**, use its date as `--today` for every script, put it in the digest header, and pass it in the arguments of every skill this run calls (`now: <value>`), so all of them judge dates the same way. Then run `python3 <plugin root>/lib/career/career_state.py plan --home "$HOME"` and apply each `write` action with the Write tool, reading the target first if it exists. **Never delete anything.** Then run `coordinator.py due`.
 
 ### 2. Run what is due, in order
 
-Run each step by invoking that skill with the Skill tool, passing `called by /flagrare:career, <interactive|scheduled>, <mode>, sections: <sections>` as its arguments. Each skill's own rules still apply (its owner checks, its hard filters, its approval gate for drafts). Ask each one to return its digest without its closing question; this skill asks once at the end.
+Run each step by invoking that skill with the Skill tool, passing `called by /flagrare:career, <interactive|scheduled>, <mode>, sections: <sections>, now: <now>` as its arguments; a called skill uses that now instead of reading the clock again. Each skill's own rules still apply (its owner checks, its hard filters, its approval gate for drafts). Ask each one to return its digest without its closing question; this skill asks once at the end.
 
 - **`promotion`, `first_run`** (no map): interactive, ask once: "Full promotion setup now (it is long and saves as it goes), or just today's scans with your current config?" Run the first run only on yes. On no, save today's date as `skills.career.promotion_setup_declined_at` in `config.json` and do not ask again for 30 days (list it under Needs you instead). Scheduled: skip it and list it under Needs you.
 - **`promotion`, `resume` or `refresh`:** run the refresh (or the resume of an interrupted first run) of exactly the listed `sections`. In a scheduled run with `needs_user` true, still call promotion: it re-researches the sections that need no answer and returns the rest (target, people, manager questions) as lines for Needs you. A scheduled `resume` goes under Needs you whole, since the remaining phases start with questions.

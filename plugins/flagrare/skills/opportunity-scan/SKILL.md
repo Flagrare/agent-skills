@@ -42,6 +42,8 @@ A script that refuses (exit code 2) prints the reason; tell the user in plain wo
 
 ### 1. Context and cadence
 
+Anchor the clock first, exactly as `/flagrare:impact-scan` step 0 describes (or take `now` from the coordinator's arguments): every date in the proposals (a deadline, a planning cycle, "since" on evidence) is judged against it, and a change mentioned inside the window is new only if it happened inside the window.
+
 Run `initiatives.py context`. It prints:
 
 - `has_map`, and from the promotion map: `target` (`target_level`, `cycle`, `why`, `more_of`, `less_of`), `open_rows` (rubric rows not yet done), `unseen_people`, `decision_process` (`artifact`, `usual_driver`), and `packet_deadline`. `more_of` and `less_of` are lists by design; for the single-valued facts (`target_level`, `cycle`, the `decision_process` fields, `packet_deadline`), a list means the map's sources disagree: show every option, never pick one.
