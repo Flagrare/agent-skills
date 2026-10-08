@@ -94,6 +94,17 @@ Re-run any onboarding step when the user says "reconfigure", or when they say th
 
 **Called by `/flagrare:career`.** When the arguments say this run comes from the career coordinator, run the same workflow but end at the digest: return the table, the item blocks for rows with a draft, and the Cut, Flags raised and Handed off lines, without the closing question. Still do step 6 (the `scan-state.json` write, and the contributions log when the user later says something was posted); only the board rebuild in step 7 belongs to the coordinator. When the arguments also say `scheduled`, never ask anything: an incomplete onboarding becomes one line for the coordinator's Needs you list instead of an interview, and drafts stay drafts.
 
+### 0. Anchor the clock
+
+Before anything else, run `date '+%Y-%m-%d %a %H:%M %Z'` and keep the result as **now**. Put it in the digest header and pass it word for word to every sweep subagent, so no agent works from its own idea of today. Every date judgment in the run is made against now:
+
+- **Relative dates in a source** ("tomorrow", "next Tuesday", "this morning") resolve against that source's own timestamp first, then get compared with now. A message sent yesterday that says "tomorrow" means today.
+- **Meetings and deadlines.** A calendar event that starts before now has happened or is happening, even when it has no transcript or notes yet; never call it upcoming. A deadline before now is missed, not due.
+- **News or old news.** An event (someone leaving, a reorg, a decision) is new only when it happened inside the scan window. A meeting or thread inside the window that mentions an older change is not a new event: check the map, the board and earlier scan state before flagging it.
+- **Ages and countdowns** (`since`, "waiting 3 days", "due in 5 days") count from now, in the user's timezone.
+
+The Oct 2026 run that added this step had flagged a teammate as "leaving" from a meeting held after he had left, and a sweep called a 4:30 PM meeting "not happened yet" at 4:47 PM.
+
 ### 1. Load state and window
 
 Run the load-state step from Setup first (`career_state.py plan`, applied with the Write tool), then read `career/scan-state.json` (`{ "last_run": iso8601, "seen": [{ "id", "source", "surfaced_at", "status" }] }`). The scan window is `last_run` to now; if no state exists, default to the last 48 hours, capped at 7 days. Items already in `seen` are only re-surfaced if they escalated: a new decision point, a new unanswered question, a thread reopened.
@@ -106,7 +117,7 @@ Then get the scoring inputs: run `python3 <plugin root>/lib/career/scoring.py co
 
 ### 2. Sweep in parallel
 
-Spawn **one read-only sweep subagent per configured surface**, all in the same message so they run concurrently. Each gets its surface's scope, the domain map with keywords, the exclusions, the user's identity (so their own posts are skipped), and the time window.
+Spawn **one read-only sweep subagent per configured surface**, all in the same message so they run concurrently. Each gets its surface's scope, the domain map with keywords, the exclusions, the user's identity (so their own posts are skipped), the time window, and **now** from step 0.
 
 Every sweep hunts the same four signals: (a) a decision still being formed (architecture, API contracts, migrations, process); (b) a question nobody has answered well, or a thread going in circles; (c) a discussion inside the user's domains that is missing context the user has; (d) work from other teams that touches systems the user owns or depends on. And every sweep returns the same shape, raw findings only, no ranking: location and link, participants, a 2-3 sentence summary, matched signal(s), and the specific gap the user could fill.
 
@@ -134,7 +145,7 @@ Score each candidate 0-2 on five axes:
 
 This step runs only when `has_map` is true; without a map, skip it and the digest has no Flags raised or Handed off lines. It keeps the other career skills current through two small records. Write each with the Write tool from the action the script prints, reading the target first if it exists. When several calls plan writes to the same file, apply them one at a time: write the first result, then run the next call, so each one sees the file as it now is.
 
-**Staleness flags.** For each map event the sweeps returned (these never need to pass the hard filter), raise a flag for the map section it makes out of date: a reorg or team change (`org`), someone leaving or a new manager or director (`org` and `people`), a change to the promotion process (`process`), HR publishing the review calendar (`calendar`). Run `python3 <plugin root>/lib/career/career_state.py flag --home "$HOME" --section <section> --reason "<what changed, plain words>" --source <link> --today <YYYY-MM-DD>`. `--section` must be one of the map's sections listed in `<plugin root>/lib/career/STATE.md`; the script rejects anything else. The same flag is never raised twice.
+**Staleness flags.** Apply step 0's news rule first: a map event counts only when the change itself happened inside the window, not when a source inside the window merely mentions it. For each map event the sweeps returned (these never need to pass the hard filter), raise a flag for the map section it makes out of date: a reorg or team change (`org`), someone leaving or a new manager or director (`org` and `people`), a change to the promotion process (`process`), HR publishing the review calendar (`calendar`). Run `python3 <plugin root>/lib/career/career_state.py flag --home "$HOME" --section <section> --reason "<what changed, plain words>" --source <link> --today <YYYY-MM-DD>`. `--section` must be one of the map's sections listed in `<plugin root>/lib/career/STATE.md`; the script rejects anything else. The same flag is never raised twice.
 
 **Hand-off of recurring problems.** Some items are problems rather than decisions: something broken, missing, or painful for users or partners (a class of failures, a gap nobody owns, the same question asked again). Record each problem-type item that passes the hard filter, once per scan run: `python3 <plugin root>/lib/career/career_state.py candidate --home "$HOME" --id <stable-slug> --title "<problem in plain words>" --evidence <link> --today <YYYY-MM-DD>`. To find an earlier sighting, compare with every existing entry in `initiatives.json`, whatever its status, by title and evidence; reuse that id when it is the same underlying problem, otherwise choose a new stable slug. A second sighting means the same problem showing up somewhere else (a different thread, incident or ticket), not the same thread continuing; the script ignores an evidence link it already has, so an escalating thread never counts twice.
 
