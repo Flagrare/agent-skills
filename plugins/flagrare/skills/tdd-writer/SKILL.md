@@ -316,6 +316,12 @@ diagram, mark the chosen path. Reference exact, verified file paths and show dir
 layout for new components, but do it in service of the narrative, not as a standalone
 inventory.
 
+**Show what you name.** Every existing screen, service or file the TDD mentions gets a
+link at first mention (code pinned to a commit) and every screen gets a cropped dev
+screenshot with a caption that says what to look at. A proposed UI gets a clickable
+mockup, and code citations go in collapsible toggles. `/flagrare:write-docs` ("Show
+what you name") has the full set of moves.
+
 ### Phase 4: Review Before Presenting
 
 **Do not end your turn the moment the draft is assembled.** A complete-looking TDD reads as "done," but the craft pass (Phase 3 / `/flagrare:write-docs`) and this review still have to happen before you present it. Drafting and stopping is a stall, continue through review in the same turn. (Same pattern as [`docs/research/2026-06-11-claude-code-goal-anti-stall.md`](../../../../docs/research/2026-06-11-claude-code-goal-anti-stall.md).)
