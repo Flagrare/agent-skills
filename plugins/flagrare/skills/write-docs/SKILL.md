@@ -99,6 +99,21 @@ A few moves to reach for, all attributable:
 
 What these moves share is that they put the context in the reader's path *exactly when the reader needs it*, not earlier, where it bores them, and not later, where it's too late.
 
+#### Show what you name
+
+Any doc that proposes changing an existing system (a TDD, a tech discovery, a design doc, an RCA) keeps naming things the reader has never seen: a page in the admin tool, a section of a form, a file, an endpoint. Each name is a small act of faith the reader has to make, and a doc that asks for twenty of them reads as a wall of claims. The fix is to show each thing where it is first named, so the reader can check it in one click or one glance:
+
+- **Link every existing thing at first mention.** Code links are pinned to a commit SHA (a branch link silently changes under the reader); a screen links to its real page URL; a ticket or PR carries a few words saying what it is, not just its key.
+- **Screenshot every screen you name**, taken from a dev or staging environment, never from production with real customer data on it. Crop to the part that matters and write a caption that says what to look at ("dark chips are done steps, grey chips are missing"), not what the image is.
+- **Draw flows instead of narrating them.** A before-and-after, a data path or a sequence across services gets a Mermaid diagram. When today and the proposal are both drawn, use two diagrams in that order rather than one with two subgraphs: renderers don't promise the subgraph order.
+- **Make a proposed UI clickable.** A small self-contained HTML mockup with two or three scenarios teaches the proposal faster than any paragraph. Label it as a mockup with made-up data, so nobody mistakes it for a screenshot. Write its copy for the people who will use that screen, in their words: no code names, field names or internal jargon on the buttons and labels, and run it through `/flagrare:ux-audit` and `/flagrare:design-review` before it goes in the doc.
+- **Fold the evidence.** Long lists of file and line citations go in a collapsible "Code evidence" toggle under the section they support, so the prose stays short and the proof is one click away.
+- **Compare surfaces in a table.** When several existing places each do part of the job, one at-a-glance table (what it checks, where its data comes from, what it misses) beats a section per place.
+
+Before claiming "nothing like this exists", click through the product's own navigation, not just the code: menus surface old tools that a code search for today's names never finds. Field-tested the hard way: a discovery for a launch-readiness checklist read the code thoroughly and still missed that admin already had a Studio Launch Dashboard doing exactly that for classes. It turned up only when the screenshots were retaken by walking the dev admin menu.
+
+In Notion: upload images and HTML through the file-upload flow, place HTML with `<embed>` so it renders as a live preview, and expect Mermaid code blocks to show code and diagram side by side until someone switches them to Preview by hand.
+
 ### 5. Calibrate tone to the reader's state, keep your voice constant
 
 Mailchimp draws a useful distinction: **voice is consistent, tone shifts.** Your project's voice, the underlying personality the docs sound like, stays the same across every page. The tone, how warm, how careful, how decisive, calibrates to the reader's situation on each specific page.
