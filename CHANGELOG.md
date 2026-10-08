@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.61.0: 2026-10-08
+
+Every scan now checks the clock before it reads a single thread.
+
+### Improved Skills
+
+- **`/flagrare:impact-scan` starts with an "Anchor the clock" step**: it runs `date` first, puts the result in the digest header and hands it word for word to every sweep agent, so nobody works from their own idea of today. Relative dates in a source ("tomorrow", "next Tuesday") resolve against when that source was written, a meeting that started before now is never called upcoming, and a change only counts as news when it happened inside the scan window. Field-tested the hard way: an October scan flagged a teammate as "leaving" from a meeting held after he had already left, and a sweep called a 4:30 PM meeting "not happened yet" at 4:47 PM.
+- **Staleness flags apply the same rule**: a meeting inside the window that mentions an older reorg or departure no longer raises a flag on the promotion map.
+- **`/flagrare:career` reads the clock once and passes `now` to every skill it runs**, and uses its date for every script's `--today`, so the impact scan, the opportunity scan and the promotion refresh all judge dates the same way. `/flagrare:opportunity-scan` anchors its deadlines and planning cycles to it too.
+
 ## 1.60.0: 2026-10-02
 
 What needs measuring now shows up where you already look every day.
