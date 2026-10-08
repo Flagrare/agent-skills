@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.62.0: 2026-10-08
+
+The rest of the date-aware skills now check the clock too.
+
+### Improved Skills
+
+- **`/flagrare:promotion` reads the clock before it touches the map**: its date goes into every script's `--today` and every section's `checked_at`, a cycle date, manager-conversation date or written-case deadline before now is called past, and a meeting that mentions an older reorg or departure no longer makes the map look stale. When `/flagrare:career` calls it, it uses the coordinator's `now` instead.
+- **`/flagrare:measure-impact` dates its baselines from the real clock**, treats a check date before now as due rather than upcoming, and resolves "shipped yesterday" against when it was said.
+- **`/flagrare:brag-doc` reads the clock before resolving "today", "this week" or "this month"**, the same rule `/flagrare:standup-report` already follows, so a window never starts on the wrong Monday.
+- **`/flagrare:daily-code-review` reads the current time once at the start** and measures every PR's age against it, instead of estimating how long ago "now" is.
+
 ## 1.61.0: 2026-10-08
 
 Every scan now checks the clock before it reads a single thread.
