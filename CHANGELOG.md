@@ -1,5 +1,22 @@
 # Changelog
 
+## 1.65.0: 2026-10-14
+
+Three reviewers, one walk, one list.
+
+### New Skills
+
+- **`/flagrare:ui-review`**: running `/flagrare:ux-audit`, `/flagrare:design-review` and `/flagrare:interaction-polish` on one screen used to mean three separate passes, three browser walks and three reports that repeated each other. Now one skill chains them on a single target (a screen, a dialog or a flow):
+  - **One walk.** The UX audit is the only pass through the UI. It drives one browser tab and captures every state the other two need: empty, error, hover, focus, pressed, loading on a slow network, and reduced motion, plus an inventory of each interaction and how often a real user hits it.
+  - **Two diagnoses on the same evidence.** The design lens reads those screenshots (system coverage inventory, squint test, subtraction, top 3), and the interaction lens works through the inventory (frequency gate, press feedback, loading states, reduced motion). Neither edits code.
+  - **One report.** A single severity-ranked list, each finding tagged UX, Design or Interaction, with the same problem caught by two lenses merged into one row. It's written to disk before any fix.
+  - **Fixes inside the target only.** Copy and structure first, then design, then motion, each with the principle behind it, then every changed state re-captured in the same tab. Navigation changes and new patterns go to a triage list instead.
+  - **Demos as real video.** A before/after is a real-time MP4 recorded with a visible cursor, never a GIF stitched from screenshots. Field-tested the hard way: a stitched GIF of a test order dialog read as a jarring slideshow and dropped exactly the timing the fixes had changed. The real-time recording also caught a flash on close that no screenshot showed.
+
+### Improved Skills
+
+- **`/flagrare:ux-audit`, `/flagrare:design-review` and `/flagrare:interaction-polish` know when they're part of the chain.** When `/flagrare:ui-review` calls them, the audit skips its own goal (a second one would end the chain after the walk), writes to `.ui-review/` and returns its findings instead of a hand-off. The other two diagnose from the shared screenshots without opening a new tab or editing code.
+
 ## 1.64.0: 2026-10-08
 
 Docs stop asking the reader to take things on faith.
