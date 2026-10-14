@@ -49,6 +49,14 @@ anything. Most are about restraint, and they're what separate this skill from ca
  uncommon. The litmus test: *would this still be charming on the 50th encounter?* If no, make
  it rarer, quieter, or motion-free.
 
+## Called by `/flagrare:ui-review`
+
+When the arguments start with `called by /flagrare:ui-review, diagnose only`, the caller owns the browser session, the report and the fixes. Run steps 1 and 2 of the workflow (read each interaction and its frequency, decide what should and shouldn't animate) for every interaction in the inventory the arguments pass, with three changes:
+
+- **Judge from the inventory, the screenshots and the source.** The walk already captured hover, pressed, loading and the reduced-motion states; check those shots instead of guessing. If a state is missing, say which one, so the caller captures it in its own tab.
+- **Skip steps 3 to 5 (apply).** Edit nothing. The caller applies fixes after its merged report is on disk, following this skill's rules.
+- **Return, per interaction:** its frequency band, what it does now, and the 1-3 changes that move the feel the most (removing motion counts), each with the principle behind it.
+
 ## Workflow
 
 1. **Read the interaction and its frequency.** What is it (button, toggle, modal, drawer,

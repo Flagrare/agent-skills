@@ -1,8 +1,8 @@
 # agent-skills
 
-Thirty-seven skills that wrap around your development cycle in Claude Code. They turn tickets into ATDD plans, smoke-test features against a running app or service, hunt down bugs with runtime evidence, guard commits against doc drift, run seven-axis code review, draft changelogs that read like patch notes, and review PRs with full context from your tracker and design tools.
+Thirty-eight skills that wrap around your development cycle in Claude Code. They turn tickets into ATDD plans, smoke-test features against a running app or service, hunt down bugs with runtime evidence, guard commits against doc drift, run seven-axis code review, draft changelogs that read like patch notes, and review PRs with full context from your tracker and design tools.
 
-All skills are namespaced under `flagrare:*` to avoid collisions with other plugins. Installing this marketplace adds `/flagrare:intake`, `/flagrare:work-prep`, `/flagrare:smoke-test`, `/flagrare:wrap-up`, `/flagrare:pr-reviewer`, and thirty-two more to every Claude Code session.
+All skills are namespaced under `flagrare:*` to avoid collisions with other plugins. Installing this marketplace adds `/flagrare:intake`, `/flagrare:work-prep`, `/flagrare:smoke-test`, `/flagrare:wrap-up`, `/flagrare:pr-reviewer`, and thirty-three more to every Claude Code session.
 
 ## Install
 
@@ -10,7 +10,7 @@ All skills are namespaced under `flagrare:*` to avoid collisions with other plug
 bash <(curl -sL https://raw.githubusercontent.com/Flagrare/agent-skills/main/install.sh)
 ```
 
-One command. It registers the marketplace, installs the `flagrare` plugin, and makes all thirty-seven skills available. Restart Claude Code or run `/reload-plugins` afterward.
+One command. It registers the marketplace, installs the `flagrare` plugin, and makes all thirty-eight skills available. Restart Claude Code or run `/reload-plugins` afterward.
 
 If you prefer to clone first:
 
@@ -101,6 +101,8 @@ After this one-time bootstrap, `/flagrare:update` works for all future versions 
 `/flagrare:interaction-polish` elevates the feel and "juice" of UI interactions, in the craft tradition of Emil Kowalski (sonner, vaul) and Josh Comeau. Point it at a stiff component or describe an interaction, and it applies tasteful motion (easing, springs, micro-feedback, the small details that make an interface feel alive) with accessibility (`prefers-reduced-motion`) and performance (compositor-only properties) built in. CSS-first, adapts to the project's stack. Its defining trait is restraint: it frequency-gates motion, leads with feedback over decoration, and knows when not to animate at all (a command palette summoned a hundred times a day should feel instant, not animated). Distinct from `/flagrare:ux-audit`, which finds usability problems; this one improves how an interaction feels.
 
 `/flagrare:design-review` evaluates and refines a UI the way a senior product designer would, then applies the highest-leverage fixes: visual hierarchy, spacing and rhythm, a real type scale, legibility, information density, and restraint. It diagnoses first (names the screen's one job, runs the squint test, prioritizes findings by leverage), respects and extends the project's existing brand or design system before inventing anything, and grounds every call in the canon (Dieter Rams, Edward Tufte, the Gestalt principles, the Vignelli Canon, Nielsen's heuristics) plus the Refactoring UI playbook. Its instinct is to remove, demote, and quiet before adding. Works on UI code or a screenshot. Distinct from `/flagrare:ux-audit` (a usability walkthrough) and `/flagrare:interaction-polish` (motion and feel); this one is visual, product-design craft.
+
+`/flagrare:ui-review` runs `/flagrare:ux-audit`, `/flagrare:design-review` and `/flagrare:interaction-polish` together on one screen, dialog or flow. The first-time-user walk goes first and is the only pass through the UI: it drives one browser session and captures every state, including hover, pressed, loading and reduced motion. The design lens then diagnoses those same screenshots (system coverage inventory, squint test, subtraction, top 3), and the interaction lens works on the interactions the walk found (press feedback, loading and transition states, frequency-gated motion). Their findings merge into one report: a single severity-ranked list, each finding tagged UX, Design or Interaction, overlaps merged into one row. The report is written before any code changes; then the skill applies the fixes that live in the target's own code, names the principle behind each, re-captures the changed states in the same session, and leaves navigation changes and new patterns for the team to triage. When a demo or before/after is part of the output, it records an MP4 in real time with a visible cursor instead of a GIF stitched from screenshots.
 
 `/flagrare:research-catalog` fires whenever you do external research (WebFetch, WebSearch, Explore-agent). It catalogs sources under `docs/research/` in the consuming project before returning the synthesis, so decisions trace back to evidence.
 

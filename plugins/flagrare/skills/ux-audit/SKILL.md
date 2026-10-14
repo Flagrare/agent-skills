@@ -21,9 +21,20 @@ This skill is the cheap, consistent, written-down version of that walk. The outp
 
 ---
 
+## Called by `/flagrare:ui-review`
+
+When the arguments start with `called by /flagrare:ui-review`, the caller owns the session and the deliverable. Everything else in this skill still applies, coverage discipline included, with four changes:
+
+- **Skip the `/goal` in Step 1.** ui-review already set one goal for the whole chain, and a second would silently replace it. Still create the Todo list.
+- **Scope is the one target in the arguments** (a screen, a dialog, a flow, or a URL). For a URL with no source to enumerate, the scope is that URL plus every state reachable from its affordances without leaving the target.
+- **Write to the folder the arguments name** (default `.ui-review/`) instead of `.ux-audit/`, and capture the extra states the arguments list (hover, focus, pressed, loading, reduced motion) plus the interaction inventory, in the same tab, numbered with the rest.
+- **Skip Step 7's hand-off message.** Return the findings table, the coverage list, the interaction inventory and the screenshot paths; the caller merges them into its own report.
+
+---
+
 ## Step 1: Lock the goal explicitly
 
-**Hard requirement.** Before any other tool call, you MUST call `/goal` yourself. This is not a suggestion to the user. You, the executing model, must invoke the goal tool directly. Without it, context compaction and turn limits will cause early termination -- the audit visits 15-40 routes and the model will quit by route 5 without a durable goal holding it in place.
+**Hard requirement.** Before any other tool call, you MUST call `/goal` yourself (unless called by `/flagrare:ui-review`, see above). This is not a suggestion to the user. You, the executing model, must invoke the goal tool directly. Without it, context compaction and turn limits will cause early termination -- the audit visits 15-40 routes and the model will quit by route 5 without a durable goal holding it in place.
 
 ### Determine scope
 
@@ -248,7 +259,7 @@ Do not propose fixes inline (the table already does that). Do not start implemen
 The hardest part of this skill is not stopping early. Models default to "I've seen enough." That's wrong here, the goal is *exhaustive*, not *representative*. Patterns to combat early termination:
 
 - **Maintain a Todo list with one item per route.** Mark each completed only after the per-route protocol fully ran.
-- **`/goal` was already called in Step 1.** If for any reason it wasn't, call it now. It blocks termination until the goal text holds true.
+- **`/goal` was already called in Step 1.** If for any reason it wasn't, call it now, unless called by `/flagrare:ui-review`, whose goal already spans this walk. It blocks termination until the goal text holds true.
 - **Resist consolidation.** "Routes 5-10 had similar issues, I'll group them", no. Visit each, log each. Similarity becomes a cross-cutting theme later.
 - **Don't skip the "obvious" pages.** Marketing pages, 404 pages, /offline, they often contain the worst findings because nobody has looked at them recently.
 - **Re-screenshot after every state change.** Costs nothing, prevents you describing a state you can't see.
