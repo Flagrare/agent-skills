@@ -51,6 +51,14 @@ This inventory exists because the squint test below only catches **excess** (wha
 shouldn't); it is structurally blind to **omission** (what was never designed, dead space, missing
 personality). You need both instruments.
 
+## Called by `/flagrare:ui-review`
+
+When the arguments start with `called by /flagrare:ui-review, diagnose only`, the caller owns the browser session, the report and the fixes. Run step 1 (Diagnose) in full, inventory included, with three changes:
+
+- **Work from the screenshots and source the arguments name.** Do not open a new tab or walk the screen again; the walk already captured every state. If a state is missing, say which one, so the caller captures it in its own tab.
+- **Skip step 2 (Apply).** Edit nothing. The caller applies fixes after its merged report is on disk.
+- **Return the diagnosis, not a hand-off:** the one job and priority order, the inventory (unmapped groups, unspent personality), the squint test result, the subtraction pass, and the ranked top 3 plus polish, each with its location and the principle behind it.
+
 ## Workflow: diagnose, then apply
 
 ### 1. Diagnose, a *prioritized* critique, not nitpicks
