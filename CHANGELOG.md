@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.66.1: 2026-10-21
+
+Check the picture before you hang it.
+
+### Improved Skills
+
+- **`/flagrare:open-pr`, legible images**: the before/after rule from 1.66.0 said to include an image, not to look at it. Now the skill makes you check the file before upload (every label readable, nothing cut off, both halves at the same scale, no empty margin that shrinks the content) and again on the rendered PR page with a screenshot. If text is too small to read at the embedded width, you rebuild and re-upload. It also names the trap that caused this: macOS `sips -c` crops around the center, so a crop meant to trim a right margin cut the left side off the form. Field-tested the hard way: the first admin-service PR under 1.66.0 shipped an image missing its left edge, then a fixed one with labels too small to read. The user caught both.
+
 ## 1.66.0: 2026-10-21
 
 Say less, show more.
