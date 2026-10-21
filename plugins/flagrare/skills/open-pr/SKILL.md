@@ -7,7 +7,7 @@ description: "Open a pull request that follows the repo's conventions. Reads the
 
 Create a pull request that reads like a human wrote it.
 
-The goal is a PR description that a reviewer can scan in 30 seconds and understand: what changed, why, and how to verify it works. No file-by-file enumerations. No bullet-point dumps of every touched line. Context and narrative.
+The goal is a PR description that a reviewer can scan in 30 seconds and understand: what changed, why, and how to verify it works. No file-by-file enumerations. No bullet-point dumps of every touched line. Context and narrative, and short: about 150 words for a small PR, 300 for a large one (the length gate in Step 4 enforces it). When a person can see the change, the body shows it: one before/after image.
 
 **REQUIRED BACKGROUND:** Invoke `/flagrare:write-docs` before writing the PR body. A PR description is a tiny how-to/explanation doc, and the same craft applies: lead with the reader's situation, let prose carry causality, put context at the point of need. This skill owns *the PR mechanics and the repo's conventions*; write-docs owns *making the prose readable*. The "Writing style" section below applies that craft specifically to PRs, read both.
 
@@ -60,6 +60,10 @@ If a design link (Figma, etc.) appears in the ticket, note it in the PR for visu
 
 **The hard rule, before anything else:** the description explains *what changed, why, and how to verify it*, in prose. It is never a list of files, functions, migrations, or internal symbols, the diff already shows those. If you find yourself writing "added X helper, updated Y service, changed Z schema", stop: that is the diff talking, not you. If you cannot describe the change without listing the files it touched, you do not yet understand it well enough to write the PR, go back to the diff and find the one or two sentences that explain what it actually does for someone.
 
+**Length is a gate, not a guideline.** Count the prose only (not image tags or link URLs): about 150 words for a small or single-purpose PR, about 300 for a large one. One or two sentences per template section is normal. Write the short version first; writing long and trimming leaves the long version's shape behind. The usual overruns are a testing paragraph that lists every id, value and command; a code paragraph that re-argues decisions nobody asked about; and restating the ticket. The ticket and the diff carry the detail, so link them. Field-tested the hard way: an admin-service PR went out at 471 words for a two-field form change and the user had to ask for it to be cut. The same correction had already come up twice on earlier PRs.
+
+**Show before and after for anything a person can see.** When the PR changes something visible (a page, a dialog, an email, a report, CLI output), the body includes one image with the old state above the new one, captured from dev or local, never production customer data. Crop each half to the part that changed and label the halves. If no "before" can be captured, say so and show the "after". Backend-only changes skip this unless an observable output (a response, a log line) makes the change obvious faster than prose. Upload images through GitHub: drop the file into the PR's comment box, copy the `user-attachments` URL it produces, clear the box without posting, and embed it with `<img width="620" alt="..." src="...">`.
+
 Fill the template section by section, applying the write-docs craft from the REQUIRED BACKGROUND above. For each section, the principle is the same: write like you're explaining this to a teammate over coffee, not generating a report. Lead each section with what the reader needs to know, let a sentence carry the *because*, and only use a bullet list when the items are genuinely parallel (a list of independent fixes in one PR, say) rather than a single decision sliced into fragments.
 
 **Anchor to behavior, not coordinates.** Describe *what the code now does* and *why*, never *where the lines moved*. "Line 47", "renamed the variable on line 83", "updated the import block" are all stale the moment you push another commit, and they make the reviewer hunt. The diff already shows the *where*; your job is the *what* and *why*. Likewise, don't transcribe the diff into prose, if a reviewer can get it from the diff, leave it to the diff.
@@ -77,6 +81,8 @@ Fill the template section by section, applying the write-docs craft from the REQ
 - **Checklist items:** Check off what applies, leave unchecked what doesn't. Don't delete template items (reviewers use them as a reference).
 
 ### Step 5: Push and create the PR
+
+Before `gh pr create` or `gh pr edit`, run `wc -w` on the body file and cut if it is over the Step 4 cap. If the change is visible, check that the before/after image is in the body.
 
 ```bash
 git push -u origin HEAD
@@ -124,6 +130,8 @@ The bad version lists what moved; the good version explains what was wrong, why,
 
 ## Anti-patterns
 
+- Don't ship a body over the Step 4 word cap. Run `wc -w` first; the cap is the most repeated correction on this skill.
+- Don't open a PR for a visible change without a before/after image. Reviewers can't run your branch in their head.
 - Don't skip the template. Even if it feels overkill for a one-line fix, fill it in. Consistency matters more than brevity.
 - Don't enumerate where you should narrate. A description made of five-bullet lists has flattened all the causality out of your change. If the bullets depend on each other, write the paragraph.
 - Don't imitate an enumerated house style. Reading recent merged PRs (Step 2) is for the *skeleton* (section names, title format, ticket-linking), never for level of detail. If the team's PRs are file-by-file `## Changes` dumps, you still write context-first prose inside their section headings. Copying their enumeration is the single most common way this skill fails.
