@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.66.0: 2026-10-21
+
+Say less, show more.
+
+### Improved Skills
+
+- **`/flagrare:open-pr`, the length gate**: PR bodies kept coming out several times longer than the change deserved, and the user had already corrected it twice before this release. The skill now sets the cap as a gate, not a guideline: about 150 words of prose for a small PR and 300 for a large one, checked with `wc -w` before `gh pr create` or `gh pr edit`. It also names the usual overruns (a testing paragraph listing every id and command, re-arguing decisions nobody asked about, restating the ticket) and says to write the short version first. Field-tested the hard way: an admin-service PR for a two-field form change went out at 471 words and the user had to ask for it to be cut.
+- **`/flagrare:open-pr`, before and after**: any PR that changes something a person can see (a page, a dialog, an email, a report, CLI output) now carries one image with the old state above the new one, captured from dev or local and labeled. If there is no "before" to capture, it says so and shows the "after". The skill spells out the GitHub upload trick: drop the file in the PR's comment box, copy the `user-attachments` URL, clear the box without posting, and embed the image in the body.
+
 ## 1.65.0: 2026-10-14
 
 Three reviewers, one walk, one list.
