@@ -62,7 +62,9 @@ If a design link (Figma, etc.) appears in the ticket, note it in the PR for visu
 
 **Length is a gate, not a guideline.** Count the prose only (not image tags or link URLs): about 150 words for a small or single-purpose PR, about 300 for a large one. One or two sentences per template section is normal. Write the short version first; writing long and trimming leaves the long version's shape behind. The usual overruns are a testing paragraph that lists every id, value and command; a code paragraph that re-argues decisions nobody asked about; and restating the ticket. The ticket and the diff carry the detail, so link them. Field-tested the hard way: an admin-service PR went out at 471 words for a two-field form change and the user had to ask for it to be cut. The same correction had already come up twice on earlier PRs.
 
-**Show before and after for anything a person can see.** When the PR changes something visible (a page, a dialog, an email, a report, CLI output), the body includes one image with the old state above the new one, captured from dev or local, never production customer data. Crop each half to the part that changed and label the halves. If no "before" can be captured, say so and show the "after". Backend-only changes skip this unless an observable output (a response, a log line) makes the change obvious faster than prose. Upload images through GitHub: drop the file into the PR's comment box, copy the `user-attachments` URL it produces, clear the box without posting, and embed it with `<img width="620" alt="..." src="...">`.
+**Show before and after for anything a person can see.** When the PR changes something visible (a page, a dialog, an email, a report, CLI output), the body includes one image with the old state above the new one, captured from dev or local, never production customer data. Crop each half to the part that changed and label the halves. If no "before" can be captured, say so and show the "after". Backend-only changes skip this unless an observable output (a response, a log line) makes the change obvious faster than prose. Upload images through GitHub: drop the file into the PR's comment box, copy the `user-attachments` URL it produces, clear the box without posting, and embed it near its real size (`<img width="780" alt="..." src="...">` fits GitHub's PR column).
+
+**Look at every image before it ships, then again on the PR.** Open the file you are about to upload and check it the way a reviewer will: every label and field is readable, nothing is cut off at any edge, both halves are at the same scale, and there is no wide empty margin that shrinks the content when GitHub scales it down. Then, after `gh pr create` or `gh pr edit`, open the PR page, scroll to the image and take a screenshot. If any text is too small to read at the embedded width, rebuild the image and re-upload it. Crops fail silently: macOS `sips -c` crops around the center, not the top-left corner, so a crop meant to trim the right margin cut off the left side of the form instead. Field-tested the hard way: an admin-service PR shipped a before/after image with its left edge missing and then, once fixed, so much empty space that the form labels were unreadable. Both times the user caught it, not the author.
 
 Fill the template section by section, applying the write-docs craft from the REQUIRED BACKGROUND above. For each section, the principle is the same: write like you're explaining this to a teammate over coffee, not generating a report. Lead each section with what the reader needs to know, let a sentence carry the *because*, and only use a bullet list when the items are genuinely parallel (a list of independent fixes in one PR, say) rather than a single decision sliced into fragments.
 
@@ -82,7 +84,7 @@ Fill the template section by section, applying the write-docs craft from the REQ
 
 ### Step 5: Push and create the PR
 
-Before `gh pr create` or `gh pr edit`, run `wc -w` on the body file and cut if it is over the Step 4 cap. If the change is visible, check that the before/after image is in the body.
+Before `gh pr create` or `gh pr edit`, run `wc -w` on the body file and cut if it is over the Step 4 cap. If the change is visible, check that the before/after image is in the body and that you have looked at it. After the PR exists, open it and confirm the image renders legibly (Step 4).
 
 ```bash
 git push -u origin HEAD
@@ -132,6 +134,7 @@ The bad version lists what moved; the good version explains what was wrong, why,
 
 - Don't ship a body over the Step 4 word cap. Run `wc -w` first; the cap is the most repeated correction on this skill.
 - Don't open a PR for a visible change without a before/after image. Reviewers can't run your branch in their head.
+- Don't ship an image you haven't looked at, in the file and on the rendered PR. A cropped or unreadable screenshot is worse than none.
 - Don't skip the template. Even if it feels overkill for a one-line fix, fill it in. Consistency matters more than brevity.
 - Don't enumerate where you should narrate. A description made of five-bullet lists has flattened all the causality out of your change. If the bullets depend on each other, write the paragraph.
 - Don't imitate an enumerated house style. Reading recent merged PRs (Step 2) is for the *skeleton* (section names, title format, ticket-linking), never for level of detail. If the team's PRs are file-by-file `## Changes` dumps, you still write context-first prose inside their section headings. Copying their enumeration is the single most common way this skill fails.
