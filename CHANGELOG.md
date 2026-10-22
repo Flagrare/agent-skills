@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.66.2: 2026-10-22
+
+Hang the picture before you open the door.
+
+### Improved Skills
+
+- **`/flagrare:open-pr`, image before the PR**: the skill said to put the before/after image in the body before `gh pr create`, but also said to upload it through the PR's comment box, which only exists after the PR does. Followed literally, that opens the PR first and edits the image in later, after reviewers have been notified. Now the image goes up through the comment box of any open PR or issue in the same repo, the body must hold the real `user-attachments` URL before create, and if the upload can't happen yet (a browser waiting on sign-in) the skill stops and asks instead of opening the PR. Field-tested the hard way: a partner-frontend PR went out with a placeholder where the image belonged and reviewers already requested, because the browser was waiting on single sign-on. The user caught it.
+
 ## 1.66.1: 2026-10-21
 
 Check the picture before you hang it.
