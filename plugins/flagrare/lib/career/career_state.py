@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 from pathlib import Path
 
 CAREER_REL = Path(".claude/skills/flagrare/career")
@@ -18,6 +19,8 @@ MOVED_NOTE = (
     "`~/.claude/skills/flagrare/career/` now holds these files for the career skills; impact-scan (formerly senior-scan) writes there.\n"
     "This folder is kept as a backup and nothing here is deleted.\n"
 )
+# One contributions log entry; the board, the coordinator and own_work all read this shape.
+LOG_LINE = re.compile(r"- (\d{4}-\d{2}-\d{2}) \| (\S+) \| (.+?) \| behavior: (.+?)(?: \| row: (\S+))?$")
 
 
 def paths(home: str) -> dict[str, str]:
@@ -36,6 +39,7 @@ def paths(home: str) -> dict[str, str]:
         "opportunity_state": str(career / "opportunity-state.json"),
         "voice": str(career / "voice.md"),
         "measurements": str(career / "measurements.json"),
+        "own_work": str(career / "own-work.json"),
     }
 
 

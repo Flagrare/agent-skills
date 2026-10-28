@@ -10,7 +10,22 @@ Append-only evidence log, one line per contribution:
 - <YYYY-MM-DD> | <link> | <one sentence: what the contribution was and what it changed> | behavior: <target behavior exercised>
 ```
 
-An optional trailing field ties the entry to a rubric row in the promotion map: `| row: <rubric row id>`, for example `| row: scope.proactive-discovery`. Readers accept lines with or without it. Never rewrite or reorder existing lines.
+An optional trailing field ties the entry to a rubric row in the promotion map: `| row: <rubric row id>`, for example `| row: scope.proactive-discovery`. Readers accept lines with or without it. Never rewrite or reorder existing lines. The shape is `career_state.LOG_LINE`; nothing else may follow `row:`, and a `|` inside the sentence breaks every reader.
+
+Two kinds of entries share the log: replies the user posted from a scan, and the user's own projects, which impact-scan's step 1b logs through `own_work.py record` (one entry per project, a new one only at a milestone). They look the same; `own-work.json` tells them apart.
+
+## own-work.json
+
+The user's own projects (streams), so later work joins the same project instead of becoming a new entry, and so the balance check never counts them as answering:
+
+```json
+{ "last_harvest": "2026-10-28",
+  "streams": [{ "id": "sku-1033", "title": "SKU test orders", "keys": ["SKU-1033", "SKU-1034"],
+                "links": ["<every PR, doc, ticket, meeting and thread in the project>"],
+                "log_links": ["<the links its log entries use>"], "first_date": "2026-10-07", "last_date": "2026-10-27" }] }
+```
+
+`own_work.py group` proposes streams from items the skill gathered (items sharing a ticket key or mentioning each other's links are one project; a known key or link joins the known stream), `record` plans the log line and this file, `reopen` marks a dropped board item `done` when the user went on to do it (shared link or ticket, and project work after the item's `dropped_on` or `updated_on`; without a date it stays dropped, since a shared link alone isn't proof) and tags open items with a `note` and `project`, and `link-candidates` sets `building: {stream, title, since}` on a candidate in `initiatives.json` the user is already building. `building` never changes a candidate's `status`.
 
 ## scan-state.json
 

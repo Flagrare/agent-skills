@@ -16,7 +16,9 @@ Clarity comes first, and the user still learns the terms their company uses. The
 | Promotion committee | calibration | The meeting where managers and directors review promotion cases together. |
 | The project you own | initiative, active initiative | One piece of work the user owns end to end, agreed with their manager. |
 | Proposed projects | candidates, proposals | Problems a scan found that the user could own. Nothing is theirs until they keep one and their manager agrees. |
-| Lots of answering, nothing owned | balance warning | Many contributions in the last 30 days and no project the user owns. |
+| Lots of answering, nothing owned | balance warning | Many replies to other people's work in the last 30 days and no project the user owns. Entries about the user's own projects don't count toward it. |
+| Your own work, your project | streams, own-work | Work the user started: PRs they wrote, docs they drive, and the meetings and threads about them, grouped into one project and logged as one entry with its story. |
+| You're already building this | building | A proposed project the user is already doing. It still becomes the project they own only after their manager agrees. |
 | Check first | verify first | The one check that makes a draft safe to send. |
 | Promotion map | map | The sourced document `/flagrare:promotion` keeps: target, process, calendar, the behaviors, people, the written case. |
 | People who haven't seen your work yet | unseen people | People in the decision who have no first-hand context on the user's work. |

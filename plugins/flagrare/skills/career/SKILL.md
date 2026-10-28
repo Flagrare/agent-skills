@@ -42,7 +42,7 @@ Run each step by invoking that skill with the Skill tool, passing `called by /fl
 - **`promotion`, `first_run`** (no map): interactive, ask once: "Full promotion setup now (it is long and saves as it goes), or just today's scans with your current config?" Run the first run only on yes. On no, save today's date as `skills.career.promotion_setup_declined_at` in `config.json` and do not ask again for 30 days (list it under Needs you instead). Scheduled: skip it and list it under Needs you.
 - **`promotion`, `resume` or `refresh`:** run the refresh (or the resume of an interrupted first run) of exactly the listed `sections`. In a scheduled run with `needs_user` true, still call promotion: it re-researches the sections that need no answer and returns the rest (target, people, manager questions) as lines for Needs you. A scheduled `resume` goes under Needs you whole, since the remaining phases start with questions.
 - **`opportunity-scan`:** due when the last one is 30 days old (or its configured cadence), not merely because nothing is owned: the balance warning covers that. It records its proposals as candidates and the run date before returning, so the next run is not due again tomorrow. Turning a proposal into the user's initiative needs the user and their manager, so a scheduled run lists the proposals under Needs you.
-- **`impact-scan`:** every run. A scheduled run keeps its drafts in the digest and the board; nothing is sent.
+- **`impact-scan`:** every run. A scheduled run keeps its drafts in the digest and the board; nothing is sent. Its step 1b logs the user's own projects (PRs they wrote, docs they drive, the meetings and threads about them), so running the impact scan directly records the same evidence as a career run.
 
 If a step fails (a missing MCP, a failed write, a script error), keep going with the next one and put the failure in the caveat line.
 
@@ -60,10 +60,13 @@ Run `coordinator.py board` (the active initiative with its proposal, the proposa
 <up to 5 rows from the impact scan, same rules as its table>
 
 **Promotion:** <N> of <total> Senior behaviors not shown yet (<the ones with little proof, by label>); haven't seen your work yet: <names>; talk to your manager by <comfortable_by> (latest <absolute_by>); written case due <date> (<status>).
+**Logged from your work:** <the impact scan's line: projects logged this run>
 **Measure:** check due: <up to 3 titles, then "and N more">; waiting for a launch date: <same>; <N> wins with no number
-**Needs you:** <each pending interactive step, one line with why>
+**Needs you:** <each pending interactive step, one line with why>; for each of `own_work.building_candidates`: "You're already building <title>: take it to <manager> as the project you own?"
 **Heads up:** <balance message, only when warn is true>
 ```
+
+A candidate the user is already building (`building` set by the impact scan) is the strongest proposal there is: the work and the evidence exist, only the manager conversation is missing. List it under Needs you every run until the user keeps or dismisses it (opportunity-scan step 6); never mark it active without that conversation.
 
 Rules:
 

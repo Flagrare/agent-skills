@@ -1,0 +1,7 @@
+[
+  {"source": "github", "link": "https://github.com/acme/admin/pull/3209", "title": "[Spike] Place a test order from the venue page", "date": "2026-10-09", "keys": ["SKU-1020"], "links": ["https://app.notion.com/p/test-orders-design"]},
+  {"source": "github", "link": "https://github.com/acme/admin/pull/3243", "title": "[SKU-1034] Add the test order account config", "date": "2026-10-21", "keys": ["SKU-1034", "SKU-1033"], "links": ["https://app.notion.com/p/test-orders-design"]},
+  {"source": "github", "link": "https://github.com/acme/admin/pull/3272", "title": "[SKU-1039] Place and cancel the test order from the dialog", "date": "2026-10-26", "keys": ["SKU-1039", "SKU-1033"], "links": []},
+  {"source": "notion", "link": "https://app.notion.com/p/test-orders-design", "title": "Mini design doc: admin test orders", "date": "2026-10-20", "keys": ["SKU-1033"], "links": []},
+  {"source": "granola", "link": "https://notes.granola.ai/d/retro-oct-21", "title": "Sprint retro: kudos for the test order work, and how the team should explore with AI", "date": "2026-10-21", "keys": [], "links": ["https://app.notion.com/p/test-orders-design"]}
+]
