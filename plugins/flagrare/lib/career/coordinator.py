@@ -15,6 +15,7 @@ from pathlib import Path
 import career_state
 import initiatives
 import measurements
+import own_work
 import recognition
 from map_schema import missing_sections, stale_sections
 from scoring import open_rows, unseen_people
@@ -79,16 +80,30 @@ def due(home: str, today: str) -> list[dict]:
     return steps
 
 
+def _log_links(home: str) -> list[tuple[str, str]]:
+    """(date, link) for every log entry."""
+    out = []
+    for line in career_state.read_contributions(home):
+        m = career_state.LOG_LINE.match(line.strip())
+        if m:
+            out.append((m.group(1), m.group(2)))
+    return out
+
+
 def balance(home: str, today: str) -> dict:
-    """The "all answering, nothing owned" check: recent contributions against an initiative the user owns."""
+    """The "all answering, nothing owned" check: recent replies to other people's work against an initiative
+    the user owns. Entries about the user's own projects are counted apart, never as answering."""
     start = (date.fromisoformat(today) - timedelta(days=BALANCE_WINDOW_DAYS - 1)).isoformat()
-    recent = sum(1 for d, _ in _log(home) if start <= d <= today)
+    mine = own_work.own_links(home)
+    recent_links = [link for d, link in _log_links(home) if start <= d <= today]
+    own = sum(1 for link in recent_links if link in mine)
+    recent = len(recent_links) - own
     items = [i for i in career_state._load_list(Path(career_state.paths(home)["initiatives"])) if isinstance(i, dict)]
     active = next((i for i in items if i.get("status") == "active"), None)
     warn = active is None and recent >= BALANCE_MIN_CONTRIBUTIONS
     message = (f"Lots of answering, nothing owned: {recent} contributions in the last {BALANCE_WINDOW_DAYS} days, but no project you own yet."
                if warn else "")
-    return {"window_start": start, "contributions": recent, "active": active.get("id") if active else None,
+    return {"window_start": start, "contributions": recent, "own_work": own, "active": active.get("id") if active else None,
             "warn": warn, "message": message}
 
 
@@ -175,7 +190,7 @@ def board(home: str, today: str) -> dict:
             "promotion": map_line(home), "readiness": readiness(home), "balance": balance(home, today),
             "packet": packet(home), "trend": trend(home, today),
             "recognition": recognition.summary(home, today), "measure": measure(home, today),
-            "readiness_target": READINESS_STRONG}
+            "own_work": own_work.summary(home), "readiness_target": READINESS_STRONG}
 
 
 def main() -> None:

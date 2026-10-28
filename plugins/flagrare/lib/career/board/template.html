@@ -744,7 +744,7 @@ dialog.keys dd { margin: 0; color: var(--ink-2); }
   if (top) {
     const [cls, tierLabel] = TIER[topTier];
     const url = safeUrl(top.link);
-    const notes = [top.check_first ? `<p><b>${term("Check first", "check")}.</b> ${inline(top.check_first)}</p>` : "", top.next_step ? `<p><b>First step.</b> ${inline(top.next_step)}</p>` : ""].filter(Boolean);
+    const notes = [top.note ? `<p>${inline(top.note)}</p>` : "", top.check_first ?`<p><b>${term("Check first", "check")}.</b> ${inline(top.check_first)}</p>` : "", top.next_step ? `<p><b>First step.</b> ${inline(top.next_step)}</p>` : ""].filter(Boolean);
     $("next").innerHTML = `
     <article class="box next ${cls}" id="row-${esc(top.id)}" tabindex="-1" data-id="${esc(top.id)}" data-rows="${esc(rowsOf(top).join(" "))}" aria-labelledby="next-title">
       <div class="next-top"><span class="kicker"><span class="rank-b" aria-label="Rank 1">1</span>Next up</span><span>${statusChip(top)} ${mark(top)}</span></div>
@@ -770,6 +770,7 @@ dialog.keys dd { margin: 0; color: var(--ink-2); }
     const labels = rowsOf(i).map(r => ROWLABEL[r]).filter(Boolean);
     const beh = (labels.length ? labels : i.behavior ? [i.behavior] : []).map(l => `<span class="chip">${esc(l)}</span>`).join(" ");
     return `
+      ${i.note ? `<p class="muted">${inline(i.note)}</p>` : ""}
       ${i.context ? `<p><b class="k">What's going on.</b> ${inline(i.context)}</p>` : ""}
       ${i.why ? `<p><b class="k">Why it matters.</b> ${inline(i.why)} ${beh}</p>` : beh ? `<p>${beh}</p>` : ""}
       ${i.check_first ? `<p><b class="k">${term("Check first", "check")}.</b> ${inline(i.check_first)}</p>` : ""}
@@ -931,7 +932,7 @@ dialog.keys dd { margin: 0; color: var(--ink-2); }
         ${n ? `<span class="rank">${esc(n)}</span>` : ""}
         <span class="row-main">
           <span class="row-title">${esc(c.title)}</span>
-          <span class="row-meta">${rk.total !== null && rk.total !== undefined ? `<span class="score">${esc(rk.total)} of ${esc(rk.max)}</span>` : `<span class="muted">Not scored yet</span>`}${(c.seen_count || 0) > 1 ? ` · seen in ${esc(c.seen_count)} scans` : ""}</span>
+          <span class="row-meta">${rk.total !== null && rk.total !== undefined ? `<span class="score">${esc(rk.total)} of ${esc(rk.max)}</span>` : `<span class="muted">Not scored yet</span>`}${(c.seen_count || 0) > 1 ? ` · seen in ${esc(c.seen_count)} scans` : ""}${c.building ? ` · <span class="chip">You're already building this</span>` : ""}</span>
         </span>
         <span class="row-end"><span class="caret" aria-hidden="true">▸</span></span>
       </summary>
@@ -1054,9 +1055,9 @@ dialog.keys dd { margin: 0; color: var(--ink-2); }
     evi.innerHTML = list.length ? list.map(c => {
       const long = String(c.what || "").length > 110;
       return `<div class="evi-item"><span class="evi-top"><span class="d">${esc(fmt(c.date))}</span>
-        ${safeUrl(c.link) ? `<a href="${esc(c.link)}" target="_blank" rel="noopener">${esc(c.title || "Link")} <span class="ext" aria-hidden="true">↗</span></a>` : ""}</span>
+        ${safeUrl(c.link) ? `<a href="${esc(c.link)}" target="_blank" rel="noopener">${esc(c.title || "Link")} <span class="ext" aria-hidden="true">↗</span></a>` : ""}${c.project ? ` <span class="chip">Your project: ${esc(c.project)}</span>` : ""}</span>
         ${long ? `<button type="button" class="w clamp" data-evi aria-expanded="false" title="Show all of it">${inline(c.what)}</button>` : `<span class="w">${inline(c.what)}</span>`}</div>`;
-    }).join("") : `<p class="wait-who">Nothing logged yet. Replies you send from a scan are logged here as proof.</p>`;
+    }).join("") : `<p class="wait-who">Nothing logged yet. Your own projects and the replies you send from a scan are logged here as proof.</p>`;
     const old = evi.parentNode.querySelector(":scope > .more");
     if (old) old.remove();
     if (contribs.length > 3) evi.insertAdjacentHTML("afterend", `<button class="more" type="button" data-more="${all ? "less" : "all"}">${all ? "Show fewer" : "Show all " + contribs.length}</button>`);

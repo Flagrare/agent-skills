@@ -25,6 +25,15 @@
         "evals/fixtures/promotion-map.json",
         "evals/fixtures/initiatives.json"
       ]
+    },
+    {
+      "id": 3,
+      "prompt": "Run an impact scan. Over the last three weeks I built a whole project myself: a spike, a design doc, and a stack of PRs, and it came up in our retro (the items I wrote and the meeting are in the fixture). My contributions log is empty. I have a promotion map.",
+      "expected_output": "Agent runs step 1b before the sweeps: runs own_work.py group on the gathered items and gets one project (the PRs, the design doc and the retro meeting together, joined by the shared ticket key and the doc link), writes its story from the sources (where it came from, the spike, the design doc, the retro mention) in one log sentence with no '|', records it with own_work.py record as exactly one log entry tagged with an open rubric row from scoring.py context, applies the writes with the Write tool, runs own_work.py reopen and link-candidates, and shows 'Logged from your work: <the project>' in the digest. It does not log each PR separately and does not count the entry as answering.",
+      "files": [
+        "evals/fixtures/promotion-map.json",
+        "evals/fixtures/own-work-items.json"
+      ]
     }
   ]
 }

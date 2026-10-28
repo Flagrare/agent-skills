@@ -92,7 +92,7 @@ Re-run any onboarding step when the user says "reconfigure", or when they say th
 
 ## Workflow
 
-**Called by `/flagrare:career`.** When the arguments say this run comes from the career coordinator, run the same workflow but end at the digest: return the table, the item blocks for rows with a draft, and the Cut, Flags raised and Handed off lines, without the closing question. Still do step 6 (the `scan-state.json` write, and the contributions log when the user later says something was posted); only the board rebuild in step 7 belongs to the coordinator. When the arguments also say `scheduled`, never ask anything: an incomplete onboarding becomes one line for the coordinator's Needs you list instead of an interview, and drafts stay drafts.
+**Called by `/flagrare:career`.** When the arguments say this run comes from the career coordinator, run the same workflow but end at the digest: return the table, the item blocks for rows with a draft, and the Cut, Flags raised, Handed off and Logged from your work lines, without the closing question. Still do step 6 (the `scan-state.json` write, and the contributions log when the user later says something was posted); only the board rebuild in step 7 belongs to the coordinator. When the arguments also say `scheduled`, never ask anything: an incomplete onboarding becomes one line for the coordinator's Needs you list instead of an interview, and drafts stay drafts.
 
 ### 0. Anchor the clock
 
@@ -115,9 +115,25 @@ When a recognition tool is set up (`~/.config/flagrare/bonusly-token` exists; se
 
 Then get the scoring inputs: run `python3 <plugin root>/lib/career/scoring.py context --home "$HOME"`. It prints `has_map`, the map's `open_rows` (rubric rows not yet done, each with `id`, `area` and `target_text`), `unseen_people` (people who have not seen the user's work yet), and a `fallback` with the configured `target_behaviors` and `audience`. The sweeps and step 3 use them.
 
+### 1b. Your own work
+
+The sweeps below hunt other people's threads, so they skip the user's own PRs and posts on purpose. This step covers the user's own work, because a log that only holds replies misses the projects that matter most: in Oct 2026 a whole project (a blocker taken from a PM's draft to a spike, a design doc, security sign-off and an 8-PR stack, then used by the manager as the example of how the team should work) went unlogged for three weeks while the log held one of 42 PRs.
+
+1. **Window.** From `last_harvest` in `career/own-work.json` to now. With no file, go back 30 days, or to the date the user names for a backfill.
+2. **Gather** the user's own items in the window into one JSON list, each `{source, link, title, date, keys, links}` (`keys`: ticket keys in the title, branch or body; `links`: links the item mentions, like a design doc in a PR body):
+   - PRs they authored: `gh api "search/issues?q={SCOPE}+is:pr+author:{LOGIN}+created:>={FROM}&per_page=100"`, the same query brag-doc uses, with each PR's body for links;
+   - docs they drive or edited (Notion, Confluence, Google Docs), tickets assigned to them or done, incidents they led;
+   - meetings and threads that mention those tickets or titles (meeting-notes search by ticket key and title, chat search). These carry the story: who raised the problem, how it was pitched, what was decided.
+3. **Group:** `python3 <plugin root>/lib/career/own_work.py group --home "$HOME" --items <file> --today <YYYY-MM-DD>`. It prints the proposed projects (streams) that have something new. A stream with `known: true` is a project already recorded.
+4. **Story.** For each new stream, spawn one read-only subagent with its members to write the story in one log sentence, sourced from the meetings, threads and docs: where the problem came from, what the user built and pitched, who agreed, what was decided, the numbers, and how it changed things (for example, the manager using it as an example). It quotes only what was said about the user's work, never what someone said about another person, and uses plain words. For a known stream, check whether the new work is a milestone (merged, launched, a decision made); only a milestone gets a new entry.
+5. **Record** all streams in one call, so the log is written once: `python3 <plugin root>/lib/career/own_work.py record --home "$HOME" --records <file> --today <YYYY-MM-DD>`, where each record is `{stream, title, link, what, behavior, row, members, milestone}`. `link` is the project's best single link (its design doc or epic), `row` is the open rubric row it moves (from `scoring.py context`, never invented). Apply the planned writes with the Write tool. The script refuses a `|` in the sentence, since that would break the log line.
+6. **Follow-ups:** `own_work.py reopen --home "$HOME" --board <board dir>/data.json --today <date>` marks done a dropped board item the user went on to do (one of their projects shares its link or ticket and has work after the item was dropped) and tags open items about one of their projects with a note naming it. `own_work.py link-candidates --home "$HOME" --today <date>` marks a candidate project they are already building with `building`. Apply both. Neither ever makes a candidate the project the user owns: that still needs their manager (`/flagrare:opportunity-scan` step 6).
+
+These writes are bookkeeping, so they happen without asking, in a scheduled run too. The digest lists them on the **Logged from your work** line, and the user can correct any entry afterwards. When a sweep later finds a thread about one of these projects, treat it as part of the user's project: say so in the item ("a loose end on your test orders project"), never present it as an unrelated thread.
+
 ### 2. Sweep in parallel
 
-Spawn **one read-only sweep subagent per configured surface**, all in the same message so they run concurrently. Each gets its surface's scope, the domain map with keywords, the exclusions, the user's identity (so their own posts are skipped), the time window, and **now** from step 0.
+Spawn **one read-only sweep subagent per configured surface**, all in the same message so they run concurrently. Each gets its surface's scope, the domain map with keywords, the exclusions, the user's identity (so their own posts are skipped; step 1b already covered them), the titles of the user's projects from step 1b (so a loose end on one is reported as such), the time window, and **now** from step 0.
 
 Every sweep hunts the same four signals: (a) a decision still being formed (architecture, API contracts, migrations, process); (b) a question nobody has answered well, or a thread going in circles; (c) a discussion inside the user's domains that is missing context the user has; (d) work from other teams that touches systems the user owns or depends on. And every sweep returns the same shape, raw findings only, no ranking: location and link, participants, a 2-3 sentence summary, matched signal(s), and the specific gap the user could fill.
 
@@ -174,6 +190,7 @@ Do not relay each sweep's findings as it lands; the digest is the only output. W
 **Cut:** <near-miss, reason>; <near-miss, reason>; ...
 **Flags raised:** <map section>: <what changed> (only when step 3b raised a flag)
 **Handed off:** <problem in plain words> (seen <N> times, recorded in `initiatives.json` for `/flagrare:opportunity-scan`<; dismissed on <date>, seen again>) (only when step 3b handed one off)
+**Logged from your work:** <project in plain words>; <project>; ... (only when step 1b logged something; add "you're already building <candidate>" when a candidate got `building`)
 ```
 
 Rules that keep it scannable:
@@ -208,7 +225,7 @@ Read `voice.md` first if it exists; its observed rules win over the generic ones
 
 After presenting, write `career/scan-state.json` with the Write tool: update `last_run`, append surfaced items with `status: "surfaced"` and any item handed off in step 3b with `status: "handed_off"`. If the write fails, say so in the digest's caveat line, since the next run will re-surface the same items. Then update the board (step 7) in the same turn.
 
-When the user approves and posts a contribution (or says they handled it), set that item's status to `"contributed"` and append to `career/contributions.log.md`:
+The user's own projects were already logged in step 1b. When the user approves and posts a contribution (or says they handled it), set that item's status to `"contributed"` and append to `career/contributions.log.md`:
 
 ```
 - <date> | <link> | <one sentence: what the contribution was and what it changed> | behavior: <target behavior exercised> | row: <rubric row id>

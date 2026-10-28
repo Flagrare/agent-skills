@@ -31,7 +31,9 @@ ICON = ("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0
         "%3Ccircle cx='16' cy='16' r='10' fill='none' stroke='white' stroke-width='2.5'/%3E"
         "%3Ccircle cx='16' cy='16' r='5' fill='none' stroke='white' stroke-width='2.5'/%3E"
         "%3Ccircle cx='16' cy='16' r='1.8' fill='%23f0b35c'/%3E%3C/svg%3E")
-ENTRY = re.compile(r"- (\d{4}-\d{2}-\d{2}) \| (\S+) \| (.+?) \| behavior: (.+?)(?: \| row: (\S+))?$")
+import own_work  # noqa: E402
+
+ENTRY = career_state.LOG_LINE
 
 
 def link_title(link: str) -> str:
@@ -49,15 +51,26 @@ def link_title(link: str) -> str:
     return host or "Link"
 
 
-def parse_contributions(lines: list[str]) -> list[dict]:
-    """Log entries as board records. The trailing `| row: <id>` field is optional."""
+def parse_contributions(lines: list[str], projects: dict[str, str] | None = None) -> list[dict]:
+    """Log entries as board records. The trailing `| row: <id>` field is optional.
+    `projects` maps a link to the title of the user's own project it belongs to."""
+    projects = projects or {}
     out = []
     for i, line in enumerate(lines):
         m = ENTRY.match(line.strip())
         if m:
             date, link, what, behavior, row = m.groups()
             out.append({"id": f"c{i}", "date": date, "link": link, "title": link_title(link),
-                        "what": what, "behavior": behavior, "row": row})
+                        "what": what, "behavior": behavior, "row": row, "project": projects.get(link)})
+    return out
+
+
+def project_titles(home: str) -> dict[str, str]:
+    """Each link of the user's own projects, with its project's title."""
+    out: dict[str, str] = {}
+    for s in own_work.load(home)["streams"]:
+        for link in (s.get("log_links") or []) + (s.get("links") or []):
+            out.setdefault(link, s.get("title") or s["id"])
     return out
 
 
@@ -80,7 +93,7 @@ def main() -> None:
     args = parser.parse_args()
     board = Path(args.board_dir).expanduser()
     data = json.loads((board / "data.json").read_text(encoding="utf-8"))
-    data["contributions"] = parse_contributions(career_state.read_contributions(args.home))
+    data["contributions"] = parse_contributions(career_state.read_contributions(args.home), project_titles(args.home))
     today = args.today or (data.get("scan") or {}).get("date") or datetime.date.today().isoformat()
     try:
         data["career"] = coordinator.board(args.home, today)
