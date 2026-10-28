@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.67.0: 2026-10-28
+
+Count what you built, not only what you said.
+
+### Improved Skills
+
+- **`/flagrare:impact-scan`, your own work**: the scan used to log only the replies you posted from it, and it skipped your own PRs on purpose, so a whole project you drove could leave no trace in your evidence log. A new step, "Your own work", now runs before the sweeps on every scan (and so on every `/flagrare:career` run). It gathers your PRs, the docs you drive, your tickets and the meetings and threads about them since the last harvest, and groups them into one project each by shared ticket or epic and by links between them. Each new project gets one log entry that tells its story: where it came from, how it was pitched, who agreed, what was decided. Later work joins the same project without a new entry; only a milestone (merged, launched, a decision made) adds one. A project you already logged by hand joins instead of being logged twice. The digest gains a "Logged from your work" line. Field-tested the hard way: one user had 42 PRs in a month and a single log entry, and the missing project was the one their manager was holding up to the team as the way to work.
+- **`/flagrare:impact-scan`, the board catches up with you**: a board item you dropped and then went on to do (same doc or ticket, with project work after the date you dropped it) is now marked done with "You did this", instead of staying dropped. Open items about one of your projects carry a note naming it, so loose ends from your own work stop showing up as unrelated threads. A shared link alone never reopens anything.
+- **`/flagrare:career`, already building**: a project candidate you are already building is marked as such, and the digest asks under Needs you whether to take it to your manager as the project you own. It still becomes yours only after that conversation.
+- **`/flagrare:career`, the balance warning**: "lots of answering, nothing owned" no longer counts your own projects as answering.
+- **Career board**: proof entries from your own projects show "Your project: <title>", item notes now show on cards and in the detail view, and a candidate you are building shows "You're already building this".
+- **`/flagrare:brag-doc`**: reads your saved projects as ready-made threads instead of rebuilding them from scratch.
+
 ## 1.66.2: 2026-10-22
 
 Hang the picture before you open the door.
