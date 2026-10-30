@@ -103,6 +103,7 @@ Compression and rephrasing can silently change meaning. After the rewrite, re-ch
 
 - `/flagrare:write-docs` teaches the writing craft this skill inspects for (reader's situation, classic style, context at point of need). Reach for it when the fix is "rewrite this section", not just "cut this noise".
 - `/flagrare:tdd-writer` owns TDD authorship and carries the Restraint rules this skill generalizes; for a TDD, run it for template conformance and this skill for the read.
+- `/flagrare:playbook` owns step-by-step guides for ops teams. When reviewing one, bias toward cutting and never turn its lists back into prose.
 - `/flagrare:ticket-creator` and `/flagrare:open-pr` produce the short-form documents; the same noise categories apply there at smaller scale.
 
 ## Why this exists
