@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.69.0: 2026-10-30
+
+The oat milk was spiritually dairy, and the email never came.
+
+### Improved Skills
+
+- **`/flagrare:bug-bash`, test data with personality**: every free-text field is now a tagged, absurd little scene from the product's world that also probes something: accents and emoji, Japanese and Arabic, a `<b>` tag and a link, template syntax, blank lines, a 50,000-character monologue. The tag up front makes each one findable in the inbox, the admin page and the database; the rules keep it absurd and never mean. Field-tested the hard way: "Smoke test, please ignore" taught nothing, while "Member insisted the oat milk was 'spiritually dairy' and demanded a refund in exposure" both made the reviewer's day and was the report that proved a bug.
+- **`/flagrare:bug-bash`, three new exploratory lenses**: everything the feature sends or links to (read the email in the real inbox, flip each setting that could suppress it, and always run a control with the setting restored so a missing email has a named cause; open every help link and check it matches the feature and the current rules), language and locale (switch the account's language and walk the flow, email included), and failure and races (fail the submit once, submit from a stale tab, fire ten identical requests at once, double-click). Field-tested the hard way: a smoke test passed every step of the team's QA plan, and the bash that followed found the confirmation email silently dropped for anyone opted out of marketing, the email rendering partner text as raw HTML, a help article still promising 30 days, and a generic "try again" for an action that could never succeed.
+- **`/flagrare:bug-bash`, enough data to spend**: when cases use up records (a report per order, an invite per link), the bash first lists every eligible record through the app's own API from the logged-in page, keeps the ids across reloads, prefers test accounts and leaves other bashers' records alone. The backend reference shows how to run the negative matrix and the race from the page with the user's own session, no token needed.
+- **`/flagrare:bug-bash`, honest state and a clean exit**: read a toggle's value, not its label (a switch reading "Opt-in" was on, and a whole case was briefly run under the wrong condition); follow every output past "202 Accepted" to where a person sees it; restore every setting you changed and read it back. Results gain "Product calls" (works as built, someone must decide) and "Data left behind" sections.
+- **`/flagrare:bug-bash`, phones without a phone**: when the window won't shrink below ~500px, load the page into a 390px same-origin iframe; it keeps the session and runs the real responsive CSS.
+
 ## 1.68.0: 2026-10-30
 
 Write it for the person with the tool open in the other tab.
