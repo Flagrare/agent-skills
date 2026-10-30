@@ -14,6 +14,16 @@ Choices, roughly in order of preference for a bash session:
 
 Use Postman when you'll hit the same endpoint multiple times across the bash, variables let you reuse auth and base URLs without retyping. Use curl for one-shot calls or when scripting a sequence.
 
+### Calling the API through the logged-in page
+
+When the user has logged in to the app in the browser, the fastest backend tool is often the page itself: run `fetch` from the page's JavaScript with `credentials: 'include'`. The request goes out with the user's real session, so you need no token, and you hit exactly the endpoint the UI uses (find it in the frontend's URL constants or the network log). This is how to:
+
+- **Build a data pool**: call the list endpoint for every venue or account the user can see, keep the eligible ids (a 403 also tells you which ones they can't).
+- **Run the negative matrix fast**: another tenant's id, past the window, blank text, wrong enum values, an unknown id, a duplicate. One script, one table of status + message.
+- **Race**: `await Promise.all(Array.from({length: 10}, () => fetch(...)))` with the same body, then count rows. One success and N-1 refusals is the pass; check whether a unique index or just a check-then-insert is holding the line.
+
+Keep the payloads in the page's `localStorage` between calls: navigating reloads the page and wipes `window` variables.
+
 ---
 
 ## Evidence: capture request + response

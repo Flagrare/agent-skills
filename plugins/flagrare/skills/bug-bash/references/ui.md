@@ -79,7 +79,7 @@ Default desktop testing happens around 1440×900. Two more sweeps catch most lay
 - **Wide**: 1920×1080 (most monitors) and 2560×1440 (developer monitors). Headers, hero sections, and "centered" content reveal misalignment here. Counters and lists often grow into the wrong column.
 - **Narrow**: 375×812 (iPhone size). Modals, dropdown menus, copy buttons, and toasts often spill outside bounds.
 
-Use `resize_page(width, height)` between captures. Take a screenshot at each width, not a snapshot. Visual issues are visual; the a11y tree won't tell you the header is offset by 80px.
+Use `resize_page(width, height)` between captures. If the window refuses to go narrow enough (macOS keeps windows at least ~500px wide, and some tools move the window without changing `innerWidth`), load the page into a same-origin iframe of the width you want: replace the page body with `<iframe src="/the/route" style="width:390px;height:844px">`. It shares the session, runs the app's real responsive CSS, and you can click inside it by screen coordinates. Take a screenshot at each width, not a snapshot. Visual issues are visual; the a11y tree won't tell you the header is offset by 80px.
 
 This is also where the spec almost never has explicit assertions, it's pure exploratory. Trust your eye; if it looks wrong it usually is.
 
