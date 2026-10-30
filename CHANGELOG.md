@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.68.0: 2026-10-30
+
+Write it for the person with the tool open in the other tab.
+
+### New Skills
+
+- **`/flagrare:playbook`**: writes the step-by-step guide an ops, support or launch team follows while using an internal tool. Its readers glance at it, do the next step and glance back, so it drafts in tutorial shape from the start: one stakes callout, numbered verb steps with one action per line, an "If it says / Do this" table for every screen that shows messages, recovery sub-steps and the recurring check. It quotes the UI's messages word for word from the code. It walks the screens next to the flow to find traps, like a cancel dialog where "CP cancelled full payout" sits right under "CP cancelled" and pays the partner. It links every page, channel, account and dashboard it names, using URL formats taken from the code. Every "report it" gets a destination found in past Slack threads instead of a question to the user, and settled facts are never asked again. Screenshots come from running the real flow in dev, cropped, with any page behind a login opened in a tab for the user to sign in. A rule owned by another team becomes an open-question callout addressed to them. Field-tested the hard way: the first SKU test order playbook was correct and illustrated, and it was still rejected twice as prose ("people hate big fat paragraphs. This should feel like a tutorial"). The rewrite in this shape came out half as long.
+
+### Improved Skills
+
+- **`/flagrare:write-docs` and `/flagrare:editorial-pass`**: both point ops how-tos to `/flagrare:playbook`. When the editorial pass reviews a playbook, it cuts and never turns lists back into prose.
+
 ## 1.67.0: 2026-10-28
 
 Count what you built, not only what you said.
