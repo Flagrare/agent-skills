@@ -1,6 +1,6 @@
 # Exploratory pass reference
 
-The five lenses, expanded. The strict pass covers the spec; the exploratory pass covers what the spec didn't think to ask for. Run all five, they catch different classes of bug.
+The eight lenses, expanded. The strict pass covers the spec; the exploratory pass covers what the spec didn't think to ask for. Run all eight, they catch different classes of bug.
 
 The rule that runs through every lens: **you can only file what you reproduced.** Hypotheses are not bugs. Things people mentioned are not bugs. Things the codebase suggests might be wrong are not bugs. They are *test targets*, you turn them into bugs by reproducing them.
 
@@ -116,11 +116,41 @@ The bug entry says "I saw this," not "they said this." Same conclusion, more use
 
 ---
 
+## Lens 6: Everything the feature sends or links to
+
+Most features have outputs that leave the screen: a confirmation email, a push, a webhook, a "learn more" link to a help article. The strict pass almost never follows them, and the server logs say "sent" long before anyone knows whether a person received it.
+
+**Emails and notifications.** Check the real inbox of the account you're testing as (ask the user to log in to it if needed; search it only for the test emails). For each send:
+
+- It arrived, and how long after the action. Note the timestamp; a control that arrives in 30 seconds tells you when to stop waiting for a negative.
+- The content: names, reasons, the free text you typed, and the wording against the UI (an order form that says "store policy" next to an email that says "studio policy" is a finding).
+- How your free text renders. Send a value with `<b>`, a link, `&lt;`, blank lines and bullets, template syntax (`{{ }}`, `{% %}`), emoji and right-to-left text. Bold text, a live link or a blank body means the template inserts raw HTML. Collapsed paragraphs mean line breaks are dropped.
+
+Then flip every setting that could suppress it, one at a time: marketing opt-out, notification toggles, language. **After a negative, always run a control**: restore the setting, repeat the action, and confirm the email comes back. Without the control, "no email" might be a delay or a coincidence; with it, you can name the setting as the cause. Check the logs for the hand-off (e.g. the email service answered 202) so the finding says where it drops: "our side sent it, the email provider didn't deliver".
+
+Read the setting's actual state before and after (`input.checked`, not the label). A toggle labelled "Opt-in" says nothing about whether it's on.
+
+**Links.** Open every "learn more", "contact us" and "here" link. Check the page covers this feature (an article about classes linked from a food-order modal) and states the current rules (an article saying 30 days when the code says 14).
+
+## Lens 7: Language and locale
+
+Switch the test account's language in its own settings and run the flow once end to end, including the email. Look for strings left in English, an email subject that isn't translated, reason labels worded differently in the UI and the email, and layout breaking on longer words. Switch it back and read the setting to confirm.
+
+## Lens 8: Failure and races
+
+The happy path assumes one person, one tab, a good network. Break each assumption once:
+
+- **Network failure on submit.** Make the request fail once from the page (wrap `fetch` and `XMLHttpRequest.prototype.send` so the first call to that URL errors, then let the rest through). Pass: an error the user understands, the form keeps what they typed, the retry works.
+- **Stale second tab.** Open the form, complete the same action elsewhere (another tab or a direct API call), then submit the stale form. Check what the user is told: a generic "something went wrong, try again" for an action that can never succeed is a finding.
+- **Double-click and bursts.** Double-click Submit in the UI, and fire N identical requests at once from the page. Count the rows afterwards.
+
+---
+
 ## When a lens turns up nothing
 
 It's fine. Note that the exploratory pass for that lens found no issues. "No findings" is itself a useful data point, the next person doing a bash will know that area was already scrutinized.
 
-What's *not* fine: skipping a lens to save time. The reason to do all five is that each catches a different class of bug. Skipping the codebase lens is what lets the "anyone with the link can accept" issues ship. Skipping the viewport lens is what lets the header-misalignment issues ship. Each one is twenty minutes, max, and finds the bugs that nobody else will.
+What's *not* fine: skipping a lens to save time. The reason to do all eight is that each catches a different class of bug. Skipping the codebase lens is what lets the "anyone with the link can accept" issues ship. Skipping the viewport lens is what lets the header-misalignment issues ship. Each one is twenty minutes, max, and finds the bugs that nobody else will.
 
 ---
 
