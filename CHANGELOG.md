@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.71.1: 2026-11-05
+
+Trust, then check.
+
+### Improved Skills
+
+- **`/flagrare:communication-setup`, evals**: five cases pin what the skill must do. A first setup interviews in one short message and shows the config before installing. Remove works without a second interview. A blocked "me explica o fluxo todo" leads to new depth words, not a higher limit. A hand-made hook or style gets an offer to retire it, so the rules don't run twice. A status question gets a one-line answer.
+
 ## 1.71.0: 2026-11-05
 
 Answer first. Then stop.
