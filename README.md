@@ -118,7 +118,7 @@ After this one-time bootstrap, `/flagrare:update` works for all future versions 
 
 ### Maintenance
 
-`/flagrare:communication-setup` changes how Claude talks to you, for when its replies are too long to read. It asks what tires you and what your limit is, then installs three things in `~/.claude`: an output style with your rules, a reminder of those rules on every message you send, and a check that blocks a reply over your limit and makes Claude rewrite it. Drafts and code blocks don't count toward the limit, and any length is fine when you ask for detail. Saying "remove communication setup" undoes all of it and puts your old output style back.
+`/flagrare:communication-setup` changes how Claude talks to you, for when its replies are too long to read. It asks what tires you and what your limit is, then installs three things in `~/.claude`: an output style with your rules, a reminder of those rules on every message you send, and a length check. A reply a little over your limit gets a quiet note for next time, so you never see it; only a reply far past the limit is blocked and rewritten. Drafts and code blocks don't count toward the limit, and any length is fine when you ask for detail. Saying "remove communication setup" undoes all of it and puts your old output style back.
 
 `/flagrare:update` pulls the latest skills from GitHub. It runs the canonical `update.sh` from `main` directly, so the update logic is always current even if your locally cached skill is from an older release. It migrates legacy marketplace names, installs the plugin so version refreshes propagate, scrubs stale settings entries, and prunes obsolete caches in a single run.
 
