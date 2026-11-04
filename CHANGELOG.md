@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.71.0: 2026-11-05
+
+Answer first. Then stop.
+
+### New Skills
+
+- **`/flagrare:communication-setup`, replies you can actually read**: it asks what tires you about Claude's replies and where your limit is, then installs three layers in `~/.claude`. An output style puts your rules in the system prompt, where they survive compaction and outrank CLAUDE.md. A UserPromptSubmit hook repeats them next to every message you send. A Stop hook blocks a reply that runs past your limit and makes Claude rewrite it, skipping quoted drafts and code blocks, letting the rewrite through so it never loops, and allowing any length when you ask for detail. Saying "remove communication setup" takes it all out and restores the output style you had before. Field-tested the hard way: memory notes asking for shorter replies didn't hold, and after weeks of report-style answers the user said "you make me work for the information". The only rules that had never slipped were the ones a hook enforced.
+
 ## 1.70.0: 2026-11-04
 
 Say it the way you'd say it to the person at the next desk.
