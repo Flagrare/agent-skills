@@ -1,8 +1,8 @@
 # agent-skills
 
-Thirty-eight skills that wrap around your development cycle in Claude Code. They turn tickets into ATDD plans, smoke-test features against a running app or service, hunt down bugs with runtime evidence, guard commits against doc drift, run seven-axis code review, draft changelogs that read like patch notes, and review PRs with full context from your tracker and design tools.
+Thirty-nine skills that wrap around your development cycle in Claude Code. They turn tickets into ATDD plans, smoke-test features against a running app or service, hunt down bugs with runtime evidence, guard commits against doc drift, run seven-axis code review, draft changelogs that read like patch notes, and review PRs with full context from your tracker and design tools.
 
-All skills are namespaced under `flagrare:*` to avoid collisions with other plugins. Installing this marketplace adds `/flagrare:intake`, `/flagrare:work-prep`, `/flagrare:smoke-test`, `/flagrare:wrap-up`, `/flagrare:pr-reviewer`, and thirty-three more to every Claude Code session.
+All skills are namespaced under `flagrare:*` to avoid collisions with other plugins. Installing this marketplace adds `/flagrare:intake`, `/flagrare:work-prep`, `/flagrare:smoke-test`, `/flagrare:wrap-up`, `/flagrare:pr-reviewer`, and thirty-four more to every Claude Code session.
 
 ## Install
 
@@ -10,7 +10,7 @@ All skills are namespaced under `flagrare:*` to avoid collisions with other plug
 bash <(curl -sL https://raw.githubusercontent.com/Flagrare/agent-skills/main/install.sh)
 ```
 
-One command. It registers the marketplace, installs the `flagrare` plugin, and makes all thirty-eight skills available. Restart Claude Code or run `/reload-plugins` afterward.
+One command. It registers the marketplace, installs the `flagrare` plugin, and makes all thirty-nine skills available. Restart Claude Code or run `/reload-plugins` afterward.
 
 If you prefer to clone first:
 
@@ -115,6 +115,8 @@ After this one-time bootstrap, `/flagrare:update` works for all future versions 
 `/flagrare:testing-philosophy` is the shared definition of a good test, distilled from Kent Dodds and generalized to any language and layer (frontend, backend, CLI, library): behavior over implementation details, the Testing Trophy, and a hard floor requiring at least one end-to-end test of the critical happy path for user-facing features. It's the required background for `/flagrare:atdd-plan`, `/flagrare:implementation-review`, and `/flagrare:tdd-writer`.
 
 ### Maintenance
+
+`/flagrare:communication-setup` changes how Claude talks to you, for when its replies are too long to read. It asks what tires you and what your limit is, then installs three things in `~/.claude`: an output style with your rules, a reminder of those rules on every message you send, and a check that blocks a reply over your limit and makes Claude rewrite it. Drafts and code blocks don't count toward the limit, and any length is fine when you ask for detail. Saying "remove communication setup" undoes all of it and puts your old output style back.
 
 `/flagrare:update` pulls the latest skills from GitHub. It runs the canonical `update.sh` from `main` directly, so the update logic is always current even if your locally cached skill is from an older release. It migrates legacy marketplace names, installs the plugin so version refreshes propagate, scrubs stale settings entries, and prunes obsolete caches in a single run.
 
