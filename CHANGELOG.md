@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.71.2: 2026-11-05
+
+The evals run now, and they caught something.
+
+### Improved Skills
+
+- **`/flagrare:communication-setup`, evals you can run**: the five cases now use `claude plugin eval`, in `plugins/flagrare/evals/communication-setup/`. Each run gets a throwaway home folder, so install and remove never touch your real settings. Three runs each: first setup, remove, status and an existing hand-made hook all pass every time, and tuning the depth words passes 2 of 3 (one run explained the fix well but in too many lines). Field-tested the hard way: the old `evals.json` had never run, because nothing reads that format.
+- **`/flagrare:communication-setup`, fires when the length check misfires**: "the length check blocked you when I wrote 'me explica'" didn't load the skill in one of three runs. The description now names the length check and a wrong limit, and the skill fired in every run after the change.
+
 ## 1.71.1: 2026-11-05
 
 Trust, then check.
