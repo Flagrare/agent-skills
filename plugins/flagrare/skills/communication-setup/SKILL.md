@@ -1,6 +1,6 @@
 ---
 name: communication-setup
-description: "Set up, change or remove how Claude talks to you: a custom output style with your reply rules, a reminder of those rules on every message, and a Stop hook that blocks replies longer than you want and makes Claude rewrite them. Use when the user says Claude's replies are too long, exhausting, hard to skim, full of process narration or caveats, 'you make me work for the information', 'talk to me shorter', 'communication setup', 'set up how you talk to me', or asks to remove or undo it ('remove communication setup', 'go back to normal replies')."
+description: "Set up, change or remove how Claude talks to you: a custom output style with your reply rules, a reminder of those rules on every message, and a Stop hook that blocks replies longer than you want and makes Claude rewrite them. Use when the user says Claude's replies are too long, exhausting, hard to skim, full of process narration or caveats, 'you make me work for the information', 'talk to me shorter', 'communication setup', 'set up how you talk to me'; when the length check or reply-length hook blocked a reply it shouldn't have, or the user wants a different limit or style; or asks to remove or undo it ('remove communication setup', 'go back to normal replies')."
 ---
 
 # Communication setup
@@ -75,3 +75,13 @@ Run `python3 <skill>/scripts/setup.py remove`. It deletes its hooks, style and c
 
 - `/flagrare:write-docs`, "Say it plainly": the same plain-wording rule for documents.
 - `/flagrare:editorial-pass`, which flags convoluted phrasing in documents.
+
+## Evals
+
+The cases live in `plugins/flagrare/evals/communication-setup/` (the eval runner refuses a folder inside `skills/`). Each run gets a throwaway home folder, so the install and remove cases never touch your real `~/.claude`. Run them from `plugins/flagrare`:
+
+```bash
+claude plugin eval . --tag communication-setup --scaffold --allow-tools Bash Write Edit --trust-plugin
+```
+
+Inside a run, the sandbox blocks writing `~/.claude/settings.json`, so the graders also accept a short, plain "the sandbox blocked it, run this command" reply.

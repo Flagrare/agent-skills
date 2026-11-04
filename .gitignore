@@ -5,3 +5,4 @@
 .vscode/
 *.log
 __pycache__/
+plugins/flagrare/evals/results/
