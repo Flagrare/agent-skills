@@ -26,6 +26,7 @@ def paths(home):
         "claude": claude,
         "settings": os.path.join(claude, "settings.json"),
         "config": os.path.join(claude, "communication-setup.json"),
+        "state": os.path.join(claude, "communication-setup.state.json"),
         "hooks": os.path.join(claude, "hooks", "communication-setup"),
         "styles": os.path.join(claude, "output-styles"),
     }
@@ -58,7 +59,8 @@ def style_markdown(config):
         lines += [config["about"], ""]
     lines += ["## Rules", ""] + [f"- {r}" for r in config.get("rules", [])] + [""]
     lines += [f"Replies stay within about {config.get('max_lines', 8)} lines and {config.get('max_words', 120)} "
-              "words outside `>` quoted drafts. A hook blocks longer ones unless the user asked for depth "
+              "words outside `>` quoted drafts. A reply a little over gets a quiet note on the next message; one far over "
+              "is blocked once. Neither applies when the user asked for depth "
               f"({', '.join(config.get('depth_words', [])[:6]) or 'explain, details, full'}). Even then, the "
               "answer comes first.", ""]
     if config.get("example_bad") and config.get("example_good"):
@@ -140,8 +142,9 @@ def remove(p):
         if os.path.exists(style):
             os.remove(style)
     shutil.rmtree(p["hooks"], ignore_errors=True)
-    if os.path.exists(p["config"]):
-        os.remove(p["config"])
+    for leftover in (p["config"], p["state"]):
+        if os.path.exists(leftover):
+            os.remove(leftover)
     print("removed: output style, hooks and config; settings.json.bak has the previous settings")
 
 

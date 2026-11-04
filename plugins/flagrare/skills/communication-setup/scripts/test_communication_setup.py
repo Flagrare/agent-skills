@@ -78,21 +78,37 @@ class CommunicationSetupTest(unittest.TestCase):
         self.assertFalse(os.path.exists(os.path.join(self.claude, "output-styles", "Ana.md")))
         self.assertFalse(os.path.exists(os.path.join(self.claude, "communication-setup.json")))
 
-    def test_a_long_reply_is_blocked_once_then_allowed(self):
+    def reply(self, n):
+        return "\n".join(f"Line {i} of a reply." for i in range(n))
+
+    def test_a_reply_a_little_long_is_not_blocked_but_the_next_message_says_so_once(self):
         self.setup("install", self.config_path)
-        long_reply = "\n".join(f"Line {i} of a reply that keeps going." for i in range(6))
-        payload = {"last_assistant_message": long_reply, "transcript_path": self.transcript("yes")}
+        out = self.hook("reply_length.py", {"last_assistant_message": self.reply(5),
+                                            "transcript_path": self.transcript("yes")})
+        self.assertEqual(out, "")
+        first = json.loads(self.hook("reply_reminder.py", {"prompt": "ok"}))
+        self.assertIn("Your last reply ran long (5 lines", first["hookSpecificOutput"]["additionalContext"])
+        second = json.loads(self.hook("reply_reminder.py", {"prompt": "ok"}))
+        self.assertNotIn("ran long", second["hookSpecificOutput"]["additionalContext"])
+
+    def test_a_reply_far_over_the_limit_is_blocked_once_then_allowed(self):
+        self.setup("install", self.config_path)
+        payload = {"last_assistant_message": self.reply(10), "transcript_path": self.transcript("yes")}
         self.assertEqual(json.loads(self.hook("reply_length.py", payload))["decision"], "block")
-        retry = json.loads(self.hook("reply_length.py", {**payload, "stop_hook_active": True}))
-        self.assertNotIn("decision", retry)
+        self.assertEqual(self.hook("reply_length.py", {**payload, "stop_hook_active": True}), "")
+
+    def test_a_reply_within_the_limit_leaves_no_note(self):
+        self.setup("install", self.config_path)
+        self.hook("reply_length.py", {"last_assistant_message": self.reply(2), "transcript_path": self.transcript("yes")})
+        out = json.loads(self.hook("reply_reminder.py", {"prompt": "ok"}))
+        self.assertNotIn("ran long", out["hookSpecificOutput"]["additionalContext"])
 
     def test_drafts_and_requests_for_depth_are_not_counted(self):
         self.setup("install", self.config_path)
         draft = "Here it is:\n" + "\n".join("> draft line" for _ in range(30)) + "\nSave it?"
         self.assertEqual(self.hook("reply_length.py", {"last_assistant_message": draft,
                                                        "transcript_path": self.transcript("yes")}), "")
-        long_reply = "\n".join(f"Line {i} of a reply that keeps going." for i in range(6))
-        self.assertEqual(self.hook("reply_length.py", {"last_assistant_message": long_reply,
+        self.assertEqual(self.hook("reply_length.py", {"last_assistant_message": self.reply(10),
                                                        "transcript_path": self.transcript("explain it")}), "")
 
     def test_the_reminder_carries_the_rules(self):
