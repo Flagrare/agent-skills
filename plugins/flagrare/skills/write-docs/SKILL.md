@@ -173,7 +173,7 @@ Use intent labels instead. *"Using TardigradeDB from Python"* and *"Building Tar
 
 ### 7. Self-check by reading it aloud
 
-The cheapest, most reliable craft check is to read the page out loud. Sentences that work on the screen but choke on the tongue are usually sentences that nominalize a verb, bury the subject, or rely on visual structure (a bullet list) to carry a relationship the prose should have carried. If a paragraph makes you take a breath in the middle of a clause, the clause is too long.
+The cheapest, most reliable craft check is to read the page out loud. Sentences that work on the screen but choke on the tongue are usually sentences that nominalize a verb, bury the subject, or rely on visual structure (a bullet list) to carry a relationship the prose should have carried. If a paragraph makes you take a breath in the middle of a clause, the clause is too long. Then ask a second question about each sentence: would you actually say it this way to a coworker? If you'd say it differently, write it the way you'd say it. Titles and opening lines need this most, because they're the ones every reader sees.
 
 Pinker's second remedy is to show the draft to a representative reader, someone who genuinely doesn't already know the answer. This is harder to arrange but more valuable. The version-of-you that already knows the answer is the worst reader you can imagine; the colleague who started yesterday is the best.
 
@@ -184,6 +184,8 @@ If the page is a README, run the additional check that the first 80 lines tell a
 ## Anti-patterns
 
 **No em-dashes. Ever.** This is a hard rule, not a craft nuance: documentation this project produces must never contain an em-dash (the long dash), nor an en-dash used as one. They are a conspicuous AI tell and the reader finds them grating. Use a comma, a colon, parentheses, or two sentences, whichever the sentence actually wants. Numeric ranges take a plain hyphen (`3-5`, not a dash). This applies to every surface: READMEs, PR descriptions, TDDs, tickets, changelogs, standups, review comments. A repo hook flags any em-dash that slips into a generated `.md`, so treat it as enforced, not advisory.
+
+**Say it plainly. Also a hard rule.** Write every sentence the way you'd say it out loud to a coworker: who does what, then the fact. Don't stack modifiers, don't tack a comparison onto the end, and don't use phrasing the reader has to untangle. *"Partners can now report a member for 14 days, down from 30"* is wrong twice. "Report a member for 14 days" sounds like the report lasts 14 days, and "down from 30" is a fragment bolted onto the end. *"Partners now have 14 days to report a member (it was 30)"* says the same thing plainly. Watch for trailing "down from X", "up from X" and "as of X" fragments, a modifier that can attach to the wrong word, and a noun pile where a verb should be. Many readers aren't native English speakers, and a sentence they have to read twice is one they might misread. This applies to every surface: Slack messages and announcements, titles and headings, tickets, PR descriptions, review comments, docs. Fix it in the first draft, not after someone points it out.
 
 Three failure modes show up in every documentation review. They are all forms of the same underlying problem, the writer is writing for themselves, not for the reader, but they look different on the page.
 
