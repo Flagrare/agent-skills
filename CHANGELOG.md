@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.70.0: 2026-11-04
+
+Say it the way you'd say it to the person at the next desk.
+
+### Improved Skills
+
+- **`/flagrare:write-docs`, say it plainly (a hard rule)**: every sentence has to read the way you'd say it out loud to a coworker: who does what, then the fact. No stacked modifiers, no comparison tacked onto the end, no phrasing the reader has to untangle. The read-aloud self-check now asks "would I actually say it like this?", titles and opening lines first. Field-tested the hard way: a partner announcement opened with "partners can now report a member for 14 days, down from 30", which reads like the report lasts 14 days and then bolts a fragment onto the end. Written plainly, it's "Partners now have 14 days to report a member (it was 30)". Every flagrare skill that writes through `/flagrare:write-docs` (tickets, PRs, standups, review comments, drafted replies) gets the rule with it.
+- **`/flagrare:editorial-pass`, convoluted phrasing is a finding**: the clarity sweep now hunts sentences nobody would say out loud, alongside jargon and empty technical phrases, and flags every one, starting with titles and headings. The editor's own rewrites have to pass the same test.
+
 ## 1.69.0: 2026-10-30
 
 The oat milk was spiritually dairy, and the email never came.
