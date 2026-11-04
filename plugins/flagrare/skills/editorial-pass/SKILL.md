@@ -101,6 +101,8 @@ Compression and rephrasing can silently change meaning. After the rewrite, re-ch
 
 **Letting convoluted phrasing through.** Also a house rule. A sentence the reader has to untangle is a finding even when it's grammatical and accurate. Your own rewrites have to pass the same test: say it the way a person would say it to a coworker. See `/flagrare:write-docs` ("Say it plainly").
 
+**Mechanism before impact.** Also a house rule. When a piece opens with how the system works and leaves what happens to people for later, or sums up its examples ("some emails", "several endpoints") instead of naming them, that's a finding. The reader has to do the work of figuring out why it matters. Rewrite it to lead with the effect on a person, name the cases, and keep each sentence to one idea. See `/flagrare:write-docs` ("Communicate, don't impress").
+
 ## Cross-references
 
 - `/flagrare:write-docs` teaches the writing craft this skill inspects for (reader's situation, classic style, context at point of need). Reach for it when the fix is "rewrite this section", not just "cut this noise".
