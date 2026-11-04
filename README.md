@@ -1,8 +1,8 @@
 # agent-skills
 
-Thirty-nine skills that wrap around your development cycle in Claude Code. They turn tickets into ATDD plans, smoke-test features against a running app or service, hunt down bugs with runtime evidence, guard commits against doc drift, run seven-axis code review, draft changelogs that read like patch notes, and review PRs with full context from your tracker and design tools.
+Forty-one skills that wrap around your development cycle in Claude Code. They turn tickets into ATDD plans, smoke-test features against a running app or service, hunt down bugs with runtime evidence, guard commits against doc drift, run seven-axis code review, draft changelogs that read like patch notes, and review PRs with full context from your tracker and design tools.
 
-All skills are namespaced under `flagrare:*` to avoid collisions with other plugins. Installing this marketplace adds `/flagrare:intake`, `/flagrare:work-prep`, `/flagrare:smoke-test`, `/flagrare:wrap-up`, `/flagrare:pr-reviewer`, and thirty-four more to every Claude Code session.
+All skills are namespaced under `flagrare:*` to avoid collisions with other plugins. Installing this marketplace adds `/flagrare:intake`, `/flagrare:work-prep`, `/flagrare:smoke-test`, `/flagrare:wrap-up`, `/flagrare:pr-reviewer`, and thirty-six more to every Claude Code session.
 
 ## Install
 
@@ -10,7 +10,7 @@ All skills are namespaced under `flagrare:*` to avoid collisions with other plug
 bash <(curl -sL https://raw.githubusercontent.com/Flagrare/agent-skills/main/install.sh)
 ```
 
-One command. It registers the marketplace, installs the `flagrare` plugin, and makes all thirty-nine skills available. Restart Claude Code or run `/reload-plugins` afterward.
+One command. It registers the marketplace, installs the `flagrare` plugin, and makes all forty-one skills available. Restart Claude Code or run `/reload-plugins` afterward.
 
 If you prefer to clone first:
 
@@ -113,6 +113,8 @@ After this one-time bootstrap, `/flagrare:update` works for all future versions 
 `/flagrare:editorial-pass` reviews a finished draft the way a human editor reads it: whole document, start to finish, building a model of what it's trying to communicate before judging a single line. It diagnoses throughline, sequencing, pacing, and consistency from large to small, then hunts three noise categories agents habitually leave behind (provenance narration like "as verified in X", ruled-out-hypothesis residue like "we confirmed it is not Y", and self-referential scaffolding like "resolved since drafting"). It delivers an editorial memo first and only rewrites on approval. Strictly a prose editor, not a technical reviewer: it judges the writing, never the design the writing describes. The read-and-repair counterpart to `/flagrare:write-docs`.
 
 `/flagrare:testing-philosophy` is the shared definition of a good test, distilled from Kent Dodds and generalized to any language and layer (frontend, backend, CLI, library): behavior over implementation details, the Testing Trophy, and a hard floor requiring at least one end-to-end test of the critical happy path for user-facing features. It's the required background for `/flagrare:atdd-plan`, `/flagrare:implementation-review`, and `/flagrare:tdd-writer`.
+
+`/flagrare:visual-diff-branches` shows what a branch changes on your pages, for a styling, tokens or design-system PR. It captures the same pages on each git ref, pixel-diffs them to show where they changed, and measures computed styles to show what changed. It runs on the Chromium the project already ships, so nothing gets installed, and a small `shots.mjs` per project names the pages, locales and viewports. The report keeps real regressions apart from deliberate changes and from gaps that were already there.
 
 ### Maintenance
 
