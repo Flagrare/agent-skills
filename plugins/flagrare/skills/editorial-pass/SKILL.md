@@ -59,7 +59,7 @@ Two exceptions, both narrow. Cite a person when their *sign-off* is the pending 
 
 ### 4. Sweep for clarity
 
-A separate lens over the same text, hunting three things: jargon a fresh reader can't decode, sentences too compressed to unpack in one breath, and phrases that sound technical but say nothing ("holds by construction", "by design", "leverage this"). Define internal jargon at first use, inline, in the same sentence; calibrate to a new hire who knows the field generically but not this corner of it. Give the densest, most important paragraph the most room: break it into beats, one idea per sentence, cause before effect. The test is reading aloud: any clause you can't say in one breath, or any term the new hire would stop to look up, is a rewrite.
+A separate lens over the same text, hunting four things: jargon a fresh reader can't decode, sentences too compressed to unpack in one breath, phrases that sound technical but say nothing ("holds by construction", "by design", "leverage this"), and convoluted phrasing, meaning sentences nobody would say out loud. Convoluted phrasing includes a fragment like "down from 30" tacked onto the end, a modifier that can attach to the wrong word ("report a member for 14 days" reads like the report lasts 14 days), and a noun pile where a verb should be. Rewrite each one plainly ("partners now have 14 days to report a member (it was 30)"). This is a hard rule, not a style preference: flag every instance, titles and headings first. Define internal jargon at first use, inline, in the same sentence; calibrate to a new hire who knows the field generically but not this corner of it. Give the densest, most important paragraph the most room: break it into beats, one idea per sentence, cause before effect. The test is reading aloud: any clause you can't say in one breath, or any term the new hire would stop to look up, is a rewrite.
 
 Clarity is not simplification. When the accurate explanation needs the actual data model, use the actual data model; the sin is making the reader do the unpacking, not the presence of detail. Density is fine where content is genuinely parallel reference material (a column list, an appendix, an error table). That's scannable by design; don't prose-ify it.
 
@@ -98,6 +98,8 @@ Compression and rephrasing can silently change meaning. After the rewrite, re-ch
 **Cosmetic completeness.** Filling a gap with plausible invented content so the document looks finished. A visible `[TBD]` is honest and actionable; fabricated filler is a landmine.
 
 **Em-dashes.** House rule, enforced by hooks: never introduce one, and flag any you find. Commas, colons, parentheses, or two sentences.
+
+**Letting convoluted phrasing through.** Also a house rule. A sentence the reader has to untangle is a finding even when it's grammatical and accurate. Your own rewrites have to pass the same test: say it the way a person would say it to a coworker. See `/flagrare:write-docs` ("Say it plainly").
 
 ## Cross-references
 
