@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.72.0: 2026-11-05
+
+Nudge first. Block only when it counts.
+
+### Improved Skills
+
+- **`/flagrare:communication-setup`, no more jarring rewrites**: a block shows you the long reply, a hook message and then a second reply, which is its own kind of noise. Now a reply a little over your limit (up to 2x, set by `hard_factor`) isn't blocked: the next message carries a quiet note to keep that one shorter, once, and you see nothing. Only a reply far past the limit is blocked, with a one-line reason instead of a paragraph. Raise `hard_factor` if blocks still feel like too much.
+- **`/flagrare:communication-setup`, its own replies stay short**: status, remove and tuning answer in one or two lines, without explaining the hooks or offering changes nobody asked for. A hand-made hook or style that does the same job is raised in the first message, not after the install. All five eval cases pass in every run.
+
 ## 1.71.2: 2026-11-05
 
 The evals run now, and they caught something.
