@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.73.0: 2026-11-04
+
+Say what happens to people first. The mechanism can wait.
+
+### Improved Skills
+
+- **`/flagrare:write-docs`, communicate, don't impress (a hard rule)**: a message only has to do one thing, which is make the reader understand with the least effort. Before sending, four checks: the first sentence says what happens to a person, the examples are named, each sentence holds one idea, and the ask is obvious. Field-tested the hard way: a Slack message to another squad opened with a linked ticket, "global subscription" and two Braze setting names, and called the impact "some transactional emails". One reader took it for a proposal and the other for a general settings check. The rewrite that landed started with "when a partner turns off Marketing emails, they also stop getting some emails that aren't marketing" and listed the two emails by name.
+- **`/flagrare:editorial-pass`, mechanism before impact is a finding**: a piece that explains how the system works before what happens to people, or sums up its examples instead of naming them, gets flagged and rewritten to lead with the effect on a person.
+
 ## 1.72.0: 2026-11-05
 
 Nudge first. Block only when it counts.
