@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.74.0: 2026-11-11
+
+The board says what the work is doing.
+
+### New Skills
+
+- **`/flagrare:ticket-hygiene`, tickets that keep up with the work**: it pairs every open ticket assigned to you with its PRs (open, draft, merged, closed), works out where the work really is, and shows each ticket's status next to the one it should have. Forward moves a PR backs, like an open PR or a merge, happen right away. Done, reopened, unassigned and stale tickets are proposed in one multi-select question. Done needs proof the change works in production, not just a deploy. Epics are left alone, and a scheduled run only reports. Pass a ticket (`SKU-123`) or an event (`merged SKU-123`, `deployed SKU-123`) to check just one. Field-tested the hard way: two tickets went to Finished right after the user said "Deployed", and the next message was "but did you test/check?".
+
+### Improved Skills
+
+- **`/flagrare:work-prep` and `/flagrare:intake`, the ticket starts when the work does**: under work-prep, intake moves the ticket to in progress right after reading it, and assigns it to you if nobody has it. It doesn't wait for the plan, so a stopped run still leaves the board right. The move is part of work-prep's goal, so it can't be skipped. Field-tested the hard way: a fix went all the way to an open PR while its ticket sat unassigned in the backlog, and the user said it should have moved "as we started the work".
+- **`/flagrare:open-pr`, the ticket goes to review with the PR**: right after the PR is created, its tickets move to the board's review status. Drafts count too. The report shows the ticket next to its new status.
+- **`/flagrare:wrap-up` and `/flagrare:standup-report`, mismatches show up**: wrap-up moves a ticket out of To Do once code exists. Standup flags tickets that are behind their PRs and points to ticket-hygiene, without moving anything.
+- **Shared ticket rules**: `lib/tickets/LIFECYCLE.md` defines the stages (started, in review, merged, done) and maps each one to your board's real status by name, then caches it per project. It never maps by category, since Jira puts In Progress, Needs Code Review and Ready to Release in the same one. Moves only go forward, touch only your own tickets and only the assignee, status and sprint, and a teammate's later status always wins.
+
 ## 1.73.0: 2026-11-04
 
 Say what happens to people first. The mechanism can wait.
