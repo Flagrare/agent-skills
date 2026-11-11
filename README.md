@@ -2,7 +2,7 @@
 
 Forty-one skills that wrap around your development cycle in Claude Code. They turn tickets into ATDD plans, smoke-test features against a running app or service, hunt down bugs with runtime evidence, guard commits against doc drift, run seven-axis code review, draft changelogs that read like patch notes, and review PRs with full context from your tracker and design tools.
 
-All skills are namespaced under `flagrare:*` to avoid collisions with other plugins. Installing this marketplace adds `/flagrare:intake`, `/flagrare:work-prep`, `/flagrare:smoke-test`, `/flagrare:wrap-up`, `/flagrare:pr-reviewer`, and thirty-six more to every Claude Code session.
+All skills are namespaced under `flagrare:*` to avoid collisions with other plugins. Installing this marketplace adds `/flagrare:intake`, `/flagrare:work-prep`, `/flagrare:smoke-test`, `/flagrare:wrap-up`, `/flagrare:pr-reviewer`, and thirty-seven more to every Claude Code session.
 
 ## Install
 
@@ -76,6 +76,8 @@ After this one-time bootstrap, `/flagrare:update` works for all future versions 
 
 `/flagrare:open-pr` creates a pull request that follows the repo's PR template. It reads `.github/PULL_REQUEST_TEMPLATE.md`, fetches linked tickets for context (tracker-agnostic), and fills each section with narrative prose (not file enumerations). Descriptions explain what changed from both a product and code perspective, link relevant tickets, and include specific testing notes.
 
+`/flagrare:ticket-hygiene` keeps your tickets in step with your work. It pairs every open ticket assigned to you with its PRs, works out where the work really is (started, in review, merged, done), and shows each ticket's status next to the one it should have. Moves a PR backs are applied right away; done, reopened, unassigned and stale tickets are proposed. Done always needs proof the change works in production, not just a deploy. Pass a ticket (`SKU-123`) or an event (`merged SKU-123`) to check one.
+
 `/flagrare:daily-code-review` reports on your team's open PRs. It queries GitHub for every open PR across a configured roster, classifies each by staleness (>24h pod-wide, >12h yours-to-touch) and review state, and renders three sections: stale PRs needing action, PRs needing your attention (yours to review or yours to merge), and parked drafts. First run prompts for the GitHub org and team members, then saves the config under the skill for future runs.
 
 `/flagrare:standup-report` writes your daily standup as a Staff Engineer would deliver it, impact-driven, root-cause-aware, and honest about judgment calls. It pulls from GitHub (your PRs, reviews left, comments addressed, merges, deploys), local git across configured repo roots, the project's release automation, and any tracker MCP you've configured (Linear, Jira, Notion, etc.). The output is a short narrative paragraph plus a journal-style recap plus a slack-pasteable bullet list. Names work in human terms, "fixed the image cache eviction" not "PR #481", and resolves "yesterday" as your last working day, so Monday standups cover Friday. On first install, prompts for additional MCPs (Slack, calendar) that can feed narrative context.
@@ -143,7 +145,10 @@ A typical feature cycle:
 git commit                       everything passes, commit
 /flagrare:open-pr                push and open a PR with proper context
 /flagrare:release-check          committed, decide if a release ships
+/flagrare:ticket-hygiene         PR merged or deployed, move the ticket on
 ```
+
+Tickets move with the work. `/flagrare:work-prep` moves the ticket to in progress as soon as it reads it, `/flagrare:open-pr` moves it to review, and `/flagrare:ticket-hygiene` handles merge and deploy. The shared rules live in `plugins/flagrare/lib/tickets/LIFECYCLE.md`.
 
 The career skills sit outside this cycle and run on their own schedule: `/flagrare:career` runs whichever of `/flagrare:promotion`, `/flagrare:opportunity-scan` and `/flagrare:impact-scan` are due.
 

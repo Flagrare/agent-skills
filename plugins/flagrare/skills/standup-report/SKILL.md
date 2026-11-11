@@ -180,6 +180,8 @@ For each PR collected, scan `body` and `title` for ticket references:
 
 Use the configured tracker's MCP to fetch each ticket's **title and status**. The title is what you use in the narrative ("the image cache eviction bug"), the ticket ID stays in the footnote.
 
+**Status check (read-only).** Compare each ticket's status with the stage its PRs say it is at, using "What stage the work is at" in `<plugin root>/lib/tickets/LIFECYCLE.md` (the plugin root is two directories above this skill's base directory). Use the deploy runs from step 5 as deploy evidence. Collect the tickets that are behind (a merged PR whose ticket still says In Progress, an open PR whose ticket says To Do). Don't move anything here; they go in the Refs footnote as one line pointing at `/flagrare:ticket-hygiene`.
+
 ### 7. Optional MCP context
 
 For each opted-in extra MCP (from setup), pull anything from the time window that mentions the user or references the PRs/tickets above. Examples:
@@ -453,7 +455,10 @@ at the end with their ticket IDs.}
 - queue refactor, PR acme-corp/api#483 (carry-over, awaiting review)
 - auth service refactor (Daniel), PR acme-corp/api#485 (review requested)
 - auth token expiry edge case, ENG-145 (High, in queue)
+- tickets behind their PRs: ENG-142 still In Review (PR merged, deployed). Run /flagrare:ticket-hygiene.
 ```
+
+Leave the "tickets behind" line out when every ticket matches its PRs.
 
 ### Length rule of thumb
 

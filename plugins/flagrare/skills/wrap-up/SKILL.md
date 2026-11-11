@@ -164,8 +164,11 @@ Merge automated check results, `/flagrare:implementation-review` findings, and s
 ### Summary
 - {N} blocking issues (must fix)
 - {M} suggestions (should consider)
+- Ticket: {KEY} is {status}
 - Overall: Ready to commit / Needs attention
 ```
+
+**Ticket line.** If the branch name or commits carry a ticket key, read its status. Code exists, so the work has started: if the ticket is still before `started` (To Do, Backlog), move it now, following `<plugin root>/lib/tickets/LIFECYCLE.md` (the plugin root is two directories above this skill's base directory). Anything at or past `started` stays as it is; `/flagrare:open-pr` moves it to review.
 
 ### Step 6: Offer Fixes
 

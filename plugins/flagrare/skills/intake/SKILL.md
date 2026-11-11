@@ -90,6 +90,14 @@ Wait for the subagent. If it returns an error (no MCP, no CLI, auth required), s
 
 ---
 
+## Step 2.5: Move the ticket to started (work-prep only)
+
+Running work-prep on a ticket means the user is working on it now, so the board should say so before the brief or the plan exists. If the args started with `[work-prep]`, move the ticket to the `started` stage right after reading it, following `<plugin root>/lib/tickets/LIFECYCLE.md` (the plugin root is two directories above this skill's base directory): assign it to the user if it is unassigned, map `started` to the project's real status, move it only forward, and say it in one line (`SKU-123: To Do → In Progress`). Don't ask; this move is automatic. A ticket assigned to someone else, or already past `started`, gets a one-line note instead.
+
+Standalone intake (no prefix) is research, not a start: report the ticket's status in the brief and move nothing.
+
+---
+
 ## Step 3: Follow all references in parallel
 
 Parse the ticket output for every linked resource. Spawn one **Reference Reader** subagent per resource, all in parallel, using `model: "sonnet"`. Each subagent uses the best tool from the capability map built in Step 0:
@@ -228,6 +236,7 @@ Never end intake with a context dump and silence. The user should always know wh
 ## Anti-patterns
 
 - **Don't skip the `/goal` step** (unless nested under `/flagrare:work-prep`, which owns the goal). Without a durable goal, intake reliably stalls after the brief and never asks the clarifying questions, the exact failure this skill is built to avoid.
+- **Don't leave the ticket in To Do under work-prep.** Step 2.5 moves it to started as soon as it is read. Waiting for the plan means a stalled or stopped run never moves it. Field-tested the hard way: a fix went all the way to an open PR while its ticket sat unassigned in the backlog, and the user said it should have moved "as we started the work".
 - **Don't set a second `/goal` when invoked with the `[work-prep]` prefix.** Only one goal can be active per session; a second silently replaces work-prep's session-spanning goal and breaks the downstream handoff.
 - Don't summarise the ticket without reading it, "I assume this means X" is not intake.
 - Don't spawn a subagent per sentence, one per distinct resource (ticket, Notion page, Figma frame, article).
@@ -246,6 +255,7 @@ Never end intake with a context dump and silence. The user should always know wh
 /flagrare:intake [ticket ID or URL]
      ↓ /goal locked (anti-stall; skipped when nested under work-prep)
      ↓ subagents read ticket + all references in parallel
+     ↓ ticket moved to started (only under work-prep; see lib/tickets/LIFECYCLE.md)
      ↓ /flagrare:research-catalog  ← log every external source before synthesising
      ↓ context brief synthesised (without questions)
      ↓ /flagrare:codebase-explore  ← ground the brief in actual code

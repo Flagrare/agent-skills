@@ -1,6 +1,6 @@
 ---
 name: open-pr
-description: "Open a pull request that follows the repo's conventions. Reads the PR template from .github/PULL_REQUEST_TEMPLATE.md, fills it with contextualized content (not enumerations), links tracker tickets, writes testing notes, and uses /flagrare:write-docs style for the description. Use when the user says 'open a pr', 'create pr', 'push and pr', 'submit this', 'open pull request', or any variation. Also triggers when code is ready to ship and the user wants to get it reviewed."
+description: "Open a pull request that follows the repo's conventions. Reads the PR template from .github/PULL_REQUEST_TEMPLATE.md, fills it with contextualized content (not enumerations), links tracker tickets and moves them to their in-review status, writes testing notes, and uses /flagrare:write-docs style for the description. Use when the user says 'open a pr', 'create pr', 'push and pr', 'submit this', 'open pull request', or any variation. Also triggers when code is ready to ship and the user wants to get it reviewed."
 ---
 
 # Open PR
@@ -102,9 +102,15 @@ EOF
 )"
 ```
 
+### Step 5.5: Move the ticket to in review
+
+Right after `gh pr create` succeeds, move every ticket the PR is for to the `in_review` stage, following `<plugin root>/lib/tickets/LIFECYCLE.md` (the plugin root is two directories above this skill's base directory). Draft PRs count: the code is up for people to see. Don't ask; the PR opening is the event. The file covers the mapping (some boards have no review status) and the guard rails (own tickets only, forward only, a teammate's later status wins).
+
+On the `gh pr edit` path the PR already existed, so only check the status: if it is behind `in_review`, move it and say so in one line.
+
 ### Step 6: Report back
 
-Show the user the PR URL and a brief summary of what was submitted. Don't reprint the entire body.
+Show the user the PR URL, the ticket next to its status (`SKU-123: In Progress → Needs Code Review`), and a brief summary of what was submitted. Don't reprint the entire body.
 
 ---
 
@@ -135,6 +141,7 @@ The bad version lists what moved; the good version explains what was wrong, why,
 - Don't ship a body over the Step 4 word cap. Run `wc -w` first; the cap is the most repeated correction on this skill.
 - Don't open a PR for a visible change without a before/after image, and don't open it first and add the image after. Reviewers are notified on create and can't run your branch in their head.
 - Don't ship an image you haven't looked at, in the file and on the rendered PR. A cropped or unreadable screenshot is worse than none.
+- Don't leave the ticket behind the PR. A PR in review with its ticket still at In Progress or To Do tells the team the work hasn't reached review. Move it in Step 5.5, in the same pass, without asking.
 - Don't skip the template. Even if it feels overkill for a one-line fix, fill it in. Consistency matters more than brevity.
 - Don't enumerate where you should narrate. A description made of five-bullet lists has flattened all the causality out of your change. If the bullets depend on each other, write the paragraph.
 - Don't imitate an enumerated house style. Reading recent merged PRs (Step 2) is for the *skeleton* (section names, title format, ticket-linking), never for level of detail. If the team's PRs are file-by-file `## Changes` dumps, you still write context-first prose inside their section headings. Copying their enumeration is the single most common way this skill fails.
@@ -157,8 +164,11 @@ The bad version lists what moved; the good version explains what was wrong, why,
 /flagrare:wrap-up        <- quality gate
      |
      v
-/flagrare:open-pr        <- THIS SKILL
+/flagrare:open-pr        <- THIS SKILL (ticket moves to in review)
      |
      v
 [reviewer picks it up]
+     |
+     v
+[merge, deploy]          <- /flagrare:ticket-hygiene moves the ticket on
 ```

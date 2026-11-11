@@ -1,6 +1,6 @@
 ---
 name: work-prep
-description: "Orchestrates the full preparation workflow for a ticket. Calls /flagrare:intake (which gathers context from Jira/Notion/Figma, grounds the brief in the codebase via /flagrare:codebase-explore, then asks codebase-informed clarifying questions), then hands the codebase-grounded brief to /flagrare:atdd-plan for a TDD-first implementation plan. Use when the user shares a ticket key (e.g. SKU-123), says 'start work on', 'pick up ticket', 'plan this feature', 'work prep', or provides a Jira URL."
+description: "Orchestrates the full preparation workflow for a ticket. Moves the ticket to in progress (assigning it to the user if unassigned) as soon as it is read, then calls /flagrare:intake (which gathers context from Jira/Notion/Figma, grounds the brief in the codebase via /flagrare:codebase-explore, then asks codebase-informed clarifying questions), then hands the codebase-grounded brief to /flagrare:atdd-plan for a TDD-first implementation plan. Use when the user shares a ticket key (e.g. SKU-123), says 'start work on', 'pick up ticket', 'plan this feature', 'work prep', or provides a Jira URL."
 ---
 
 # Work Prep
@@ -28,20 +28,20 @@ This skill orchestrates two existing skills in sequence. It does not duplicate t
 
 Phrase the condition as something your own output demonstrates, the evaluator cannot run tools or read files, only judge what you have surfaced:
 
-> A codebase-grounded context brief has been produced; the most blocking clarifying questions have been asked via the `AskUserQuestion` tool and answered (or none were blocking); `/flagrare:atdd-plan` has produced an implementation plan with acceptance tests; and the closing next-step `AskUserQuestion` (Start implementation / Adjust the plan / Stop here) has been presented and answered. Stop after 20 turns if not met.
+> The ticket has been moved to its started status (or a one-line note says why it was not); a codebase-grounded context brief has been produced; the most blocking clarifying questions have been asked via the `AskUserQuestion` tool and answered (or none were blocking); `/flagrare:atdd-plan` has produced an implementation plan with acceptance tests; and the closing next-step `AskUserQuestion` (Start implementation / Adjust the plan / Stop here) has been presented and answered. Stop after 20 turns if not met.
 
 **One goal per session.** Because work-prep sets this spanning goal, `/flagrare:intake` must NOT set its own, the `[work-prep]` prefix in Step 1 signals it to skip (a second goal would silently replace this one). Likewise do not re-set the goal between steps.
 
 **If `/goal` is unavailable** (untrusted workspace, or `disableAllHooks` / `allowManagedHooksOnly` set): proceed without it and rely on the same-turn handoffs and the sub-skills' own no-yield notes.
 
-Also create a Todo list (TodoWrite) with one item per stage of the chain.
+Also create a Todo list (TodoWrite) with one item per stage of the chain, starting with "Move the ticket to started".
 
 ### Step 1: Invoke `/flagrare:intake`
 
 Call `/flagrare:intake` with the ticket reference prefixed by `[work-prep] ` (e.g., args: `[work-prep] SKU-123`). This prefix tells intake two things: (1) skip setting its own `/goal`, work-prep's Step 0 goal already spans the chain, and (2) skip its Step 6 next-step prompt and hand off directly. This skill will:
 
 1. Parse the ticket ID/URL and identify the platform
-2. Read the full ticket via MCP (Jira, Linear, etc.)
+2. Read the full ticket via MCP (Jira, Linear, etc.), then **move it to started**: assign it to the user if it is unassigned and move it to the project's in-progress status, without asking. Doing work-prep on a ticket means working on it. The rules (status mapping, forward only, own tickets only) are in `<plugin root>/lib/tickets/LIFECYCLE.md`. If intake returns without having moved it, move it yourself before Step 2.
 3. Follow all referenced links in parallel (Notion, Figma, Confluence, GitHub, etc.)
 4. Synthesise a context brief (without questions yet)
 5. **Ground the brief in the codebase** via `/flagrare:codebase-explore`, finding the files, utilities, and prior attempts the plan will touch
@@ -75,6 +75,7 @@ Options:
 
 - **Don't skip the Step 0 `/goal`.** It's the forcing function that carries the model across the brief and the plan without stopping. The `[work-prep]` prefix on intake assumes this goal exists.
 - **Don't let a sub-skill set its own goal.** Only one goal is active per session; a second silently replaces work-prep's spanning goal and the chain loses its anti-stall guarantee mid-flow.
+- **Don't ask whether to move the ticket to in progress.** Starting work-prep is the answer. Ask only when the ticket belongs to someone else.
 - Don't skip `/flagrare:intake` and jump to planning. Context gaps turn into rework.
 - Don't invoke `/flagrare:atdd-plan` before clarifying questions are resolved.
 - Don't start implementation before the plan is reviewed and approved.
@@ -106,7 +107,7 @@ If you are executing work-prep and intake finishes WITHOUT invoking atdd-plan (e
      |
      v
 /flagrare:intake [work-prep] <- 0. skip own /goal (work-prep owns it)
-                                1. read ticket + follow references in parallel
+                                1. read ticket, move it to started, follow references in parallel
                                 2. synthesise brief (no questions yet)
                                 3. /flagrare:codebase-explore  <- ground brief in code
                                 4. ask codebase-informed clarifying questions
