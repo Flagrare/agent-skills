@@ -50,7 +50,7 @@ Read it from the PRs linked to the ticket (the key in the branch name, PR title 
 - **Work tickets only.** Epics and parent tickets follow their children; leave them alone.
 - **Read the status right before writing.** A teammate may have moved it a minute ago.
 - **Forward only.** If the ticket is already at or past the target, leave it, even when the status is not the one this file would pick. A teammate's status wins.
-- **Say it in one line** after moving: `SKU-123: To Do → In Progress`.
+- **Say it in one line** after moving, naming what the ticket does before its key: `Menu disabled state (SKU-123): To Do → In Progress`. Nobody knows a ticket by its number.
 - **Never block the main task.** If the tracker is not reachable, say so in one line and carry on with the plan or the PR.
 - **Scheduled runs never write.** A run started by `/loop`, a schedule or another agent lists the moves it would make and leaves them for the user.
 

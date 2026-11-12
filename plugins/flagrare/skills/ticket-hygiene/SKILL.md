@@ -71,6 +71,8 @@ Map every target stage to a real status with "Picking the real status for a stag
 
 Show one table, then act. Skip tickets that need nothing.
 
+**Name every ticket by what it does, not by its number.** The user does not know tickets by key. Wherever a ticket appears (the table, the questions, the one-line move notes, the closing line), lead with a short plain description of what the ticket changes, in the product's words ("say when the venue is closed in the test order dialog", "hide another venue's items on the menu page"), with the key as a link after it. The ticket title is the starting point; rewrite it when it reads like code or shorthand. A bare key, or a list of keys like "SKU-1029 + SKU-1048", is never enough.
+
 ```
 | Ticket | PR | Now | Should be | Action |
 |---|---|---|---|---|
@@ -80,7 +82,7 @@ Show one table, then act. Skip tickets that need nothing.
 | [SKU-140](url) Image upload | none, quiet 6 days | In Progress | ? | stale |
 ```
 
-Apply every **Apply** row (in a scheduled run, mark them "would move" instead). Then ask about the **Propose** rows in one `AskUserQuestion` with `multiSelect: true`, one option per move, and apply the ones the user picks. **Flag** rows need no answer; they stay in the table.
+Apply every **Apply** row (in a scheduled run, mark them "would move" instead). Then ask about the **Propose** rows in one `AskUserQuestion` with `multiSelect: true`, one option per move, and apply the ones the user picks. Each option's label is the plain description of the ticket, and its description says the move and why ("finished during this sprint, so it counts here"), with the key at the end. The question names what kind of move it is asking about, never only the keys. **Flag** rows need no answer; they stay in the table.
 
 Close with one line: how many moved, how many are waiting on the user.
 
@@ -92,6 +94,7 @@ Close with one line: how many moved, how many are waiting on the user.
 - **Don't ask about the automatic moves.** A PR opened or a ticket started is not a question. Asking about them is the noise this skill exists to remove.
 - **Don't touch anything but assignee, status and sprint.** Comments and descriptions still need the user's OK.
 - **Don't write in a scheduled run.** Nobody is there to catch a wrong move.
+- **Don't refer to a ticket by its key alone.** Field-tested the hard way: a sprint question offered "SKU-1029 + SKU-1048", "SKU-1123" and "SKU-1099" as options, and the user stopped the run: "I don't understand tickets by number. I need context."
 
 ## Flow position
 
