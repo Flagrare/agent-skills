@@ -15,7 +15,7 @@ A ticket is a pointer, not a document. The reader is an engineer who will open t
 
 Concretely:
 
-- **Context**: 2 to 4 sentences of prose that tell the *story*: what the system does, why this case is the exception, what breaks if ignored. Lead with the narrative, not the mechanics. Link the spec/TDD; do not paraphrase it.
+- **Context**: 2 to 4 sentences of prose that tell the *story*: what the system does, why this case is the exception, what breaks if ignored. Tell it from what the user sees, not from how the code decides. Lead with the narrative, not the mechanics. Link the spec/TDD; do not paraphrase it.
 - **Grounding**: **at most 2 to 3 pointers, and only ones that change how the reader thinks.** Two-or-three is a ceiling, not a quota; one good pointer beats five. Prefer weaving the pointer into the Context prose ("the `processPayment()` flow isn't wrapped in a transaction") over a separate bulleted `file:line` list. A bulleted wall of `path/file.kt:42` lines is the #1 enumeration smell; it reads as your exploration trail, not as help.
 - **What needs to happen**: the intent and the simplest approach, in prose. The engineer owns the how; do not write the implementation for them or list every file they'll touch.
 - **Acceptance criteria**: 3 to 4 testable lines that capture what *done* means. Not an exhaustive matrix; do not enumerate every table, field, or branch.
@@ -74,6 +74,7 @@ Concretely:
 
 - **Open with the product story, once.** For a standalone ticket (a bug, a one-off task), the first sentence states the user-visible problem in plain words before any architecture: "Partners can mark an item 'Unavailable today', but nothing ever brings it back." For a backlog, that story goes in the epic, and each ticket's Goal is one sentence about its own slice ("Add the table and the register/clear endpoint that remember what's sold out"). Do NOT repeat the feature story in every ticket: a 26-ticket backlog that opened each ticket with the same two sentences spent 1,000 of its 6,600 words on the copy (field-tested, 2026-09-25).
 - **Gloss jargon once.** Acronyms, internal service nicknames, and team shorthand get a short parenthetical the first time they appear. In a backlog, gloss the feature's shared terms in the epic; a ticket glosses only the terms specific to it. A standalone ticket glosses everything it uses.
+- **Use the product's own nouns, in every section.** Name things the way the product and its users do: the words on screens and in the domain ("item group", "Closed Dates"), never the code's constants or the investigation's shorthand. After reading the code, its names feel natural, but they aren't the reader's. A follow-up ticket said an item's "menu isn't running" and asked for "when the item's menu runs next", lifted from a `MENU_NOT_RUNNING` constant; the user called it meaningless. "Outside its item group's hours, say when the agent can order the item" said the same thing plainly (field-tested, 2026-11-12).
 - **Name tickets by what they do, never by a local number.** Numbered file names (`05-report-on-order.md`) only sort the drafts; nobody memorizes them and they don't exist in the tracker. In ticket text, dependency lines, the epic and any chart, write "the report-window decision" or "the admin page ticket", and switch to tracker keys (as links) once the tickets are pushed.
 - **Cryptic is a bug.** If understanding a sentence requires having been in the meeting, rewrite it. The reader was not in the meeting.
 - **State decisions as facts, not minutes.** Never cite when or how a decision was made ("decided at the Jul 28 grooming", "per Tuesday's sync"): a ticket is self-contained, so write the decision as the way things are and link the decision doc if the reader needs the trade-offs. Provenance belongs in the decision doc, not the ticket.
@@ -268,7 +269,7 @@ Each template has an optional grounding subsection populated from `/flagrare:cod
 - `prior-branch/feat-x`, abandoned approach, see PR #142 for why
 
 ## What needs to happen (optional, if implementation is known)
-[A few high-level steps, not a line-by-line plan. Name the files/components/endpoints involved and let the engineer own the how. If this runs past ~5 bullets, the detail belongs in the spec, not the ticket.]
+[A few high-level steps, not a line-by-line plan. Describe the change, not the algorithm: "read the item group's hours" is a step, "the first time those hours overlap the open hours minus closures" is the engineer's job. Name the files/components/endpoints involved and let the engineer own the how. If this runs past ~5 bullets, the detail belongs in the spec, not the ticket.]
 
 ## Acceptance Criteria
 * [Specific, testable criterion]
@@ -359,7 +360,7 @@ Split along independently testable deliverables, not just repos or layers: a dat
 
 ## Acceptance Criteria Best Practices
 
-Specific and testable:
+Specific and testable. When a criterion quotes text the user will read, quote the full message, and it must make sense on its own: say who or what, and when ("Sunday Brunch runs Sundays 12 PM to 5 PM. You can order this item Sun, Nov 15 at 12 PM."), never a fragment that only parses with the ticket open ("menu runs next Sun").
 - "API returns 201 on successful creation" (not "user can be created")
 - "Disabled items render greyed-out with tooltip" (not "disabled state works")
 
@@ -411,6 +412,7 @@ Specific and testable:
 - [ ] Passes the three-reader test: a junior dev knows exactly what to build, a PM sees the value, a manager gets it from the Goal alone.
 - [ ] Bug titles pass the symptom test: they say what the user sees (quoting real error/UI text when short), not the mechanism the investigation found.
 - [ ] Story and Task titles start with a verb and name what changes and where. Read the title alone: could someone start the work from it? "Monitor the feature", "X is ready" and "Users can do Y" fail. The Goal names the work too, not "make sure" or "get ready".
+- [ ] Every noun is the product's word, not the code's or the investigation's (read each sentence as the person who uses the screen), and every quoted message in the criteria reads on its own.
 - [ ] No unglossed acronym or team shorthand (glossed once: in the epic for a backlog, in the ticket for a standalone one); nothing that requires having been in the meeting.
 - [ ] No decision provenance ("decided at X meeting", dates of syncs); decisions stated as facts with a link to the write-up.
 - [ ] Identifiers carry code marks and links have text; the push will render rich, not flat.
