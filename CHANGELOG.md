@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.75.0: 2026-11-12
+
+Tickets speak the screen's language, not the code's.
+
+### Improved Skills
+
+- **`/flagrare:ticket-creator`, the product's nouns in every section**: a ticket now names things the way the product and its users do, like "item group" or "Closed Dates", never by the code's constants or the investigation's shorthand. Context tells the story from what the user sees, "What needs to happen" describes the change instead of the algorithm, and any message quoted in the acceptance criteria has to read on its own. Field-tested the hard way: a follow-up ticket asked for "when the item's menu runs next", lifted from a `MENU_NOT_RUNNING` constant, and the user called it meaningless. "Outside its item group's hours, say when the agent can order the item" said the same thing plainly.
+
 ## 1.74.0: 2026-11-11
 
 The board says what the work is doing.
