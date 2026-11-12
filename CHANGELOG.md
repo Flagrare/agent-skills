@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.75.1: 2026-11-12
+
+The board fits the screen again.
+
+### Bug Fixes
+
+- **Career Board, the Proof tab stays inside the window**: a long project name on a logged contribution ("Your project: Reservation deadline used as food prep time: product signal and hiding class settings on SKU-only venues") sat in a chip that never wraps, so it stretched the right column and the whole page scrolled sideways, about 170px past a 1440px screen. Project chips in the contributions list now wrap onto a second line, and the side columns on the Promotion and Proof tabs can no longer grow wider than their share of the page, whatever lands in them. Checked every tab at 1680, 1440, 1280, 1024, 768 and 390px wide: no sideways scroll on any of them.
+
 ## 1.75.0: 2026-11-12
 
 Tickets speak the screen's language, not the code's.
