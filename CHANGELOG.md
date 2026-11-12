@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.77.0: 2026-11-12
+
+A ticket is what it does, not what it's numbered.
+
+### Improved Skills
+
+- **`/flagrare:ticket-hygiene`, every ticket named by what it changes**: the table, the questions and the one-line move notes now lead with a short plain description of each ticket in the product's words, with the key as a link after it. Questions about moves use that description as the option label and say why the move is proposed. The shared ticket lifecycle's move note follows suit: "Menu disabled state (SKU-123): To Do → In Progress". Field-tested the hard way: a sprint question offered "SKU-1029 + SKU-1048", "SKU-1123" and "SKU-1099" as options, and the user stopped the run because nobody knows a ticket by its number.
+
 ## 1.76.0: 2026-11-12
 
 The board gets a stand-in, so you can show it without showing yourself.
