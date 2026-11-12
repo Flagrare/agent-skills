@@ -971,7 +971,9 @@ dialog.keys dd { margin: 0; color: var(--ink-2); }
         ${facts.length ? `<dl class="facts">${facts.map(([k, v]) => `<div><dt>${k}</dt><dd>${inline(v)}</dd></div>`).join("")}</dl>` : ""}
         ${firstLink(act) ? `<div class="btns"><a class="btn" href="${esc(firstLink(act))}" target="_blank" rel="noopener">See the evidence <span class="ext" aria-hidden="true">↗</span></a></div>` : ""}
       </article>
-      ${cand.length ? `<div class="sec sec-gap"><h3>Also ${term("proposed", "proposed")}</h3><span class="n">${cand.length} waiting on your decision</span></div>${candRows}` : ""}`;
+      ${prop.length || cand.length ? `<div class="sec sec-gap"><h3>Also ${term("proposed", "proposed")}</h3>${cand.length ? `<span class="n">${cand.length} waiting on your decision</span>` : ""}</div>` : ""}
+      ${prop.length ? `<p class="sec-sub">Kept, not started: ${prop.map(p => esc(p.title)).join("; ")}. Pick one up once the project you own is done.</p>` : ""}
+      ${candRows}`;
   } else if (prop.length || cand.length || BAL.warn) {
     $("own").innerHTML = `
       <div class="sec"><h2 id="h-own">${cand.length ? (cand.length === 1 ? "Proposed project" : "Proposed projects") : "No project you own yet"}</h2>${cand.length ? `<span class="n">${cand.length} waiting on your decision</span>` : ""}</div>
@@ -1073,7 +1075,7 @@ dialog.keys dd { margin: 0; color: var(--ink-2); }
     const top5 = givers.slice(0, 5).map(g => `<li><b>${esc(g.name)}</b><span class="times">${esc(g.count)} ${g.count > 1 ? "times" : "time"}, last ${esc(fmt(g.last))}</span></li>`).join("");
     const latest = latestThanks.slice(0, 2).map(b => {
       const u = safeUrl(b.link);
-      return `<figure class="thank"><q>${inline(b.text || b.reason || "")}</q><figcaption class="by">${esc((b.giver || {}).name || "")}, ${esc(fmt(b.date))}${b.value ? `, ${esc(plainValue(b.value))}` : ""}${u ? ` <a href="${esc(u)}" target="_blank" rel="noopener">Open in Bonusly <span class="ext" aria-hidden="true">↗</span></a>` : ""}</figcaption></figure>`;
+      return `<figure class="thank"><q>${inline(b.text || b.reason || "")}</q><figcaption class="by">${esc((b.giver || {}).name || "")}, ${esc(fmt(b.date))}${b.value ? `, ${esc(plainValue(b.value))}` : ""}${u ? ` <a href="${esc(u)}" target="_blank" rel="noopener">Open <span class="ext" aria-hidden="true">↗</span></a>` : ""}</figcaption></figure>`;
     }).join("");
     $("recog-body").innerHTML = `
       <p class="recog-sum"><b>${esc(peopleThanks || REC.received)} thanks from ${esc(givers.length)} ${givers.length === 1 ? "person" : "people"}</b>${REC.received_last_30_days ? `, ${esc(REC.received_last_30_days)} in the last 30 days` : ""}.${auto ? ` ${esc(auto)} more were automatic (birthdays, welcomes).` : ""}${REC.given ? ` You thanked others ${esc(REC.given)} times.` : ""} Everyone listed has seen your work first-hand.</p>
