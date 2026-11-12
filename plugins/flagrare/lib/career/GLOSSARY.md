@@ -16,6 +16,7 @@ Clarity comes first, and the user still learns the terms their company uses. The
 | Promotion committee | calibration | The meeting where managers and directors review promotion cases together. |
 | The project you own | initiative, active initiative | One piece of work the user owns end to end, agreed with their manager. |
 | Proposed projects | candidates, proposals | Problems a scan found that the user could own. Nothing is theirs until they keep one and their manager agrees. |
+| Kept, not started | proposed (status) | A proposed project the user kept but hasn't taken to their manager yet. The board lists it under "Also proposed" while they own another one. |
 | Lots of answering, nothing owned | balance warning | Many replies to other people's work in the last 30 days and no project the user owns. Entries about the user's own projects don't count toward it. |
 | Your own work, your project | streams, own-work | Work the user started: PRs they wrote, docs they drive, and the meetings and threads about them, grouped into one project and logged as one entry with its story. |
 | You're already building this | building | A proposed project the user is already doing. It still becomes the project they own only after their manager agrees. |
