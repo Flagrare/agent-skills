@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.76.0: 2026-11-12
+
+The board gets a stand-in, so you can show it without showing yourself.
+
+### Improved Skills
+
+- **Career Board, a demo you can share**: `plugins/flagrare/lib/career/board/demo/` holds a complete board for Sam Rivera, a made-up engineer at Spokewise, an invented bike repair marketplace. Every name, company and link is fictional, and every panel is filled: a next-up card, items waiting on others, a promotion target with dates, an active project, ranked proposals and a fix, proof per behavior, a check due, logged contributions and thanks. `build-demo.sh` rebuilds it with a fixed date, so the page looks the same on every run, and the README now shows all three tabs. Field-tested the hard way: the only way to show the board before this was a screenshot of a real one, full of real colleagues and real tickets.
+
+### Bug Fixes
+
+- **Career Board, kept projects stay visible while you own one**: once a project was active, the Promotion tab listed only the problems still waiting on a decision, so a project you had kept but not started vanished from the page. It now shows under "Also proposed" as "Kept, not started". Building the demo is what surfaced it.
+- **Career Board, the thanks link names no tool**: each thanks said "Open in Bonusly" even when it came from another recognition tool. It now says "Open".
+
 ## 1.75.1: 2026-11-12
 
 The board fits the screen again.
