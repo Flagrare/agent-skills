@@ -96,6 +96,12 @@ After this one-time bootstrap, `/flagrare:update` works for all future versions 
 
 `/flagrare:career` runs whichever of the career skills are due and folds them into one short digest and one board. It decides from timestamps and flags: the promotion map's first run when there is none (after asking), a refresh of only the map sections that are older than 90 days or that a scan flagged, an opportunity scan when the last one is a month old, and an impact scan every time. The digest leads with the initiative you own and its next step, then up to five threads worth weighing in on, one line on the map (open rubric rows, who hasn't seen your work, when to talk to your manager, the packet deadline), anything that needs you, and an "all answering, nothing owned" warning when you keep replying but own nothing (your own projects never count as answering, and a proposed project you're already building is flagged so you can take it to your manager). A scheduled run (from `/loop` or a schedule) never asks and never posts: it lists what needs you instead. The board, now the Career Board, gains a card for the initiative you own (or what is on the table), a promotion panel, and evidence counted per rubric row.
 
+Here is the Career Board for a made-up engineer. Every name, company and link in it is invented, and `plugins/flagrare/lib/career/board/demo/build-demo.sh` rebuilds it. Act holds what to do next and what is waiting on others, Promotion the target, the dates and the project you own, Proof the evidence per behavior, what to measure and the thanks you got.
+
+![Career Board, Act tab](docs/images/career-board/act.png)
+![Career Board, Promotion tab](docs/images/career-board/promotion.png)
+![Career Board, Proof tab](docs/images/career-board/proof.png)
+
 ### Implementation support
 
 `/flagrare:figma-matcher` enforces pixel-perfect implementation of Figma designs. It extracts every visual property from Figma, spins up Chrome DevTools to measure the current implementation, builds a comparison checklist, and fixes all discrepancies in a single pass.

@@ -1,0 +1,324 @@
+[
+  {
+    "id": "payout-retries",
+    "work": {
+      "title": "Failed payouts retry on their own",
+      "link": "https://spokewise-demo.atlassian.net/browse/PAY-412",
+      "kind": "ticket"
+    },
+    "stage": "after",
+    "impact_types": [
+      "partners",
+      "business"
+    ],
+    "metric": {
+      "name": "Manual payout retries per week",
+      "why": "Each one is a shop waiting and a support ticket"
+    },
+    "source": {
+      "category": "data warehouse",
+      "tool": "SQL",
+      "query": "select week, count(*) from manual_retries group by week",
+      "run_at": "2026-11-06"
+    },
+    "baseline": {
+      "value": "about 40 a week",
+      "as_of": "2026-09-22",
+      "confidence": "direct"
+    },
+    "bet": {
+      "sentence": "We believe automatic retries will cut manual retries by 80 percent",
+      "range": "70 to 90 percent",
+      "confidence": "inferred"
+    },
+    "ownership": "mine",
+    "launch_date": "2026-10-20",
+    "checks": [
+      {
+        "due": "2026-11-03",
+        "after_days": 14,
+        "done_at": "2026-11-06",
+        "value": "6 a week",
+        "verdict": "worked"
+      },
+      {
+        "due": "2026-12-01",
+        "after_days": 42,
+        "done_at": null,
+        "value": null,
+        "verdict": null
+      }
+    ],
+    "result": {
+      "sentence": "Manual retries went from about 40 a week to 6 in the first two weeks",
+      "confidence": "direct"
+    },
+    "created_at": "2026-09-23",
+    "updated_at": "2026-11-06"
+  },
+  {
+    "id": "payout-export",
+    "work": {
+      "title": "Payout export for shops",
+      "link": "https://spokewise-demo.atlassian.net/browse/SHOP-318",
+      "kind": "ticket"
+    },
+    "stage": "before",
+    "impact_types": [
+      "partners"
+    ],
+    "metric": {
+      "name": "Support tickets asking for payout details",
+      "why": "The export should answer them"
+    },
+    "baseline": {
+      "value": "about 25 a week",
+      "as_of": "2026-10-14",
+      "confidence": "supported"
+    },
+    "bet": {
+      "sentence": "We believe the export will halve payout detail tickets",
+      "range": "30 to 60 percent",
+      "confidence": "inferred"
+    },
+    "ownership": "mine",
+    "launch_date": "2026-10-27",
+    "checks": [
+      {
+        "due": "2026-11-10",
+        "after_days": 14,
+        "done_at": null,
+        "value": null,
+        "verdict": null
+      },
+      {
+        "due": "2026-12-08",
+        "after_days": 42,
+        "done_at": null,
+        "value": null,
+        "verdict": null
+      }
+    ],
+    "result": {
+      "sentence": "",
+      "confidence": ""
+    },
+    "created_at": "2026-10-14",
+    "updated_at": "2026-10-27"
+  },
+  {
+    "id": "reminder-time-zones",
+    "work": {
+      "title": "Reminders in the shop's own time zone",
+      "link": "https://spokewise-demo.slack.com/archives/C0DEMO03/p1759400000000303",
+      "kind": "project"
+    },
+    "stage": "before",
+    "impact_types": [
+      "partners"
+    ],
+    "metric": {
+      "name": "Shop no shows per 1,000 bookings",
+      "why": "Late reminders are the top support reason"
+    },
+    "baseline": {
+      "value": "12 per 1,000",
+      "as_of": "2026-10-02",
+      "confidence": "direct"
+    },
+    "bet": {
+      "sentence": "We believe on time reminders will cut no shows by a fifth",
+      "range": "10 to 25 percent",
+      "confidence": "speculative"
+    },
+    "ownership": "contributed",
+    "launch_date": null,
+    "checks": [],
+    "result": {
+      "sentence": "",
+      "confidence": ""
+    },
+    "created_at": "2026-10-03",
+    "updated_at": "2026-10-03"
+  },
+  {
+    "id": "skip-2026-10-14-11",
+    "work": {
+      "title": "Picked up the payout export request from three shops and sco",
+      "link": "https://spokewise-demo.atlassian.net/browse/SHOP-318",
+      "kind": "log_entry"
+    },
+    "stage": "skipped",
+    "skipped_reason": "measured with its project",
+    "created_at": "2026-11-06",
+    "updated_at": "2026-11-06"
+  },
+  {
+    "id": "skip-2026-10-16-13",
+    "work": {
+      "title": "Wrote the incident review for the payout stall with three fo",
+      "link": "https://www.notion.so/spokewise-demo/Incident-review-payout-stall-4e5f6a",
+      "kind": "log_entry"
+    },
+    "stage": "skipped",
+    "skipped_reason": "a review or a reply, nothing to count",
+    "created_at": "2026-11-06",
+    "updated_at": "2026-11-06"
+  },
+  {
+    "id": "skip-2026-10-20-14",
+    "work": {
+      "title": "Shipped retry limits and an alert when a payout fails three ",
+      "link": "https://github.com/spokewise-demo/payouts-service/pull/1197",
+      "kind": "log_entry"
+    },
+    "stage": "skipped",
+    "skipped_reason": "measured with its project",
+    "created_at": "2026-11-06",
+    "updated_at": "2026-11-06"
+  },
+  {
+    "id": "skip-2026-10-21-15",
+    "work": {
+      "title": "Reviewed a teammate's ledger change and pointed out the miss",
+      "link": "https://github.com/spokewise-demo/payouts-service/pull/1201#pullrequestreview-5",
+      "kind": "log_entry"
+    },
+    "stage": "skipped",
+    "skipped_reason": "a review or a reply, nothing to count",
+    "created_at": "2026-11-06",
+    "updated_at": "2026-11-06"
+  },
+  {
+    "id": "skip-2026-10-23-16",
+    "work": {
+      "title": "Opened the payout export PR with the columns support asked f",
+      "link": "https://github.com/spokewise-demo/shop-dashboard/pull/2291",
+      "kind": "log_entry"
+    },
+    "stage": "skipped",
+    "skipped_reason": "measured with its project",
+    "created_at": "2026-11-06",
+    "updated_at": "2026-11-06"
+  },
+  {
+    "id": "skip-2026-10-27-17",
+    "work": {
+      "title": "Answered why a shop's payout was smaller than its bookings a",
+      "link": "https://spokewise-demo.slack.com/archives/C0DEMO01/p1761600000000505",
+      "kind": "log_entry"
+    },
+    "stage": "skipped",
+    "skipped_reason": "a review or a reply, nothing to count",
+    "created_at": "2026-11-06",
+    "updated_at": "2026-11-06"
+  },
+  {
+    "id": "skip-2026-10-28-18",
+    "work": {
+      "title": "Suggested splitting a large booking PR in two so the risky p",
+      "link": "https://github.com/spokewise-demo/booking-api/pull/901#pullrequestreview-6",
+      "kind": "log_entry"
+    },
+    "stage": "skipped",
+    "skipped_reason": "a review or a reply, nothing to count",
+    "created_at": "2026-11-06",
+    "updated_at": "2026-11-06"
+  },
+  {
+    "id": "skip-2026-10-30-19",
+    "work": {
+      "title": "Shared numbers on how often a repair quote changes after boo",
+      "link": "https://www.notion.so/spokewise-demo/Quotes-that-change-after-booking-9a8b7c",
+      "kind": "log_entry"
+    },
+    "stage": "skipped",
+    "skipped_reason": "a review or a reply, nothing to count",
+    "created_at": "2026-11-06",
+    "updated_at": "2026-11-06"
+  },
+  {
+    "id": "skip-2026-11-03-20",
+    "work": {
+      "title": "Shipped the payout export and wrote the help center note wit",
+      "link": "https://github.com/spokewise-demo/shop-dashboard/pull/2305",
+      "kind": "log_entry"
+    },
+    "stage": "skipped",
+    "skipped_reason": "measured with its project",
+    "created_at": "2026-11-06",
+    "updated_at": "2026-11-06"
+  },
+  {
+    "id": "skip-2026-11-04-21",
+    "work": {
+      "title": "Reviewed the new shop settings page and caught that the save",
+      "link": "https://github.com/spokewise-demo/shop-dashboard/pull/2310#pullrequestreview-7",
+      "kind": "log_entry"
+    },
+    "stage": "skipped",
+    "skipped_reason": "a review or a reply, nothing to count",
+    "created_at": "2026-11-06",
+    "updated_at": "2026-11-06"
+  },
+  {
+    "id": "skip-2026-11-06-23",
+    "work": {
+      "title": "Posted the first two weeks of payout retry results: manual r",
+      "link": "https://www.notion.so/spokewise-demo/Payout-retries-results-2d3e4f",
+      "kind": "log_entry"
+    },
+    "stage": "skipped",
+    "skipped_reason": "measured with its project",
+    "created_at": "2026-11-06",
+    "updated_at": "2026-11-06"
+  },
+  {
+    "id": "skip-2026-11-09-24",
+    "work": {
+      "title": "Reviewed the reminder job fix and asked for a test with a sh",
+      "link": "https://github.com/spokewise-demo/booking-api/pull/915#pullrequestreview-8",
+      "kind": "log_entry"
+    },
+    "stage": "skipped",
+    "skipped_reason": "a review or a reply, nothing to count",
+    "created_at": "2026-11-06",
+    "updated_at": "2026-11-06"
+  },
+  {
+    "id": "skip-2026-11-10-25",
+    "work": {
+      "title": "Paired with Omar on his first payouts ticket and let him dri",
+      "link": "https://spokewise-demo.slack.com/archives/C0DEMO02/p1762800000000707",
+      "kind": "log_entry"
+    },
+    "stage": "skipped",
+    "skipped_reason": "a review or a reply, nothing to count",
+    "created_at": "2026-11-06",
+    "updated_at": "2026-11-06"
+  },
+  {
+    "id": "skip-2026-11-11-26",
+    "work": {
+      "title": "Proposed a short checklist for who leads an incident that sp",
+      "link": "https://spokewise-demo.slack.com/archives/C0DEMO06/p1762900000000808",
+      "kind": "log_entry"
+    },
+    "stage": "skipped",
+    "skipped_reason": "a review or a reply, nothing to count",
+    "created_at": "2026-11-06",
+    "updated_at": "2026-11-06"
+  },
+  {
+    "id": "skip-2026-11-12-27",
+    "work": {
+      "title": "Reviewed the payout fee change and found the preview and the",
+      "link": "https://github.com/spokewise-demo/payouts-service/pull/1210#pullrequestreview-9",
+      "kind": "log_entry"
+    },
+    "stage": "skipped",
+    "skipped_reason": "a review or a reply, nothing to count",
+    "created_at": "2026-11-06",
+    "updated_at": "2026-11-06"
+  }
+]

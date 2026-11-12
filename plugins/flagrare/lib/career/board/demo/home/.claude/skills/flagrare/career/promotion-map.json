@@ -1,0 +1,551 @@
+{
+  "sections": {
+    "target": {
+      "checked_at": "2026-10-20",
+      "sources": [
+        "Engineering career ladder"
+      ]
+    },
+    "process": {
+      "checked_at": "2026-10-20",
+      "sources": [
+        "Engineering career ladder"
+      ]
+    },
+    "calendar": {
+      "checked_at": "2026-10-20",
+      "sources": [
+        "Engineering career ladder"
+      ]
+    },
+    "rubric": {
+      "checked_at": "2026-10-20",
+      "sources": [
+        "Engineering career ladder"
+      ]
+    },
+    "org": {
+      "checked_at": "2026-10-20",
+      "sources": [
+        "Engineering career ladder"
+      ]
+    },
+    "people": {
+      "checked_at": "2026-10-20",
+      "sources": [
+        "Engineering career ladder"
+      ]
+    },
+    "precedent": {
+      "checked_at": "2026-10-20",
+      "sources": [
+        "Engineering career ladder"
+      ]
+    },
+    "packet_readiness": {
+      "checked_at": "2026-10-20",
+      "sources": [
+        "Engineering career ladder"
+      ]
+    },
+    "manager_questions": {
+      "checked_at": "2026-10-20",
+      "sources": [
+        "Engineering career ladder"
+      ]
+    },
+    "priorities": {
+      "checked_at": "2026-10-20",
+      "sources": [
+        "Engineering career ladder"
+      ]
+    }
+  },
+  "target": {
+    "current_level": {
+      "value": "Software Engineer II",
+      "source": "Engineering career ladder, Senior tab",
+      "checked_at": "2026-10-20",
+      "status": "verified"
+    },
+    "target_level": {
+      "value": "Senior Software Engineer",
+      "source": "Engineering career ladder, Senior tab",
+      "checked_at": "2026-10-20",
+      "status": "verified"
+    },
+    "track": {
+      "value": "ic",
+      "source": "Engineering career ladder, Senior tab",
+      "checked_at": "2026-10-20",
+      "status": "verified"
+    },
+    "cycle": {
+      "value": "Winter 2027 cycle",
+      "source": "Engineering career ladder, Senior tab",
+      "checked_at": "2026-10-20",
+      "status": "verified"
+    },
+    "why": "Wants to lead payments work across squads",
+    "more_of": [
+      "owning projects"
+    ],
+    "less_of": [
+      "answering only"
+    ]
+  },
+  "process": {
+    "steps": [
+      {
+        "value": "Manager nominates, packet written, committee calibrates",
+        "source": "Engineering career ladder, Senior tab",
+        "checked_at": "2026-10-20",
+        "status": "verified"
+      }
+    ],
+    "who_initiates": {
+      "value": "The manager",
+      "source": "Engineering career ladder, Senior tab",
+      "checked_at": "2026-10-20",
+      "status": "verified"
+    },
+    "decision_makers": {
+      "value": "Engineering directors in calibration",
+      "source": "Engineering career ladder, Senior tab",
+      "checked_at": "2026-10-20",
+      "status": "verified"
+    }
+  },
+  "calendar": {
+    "cycle_name": "Winter 2027",
+    "packet_deadline": {
+      "value": "2027-01-15",
+      "source": "Engineering career ladder, Senior tab",
+      "checked_at": "2026-11-01",
+      "status": "verified"
+    },
+    "calibration": {
+      "value": "2027-01-25 to 2027-02-05",
+      "source": "Engineering career ladder, Senior tab",
+      "checked_at": "2026-11-01",
+      "status": "verified"
+    },
+    "manager_conversation": {
+      "comfortable_by": "2026-11-24",
+      "absolute_by": "2026-12-08",
+      "status": "verified",
+      "state": "upcoming",
+      "note": "Priya needs a few weeks to gather peer feedback"
+    }
+  },
+  "rubric": {
+    "artifact": {
+      "name": "Engineering career ladder",
+      "source": "Internal wiki"
+    },
+    "rows": [
+      {
+        "id": "scope.proactive-discovery",
+        "area": "Scope and Impact",
+        "label": "Finding problems",
+        "current_text": {
+          "value": "Delivers well scoped work on their own",
+          "source": "Engineering career ladder, Senior tab",
+          "checked_at": "2026-10-20",
+          "status": "verified"
+        },
+        "target_text": {
+          "value": "Finds and solves problems the squad is facing before being asked",
+          "source": "Engineering career ladder, Senior tab",
+          "checked_at": "2026-10-20",
+          "status": "verified"
+        },
+        "status": "partial",
+        "evidence": [],
+        "next_step": "Log one more problem you found and fixed outside your tickets."
+      },
+      {
+        "id": "scope.cross-team",
+        "area": "Scope and Impact",
+        "label": "Work across teams",
+        "current_text": {
+          "value": "Delivers well scoped work on their own",
+          "source": "Engineering career ladder, Senior tab",
+          "checked_at": "2026-10-20",
+          "status": "verified"
+        },
+        "target_text": {
+          "value": "Works with other squads to get shared problems solved",
+          "source": "Engineering career ladder, Senior tab",
+          "checked_at": "2026-10-20",
+          "status": "verified"
+        },
+        "status": "partial",
+        "evidence": [],
+        "next_step": "Bring the changed quotes numbers to Booking planning."
+      },
+      {
+        "id": "execution.lead-project",
+        "area": "Execution",
+        "label": "Leading a project end to end",
+        "current_text": {
+          "value": "Delivers well scoped work on their own",
+          "source": "Engineering career ladder, Senior tab",
+          "checked_at": "2026-10-20",
+          "status": "verified"
+        },
+        "target_text": {
+          "value": "Leads a project from problem to results, including the people side",
+          "source": "Engineering career ladder, Senior tab",
+          "checked_at": "2026-10-20",
+          "status": "verified"
+        },
+        "status": "partial",
+        "evidence": [
+          "https://spokewise-demo.atlassian.net/browse/PAY-412"
+        ],
+        "next_step": "Share the payout retries results with the squad and Felix."
+      },
+      {
+        "id": "tech.design-docs",
+        "area": "Technical",
+        "label": "Design docs",
+        "current_text": {
+          "value": "Delivers well scoped work on their own",
+          "source": "Engineering career ladder, Senior tab",
+          "checked_at": "2026-10-20",
+          "status": "verified"
+        },
+        "target_text": {
+          "value": "Writes design docs that others use to make decisions",
+          "source": "Engineering career ladder, Senior tab",
+          "checked_at": "2026-10-20",
+          "status": "verified"
+        },
+        "status": "partial",
+        "evidence": [],
+        "next_step": "Write the design doc for the reminder time zone fix."
+      },
+      {
+        "id": "tech.decisions",
+        "area": "Technical",
+        "label": "Owning technical decisions",
+        "current_text": {
+          "value": "Delivers well scoped work on their own",
+          "source": "Engineering career ladder, Senior tab",
+          "checked_at": "2026-10-20",
+          "status": "verified"
+        },
+        "target_text": {
+          "value": "Makes and explains technical decisions in their area",
+          "source": "Engineering career ladder, Senior tab",
+          "checked_at": "2026-10-20",
+          "status": "verified"
+        },
+        "status": "partial",
+        "evidence": [
+          "https://www.notion.so/spokewise-demo/Payout-retries-design-7c1e0a"
+        ],
+        "next_step": "Write down why retries stop at three tries and share it."
+      },
+      {
+        "id": "tech.quality-bar",
+        "area": "Technical",
+        "label": "Raising the quality bar",
+        "current_text": {
+          "value": "Delivers well scoped work on their own",
+          "source": "Engineering career ladder, Senior tab",
+          "checked_at": "2026-10-20",
+          "status": "verified"
+        },
+        "target_text": {
+          "value": "Raises the quality bar of the team's code through reviews and tests",
+          "source": "Engineering career ladder, Senior tab",
+          "checked_at": "2026-10-20",
+          "status": "verified"
+        },
+        "status": "done",
+        "evidence": [
+          "https://github.com/spokewise-demo/booking-api/pull/884#pullrequestreview-3",
+          "https://github.com/spokewise-demo/shop-dashboard/pull/2310#pullrequestreview-7",
+          "https://github.com/spokewise-demo/payouts-service/pull/1201#pullrequestreview-5"
+        ]
+      },
+      {
+        "id": "team.reviews",
+        "area": "Team",
+        "label": "Sought-after reviewer",
+        "current_text": {
+          "value": "Delivers well scoped work on their own",
+          "source": "Engineering career ladder, Senior tab",
+          "checked_at": "2026-10-20",
+          "status": "verified"
+        },
+        "target_text": {
+          "value": "Is a reviewer people ask for on hard changes",
+          "source": "Engineering career ladder, Senior tab",
+          "checked_at": "2026-10-20",
+          "status": "verified"
+        },
+        "status": "done",
+        "evidence": []
+      },
+      {
+        "id": "team.incidents",
+        "area": "Team",
+        "label": "Incidents and reviews",
+        "current_text": {
+          "value": "Delivers well scoped work on their own",
+          "source": "Engineering career ladder, Senior tab",
+          "checked_at": "2026-10-20",
+          "status": "verified"
+        },
+        "target_text": {
+          "value": "Leads incidents and turns them into lasting fixes",
+          "source": "Engineering career ladder, Senior tab",
+          "checked_at": "2026-10-20",
+          "status": "verified"
+        },
+        "status": "partial",
+        "evidence": [],
+        "next_step": "Get the two squad incident checklist agreed."
+      },
+      {
+        "id": "team.interviews",
+        "area": "Team",
+        "label": "Interviewing",
+        "current_text": {
+          "value": "Delivers well scoped work on their own",
+          "source": "Engineering career ladder, Senior tab",
+          "checked_at": "2026-10-20",
+          "status": "verified"
+        },
+        "target_text": {
+          "value": "Interviews and helps grow the team",
+          "source": "Engineering career ladder, Senior tab",
+          "checked_at": "2026-10-20",
+          "status": "verified"
+        },
+        "status": "not_started",
+        "evidence": [],
+        "next_step": "Join the interview rotation for backend roles."
+      },
+      {
+        "id": "mentorship.pairing",
+        "area": "Mentorship",
+        "label": "Mentoring",
+        "current_text": {
+          "value": "Delivers well scoped work on their own",
+          "source": "Engineering career ladder, Senior tab",
+          "checked_at": "2026-10-20",
+          "status": "verified"
+        },
+        "target_text": {
+          "value": "Mentors less experienced engineers on purpose, not only when asked",
+          "source": "Engineering career ladder, Senior tab",
+          "checked_at": "2026-10-20",
+          "status": "verified"
+        },
+        "status": "not_started",
+        "evidence": [],
+        "next_step": "Offer Omar a weekly pairing hour for a month."
+      },
+      {
+        "id": "comms.writing",
+        "area": "Communication",
+        "label": "Clear writing",
+        "current_text": {
+          "value": "Delivers well scoped work on their own",
+          "source": "Engineering career ladder, Senior tab",
+          "checked_at": "2026-10-20",
+          "status": "verified"
+        },
+        "target_text": {
+          "value": "Writes so that people outside the squad can act on it",
+          "source": "Engineering career ladder, Senior tab",
+          "checked_at": "2026-10-20",
+          "status": "verified"
+        },
+        "status": "done",
+        "evidence": [
+          "https://www.notion.so/spokewise-demo/Incident-review-payout-stall-4e5f6a",
+          "https://www.notion.so/spokewise-demo/Payout-retries-design-7c1e0a",
+          "https://www.notion.so/spokewise-demo/Payout-retries-results-2d3e4f"
+        ]
+      },
+      {
+        "id": "comms.community",
+        "area": "Communication",
+        "label": "Building community",
+        "current_text": {
+          "value": "Delivers well scoped work on their own",
+          "source": "Engineering career ladder, Senior tab",
+          "checked_at": "2026-10-20",
+          "status": "verified"
+        },
+        "target_text": {
+          "value": "Gives back to engineering beyond the squad",
+          "source": "Engineering career ladder, Senior tab",
+          "checked_at": "2026-10-20",
+          "status": "verified"
+        },
+        "status": "not_started",
+        "evidence": [],
+        "next_step": "Give a 15 minute talk on payout retries at the next engineering demo."
+      }
+    ]
+  },
+  "org": {
+    "chain": [
+      {
+        "name": "Priya Nair",
+        "role": {
+          "value": "Engineering manager",
+          "source": "Engineering career ladder, Senior tab",
+          "checked_at": "2026-10-20",
+          "status": "verified"
+        }
+      },
+      {
+        "name": "Felix Braun",
+        "role": {
+          "value": "Director of Engineering",
+          "source": "Engineering career ladder, Senior tab",
+          "checked_at": "2026-10-20",
+          "status": "verified"
+        }
+      }
+    ]
+  },
+  "people": [
+    {
+      "name": "Priya Nair",
+      "role": {
+        "value": "Engineering manager, Shop Payments",
+        "source": "Engineering career ladder, Senior tab",
+        "checked_at": "2026-10-20",
+        "status": "verified"
+      },
+      "relation": "your manager",
+      "seen_your_work": true,
+      "evidence": [
+        "https://www.notion.so/spokewise-demo/Payout-retries-design-7c1e0a"
+      ],
+      "confirmed_by_user": true
+    },
+    {
+      "name": "Felix Braun",
+      "role": {
+        "value": "Director of Engineering",
+        "source": "Engineering career ladder, Senior tab",
+        "checked_at": "2026-10-20",
+        "status": "verified"
+      },
+      "relation": "in the promotion committee",
+      "seen_your_work": false,
+      "evidence": [],
+      "confirmed_by_user": true
+    },
+    {
+      "name": "Jordan Lee",
+      "role": {
+        "value": "Staff engineer, Booking",
+        "source": "Engineering career ladder, Senior tab",
+        "checked_at": "2026-10-20",
+        "status": "verified"
+      },
+      "relation": "senior peer who reviews your designs",
+      "seen_your_work": true,
+      "evidence": [
+        "https://www.notion.so/spokewise-demo/Payout-retries-design-7c1e0a"
+      ],
+      "confirmed_by_user": true
+    },
+    {
+      "name": "Ama Owusu",
+      "role": {
+        "value": "Product manager, Booking",
+        "source": "Engineering career ladder, Senior tab",
+        "checked_at": "2026-10-20",
+        "status": "verified"
+      },
+      "relation": "owns the quotes problem",
+      "seen_your_work": false,
+      "evidence": [],
+      "confirmed_by_user": true
+    },
+    {
+      "name": "Lena Park",
+      "role": {
+        "value": "Support lead",
+        "source": "Engineering career ladder, Senior tab",
+        "checked_at": "2026-10-20",
+        "status": "verified"
+      },
+      "relation": "uses the payout export daily",
+      "seen_your_work": true,
+      "evidence": [
+        "https://github.com/spokewise-demo/shop-dashboard/pull/2305"
+      ],
+      "confirmed_by_user": true
+    }
+  ],
+  "precedent": {
+    "tier": "announcements",
+    "caveat": "announcements are stories, not audits",
+    "cases": []
+  },
+  "packet_readiness": [
+    {
+      "section": "Scope and Impact",
+      "state": "strong",
+      "evidence_rows": [
+        "scope.proactive-discovery",
+        "execution.lead-project"
+      ],
+      "note": "Payout retries is a project you led end to end, with a number: manual retries went from about 40 a week to 6."
+    },
+    {
+      "section": "Technical Excellence",
+      "state": "thin",
+      "evidence_rows": [
+        "tech.design-docs",
+        "tech.decisions"
+      ],
+      "note": "One design doc so far. A second one, for the reminder fix, would make this section solid."
+    },
+    {
+      "section": "Team and Collaboration",
+      "state": "thin",
+      "evidence_rows": [
+        "team.reviews",
+        "team.incidents"
+      ],
+      "note": "Strong reviews and one incident you led. Nothing yet on interviewing."
+    },
+    {
+      "section": "Mentorship",
+      "state": "empty",
+      "evidence_rows": [
+        "mentorship.pairing"
+      ],
+      "note": "Helping Omar counts, but nothing you started on purpose yet. A month of weekly pairing would fix that."
+    }
+  ],
+  "manager_questions": [
+    "Is the Winter 2027 cycle realistic for me, and what would still be missing?"
+  ],
+  "priorities": [
+    {
+      "theme": "Shops get paid on time",
+      "metric": {
+        "value": "Payouts paid on the expected day",
+        "source": "Engineering career ladder, Senior tab",
+        "checked_at": "2026-10-20",
+        "status": "verified"
+      },
+      "owner_team": "Shop Payments",
+      "user_lever": "You own the payouts service"
+    }
+  ]
+}

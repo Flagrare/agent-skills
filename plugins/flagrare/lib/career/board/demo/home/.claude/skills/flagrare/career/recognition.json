@@ -1,0 +1,303 @@
+{
+  "fetched_on": "2026-11-12",
+  "provider": "kudos",
+  "user": {
+    "name": "Sam Rivera",
+    "email": "sam@spokewise.example",
+    "manager_email": "priya@spokewise.example"
+  },
+  "since": "2025-11-12",
+  "until": "2026-11-12",
+  "received": [
+    {
+      "id": "demo000",
+      "date": "2026-11-10",
+      "giver": {
+        "name": "Omar Farouk",
+        "email": "omar@spokewise.example"
+      },
+      "automatic": false,
+      "receivers": [
+        "Sam Rivera"
+      ],
+      "value": "help-each-other",
+      "reason": "thanks for letting me drive on my first payouts ticket, I learned more in that hour than in a week of reading",
+      "text": "thanks for letting me drive on my first payouts ticket, I learned more in that hour than in a week of reading",
+      "plus_ones": [],
+      "plus_one_count": 0,
+      "link": "https://kudos.example.com/thanks/demo000"
+    },
+    {
+      "id": "demo001",
+      "date": "2026-11-06",
+      "giver": {
+        "name": "Lena Park",
+        "email": "lena@spokewise.example"
+      },
+      "automatic": false,
+      "receivers": [
+        "Sam Rivera"
+      ],
+      "value": "riders-and-shops-first",
+      "reason": "the payout export already saved my team a dozen replies this week",
+      "text": "the payout export already saved my team a dozen replies this week",
+      "plus_ones": [],
+      "plus_one_count": 0,
+      "link": "https://kudos.example.com/thanks/demo001"
+    },
+    {
+      "id": "demo002",
+      "date": "2026-11-05",
+      "giver": {
+        "name": "Nadia Haddad",
+        "email": "nadia@spokewise.example"
+      },
+      "automatic": false,
+      "receivers": [
+        "Sam Rivera"
+      ],
+      "value": "help-each-other",
+      "reason": "for digging up the old ledger rule and getting our referral payouts unstuck",
+      "text": "for digging up the old ledger rule and getting our referral payouts unstuck",
+      "plus_ones": [],
+      "plus_one_count": 0,
+      "link": "https://kudos.example.com/thanks/demo002"
+    },
+    {
+      "id": "demo003",
+      "date": "2026-10-21",
+      "giver": {
+        "name": "Priya Nair",
+        "email": "priya@spokewise.example"
+      },
+      "automatic": false,
+      "receivers": [
+        "Sam Rivera"
+      ],
+      "value": "own-it",
+      "reason": "for shipping payout retries and the alert, support noticed the difference in days",
+      "text": "for shipping payout retries and the alert, support noticed the difference in days",
+      "plus_ones": [],
+      "plus_one_count": 0,
+      "link": "https://kudos.example.com/thanks/demo003"
+    },
+    {
+      "id": "demo004",
+      "date": "2026-10-16",
+      "giver": {
+        "name": "Jordan Lee",
+        "email": "jordan@spokewise.example"
+      },
+      "automatic": false,
+      "receivers": [
+        "Sam Rivera"
+      ],
+      "value": "own-it",
+      "reason": "calm and clear incident lead on the payout stall, and a review doc people actually read",
+      "text": "calm and clear incident lead on the payout stall, and a review doc people actually read",
+      "plus_ones": [],
+      "plus_one_count": 0,
+      "link": "https://kudos.example.com/thanks/demo004"
+    },
+    {
+      "id": "demo005",
+      "date": "2026-10-16",
+      "giver": {
+        "name": "Lena Park",
+        "email": "lena@spokewise.example"
+      },
+      "automatic": false,
+      "receivers": [
+        "Sam Rivera"
+      ],
+      "value": "riders-and-shops-first",
+      "reason": "for keeping support in the loop during the payout stall",
+      "text": "for keeping support in the loop during the payout stall",
+      "plus_ones": [],
+      "plus_one_count": 0,
+      "link": "https://kudos.example.com/thanks/demo005"
+    },
+    {
+      "id": "demo006",
+      "date": "2026-10-02",
+      "giver": {
+        "name": "Tomas Silva",
+        "email": "tomas@spokewise.example"
+      },
+      "automatic": false,
+      "receivers": [
+        "Sam Rivera"
+      ],
+      "value": "help-each-other",
+      "reason": "for the one line time zone fix explanation, saved us a day",
+      "text": "for the one line time zone fix explanation, saved us a day",
+      "plus_ones": [],
+      "plus_one_count": 0,
+      "link": "https://kudos.example.com/thanks/demo006"
+    },
+    {
+      "id": "demo007",
+      "date": "2026-09-30",
+      "giver": {
+        "name": "Mei Chen",
+        "email": "mei@spokewise.example"
+      },
+      "automatic": false,
+      "receivers": [
+        "Sam Rivera"
+      ],
+      "value": "raise-the-bar",
+      "reason": "for catching the cancellation fee rounding before riders did",
+      "text": "for catching the cancellation fee rounding before riders did",
+      "plus_ones": [],
+      "plus_one_count": 0,
+      "link": "https://kudos.example.com/thanks/demo007"
+    },
+    {
+      "id": "demo008",
+      "date": "2026-09-25",
+      "giver": {
+        "name": "Omar Farouk",
+        "email": "omar@spokewise.example"
+      },
+      "automatic": false,
+      "receivers": [
+        "Sam Rivera"
+      ],
+      "value": "help-each-other",
+      "reason": "for getting me set up and fixing the readme while you were at it",
+      "text": "for getting me set up and fixing the readme while you were at it",
+      "plus_ones": [],
+      "plus_one_count": 0,
+      "link": "https://kudos.example.com/thanks/demo008"
+    },
+    {
+      "id": "demo009",
+      "date": "2026-09-19",
+      "giver": {
+        "name": "Lena Park",
+        "email": "lena@spokewise.example"
+      },
+      "automatic": false,
+      "receivers": [
+        "Sam Rivera"
+      ],
+      "value": "riders-and-shops-first",
+      "reason": "for explaining the double payout so clearly I could send it to the shop as is",
+      "text": "for explaining the double payout so clearly I could send it to the shop as is",
+      "plus_ones": [],
+      "plus_one_count": 0,
+      "link": "https://kudos.example.com/thanks/demo009"
+    },
+    {
+      "id": "demo010",
+      "date": "2026-08-28",
+      "giver": {
+        "name": "Jordan Lee",
+        "email": "jordan@spokewise.example"
+      },
+      "automatic": false,
+      "receivers": [
+        "Sam Rivera"
+      ],
+      "value": "raise-the-bar",
+      "reason": "for the careful review on the ledger rewrite",
+      "text": "for the careful review on the ledger rewrite",
+      "plus_ones": [],
+      "plus_one_count": 0,
+      "link": "https://kudos.example.com/thanks/demo010"
+    },
+    {
+      "id": "demo011",
+      "date": "2026-07-14",
+      "giver": {
+        "name": "Priya Nair",
+        "email": "priya@spokewise.example"
+      },
+      "automatic": false,
+      "receivers": [
+        "Sam Rivera"
+      ],
+      "value": "own-it",
+      "reason": "for taking the on call week nobody wanted",
+      "text": "for taking the on call week nobody wanted",
+      "plus_ones": [],
+      "plus_one_count": 0,
+      "link": "https://kudos.example.com/thanks/demo011"
+    },
+    {
+      "id": "demo-bday",
+      "date": "2026-08-02",
+      "giver": {
+        "name": "Kudos Bot",
+        "email": "bot@kudos.example.com"
+      },
+      "automatic": true,
+      "receivers": [
+        "Sam Rivera"
+      ],
+      "value": "",
+      "reason": "Happy birthday!",
+      "text": "Happy birthday!",
+      "plus_ones": [],
+      "plus_one_count": 0,
+      "link": "https://kudos.example.com/thanks/demo-bday"
+    }
+  ],
+  "given": [
+    {
+      "id": "given0",
+      "date": "2026-11-04",
+      "giver": {
+        "name": "Sam Rivera",
+        "email": "sam@spokewise.example"
+      },
+      "automatic": false,
+      "receivers": [
+        "Omar Farouk"
+      ],
+      "value": "help-each-other",
+      "reason": "for a great first PR",
+      "text": "for a great first PR",
+      "plus_ones": [],
+      "plus_one_count": 0,
+      "link": "https://kudos.example.com/thanks/given0"
+    },
+    {
+      "id": "given1",
+      "date": "2026-10-17",
+      "giver": {
+        "name": "Sam Rivera",
+        "email": "sam@spokewise.example"
+      },
+      "automatic": false,
+      "receivers": [
+        "Lena Park"
+      ],
+      "value": "help-each-other",
+      "reason": "for the clear updates to shops during the stall",
+      "text": "for the clear updates to shops during the stall",
+      "plus_ones": [],
+      "plus_one_count": 0,
+      "link": "https://kudos.example.com/thanks/given1"
+    },
+    {
+      "id": "given2",
+      "date": "2026-09-30",
+      "giver": {
+        "name": "Sam Rivera",
+        "email": "sam@spokewise.example"
+      },
+      "automatic": false,
+      "receivers": [
+        "Jordan Lee"
+      ],
+      "value": "help-each-other",
+      "reason": "for the thoughtful design review",
+      "text": "for the thoughtful design review",
+      "plus_ones": [],
+      "plus_one_count": 0,
+      "link": "https://kudos.example.com/thanks/given2"
+    }
+  ]
+}

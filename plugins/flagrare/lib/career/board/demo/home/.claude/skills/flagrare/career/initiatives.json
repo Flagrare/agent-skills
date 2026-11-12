@@ -1,0 +1,296 @@
+[
+  {
+    "id": "payout-retries",
+    "title": "Failed payouts retry on their own",
+    "evidence": [
+      "https://spokewise-demo.atlassian.net/browse/PAY-412",
+      "https://spokewise-demo.slack.com/archives/C0DEMO01/p1758300000000101"
+    ],
+    "seen_count": 3,
+    "first_seen": "2026-09-19",
+    "last_seen": "2026-10-02",
+    "status": "active",
+    "proposal": {
+      "problem": "About 40 shop payouts a week fail and support retries each one by hand",
+      "hypothesis": "We believe retrying failed payouts on their own will cut manual retries by 80 percent, because most failures are short bank timeouts",
+      "metric": "Manual payout retries per week",
+      "baseline": "about 40 a week",
+      "target": "under 8 a week",
+      "by": "2026-12-15",
+      "lever": "You own the payouts service",
+      "impact": "Shops get paid on time and support gets hours back",
+      "first_step": "Ship retries for bank timeouts only",
+      "pitch": "Shops stop waiting on support to get paid",
+      "owner_check": "No ticket or doc in Payments or Support owns this",
+      "rubric_rows": [
+        "execution.lead-project",
+        "tech.decisions"
+      ],
+      "score": {
+        "impact": {
+          "value": 2,
+          "why": "Moves a company metric the squad reports on"
+        },
+        "lever": {
+          "value": 2,
+          "why": "The fix sits in code you already own"
+        },
+        "fit": {
+          "value": 2,
+          "why": "Close to the work you want more of"
+        },
+        "rubric": {
+          "value": 2,
+          "why": "Shows a Senior behavior you still need"
+        },
+        "who_notices": {
+          "value": 2,
+          "why": "The people who decide on promotions would see it"
+        },
+        "standing": {
+          "value": 2,
+          "why": "You know this area well"
+        },
+        "evidence": {
+          "value": 2,
+          "why": "Came up in several places"
+        },
+        "timing": {
+          "value": 1,
+          "why": "Lands before your written case is due"
+        }
+      }
+    },
+    "proposed_at": "2026-09-23",
+    "aligned": {
+      "with": "Priya Nair",
+      "on": "2026-09-26",
+      "note": "Agreed in the 1:1, review results in December"
+    },
+    "active_at": "2026-09-26"
+  },
+  {
+    "id": "missed-reminders",
+    "title": "Booking reminders that shops never see",
+    "evidence": [
+      "https://spokewise-demo.slack.com/archives/C0DEMO03/p1759400000000303",
+      "https://github.com/spokewise-demo/booking-api/pull/915"
+    ],
+    "seen_count": 3,
+    "first_seen": "2026-10-02",
+    "last_seen": "2026-11-09",
+    "status": "candidate",
+    "draft_proposal": {
+      "problem": "Shops in a different time zone from their owner get the morning reminder after the first booking",
+      "hypothesis": "We believe sending reminders in the shop's own time zone will cut no shows by a fifth, because late reminders are the top support reason",
+      "metric": "Shop no shows per 1,000 bookings",
+      "baseline": "12 per 1,000",
+      "target": "under 10 per 1,000",
+      "lever": "The reminder job is a small change in a service you review often",
+      "first_step": "Count late reminders for one week",
+      "pitch": "Shops see the day's bookings before the first rider arrives",
+      "owner_check": "Booking squad has no open ticket for it",
+      "score": {
+        "impact": {
+          "value": 2,
+          "why": "Moves a company metric the squad reports on"
+        },
+        "lever": {
+          "value": 1,
+          "why": "The fix sits in code you already own"
+        },
+        "fit": {
+          "value": 2,
+          "why": "Close to the work you want more of"
+        },
+        "rubric": {
+          "value": 2,
+          "why": "Shows a Senior behavior you still need"
+        },
+        "who_notices": {
+          "value": 2,
+          "why": "The people who decide on promotions would see it"
+        },
+        "standing": {
+          "value": 1,
+          "why": "You know this area well"
+        },
+        "evidence": {
+          "value": 2,
+          "why": "Came up in several places"
+        },
+        "timing": {
+          "value": 1,
+          "why": "Lands before your written case is due"
+        }
+      }
+    }
+  },
+  {
+    "id": "slow-monday-dashboard",
+    "title": "The shop dashboard is slow on Monday mornings",
+    "evidence": [
+      "https://spokewise-demo.slack.com/archives/C0DEMO02/p1762300000000999"
+    ],
+    "seen_count": 2,
+    "first_seen": "2026-10-20",
+    "last_seen": "2026-11-03",
+    "status": "candidate",
+    "draft_proposal": {
+      "problem": "The earnings page takes over 8 seconds to load on Monday mornings, when every shop checks last week",
+      "hypothesis": "We believe caching last week's totals will bring the page under 2 seconds, because the slow part is one weekly query",
+      "metric": "Earnings page load time at the 95th percentile",
+      "baseline": "8.4 seconds",
+      "target": "under 2 seconds",
+      "lever": "You know the query and the page",
+      "first_step": "Profile the query on a Monday",
+      "pitch": "Shops see last week's money without waiting",
+      "owner_check": "Nobody owns dashboard performance",
+      "score": {
+        "impact": {
+          "value": 1,
+          "why": "Moves a company metric the squad reports on"
+        },
+        "lever": {
+          "value": 2,
+          "why": "The fix sits in code you already own"
+        },
+        "fit": {
+          "value": 2,
+          "why": "Close to the work you want more of"
+        },
+        "rubric": {
+          "value": 1,
+          "why": "Shows a Senior behavior you still need"
+        },
+        "who_notices": {
+          "value": 1,
+          "why": "The people who decide on promotions would see it"
+        },
+        "standing": {
+          "value": 2,
+          "why": "You know this area well"
+        },
+        "evidence": {
+          "value": 1,
+          "why": "Came up in several places"
+        },
+        "timing": {
+          "value": 2,
+          "why": "Lands before your written case is due"
+        }
+      }
+    }
+  },
+  {
+    "id": "changed-quotes",
+    "title": "Repair quotes that change after booking",
+    "evidence": [
+      "https://www.notion.so/spokewise-demo/Quotes-that-change-after-booking-9a8b7c"
+    ],
+    "seen_count": 2,
+    "first_seen": "2026-10-30",
+    "last_seen": "2026-11-05",
+    "status": "proposed",
+    "proposal": {
+      "problem": "One in nine repair quotes goes up after the rider books, and those riders cancel three times as often",
+      "hypothesis": "We believe asking shops to confirm parts before booking will halve changed quotes",
+      "metric": "Share of bookings whose quote changes",
+      "baseline": "11 percent",
+      "target": "under 6 percent",
+      "lever": "Needs the Booking squad, you would lead the data side",
+      "first_step": "Ask Ama whether Booking plans to touch quotes",
+      "owner_check": "Booking squad mentioned it in planning, no owner yet",
+      "score": {
+        "impact": {
+          "value": 2,
+          "why": "Moves a company metric the squad reports on"
+        },
+        "lever": {
+          "value": 0,
+          "why": "The fix sits in code you already own"
+        },
+        "fit": {
+          "value": 1,
+          "why": "Close to the work you want more of"
+        },
+        "rubric": {
+          "value": 2,
+          "why": "Shows a Senior behavior you still need"
+        },
+        "who_notices": {
+          "value": 2,
+          "why": "The people who decide on promotions would see it"
+        },
+        "standing": {
+          "value": 0,
+          "why": "You know this area well"
+        },
+        "evidence": {
+          "value": 1,
+          "why": "Came up in several places"
+        },
+        "timing": {
+          "value": 1,
+          "why": "Lands before your written case is due"
+        }
+      }
+    },
+    "proposed_at": "2026-11-04"
+  },
+  {
+    "id": "flaky-checkout-test",
+    "title": "The checkout end to end test fails one run in five",
+    "evidence": [
+      "https://github.com/spokewise-demo/booking-api/pull/901"
+    ],
+    "seen_count": 4,
+    "first_seen": "2026-10-09",
+    "last_seen": "2026-11-10",
+    "status": "candidate",
+    "draft_proposal": {
+      "problem": "The checkout test fails about one run in five and people rerun it until it passes",
+      "hypothesis": "We believe waiting for the payment form to load will make it pass every time",
+      "metric": "Checkout test failures per 100 runs",
+      "baseline": "about 20",
+      "target": "under 2",
+      "lever": "A small test change",
+      "first_step": "Read the last ten failures",
+      "owner_check": "No ticket for it",
+      "score": {
+        "impact": {
+          "value": 0,
+          "why": "Moves a company metric the squad reports on"
+        },
+        "lever": {
+          "value": 2,
+          "why": "The fix sits in code you already own"
+        },
+        "fit": {
+          "value": 1,
+          "why": "Close to the work you want more of"
+        },
+        "rubric": {
+          "value": 1,
+          "why": "Shows a Senior behavior you still need"
+        },
+        "who_notices": {
+          "value": 0,
+          "why": "The people who decide on promotions would see it"
+        },
+        "standing": {
+          "value": 2,
+          "why": "You know this area well"
+        },
+        "evidence": {
+          "value": 2,
+          "why": "Came up in several places"
+        },
+        "timing": {
+          "value": 2,
+          "why": "Lands before your written case is due"
+        }
+      }
+    }
+  }
+]
