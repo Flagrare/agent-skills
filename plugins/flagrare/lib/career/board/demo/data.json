@@ -1,0 +1,216 @@
+{
+  "scan": {
+    "date": "2026-11-12",
+    "window": "Nov 11 09:00 to Nov 12 09:00",
+    "caveats": "2 items closed since the last scan"
+  },
+  "behaviors": [
+    "raising the quality bar",
+    "unblocking others",
+    "influence beyond assigned tickets",
+    "owning technical decisions"
+  ],
+  "items": [
+    {
+      "id": "fee-rounding-review",
+      "rank": 1,
+      "status": "todo",
+      "urgency": "today",
+      "effort": "15 min",
+      "kind": "review",
+      "source": "github",
+      "deadline": "Two approvals, could merge this afternoon",
+      "action": "Point out that the payout fee preview and the real payout round differently",
+      "link": "https://github.com/spokewise-demo/payouts-service/pull/1210",
+      "context": "Tomas's fee change is approved and waiting to merge; the preview rounds per booking, the payout rounds per week",
+      "why": "Shops would see one number in the preview and get another",
+      "behavior": "raising the quality bar",
+      "rubric_rows": [
+        "tech.quality-bar"
+      ],
+      "draft": "Small thing before this merges: the preview rounds the fee per booking (`previewFee` in `fees.ts:48`) but the payout rounds once per week. For a shop with 30 bookings that can be 15 cents apart. Could both use the weekly rounding?",
+      "draft_where": "GitHub comment on the fee preview line"
+    },
+    {
+      "id": "reminder-design-doc",
+      "rank": 2,
+      "status": "todo",
+      "urgency": "week",
+      "effort": "2 hours",
+      "kind": "doc",
+      "source": "notion",
+      "deadline": "Booking planning is next Tuesday",
+      "action": "Write a one page design doc for sending reminders in the shop's own time zone",
+      "link": "https://www.notion.so/spokewise-demo/Reminder-time-zones-5f6a7b",
+      "context": "Your proposed project; Ama asked for something written before planning",
+      "why": "Turns a proposal into a decision, and it's your second design doc",
+      "behavior": "owning technical decisions",
+      "rubric_rows": [
+        "tech.design-docs"
+      ],
+      "next_step": "Start from the week of late reminders you counted"
+    },
+    {
+      "id": "two-squad-incident-checklist",
+      "rank": 3,
+      "status": "todo",
+      "urgency": "week",
+      "effort": "30 min",
+      "kind": "proposal",
+      "source": "slack",
+      "deadline": "Jordan said he'd bring it to the staff sync on Friday",
+      "action": "Turn your incident lead idea into a five line checklist Jordan can bring to the staff sync",
+      "link": "https://spokewise-demo.slack.com/archives/C0DEMO06/p1762900000000808",
+      "context": "Your thread after the last two squad incident got three thumbs up and one question from Jordan",
+      "why": "Next cross squad incident starts faster; Felix sits in the staff sync",
+      "behavior": "influence beyond assigned tickets",
+      "rubric_rows": [
+        "team.incidents"
+      ],
+      "check_first": "Check whether the Booking squad already has a written incident process"
+    },
+    {
+      "id": "omar-weekly-pairing",
+      "rank": 4,
+      "status": "todo",
+      "urgency": "week",
+      "effort": "10 min",
+      "kind": "proposal",
+      "source": "slack",
+      "deadline": "No deadline, but it's your emptiest behavior",
+      "action": "Offer Omar a weekly pairing hour for the next month",
+      "link": "https://spokewise-demo.slack.com/archives/D0DEMO07/p1762900000000909",
+      "context": "Omar is three weeks in and thanked you for the last pairing session",
+      "why": "Mentoring you start on purpose is the proof your case is missing",
+      "behavior": "unblocking others",
+      "rubric_rows": [
+        "mentorship.pairing"
+      ],
+      "draft": "Hey Omar, that pairing session was fun. Want to make it a weekly thing for the next month? Thursday after standup works for me, and you pick the ticket.",
+      "draft_where": "Slack DM to Omar"
+    },
+    {
+      "id": "interview-rotation",
+      "rank": 5,
+      "status": "todo",
+      "urgency": "week",
+      "effort": "5 min",
+      "kind": "thread",
+      "source": "slack",
+      "deadline": "Rotation for Q1 closes Nov 20",
+      "action": "Join the backend interview rotation",
+      "link": "https://spokewise-demo.slack.com/archives/C0DEMO08/p1762700000001010",
+      "context": "The recruiting channel asked for two more backend interviewers for Q1",
+      "why": "Interviewing has no proof yet and takes one message to start",
+      "behavior": "influence beyond assigned tickets",
+      "rubric_rows": [
+        "team.interviews"
+      ]
+    },
+    {
+      "id": "quotes-planning",
+      "rank": 6,
+      "status": "todo",
+      "urgency": "later",
+      "effort": "20 min",
+      "kind": "thread",
+      "source": "notion",
+      "deadline": "After Booking planning picks its quarter",
+      "action": "Bring the changed quotes numbers to Booking planning",
+      "link": "https://www.notion.so/spokewise-demo/Quotes-that-change-after-booking-9a8b7c",
+      "context": "Your numbers page has two comments, no owner yet",
+      "why": "A cross team problem with a clear metric, if Booking wants it",
+      "behavior": "influence beyond assigned tickets",
+      "rubric_rows": [
+        "scope.cross-team"
+      ],
+      "check_first": "Ask Ama whether quotes are already on Booking's list"
+    },
+    {
+      "id": "demo-talk",
+      "rank": 7,
+      "status": "todo",
+      "urgency": "later",
+      "effort": "1 hour",
+      "kind": "proposal",
+      "source": "slack",
+      "deadline": "Next engineering demo is Dec 4",
+      "action": "Sign up for a 15 minute demo of payout retries",
+      "link": "https://spokewise-demo.slack.com/archives/C0DEMO09/p1762500000001111",
+      "context": "The demo sign up sheet has three open slots",
+      "why": "Felix and other directors attend the demo",
+      "behavior": "influence beyond assigned tickets",
+      "rubric_rows": [
+        "comms.community"
+      ]
+    },
+    {
+      "id": "export-feedback",
+      "status": "waiting",
+      "source": "slack",
+      "kind": "thread",
+      "waiting_on": "Lena",
+      "since": "2026-11-05",
+      "action": "Asked Lena how many payout detail tickets support got since the export shipped",
+      "link": "https://spokewise-demo.slack.com/archives/C0DEMO01/p1762300000001212",
+      "context": "You need the number for the export's first check",
+      "why": "Closes the export's bet with a real number",
+      "behavior": "owning technical decisions"
+    },
+    {
+      "id": "retry-limit-review",
+      "status": "waiting",
+      "source": "github",
+      "kind": "review",
+      "waiting_on": "Jordan",
+      "since": "2026-11-10",
+      "action": "Asked Jordan to review why retries stop at three tries",
+      "link": "https://github.com/spokewise-demo/payouts-service/pull/1215",
+      "context": "Short write up of the retry limit, linked from the PR",
+      "why": "A Staff engineer signing off on your decision",
+      "behavior": "owning technical decisions"
+    },
+    {
+      "id": "onboarding-bank-check",
+      "status": "waiting",
+      "source": "notion",
+      "kind": "doc",
+      "waiting_on": "the Onboarding squad",
+      "since": "2026-11-11",
+      "action": "Suggested checking bank details before a shop's first booking",
+      "link": "https://www.notion.so/spokewise-demo/Shop-onboarding-checklist-1b2c3d",
+      "context": "Comment on the onboarding checklist",
+      "why": "Fewer first payouts that fail",
+      "behavior": "influence beyond assigned tickets"
+    },
+    {
+      "id": "booking-hold-review",
+      "rank": 8,
+      "status": "done",
+      "urgency": "today",
+      "source": "github",
+      "kind": "review",
+      "done_on": "2026-11-11",
+      "action": "Reviewed the booking hold endpoint",
+      "link": "https://github.com/spokewise-demo/booking-api/pull/912",
+      "context": "",
+      "why": "",
+      "behavior": "raising the quality bar"
+    },
+    {
+      "id": "old-calendar-thread",
+      "rank": 9,
+      "status": "dropped",
+      "urgency": "week",
+      "source": "slack",
+      "kind": "thread",
+      "dropped_on": "2026-11-11",
+      "action": "Weigh in on the calendar colors thread",
+      "link": "https://spokewise-demo.slack.com/archives/C0DEMO02/p1762000000001313",
+      "context": "",
+      "why": "",
+      "behavior": "unblocking others",
+      "note": "Design already decided"
+    }
+  ]
+}

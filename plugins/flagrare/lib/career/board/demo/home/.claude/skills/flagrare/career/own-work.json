@@ -1,0 +1,47 @@
+{
+  "last_harvest": "2026-11-12",
+  "streams": [
+    {
+      "id": "pay-412",
+      "title": "Failed payouts retry on their own",
+      "keys": [
+        "PAY-412"
+      ],
+      "links": [
+        "https://spokewise-demo.atlassian.net/browse/PAY-412",
+        "https://www.notion.so/spokewise-demo/Payout-retries-design-7c1e0a",
+        "https://github.com/spokewise-demo/payouts-service/pull/1184",
+        "https://github.com/spokewise-demo/payouts-service/pull/1197",
+        "https://www.notion.so/spokewise-demo/Payout-retries-results-2d3e4f"
+      ],
+      "log_links": [
+        "https://spokewise-demo.atlassian.net/browse/PAY-412",
+        "https://www.notion.so/spokewise-demo/Payout-retries-design-7c1e0a",
+        "https://github.com/spokewise-demo/payouts-service/pull/1184",
+        "https://github.com/spokewise-demo/payouts-service/pull/1197",
+        "https://www.notion.so/spokewise-demo/Payout-retries-results-2d3e4f"
+      ],
+      "first_date": "2026-09-22",
+      "last_date": "2026-11-06"
+    },
+    {
+      "id": "shop-318",
+      "title": "Payout export for shops",
+      "keys": [
+        "SHOP-318"
+      ],
+      "links": [
+        "https://spokewise-demo.atlassian.net/browse/SHOP-318",
+        "https://github.com/spokewise-demo/shop-dashboard/pull/2291",
+        "https://github.com/spokewise-demo/shop-dashboard/pull/2305"
+      ],
+      "log_links": [
+        "https://spokewise-demo.atlassian.net/browse/SHOP-318",
+        "https://github.com/spokewise-demo/shop-dashboard/pull/2291",
+        "https://github.com/spokewise-demo/shop-dashboard/pull/2305"
+      ],
+      "first_date": "2026-10-14",
+      "last_date": "2026-11-03"
+    }
+  ]
+}
