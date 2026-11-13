@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.78.1: 2026-11-13
+
+The reply ends where the answer does.
+
+### Bug Fixes
+
+- **`/flagrare:support-triage`, no closing offers**: drafts end on the fix or the reader's next step, never on "happy to look at it once it's switched". An offer commits the user to work they didn't choose. Field-tested the hard way: the first two replies to a support thread both closed with that line, and the user deleted it twice before saying stop.
+
 ## 1.78.0: 2026-11-12
 
 Support asks once. The answer checks itself twice.
