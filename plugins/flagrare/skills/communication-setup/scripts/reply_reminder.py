@@ -29,6 +29,10 @@ rules = config.get("rules") or []
 if rules:
     who = config.get("name") or "the user"
     text = f"Reply rules for {who}: " + " ".join(f"{i}) {r}" for i, r in enumerate(rules, 1))
+    draft_rules = config.get("draft_rules") or []
+    if draft_rules:
+        text += (f" Draft rules (text {who} sends under their own name, from the first draft): "
+                 + " ".join(f"{i}) {r}" for i, r in enumerate(draft_rules, 1)))
     if overrun:
         text += (f" Your last reply ran long ({overrun.get('lines')} lines, {overrun.get('words')} words; "
                  f"the limit is {config.get('max_lines', 8)} lines and {config.get('max_words', 120)} words). "

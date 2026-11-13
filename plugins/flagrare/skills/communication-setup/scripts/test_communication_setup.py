@@ -115,6 +115,17 @@ class CommunicationSetupTest(unittest.TestCase):
         self.setup("install", self.config_path)
         out = json.loads(self.hook("reply_reminder.py", {"prompt": "hi"}))
         self.assertIn("1) Answer first.", out["hookSpecificOutput"]["additionalContext"])
+        self.assertNotIn("Draft rules", out["hookSpecificOutput"]["additionalContext"])
+
+    def test_draft_rules_reach_the_style_and_every_message(self):
+        with open(self.config_path, "w") as f:
+            json.dump({**CONFIG, "draft_rules": ["Sound casual, like a quick message to a teammate."]}, f)
+        self.setup("install", self.config_path)
+        out = json.loads(self.hook("reply_reminder.py", {"prompt": "hi"}))
+        self.assertIn("Draft rules", out["hookSpecificOutput"]["additionalContext"])
+        self.assertIn("1) Sound casual, like a quick message to a teammate.", out["hookSpecificOutput"]["additionalContext"])
+        with open(os.path.join(self.claude, "output-styles", "Ana.md")) as f:
+            self.assertIn("## Drafts\n", f.read())
 
 
 if __name__ == "__main__":
