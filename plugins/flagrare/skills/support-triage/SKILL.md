@@ -71,7 +71,7 @@ Save it as a draft in the reporter's thread, never as a root message. If a draft
 - When the cause is a sequence of events, give a short dated timeline. Say what each request or change did, not who did it, and link the requests.
 - Hedge inferences ("I think", "it looks like"); linked facts don't need it. Short sentences, one fact each.
 - Leave out internals the reader can't use (PR numbers, table names). Thank them when the report surfaced a real gap.
-- End with the fix and a concrete offer, without promising actions another team owns.
+- End on the fix or the reader's next step. No closing offer of more help ("happy to look at it once...", "let me know if..."): it commits the user to work they didn't choose and reads as filler. Never promise actions another team owns.
 
 ## 6. Report back
 
