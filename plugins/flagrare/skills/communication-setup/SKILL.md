@@ -30,6 +30,7 @@ Run `python3 <skill>/scripts/setup.py status` and answer in one or two lines: wh
 - The reply limit. The default is about 5 lines of prose: a quiet note past 8 lines or 120 words, and a block past twice that.
 - Words that mean "go long" for them, in every language they use.
 - One real reply of yours they found tiring, if there is one. It becomes the bad example.
+- How drafts they send under their own name should sound (PR replies, Slack, comments): the tone, and openers or phrasings they never use. These become `draft_rules`. The length check skips `>` drafts, so without them nothing keeps a draft's tone in view.
 
 **3. Write the config** to a temp file and show it to the user in a few lines before installing:
 
@@ -44,6 +45,7 @@ Run `python3 <skill>/scripts/setup.py status` and answer in one or two lines: wh
     "About 5 lines outside quoted drafts, unless she asks for depth.",
     "No narration of what you checked, ran or read. Only the result and what you need from her.",
     "No caveats she didn't ask for.",
+    "Don't repeat back what she said or walk her through what she already knows.",
     "Plain words, said the way you'd say them to a coworker.",
     "At most one question, at the end, yes/no when possible."
   ],
@@ -52,11 +54,17 @@ Run `python3 <skill>/scripts/setup.py status` and answer in one or two lines: wh
   "hard_factor": 2,
   "depth_words": ["explain", "details", "full", "everything", "walk me through"],
   "example_bad": "a real tiring reply, trimmed",
-  "example_good": "the same answer in two lines"
+  "example_good": "the same answer in two lines",
+  "draft_rules": [
+    "Sound like a quick, friendly message to a teammate, in full sentences.",
+    "Start with the point, never a canned opener like \"Makes sense\".",
+    "Don't repeat back the reviewer's comment or their example. Say what you did in a line or two.",
+    "Hedge opinions and guesses with \"I think\" or \"it looks like\"."
+  ]
 }
 ```
 
-Only `style_name` and `rules` are required. Write the rules themselves in plain, short sentences: they are what Claude reads every turn.
+Only `style_name` and `rules` are required. `draft_rules` goes into the output style and into every message's reminder, next to the reply rules. Write the rules themselves in plain, short sentences: they are what Claude reads every turn.
 
 **4. Install:** `python3 <skill>/scripts/setup.py install <config.json>`. Writing to `~/.claude/settings.json` from a sandboxed Bash needs the sandbox off for that one command.
 
@@ -80,6 +88,7 @@ Run `python3 <skill>/scripts/setup.py remove`. It deletes its hooks, style and c
 - **Installing without showing the config.** The rules speak for the user, so the user approves them.
 - **Long rules.** A rules list the user would find tiring to read defeats the point. Keep each rule to one plain sentence.
 - **Counting drafts.** Drafts are what the user will send, so their length is the user's call. The hook already skips `>` quotes; keep drafts in them.
+- **Leaving draft tone to memory.** Skipping drafts in the length check also means nothing checks their tone. A tone note in memory only shows as a one-line index entry, so the first draft comes out in a report voice and the user has to ask for it to sound casual. Put the tone in `draft_rules`. The worst tell is walking the reader back through what they wrote: a reviewer's own example, retold, reads like a machine. The user called that rule the most important one, for drafts and for replies to the user alike. Field-tested the hard way: five replies to a reviewer came out listing what changed in a formal register. The user had to ask for a casual rewrite, even though a memory file already said PR replies should be casual.
 
 ## Cross-references
 

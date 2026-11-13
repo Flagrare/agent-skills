@@ -58,6 +58,10 @@ def style_markdown(config):
     if config.get("about"):
         lines += [config["about"], ""]
     lines += ["## Rules", ""] + [f"- {r}" for r in config.get("rules", [])] + [""]
+    if config.get("draft_rules"):
+        lines += ["## Drafts", "", f"Text {config.get('name', 'the user')} will send under their own name (PR replies, "
+                  "Slack, comments) follows these from the first draft, not after a correction:", ""]
+        lines += [f"- {r}" for r in config["draft_rules"]] + [""]
     lines += [f"Replies stay within about {config.get('max_lines', 8)} lines and {config.get('max_words', 120)} "
               "words outside `>` quoted drafts. A reply a little over gets a quiet note on the next message; one far over "
               "is blocked once. Neither applies when the user asked for depth "
