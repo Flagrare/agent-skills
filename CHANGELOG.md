@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.78.0: 2026-11-12
+
+Support asks once. The answer checks itself twice.
+
+### New Skills
+
+- **`/flagrare:support-triage`, a support report answered by someone who owns the system**: point it at a chat thread and it reads the whole conversation and its history, places the account or venue in the state that decides what customers see, compares it with a healthy sibling, and pulls the evidence from the warehouse, the admin change log, cases, real activity, logs, the public page and the code on the default branch. Every claim is tied to a result before it goes in the reply, and the reply is saved as a draft in the reporter's thread, with a dated timeline that says what each request did rather than who made it. It never posts. Everything company-specific (the entity and its states, where data and logs live, the code map, the reply rules) goes into a private profile in `~/.claude/skills/flagrare/support-triage/`, built on the first run from what is already saved plus a few short questions, and every run adds the traps it hit. Field-tested the hard way: in one evening, three support threads were each answered several times over, because a timetable flag that is false on every healthy venue read as "nothing is bookable", a closed case was taken as proof the change happened, and a reporter's team was guessed from a name.
+
+### Improved Skills
+
+- **`/flagrare:communication-setup`, drafts sound like you from the first one**: the config takes `draft_rules`, short tone rules for text you send under your own name (PR replies, chat, comments). They go into the output style under a Drafts heading and into the reminder on every message, next to the reply rules. The length check skips `>` drafts, so before this nothing kept a draft's tone in view. Field-tested the hard way: five replies to a reviewer came out as a formal list of what changed, even though a memory file already said PR replies should be casual.
+
 ## 1.77.0: 2026-11-12
 
 A ticket is what it does, not what it's numbered.
