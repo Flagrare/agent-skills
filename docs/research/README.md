@@ -6,6 +6,7 @@ External research conducted for this project. Each entry credits the sources it 
 
 | Date | Topic | Triggered by | Informed |
 |------|-------|--------------|----------|
+| 2026-11-17 | [Building and maintaining evals for LLM features](./2026-11-17-building-and-maintaining-evals.md) | Yuri, after the Knochengeist answer evals: a reusable skill for creating and maintaining evals, with Braintrust as a reference | evals skill |
 | 2026-09-30 | [What experts say gets software engineers promoted](./2026-09-30-what-gets-engineers-promoted.md) | Designing the career skills family | career skills design; promotion, impact-scan, career (balance warning) |
 | 2026-09-30 | [How product engineering works at PostHog](./2026-09-30-posthog-product-engineering.md) | Designing `/flagrare:opportunity-scan` | career skills design; opportunity-scan proposal shape and decision-process rule |
 | 2026-09-14 | [Open Code Review teardown: what our review skills should absorb](./2026-09-14-open-code-review-teardown.md) | Reading `alibaba/open-code-review` (Apache-2.0) to see what its review prompts solve that our skills leave to model judgement | pr-reviewer (shared subagent rules, evidenced drops, coverage, anchor fallback); implementation-review (shared subagent rules, coverage) |
