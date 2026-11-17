@@ -28,8 +28,9 @@ Read both at the start of every run. If they don't exist, build them before inve
    - Where do application logs live (and which tool is *not* the right one, if a team often guesses wrong)?
    - Which repos hold the customer-facing view, the internal admin view and the backend?
    - Is there a public page per entity, and what's its URL pattern?
+   - Is there an ops guide or runbook the reporters follow, and where does it live?
    - Where are replies drafted, and is anything ever posted directly? (Default: drafts only, always in the thread.)
-3. **Write the profile** with these sections: Entity and states, Data sources, Logs, Code map, Public view, Reply rules, Known traps (empty at first). Put query text in `recipes.md`, not in the profile.
+3. **Write the profile** with these sections: Entity and states, Data sources, Logs, Code map, Public view, Ops guide, Reply rules, Known traps (empty at first). Put query text in `recipes.md`, not in the profile.
 4. Tell the user in two lines what you saved and where, then continue with the investigation.
 
 Each later run adds to the profile: a trap that cost time goes into **Known traps** with one line on how it misled you; a query you had to work out goes into `recipes.md`.
@@ -40,6 +41,7 @@ Each later run adds to the profile: a trap that cost time goes into **Known trap
 - Note who reported it and their role. Ops, finance, sales and account managers need different words. Check the role instead of guessing it.
 - Collect the entity id, linked cases or tickets, screenshots (describe them) and dates.
 - Search chat and meeting notes for the same entity or symptom in recent weeks. Earlier threads often hold the first half of the story: an earlier outage, a previous migration, a product decision already made.
+- Open the profile's **Ops guide** and find the section that covers this case. Note three things: whether it answers the question, whether the reporter followed it, and whether anything in it is wrong or missing for this case. Many reports are a step the guide covers that nobody found.
 
 ## 2. Place the entity
 
@@ -71,11 +73,12 @@ Save it as a draft in the reporter's thread, never as a root message. If a draft
 - When the cause is a sequence of events, give a short dated timeline. Say what each request or change did, not who did it, and link the requests.
 - Hedge inferences ("I think", "it looks like"); linked facts don't need it. Short sentences, one fact each.
 - Leave out internals the reader can't use (PR numbers, table names). Thank them when the report surfaced a real gap.
+- When the ops guide answers the question, link its exact section in the reply, so the reporter can find it next time. Skip the link when the guide doesn't cover the case or says something wrong; fix the guide first.
 - End on the fix or the reader's next step. No closing offer of more help ("happy to look at it once...", "let me know if..."): it commits the user to work they didn't choose and reads as filler. Never promise actions another team owns.
 
 ## 6. Report back
 
-Answer first in about five lines: the cause, the evidence that settles it, anything still unexplained, and the draft quoted with its link. Ask at most one question, and only for a call that is the user's to make. When the user says it's sent, read the posted message before moving on.
+Answer first in about five lines: the cause, the evidence that settles it, anything still unexplained, and the draft quoted with its link. If the ops guide was wrong, outdated or missing this case, say which section and propose the edit, as a quoted before and after. Edit the guide only after the user approves. Ask at most one question, and only for a call that is the user's to make. When the user says it's sent, read the posted message before moving on.
 
 ## 7. Log it
 
