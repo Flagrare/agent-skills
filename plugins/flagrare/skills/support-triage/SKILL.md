@@ -1,6 +1,6 @@
 ---
 name: support-triage
-description: Investigate a support, ops, onboarding or account-manager report about a customer, venue, account or order end to end, then draft a threaded chat reply in the user's voice. Use whenever someone reports a production problem in a channel ("items disappeared", "can't find these to price", "no orders since last week", "the dashboard says Available but customers can't buy it", "stuck in Pending review", "the conversion didn't take"), or the user says "take a look at this message", "investigate this", "check everything you can", "what's going on with this account/venue", "help support with this", or pastes a chat link to a support thread. Also use when a teammate tags the user on a customer question, even if they don't ask for an investigation.
+description: Investigate a support, ops, onboarding or account-manager report about a customer, account, store or order end to end, then draft a threaded chat reply in the user's voice. Use whenever someone reports a production problem in a channel ("items disappeared", "can't find these to price", "no orders since last week", "the dashboard says Available but customers can't buy it", "stuck in review", "the plan change didn't take"), or the user says "take a look at this message", "investigate this", "check everything you can", "what's going on with this account/store", "help support with this", or pastes a chat link to a support thread. Also use when a teammate tags the user on a customer question, even if they don't ask for an investigation.
 ---
 
 # Support triage
@@ -22,7 +22,7 @@ Read both at the start of every run. If they don't exist, build them before inve
 
 1. **Harvest what's already known.** Read `~/.claude/skills/flagrare/config.json` (chat handle, repos, ticket tracker), the career `voice.md` if present, the project's `CLAUDE.md`, and any saved memories about data access, logs or the product's domain. Look at connected MCPs and CLIs (warehouse, logs, chat, tracker, browser).
 2. **Ask only for the gaps**, one short question at a time, with a sensible default offered:
-   - What is the main entity support asks about (venue, account, store, workspace), and what id identifies it?
+   - What is the main entity support asks about (account, store, location, workspace), and what id identifies it?
    - What states can it be in that change what its customers see (plans, integration types, migration phases)?
    - Where does the data live (warehouse and connection, key tables), and how should it be read (a delegated agent, a CLI, a BI tool)?
    - Where do application logs live (and which tool is *not* the right one, if a team often guesses wrong)?

@@ -24,7 +24,7 @@ ITEMS = [
     pr(1, "2026-10-21", "PROJ-1034", "PROJ-1033", links=(DOC,)),
     pr(2, "2026-10-22", "PROJ-1035", "PROJ-1033"),
     pr(3, "2026-10-23", "PROJ-1036", "PROJ-1033"),
-    {"source": "notion", "link": DOC, "title": "Admin test orders", "date": "2026-10-14", "keys": [], "links": []},
+    {"source": "notion", "link": DOC, "title": "Admin Admin test orders", "date": "2026-10-14", "keys": [], "links": []},
     {"source": "granola", "link": MEETING, "title": "Team standup", "date": "2026-10-20", "keys": ["PROJ-1033"], "links": []},
 ]
 MAP = {"rubric": {"rows": [{"id": "execution.lead", "area": "Execution", "label": "Leading complex projects",
@@ -177,7 +177,7 @@ class AlreadyBuilding(unittest.TestCase):
             h = Harness(home, board)
             h.record(h.group(ITEMS)[0])
             write_json(Path(home) / CAREER / "initiatives.json", [
-                {"id": "sku-onboarding-test-orders", "title": "Onboarding can't place a test order", "evidence": [DOC],
+                {"id": "proj-onboarding-test-orders", "title": "Onboarding can't place a test order", "evidence": [DOC],
                  "seen_count": 1, "first_seen": "2026-10-08", "last_seen": "2026-10-08", "status": "candidate"},
                 {"id": "unrelated", "title": "Something else", "evidence": ["https://example.com/y"],
                  "seen_count": 1, "first_seen": "2026-10-08", "last_seen": "2026-10-08", "status": "candidate"},
@@ -186,11 +186,11 @@ class AlreadyBuilding(unittest.TestCase):
 
             board_data = h.coordinator("board")
             building = board_data["own_work"]["building_candidates"]
-            self.assertEqual([c["id"] for c in building], ["sku-onboarding-test-orders"])
+            self.assertEqual([c["id"] for c in building], ["proj-onboarding-test-orders"])
             cands = {c["id"]: c for c in board_data["initiatives"]["candidates"]}
-            self.assertEqual(cands["sku-onboarding-test-orders"]["status"], "candidate")
+            self.assertEqual(cands["proj-onboarding-test-orders"]["status"], "candidate")
             self.assertNotIn("building", cands["unrelated"])
-            p = run("initiatives.py", "status", "--home", home, "--id", "sku-onboarding-test-orders",
+            p = run("initiatives.py", "status", "--home", home, "--id", "proj-onboarding-test-orders",
                     "--status", "active", "--today", TODAY, ok=False)
             self.assertNotEqual(p.returncode, 0)
 

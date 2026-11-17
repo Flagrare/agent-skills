@@ -1,5 +1,5 @@
 // Example shots config (a partner dashboard's item pages). Copy next to your project and edit.
-// Everything project-specific lives here; the skill scripts never hardcode a URL or a venue.
+// Everything project-specific lives here; the skill scripts never hardcode a URL or an account.
 const venue = '1001'; // an account the saved e2e session can open without being logged out
 
 const pickMenuWithItems = async page => {
