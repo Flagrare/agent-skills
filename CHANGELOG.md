@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.79.0: 2026-11-17
+
+The number moves only when the answers do.
+
+### New Skills
+
+- **`/flagrare:evals`, evals you can trust and keep honest**: builds an eval suite for an LLM feature the way the best teams do. It reads real outputs first and sorts what goes wrong into a taxonomy, then writes one yes/no grader per failure: code wherever code can decide, and a judge only where it can't, checked against a person's labels by how often it agrees on passes and on fails. It runs every task several times, reports how often all the tries pass, and saves a baseline later changes are compared with, task by task. Then it keeps the suite honest: what to run after a prompt or model change, how a production failure becomes a task, and when to retire a test that tells you nothing. It draws on Hamel Husain and Shreya Shankar, Anthropic, Braintrust, Eugene Yan and OpenAI. Field-tested the hard way on the Knochengeist answer evals: the first baseline read 49 of 90, and most of those failures were the graders' fault, not the answers'. Re-graded from the saved runs, with nothing asked again, it read 75 of 90. Hence the rule that every grader, code ones included, is checked on real outputs before its number is trusted.
+
 ## 1.78.1: 2026-11-13
 
 The reply ends where the answer does.
