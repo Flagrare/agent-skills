@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.80.1: 2026-11-17
+
+Every company's names stay with that company.
+
+### Improved Skills
+
+- **Every released skill reads the same at any company**: the examples, trigger phrases and ticket keys that still carried one company's product names now use neutral ones (`PROJ-123`, "stuck in review", "the platform's review team"), across `/flagrare:support-triage`, `/flagrare:open-pr`, `/flagrare:ticket-hygiene`, `/flagrare:work-prep`, `/flagrare:intake`, `/flagrare:pr-reviewer`, `/flagrare:ticket-creator`, `/flagrare:playbook`, the visual-diff example config, the career fixtures and this changelog. Anything a team needs to customize lives in the skill's own profile or settings, built on the first run, never in the skill itself.
+
 ## 1.80.0: 2026-11-17
 
 The answer was in the guide; now the reply says where.
