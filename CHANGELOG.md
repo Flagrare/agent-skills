@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.80.0: 2026-11-17
+
+The answer was in the guide; now the reply says where.
+
+### Improved Skills
+
+- **`/flagrare:support-triage`, the ops guide is part of every case**: the profile now records where the team's ops guide or runbook lives, and each run opens the section that covers the report. It notes whether the guide answers the question, whether the reporter followed it, and whether it is wrong or missing something for this case. When the guide answers it, the reply links that exact section, so the reporter can find it next time. When the guide is the gap, the report back names the section and proposes the edit as a before and after, and the guide changes only after the user says yes. Field-tested the hard way: an ops guide was written and shared after several support threads that each re-explained one of its recipes, and nothing in the triage loop pointed back at it.
+
 ## 1.79.0: 2026-11-17
 
 The number moves only when the answers do.
