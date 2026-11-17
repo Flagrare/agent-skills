@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.80.2: 2026-11-17
+
+Nothing left with a name tag.
+
+### Improved Skills
+
+- **The last company names are gone**: the field-tested stories in `/flagrare:open-pr` and this changelog, a plan doc and a career test fixture still named one company's repos, a teammate and a local folder. They now say "an admin PR", "a dashboard PR", "a support lead" and `<board dir>`. The repo's history was rewritten the same way, so no earlier version names them either.
+
 ## 1.80.1: 2026-11-17
 
 Every company's names stay with that company.
