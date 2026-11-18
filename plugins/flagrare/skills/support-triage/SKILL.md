@@ -62,7 +62,7 @@ Keep going until the timeline explains the symptom. If one fact doesn't fit (act
 
 ## 4. Claim-check before drafting
 
-List every claim the reply will make and tie each one to a query result, a log line, a code line or a linked message. Drop or hedge anything you can't tie. Then walk the profile's **Known traps**; every trap there was learned from a confident, wrong answer.
+Trace everything, always. List every claim the reply will make, and every claim you make to the user, and tie each one to a query result, a log line, a code line or a linked message. An explanation of a symptom needs the whole path: what the reporter saw, the code that renders it, the data row behind it and its date. Finding the line that throws an error is not that path. A behavior claim ("customers can't order X") needs data or an execution, not a reading of the code. Before calling a state wrong, search chat for whether someone set it on purpose. Drop anything you can't trace; hedging doesn't make an untraced claim acceptable. Then walk the profile's **Known traps**; every trap there was learned from a confident, wrong answer.
 
 ## 5. Draft the reply
 

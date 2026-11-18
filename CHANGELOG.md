@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.80.3: 2026-11-18
+
+A guess dressed as a finding is still a guess.
+
+### Improved Skills
+
+- **`/flagrare:support-triage` traces every claim end to end**: the claim-check now covers what the skill tells the user, not only the drafted reply. Explaining a symptom needs the whole path: what the reporter saw, the code that renders it, the data row behind it and its date. A claim about what customers can or can't do needs data or a real run, not a reading of the code. Before calling a state wrong, the skill checks chat for whether someone set it on purpose. Anything it can't trace is dropped, because hedging an untraced claim doesn't make it safe to send. Field-tested the hard way: a reply explained an error from the line that throws it, and the real cause was an old row nobody had dated.
+
 ## 1.80.2: 2026-11-17
 
 Nothing left with a name tag.
