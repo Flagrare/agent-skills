@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.81.0: 2026-11-19
+
+A review signed with your name should sound like you wrote it.
+
+### Improved Skills
+
+- **`/flagrare:pr-reviewer` writes in the user's own voice**: before drafting, the skill now reads the user's last 10 to 15 review comments and review bodies on other people's PRs, plus any saved voice notes, and writes a one-line voice card that every draft is checked against. When the user's own habits and the generic examples disagree, the user's habits win. It also names three slips that read as not-them even when the generic rules pass: a comment that observes without suggesting anything, any grading of the author's work (praise included), and one hedge for a whole comment instead of one per claim. Comments now say what the problem would cause for people, in plain words instead of reviewer shorthand. Field-tested the hard way: a review drafted from the generic examples alone opened with a compliment, left a bare observation and started its body differently from every review the user had written, and came back with "it does not sound like the way I already instructed you I sound".
+
 ## 1.80.3: 2026-11-18
 
 A guess dressed as a finding is still a guess.
