@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.82.0: 2026-11-19
+
+Before you tell someone they're wrong, make sure you're right.
+
+### Improved Skills
+
+- **`/flagrare:impact-scan` traces a correction before drafting it**: a draft that tells someone their doc, plan or code is wrong now needs three things first, done by the main agent and not taken from a sweep: the code path read to its end, `git log -S` on that area for a fix that already landed, and the claim written down with its file and line. Missing any of them, the item shows up as a "check first" question for the user instead of a ready draft. Field-tested the hard way: a scan drafted a comment telling a PM that "this goes away with the rollout" was wrong, citing a function that looked that way. A filter two calls further down, shipped three months earlier, already made the PM right, and only the user's "fact check" stopped it.
+
 ## 1.81.0: 2026-11-19
 
 A review signed with your name should sound like you wrote it.
