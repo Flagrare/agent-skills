@@ -198,6 +198,20 @@ Findings that survive this step carry their evidence into the draft: the file an
 
 For every finding that survived Step 5, produce a GitHub-ready comment draft.
 
+**Write in the user's voice, not a generic friendly one.** The comments go out under the user's name, and teammates know how they write. The voice guidance and examples further down are a fallback for when you know nothing about the user. Before drafting, load what you do know:
+
+1. **Their own past reviews.** Pull the user's last 10 to 15 inline comments and review bodies on other people's PRs, for example `gh api "search/issues?q=is:pr+reviewed-by:@me+-author:@me&sort=updated&per_page=10"` and then each PR's `/comments` and `/reviews` filtered to their login. Read them for how they open a comment, how they end it, how they hedge, how a review body is shaped, and what they never say.
+2. **Their saved voice notes**, if any exist: a voice profile from another skill (for example `~/.claude/skills/flagrare/career/voice.md`), and any memory or instructions about their tone.
+3. **Write a one-line voice card** before the drafts and check each draft against it, for example: "opens on 'I think' / 'It looks like' / 'Small thing:', ends on 'Maybe we could ...?' or 'totally up to you though!', body starts 'I left a few comments inline, and the main one is about ...'". When their own pattern and the generic examples below disagree, theirs wins.
+
+Three things go wrong even when the generic rules are followed, and each one reads as not-them:
+
+- **A comment with no suggestion.** An observation alone reads as a verdict. Every comment ends on what we could do about it, in their words ("Maybe we could ...?", "Might be worth ...", "What do you think about ...?").
+- **Any grading, even praise.** "The degrade here reads well to me" grades the author from above just like "looks solid" does. Say what you noticed, never how good it is.
+- **One hedge for the whole comment.** Each claim sentence carries its own softener ("I think", "it looks like", "it might", "from what I can tell"), and the comment says what the problem would cause for a user, a customer or the team, not only the mechanism. Shorthand like "pin that 403" or "the degrade path" is reviewer jargon; say it the way they would ("make sure get still returns 403 for another account's record").
+
+Field-tested the hard way: a review drafted from the generic examples alone, with a grading opener, a bare observation, and a body that opened "I think the main thing is ...", came back with "it does not sound like the way I already instructed you I sound". The user's own past reviews already showed every pattern above.
+
 **Severity scale:**
 
 | Severity | Symbol | Meaning |
