@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.83.1: 2026-11-24
+
+Tested against the real book, and the book won twice.
+
+### Bug Fixes
+
+- **`/flagrare:controlled-english`, lookups on a real dictionary PDF**: page breaks in the extracted text no longer shift line numbers, so `start-at` skips exactly the intro you pointed it at. A verb form listed under its headword ("gave" under its base verb) now returns that headword's entry once, instead of the bare form line or the same entry twice. When a lookup matches the base word rather than the form you wrote, the skill now checks that your exact form is listed, because a dictionary can approve a verb and still not allow every form of it.
+
 ## 1.83.0: 2026-11-24
 
 Say it once, say it plainly, and check it before you say it.
