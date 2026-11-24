@@ -1,6 +1,6 @@
 ---
 name: tdd-writer
-description: "Draft comprehensive Technical Design Documents. Analyzes codebase, fetches ticket/design/doc context via MCP. Every technical claim is verified against actual code. Unverified information is explicitly marked. Use when the user wants to write a TDD, create a technical design document, plan a large engineering project, or says 'write a TDD'."
+description: "Draft comprehensive Technical Design Documents. Analyzes codebase, fetches ticket/design/doc context via MCP. Every technical claim is verified against actual code. Unverified information is explicitly marked. Context follows the moves good design docs share, then a Controlled English pass and a fact-check pass run before review. Use when the user wants to write a TDD, create a technical design document, plan a large engineering project, or says 'write a TDD'."
 ---
 
 # TDD Writer
@@ -56,6 +56,10 @@ Use these markers:
 ### Phase 1: Gather Context
 
 Before drafting, collect and verify information from all available sources.
+
+**Step 0: Read the team's own TDD guidance and template, fresh**
+
+If the team has a TDD template or a guidance page, find it and read the current version now, even if you used it last week. Templates change between drafts, and a draft can quietly drop a section the template asks for (field-tested: a TDD went to review without the template's Key decisions section, and the same week the template made Testing its own required section). The team's sections and order win over the template below; use this skill's template as the checklist of what each of their sections must cover. When their guidance names the bar for context (who the reader is, what they must learn), quote it to yourself and hold the draft to it.
 
 **Step 1: Fetch External Context via MCP**
 
@@ -128,10 +132,22 @@ Drop sections that don't apply rather than filling them with "N/A" noise. Mark A
 [3 to 5 plain sentences a product manager can read without the rest of the doc: what changes for users, the bet from /flagrare:measure-impact (the number it should move, today's value and its source, how sure we are), and what is out of scope.]
 
 ### Context
-[1-2 paragraphs: What problem are we solving? Business-oriented terms.]
+[Short paragraphs, one idea each, in this order (see "Writing the context" in Phase 3):
+1. What exists today, in plain words. Define the doc's key terms here, above all the
+   split the design turns on (two kinds of customer, two paths, two services).
+2. The problem, made concrete: one real case (a real customer, screen or record),
+   not an abstraction like "the two can disagree".
+3. Why now: what changed since the last decision (a dependency shipped, a deadline,
+   new data).
+4. Impact: who gains, in one plain sentence. The bet and its number live in For product,
+   so point to it instead of repeating it.
+5. Links for depth, instead of re-explaining earlier docs.
+6. Before/after screenshots for any change a user sees.]
 
-### Problem Statement (Current State)
-[Current limitations, pain points, gaps.]
+### Goals and non-goals
+[Goals: what done looks like, ideally measurable. Non-goals: things a reviewer would
+reasonably expect this work to do, but it won't, each with one reason or a pointer to
+who owns it. A list is right here: the items are parallel.]
 
 ### Current Flow (if modifying existing system)
 [Document the existing UI and user flow.]
@@ -247,6 +263,14 @@ A risk listed without a mitigation reads as an unanswered worry.]
 ### Documentation
 [Prose. What docs need to exist or change, and for whom.]
 
+### Key decisions
+[The calls with real trade-offs that reviewers must judge in the gate. For each one:
+the decision as a plain sentence ("We save the photo inside the item save, not
+in a separate call"), the options, the pick and its reason, and what it costs. This is
+not Open questions (still undecided) and not every resolved detail (state those once,
+in the flow). New infrastructure, a new dependency, a change users will notice on day
+one and anything that departs from the team's usual tools belong here.]
+
 ### Open questions
 - [ ] [Genuinely open question, a real fork, not a placeholder]
 - [ ] [Another, if any]
@@ -280,6 +304,34 @@ with *"Orders currently can't be partially refunded because the schema models a 
 as a single boolean. We're replacing that with a refund ledger."* The second sentence
 tells the reader where they are and where you're taking them. The opening line of every
 section should state a conclusion, name a problem, or ask a question.
+
+**Writing the context.** The context section is the one reviewers judge everything
+else by, and the one AI drafts get most wrong: they name a metric and a gap, then rush
+to the mechanism. The order above draws on well-regarded design doc practice (Google's design docs, the
+Rust RFC template, Kubernetes KEPs, Python PEPs): the starting point with terms defined,
+a concrete problem before any solution, then impact and scope. "Why now" comes from the
+RFC habit of opening with what changed since the last decision, and the screenshots
+come from team TDD guidance.
+The research is in
+[`docs/research/2026-11-24-design-doc-context-sections.md`](../../../../docs/research/2026-11-24-design-doc-context-sections.md).
+Four checks catch most failures:
+
+- **A real case, not an abstraction.** "Products are text only" is a fact. "A seller's
+  page lists 40 products with no photos, while the seller next to them shows a photo
+  on every one" is a problem a reviewer can feel. Take the case from real data, not a toy.
+- **"Why now" is the reason, so say it as the reason.** If a dependency just shipped
+  and that is what makes the work possible or urgent, it opens a paragraph. It does
+  not sit inside a storage or architecture paragraph as a side fact.
+- **Impact says who gains, plainly.** "The main metric is X" names a number, not a
+  reason. "Photos help buyers choose, and sellers earn per order" is the reason, in one
+  sentence. Say it once and move on: this is a rationale, not a pitch.
+- **Background facts, not mechanics.** Context says what exists and what is wrong.
+  How the services talk, counts from production and field names belong in the flows.
+  If a sentence only makes sense after the proposal, move it after the proposal.
+
+Test the finished section on a new hire who knows the stack but not this product:
+after reading only the context, can they say what is wrong today, for whom, why now,
+and what this doc will and won't do? If not, the context failed, not the reader.
 
 **Prose carries causality; lists flatten it.** A TDD is mostly *because* and *so that*
 and *before*, exactly the relationships a bullet list erases. When you catch yourself
@@ -330,11 +382,40 @@ Run the write-docs self-check, read the document aloud; sentences that choke on 
 tongue usually nominalize a verb or rely on a bullet list to carry a relationship the
 prose should have carried. For a finished draft heading to reviewers, `/flagrare:editorial-pass`
 is the full version of this review: a whole-document read (throughline, pacing, consistency)
-plus the noise hunt the Restraint rules below only summarize. Then confirm:
+plus the noise hunt the Restraint rules below only summarize.
+
+**Controlled English pass.** After the editorial read, run `/flagrare:controlled-english`
+over the document. Many reviewers read the TDD in a second language, and some will
+paste parts of it into a translator or an agent, so ambiguity costs more than length.
+Save a copy of the draft first, so the user can compare. Use two modes:
+
+- **Light** for the prose: short sentences, active voice, one idea per sentence, no
+  semicolons, and one word for one meaning across the whole doc (if the doc says
+  "category" it never also says "section" for the same thing).
+- **Strict** for text a machine or a user acts on: error messages and UI copy the doc
+  proposes, API and proto field comments, runbook and rollout steps.
+
+Then read the result once more. Splitting sentences must not cut the "because" and
+"so" that link them, and it must not turn prose into bullets. Keep code identifiers,
+product names and quoted UI text exactly as they are.
+
+**Fact-check pass, last.** Run `/flagrare:fact-check` on the finished draft, after the
+Controlled English pass, because rewrites can shift a meaning and code pins drift while
+you write. Every claim goes back to its source, fresh: code links on the main branch at
+the cited lines, counts and dates re-queried, ticket states and people's positions
+re-read, every Figma frame and doc link opened. Findings from subagents count as leads,
+not facts. Fix or drop what fails, mark what you can't reach with the markers from the
+No Assumptions Policy, and only then present.
+
+Then confirm:
 
 - Could a new team member read this start to finish and understand what's proposed, why,
   and how? (If they'd have to reassemble the argument from bullets, rewrite those bullets
   as prose.)
+- Does the context pass the new-hire test in "Writing the context": what is wrong today,
+  for whom, why now, and what's in and out of scope?
+- Does every decision a reviewer must judge sit in Key decisions, with its options and
+  reason, and is every term the doc leans on defined at first use?
 - Is every technical claim backed by code you actually read?
 - Are all unknowns marked explicitly with the markers from the No Assumptions Policy?
 - Did you run the verification checklist (every claim traced to a source), and then strip that checklist from the presented doc?
@@ -377,6 +458,7 @@ Once the review passes, present the TDD and **close with a tool, not prose**: is
 - Don't flatten sections into terse bullets where prose should carry the causality. If a "list" has items that depend on each other, it's a paragraph.
 - Don't open a section with metadata ("This section describes…"). Open with the reader's situation, a conclusion, or a question.
 - Don't defer every definition to a glossary. Define terms inline at first use.
+- Don't write the context as a metric plus a gap. Give a real case, the reason it's happening now, and who gains, before any mechanism.
 - Don't ship a document that can't be read start to finish. A reader should never have to reassemble your argument from disconnected bullets.
 
 **Verification:**
@@ -389,10 +471,10 @@ Once the review passes, present the TDD and **close with a tool, not prose**: is
 - Don't present the TDD without marking gaps, real open decisions go in Open Questions
 
 **Restraint (the TDD answers three questions: what are we solving, why, and how, for a reader who has never seen the work). Everything that doesn't serve those is noise that raises the reader's risk and mental load):**
-- Don't document what you resolved. A decision that's settled is not a question, so it doesn't belong in Open Questions, Risks, or Key Decisions. State the resolved choice once where it's relevant (a flow, the rollout) and delete the deliberation. Open Questions holds only genuinely-open forks that still need an owner's call.
+- Don't document what you resolved. A decision someone with the authority already settled (product signed off, the approver agreed, a precedent the team follows) is not a question, so it doesn't belong in Open Questions, Risks, or Key Decisions. State it once where it's relevant (a flow, the rollout) and delete the deliberation. Key decisions holds the author's calls the gate still has to ratify: the options, the pick, the reason and the cost, never the history of how you got there. Open Questions holds only genuinely-open forks that still need an owner's call.
 - Don't narrate provenance. How you learned a fact, "X told Y in Slack," "a Notion doc pointed here," "confirmed in the 2026-06-16 thread," "verified at lines 49-52", is research trail, not design. State the fact; cite a person only when their *sign-off* is the pending action.
 - Don't leave self-referential scaffolding in the doc: no "[NEEDS VERIFICATION]" left in once verified, no "this corrects an earlier note," no "as we found above." The reader doesn't care about the draft's history.
 - Don't keep a section alive once its content collapses to nothing. If every item under a heading got resolved, cut the heading. Prefer cutting to writing "N/A".
 - Don't carry forward the exploration's volume. A TDD is the distilled conclusion, not the log of getting there. When a later pass resolves things, the doc should get *shorter*, not accrete "resolved:" annotations. If unsure whether a sentence helps the reader answer what/why/how, cut it.
-- Two registers, chosen by what the reader does with the passage. Key Decisions and Open Questions get full contextualization, the reader must judge, so give the ingredients. Background sections (context, intros, transitions) get assertion only: no illustrations of concepts the audience already holds, no importance-selling (a gated, staffed TDD does not need to argue that its work matters), no step-by-step derivations where the conclusion suffices, the mechanism is stated once where it is load-bearing. Test each background sentence: deleted, does the reader decide wrongly, or just feel less escorted? Only the first earns the words.
+- Two registers, chosen by what the reader does with the passage. Key Decisions and Open Questions get full contextualization, the reader must judge, so give the ingredients. Background sections (context, intros, transitions) get assertion only: no illustrations of concepts the audience already holds, no importance-selling (a gated, staffed TDD does not need to argue that its work matters), no step-by-step derivations where the conclusion suffices, the mechanism is stated once where it is load-bearing. One real case of the problem and one sentence on who gains are evidence, not selling, so they stay. Anything past that is selling. Test each background sentence: deleted, does the reader decide wrongly, or just feel less escorted? Only the first earns the words.
 - Clarity without long-windedness, the two failure modes are opposite and both cost the reader. Compression is the sneakier one: a sentence that packs four ideas into one breath, or a paragraph that is six clauses doing five jobs, is correct but forces the reader to unpack it. The densest, most important paragraph (often the core risk) is the one most likely to be over-compressed, so give it the most room: break it into beats, one idea per sentence, ordered as cause then effect. Define every piece of internal jargon at first use, inline, in the same sentence ("a background job pulls the POS menu and reconciles our copy against it" before you ever lean on the bare word "reconcile"); assume a new hire who knows the stack generically but not this corner of it. Cut phrases that sound technical but carry no information for the reader ("holds by construction", "by design", "leverage", "it should be noted that"); replace them with the concrete thing they gesture at, or delete them. The test is the read-aloud: any clause you can't say in one breath, or any term a new hire would have to stop and look up, is a rewrite. Note this is the same craft `/flagrare:write-docs` teaches; restraint here means applying it, not just trimming length.
