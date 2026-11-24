@@ -65,6 +65,7 @@ These are the rules that change how text parses, paraphrased. The standard has t
 1. Save the rewritten text to a temporary file. Run `ste_dictionary.py lookup --from <file>`.
 2. Read `conventions.md`, then judge each result:
    - `entry`: read the entry. If the word is approved in the meaning and part of speech you used, keep it. If it isn't, use the approved alternative the entry gives.
+   - When `matched` differs from `word`, the lookup found the base word, not the form you wrote. Check that your exact form is listed in the entry (many dictionaries list each permitted verb form under its headword). A form that isn't listed may not be allowed, even when the base word is.
    - `glossary`: keep it.
    - `check`: the word has no entry. It may be a valid technical name or technical verb, which the standard allows. Keep it if it is one, and offer to add it to the glossary. Otherwise use a plainer word that has an entry.
 3. Look up any replacement word too, so a fix doesn't add a new problem.

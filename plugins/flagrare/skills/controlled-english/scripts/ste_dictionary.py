@@ -35,6 +35,9 @@ WORD = re.compile(r"[A-Za-z][A-Za-z'-]*")
 SUFFIXES = ("ies", "ied", "es", "s", "ed", "ing", "er", "est", "ly")
 SILENT_E_SUFFIXES = ("ed", "ing", "er", "est", "es")
 VOWELS = set("aeiou")
+VERB_HEADWORD = re.compile(r"^[A-Za-z][\w'.-]*(?: [\w'.-]+)* ?\(v\)", re.IGNORECASE)
+VERB_FORM = re.compile(r"^[A-Za-z'-]+,?(\s{2,}|$)")
+MAX_VERB_FORMS = 6
 
 
 class SetupError(Exception):
@@ -76,7 +79,9 @@ def save_settings(home, settings):
 def read_lines(path):
     try:
         with open(path, encoding="utf-8", errors="replace") as f:
-            return f.read().splitlines()
+            # pdftotext starts each page with a form feed. splitlines() would count it as a line break and
+            # shift every line number away from what grep shows, so drop it and split on newlines only.
+            return f.read().replace("\f", "").split("\n")
     except FileNotFoundError:
         return []
 
@@ -173,13 +178,31 @@ def candidates(word):
     return list(dict.fromkeys(forms))
 
 
+def headword_above(lines, i):
+    """For a verb form listed under its headword ("GAVE," under "GIVE (v),"), the headword's line."""
+    if not VERB_FORM.match(lines[i]):
+        return i
+    for j in range(i - 1, max(i - 1 - MAX_VERB_FORMS, -1), -1):
+        if VERB_HEADWORD.match(lines[j]):
+            return j
+        if not VERB_FORM.match(lines[j]):
+            break
+    return i
+
+
 def entries(lines, word, context, limit):
-    """Entry-shaped lines (the word, then a part-of-speech label in parentheses) come before plain lines."""
+    """Entries for the word come first, then verb forms under their headword, then any other line starting with it."""
     starts = re.compile(r"^\s*" + re.escape(word) + r"(?![\w-])", re.IGNORECASE)
     labelled = re.compile(r"^\s*" + re.escape(word) + r"\s*\(", re.IGNORECASE)
-    matches = [i for i, line in enumerate(lines) if starts.match(line)]
-    matches.sort(key=lambda i: 0 if labelled.match(lines[i]) else 1)
-    return ["\n".join(lines[i : i + 1 + context]).rstrip() for i in matches[:limit]]
+    matches = [(i, headword_above(lines, i)) for i, line in enumerate(lines) if starts.match(line)]
+    matches.sort(key=lambda m: 0 if labelled.match(lines[m[0]]) else 1 if m[1] != m[0] else 2)
+    found = {}
+    for i, start in matches:
+        if start not in found:
+            found[start] = "\n".join(lines[start : i + 1 + context]).rstrip()
+        if len(found) == limit:
+            break
+    return list(found.values())
 
 
 def glossary_words(path):

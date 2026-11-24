@@ -20,11 +20,16 @@ ENTRIES = [
     "blint (v)          GLORP                        GLORP THE DESK.",
     "                   (Not: Blint the desk.)",
     "WOMBLE (n)         A small round thing.         THE WOMBLE IS BLUE. A FLONK IS NEAR.",
-    "ZAP (v)            To hit fast.                 ZAP THE FLY.",
+    "ZAP (v),           To hit fast.                 ZAP THE FLY.",
+    "\fZAPS,",
+    "ZOPPED,            the fast way                 THEN ZAP IT AGAIN.",
+    "ZOPPED",
     "UBE (v)            To put to work.              UBE THE TOOL.",
+    "SOME (adj)         Not all.                     SOME OF THE TOOLS.",
+    "UPP,               spill-over text of a cell",
     "SKRY (v)           To look far.                 SKRY THE HILL.",
 ]
-FAKE_DICTIONARY = "\n".join(INTRO + ENTRIES)
+FAKE_DICTIONARY = "\n".join(INTRO[:30]) + "\n\f" + "\n".join(INTRO[30:] + ENTRIES)
 FIRST_ENTRY_LINE = len(INTRO) + 1
 
 
@@ -77,6 +82,21 @@ class SteDictionaryTest(unittest.TestCase):
         self.run_script("setup", self.source)
         self.run_script("start-at", str(FIRST_ENTRY_LINE))
         self.assertEqual(len(self.lookup("glorp")["glorp"]["entries"]), 1)
+
+    def test_irregular_verb_form_returns_its_headword_entry_once_across_a_page_break(self):
+        self.run_script("setup", self.source)
+        found = self.lookup("zopped")["zopped"]["entries"]
+        self.assertEqual(len(found), 1)
+        self.assertTrue(found[0].startswith("ZAP (v),"))
+
+    def test_line_under_a_non_verb_entry_is_not_treated_as_a_verb_form(self):
+        self.run_script("setup", self.source)
+        self.assertTrue(self.lookup("upp")["upp"]["entries"][0].startswith("UPP,"))
+
+    def test_start_at_line_numbers_match_grep_even_across_page_breaks(self):
+        self.run_script("setup", self.source)
+        self.run_script("start-at", str(FIRST_ENTRY_LINE))
+        self.assertEqual(self.lookup("front")["front"]["status"], "check")
 
     def test_lookup_ignores_case(self):
         self.run_script("setup", self.source)
