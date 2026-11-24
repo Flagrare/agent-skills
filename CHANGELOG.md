@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.83.0: 2026-11-24
+
+Say it once, say it plainly, and check it before you say it.
+
+### New Skills
+
+- **`/flagrare:controlled-english`, text an agent can't misread**: rewrites or checks English that a machine or a translator acts on (tool descriptions, error messages, system prompts, agent instructions, procedures) with the sentence rules of ASD-STE100 Simplified Technical English: one instruction per sentence, 20 words at most in an instruction, active voice, no phrasal verbs, one word for one meaning, and list items count toward the caps so the rules can't be dodged by bulleting everything. The STE dictionary is copyrighted, so it never ships: on first run the skill hands you a direct link to ASD's free request form, then indexes your own copy on your machine and checks every word against it, intro skipped and inflections matched to their base word. A word the dictionary doesn't have comes back as a question, not an error, and your project's terms go in a glossary. A Light mode keeps the sentence rules for READMEs and PR descriptions, and chat replies are left alone, because a few short style rules beat a long rule set there. Unofficial, and not affiliated with or approved by ASD.
+- **`/flagrare:fact-check`, no claim leaves unchecked**: before a conclusion, a cause, a number, a name or a draft in your name reaches anyone, every claim goes back to its primary source, fresh: the main branch at the cited lines, a re-run query, the message or ticket itself, the live page. Each one comes out confirmed, corrected or dropped, and a hedge never stands in for a check. Findings relayed from subagents and bots are treated as leads, not facts. It doesn't ask "should I verify this?": it verifies, and stops only when access is missing, saying exactly what. How to reach each source at your company lives in a local `sources.md`, built on first run from what the other skills already know. Field-tested the hard way: it exists because "are you sure?" kept being the most common reply to a confident answer.
+
 ## 1.82.0: 2026-11-19
 
 Before you tell someone they're wrong, make sure you're right.
