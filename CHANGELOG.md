@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.84.0: 2026-11-24
+
+Tell the reader what's wrong before you tell them how you'll fix it.
+
+### Improved Skills
+
+- **`/flagrare:tdd-writer`, a context section a new hire can follow**: the Context template now walks an order that draws on Google's design docs, the Rust RFC template, Kubernetes KEPs and Python PEPs: what exists today with the key terms defined, one real case of the problem, why now, who gains, links for depth, and before/after screenshots for anything a user sees. Goals and non-goals get their own section, and so do Key decisions, the calls the gate still has to ratify, each with its options, the pick and what it costs. The Restraint rules now say where a real case stops being evidence and starts being a pitch, and `/flagrare:editorial-pass` now keeps one real case of the problem instead of cutting it as dramatized background. Before drafting, the skill rereads the team's own template, because templates change and drafts drift from them. Field-tested the hard way: a TDD went to review with a context that named a metric and a gap, never defined the two kinds of customer the design split on, and buried its real "why now" in a storage paragraph. It had also dropped the template's Key decisions section.
+- **`/flagrare:tdd-writer` runs a Controlled English pass before review**: after the editorial read, the draft goes through `/flagrare:controlled-english`. Light mode covers the prose (short sentences, active voice, one word for one meaning), and Strict mode covers the text a machine or a user acts on: proposed error messages and UI copy, API field comments, rollout steps. A saved copy lets you compare, and a last read makes sure the split sentences still say "because" and "so" and haven't turned into bullets.
+- **`/flagrare:tdd-writer` fact-checks the draft last**: after the Controlled English pass, `/flagrare:fact-check` re-checks every claim at its source, fresh. That covers code links on the main branch, counts and dates, ticket states, and every design and doc link. It runs last because a rewrite can shift a meaning and code pins drift while you write.
+
 ## 1.83.1: 2026-11-24
 
 Tested against the real book, and the book won twice.
