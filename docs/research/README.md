@@ -6,6 +6,7 @@ External research conducted for this project. Each entry credits the sources it 
 
 | Date | Topic | Triggered by | Informed |
 |------|-------|--------------|----------|
+| 2026-11-24 | [Existing ASD-STE100 agent skills](./2026-11-24-ste100-skills-prior-art.md) | Looking for STE100 skills the writing skills could reuse | controlled-english skill |
 | 2026-11-17 | [Building and maintaining evals for LLM features](./2026-11-17-building-and-maintaining-evals.md) | Yuri, after the Knochengeist answer evals: a reusable skill for creating and maintaining evals, with Braintrust as a reference | evals skill |
 | 2026-09-30 | [What experts say gets software engineers promoted](./2026-09-30-what-gets-engineers-promoted.md) | Designing the career skills family | career skills design; promotion, impact-scan, career (balance warning) |
 | 2026-09-30 | [How product engineering works at PostHog](./2026-09-30-posthog-product-engineering.md) | Designing `/flagrare:opportunity-scan` | career skills design; opportunity-scan proposal shape and decision-process rule |
