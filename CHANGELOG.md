@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.88.0: 2026-11-25
+
+A wrap-up now asks the repo what it checks, not just what every repo checks.
+
+### Improved Skills
+
+- **`/flagrare:wrap-up`, the repo's own rules**: a new step looks for the skills that live in the repo (`.claude/skills` and similar), your own review skills named for that repo, and its written rules (`AGENTS.md`, `CONTRIBUTING.md`, guidelines), and runs every one that fits the diff. A repo skill that came in with a recent pull and isn't loaded yet gets read and followed by hand. A review skill meant for a sibling repo is named and skipped, with the reason. The report gets a Repo rules section, and it says "none found" instead of staying quiet. Field-tested the hard way: a fix that changed a SQL join reached the pull request stage without the repo's own query-plan skill, which had landed on main that morning, and the user had to ask whether the repo's review skill had run.
+
 ## 1.87.0: 2026-11-25
 
 A draft sounds like you when it starts from what you already said in that thread.
