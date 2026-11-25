@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.86.0: 2026-11-25
+
+A design doc gets a word count before it gets a reviewer.
+
+### Improved Skills
+
+- **`/flagrare:tdd-writer`, word targets**: the review phase now measures the draft before it goes out. The body aims for about 3,000 to 3,500 words before the appendix, the context for about 300, each key decision for about 100, and each open question for one to three sentences that end with who decides. The targets are a reason to look, not a rule to cut blindly, and a team's own recent approved docs set the target when they exist. A short script counts the body, and when a draft runs more than a fifth over, the skill tells you the numbers and where to look first: images or facts shown twice, settled choices dressed up as key decisions, mechanism inside the context, and detail that belongs in an appendix. Field-tested the hard way: a two-feature design doc reached 4,600 words of body and a 600-word context while the well-received docs it was compared with sat near 3,000, and nobody noticed until a reviewer was already reading. Gate notes never mention length, so passing a gate proves nothing about it.
+
 ## 1.85.0: 2026-11-25
 
 The sweep stops asking "is the column right?" and starts asking "why hasn't this moved?"
