@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.85.0: 2026-11-25
+
+*The sweep stops asking "is the column right?" and starts asking "why hasn't this moved?"*
+
+### Improved Skills
+
+- **`/flagrare:ticket-hygiene`, stuck work**: the sweep used to pair tickets with PRs and stop once every status matched, so an approved PR could sit unmerged and a reviewer's comments could wait a day while the report read "0 moved, 0 waiting on you". Field-tested the hard way: that exact report went out with one PR approved and green and two others carrying fresh unanswered comments. Every open PR now gets its review state read (decision, requested reviewers, checks, conflicts, and every comment newer than the author's last commit or reply), and the table says what happens next: merge it, answer these comments, rebase, chase a review that never came, or run the deploy a merge is waiting on. Approved PRs with nothing unanswered merge on their own when the new `merge_approved` setting is on; an approval that carries an unanswered suggestion is flagged first, so nobody merges past a reviewer.
+
 ## 1.84.0: 2026-11-24
 
 Tell the reader what's wrong before you tell them how you'll fix it.
