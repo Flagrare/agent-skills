@@ -2,7 +2,7 @@
 
 ## 1.85.0: 2026-11-25
 
-*The sweep stops asking "is the column right?" and starts asking "why hasn't this moved?"*
+The sweep stops asking "is the column right?" and starts asking "why hasn't this moved?"
 
 ### Improved Skills
 
