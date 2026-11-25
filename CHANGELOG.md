@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.87.0: 2026-11-25
+
+A draft sounds like you when it starts from what you already said in that thread.
+
+### Improved Skills
+
+- **`/flagrare:communication-setup`, `/flagrare:pr-reviewer`, `/flagrare:impact-scan` and `/flagrare:support-triage`, same-thread voice**: before the first draft, each one now reads two or three of your own recent messages in the same thread, PR or channel, and matches their openers, warmth and length. Those messages win over a voice profile drawn from other threads, because they are the register the people in that thread already know. Communication setup makes this the default first draft rule, so it rides along in the reminder on every message instead of living in a note that drops out of view in a long session. Field-tested the hard way: replies to a reviewer were drafted from the general rules alone, never looking at the replies already on that PR, and came back with "why are we skipping the step that makes messages casual?".
+
 ## 1.86.0: 2026-11-25
 
 A design doc gets a word count before it gets a reviewer.
