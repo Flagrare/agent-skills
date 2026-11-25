@@ -384,6 +384,35 @@ prose should have carried. For a finished draft heading to reviewers, `/flagrare
 is the full version of this review: a whole-document read (throughline, pacing, consistency)
 plus the noise hunt the Restraint rules below only summarize.
 
+**Word targets.** Measure the draft before you present it. These are targets, not
+hard limits: going over is a reason to look, not a rule to cut blindly.
+
+- **Body, about 3,000 to 3,500 words.** Count everything before the appendix, without
+  code blocks. Well-received design docs in a field test landed at 2.9k to 3.3k words
+  of body. One at 11k passed its gate, but drew "reads AI-verbose" feedback afterwards.
+- **Context, about 300 words**, goals and non-goals not counted: one or two short
+  paragraphs, one real example, the key terms.
+- **Each Key decision, about 100 words. Each open question, one to three sentences**
+  that end with who decides.
+
+If the team has recent approved design docs of its own, measure two of them and use
+their size as the target instead. Count the body with:
+
+```bash
+python3 - TDD.md <<'EOF'
+import re, sys
+s = re.sub(r"```.*?```", "", open(sys.argv[1]).read(), flags=re.S)
+print(len(re.split(r"^#+ .*Appendix", s, flags=re.M)[0].split()), "body words")
+EOF
+```
+
+When the draft is more than about a fifth over a target, tell the user the numbers and
+the two or three longest sections. Then look in this order: images or facts shown
+twice (show once, point back), settled choices sitting in Key decisions, mechanism
+inside the context, and detail that belongs in the appendix or a collapsed toggle.
+Don't take a passed gate as proof the length was fine: reviewers rarely comment on
+length, so the skill has to check it itself.
+
 **Controlled English pass.** After the editorial read, run `/flagrare:controlled-english`
 over the document. Many reviewers read the TDD in a second language, and some will
 paste parts of it into a translator or an agent, so ambiguity costs more than length.
