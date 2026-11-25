@@ -66,7 +66,7 @@ Trace everything, always. List every claim the reply will make, and every claim 
 
 ## 5. Draft the reply
 
-Save it as a draft in the reporter's thread, never as a root message. If a draft is already attached there, replace it the way the profile describes. Write it the way the user would say it to a teammate:
+Save it as a draft in the reporter's thread, never as a root message. If a draft is already attached there, replace it the way the profile describes. Before writing it, read 2 or 3 of the user's own recent messages in that thread or channel, when there are any, and match their openers, warmth and length; they win over `voice.md`. Write it the way the user would say it to a teammate:
 
 - Tag the reporter and start with the answer in one or two lines.
 - Use the domain's own terms consistently, and never a vague stand-in that could mean two states.

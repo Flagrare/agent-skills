@@ -30,7 +30,7 @@ Run `python3 <skill>/scripts/setup.py status` and answer in one or two lines: wh
 - The reply limit. The default is about 5 lines of prose: a quiet note past 8 lines or 120 words, and a block past twice that.
 - Words that mean "go long" for them, in every language they use.
 - One real reply of yours they found tiring, if there is one. It becomes the bad example.
-- How drafts they send under their own name should sound (PR replies, Slack, comments): the tone, and openers or phrasings they never use. These become `draft_rules`. The length check skips `>` drafts, so without them nothing keeps a draft's tone in view.
+- How drafts they send under their own name should sound (PR replies, Slack, comments): the tone, and openers or phrasings they never use. These become `draft_rules`. The length check skips `>` drafts, so without them nothing keeps a draft's tone in view. Always make the first draft rule the one that sends Claude to their own recent messages in the same thread, PR or channel before the first draft. A voice profile saved somewhere else drops out of view in a long session, and a step that isn't in the per-message reminder gets skipped. Field-tested the hard way: PR replies drafted from the general rules alone came back with "why are we skipping the step that makes messages casual?", because the user's own earlier replies on that PR were never read.
 
 **3. Write the config** to a temp file and show it to the user in a few lines before installing:
 
@@ -56,6 +56,7 @@ Run `python3 <skill>/scripts/setup.py status` and answer in one or two lines: wh
   "example_bad": "a real tiring reply, trimmed",
   "example_good": "the same answer in two lines",
   "draft_rules": [
+    "Before the first draft, read 2 or 3 of their own recent messages in the same thread, PR or channel. Match their openers, warmth and length.",
     "Sound like a quick, friendly message to a teammate, in full sentences.",
     "Start with the point, never a canned opener like \"Makes sense\".",
     "Don't repeat back the reviewer's comment or their example. Say what you did in a line or two.",

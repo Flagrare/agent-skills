@@ -208,7 +208,7 @@ Rules that keep it scannable:
 
 ### 5. Drafting rules
 
-Read `voice.md` first if it exists; its observed rules win over the generic ones. Generic floor, applied always:
+Before each draft, read 2 or 3 of the user's own recent messages in that same thread, PR or channel, when there are any, and match their openers, warmth and length. Then read `voice.md` if it exists; its observed rules win over the generic ones, and the same-thread messages win over both. Generic floor, applied always:
 
 1. **Short and direct.** Three sentences at most, no preamble, no "Great discussion!", no wrap-up flourish.
 2. **No LLM tells.** No em-dashes, no "aligns with", no rule-of-three constructions, no self-congratulation.
