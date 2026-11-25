@@ -79,6 +79,18 @@ Checks 2-4 apply `/flagrare:testing-philosophy`, behavior over implementation an
 
 **Wait for it to complete.** Collect all findings.
 
+### Step 2.5: Run the repo's own skills and review rules
+
+The generic checks above don't know what this repo's reviewers enforce. Every run, look for the repo's own rules and run the ones that apply to the diff:
+
+1. **Skills that live in the repo**: `.claude/skills/*/SKILL.md` and similar agent folders at the repo root. Read each description. Run every one whose trigger matches the diff, for example a query-plan check for a changed SQL query or a migration check for a new migration. A skill that arrived with a recent pull may not be loaded in the session yet. In that case, read its `SKILL.md` and follow it step by step.
+2. **The user's review skills for this repo**: skills in the session's skill list, or in `~/.claude/skills/`, whose name or description names this repo (`<repo>-review` and similar). Run them on the diff. A review skill for a sibling repo doesn't apply. Name it and say why you skipped it.
+3. **Written rules**: `AGENTS.md`, `CLAUDE.md`, `CONTRIBUTING.md`, development guidelines and review checklists in the repo. Check the diff against their red flags.
+
+Fold the findings into Step 5 like any other review finding. When the repo has none of these, say "none found" in the report rather than skipping the step silently.
+
+Field-tested the hard way: a fix that changed a SQL join reached the pull request stage without the repo's own query-plan skill, which had landed on main that morning. The user had to ask whether the repo's review skill had run.
+
 ### Step 3: Comment cull
 
 Every code comment the diff adds is deleted unless it is a trap-preventer. This step acts; it does not flag. Check 6 of `/flagrare:implementation-review` reports what-comments, this step is where the deleting happens, and it covers every comment in the diff, not only the ones Check 6 named.
@@ -148,6 +160,11 @@ Merge automated check results, `/flagrare:implementation-review` findings, and s
 ### Implementation Review (from /flagrare:implementation-review)
 [Paste the seven-check summary verbatim]
 
+### Repo rules
+- Ran: {skill or rules file}, {result}
+- Not applicable: {skill}, {why}
+- (or: none found)
+
 ### Comment cull
 - Deleted: `{file}:{line}` "{first words of the comment}"
 - Kept: `{file}:{line}` "{first words}", {the invisible break it prevents}
@@ -191,6 +208,7 @@ Do not render these as a numbered prose list and wait, use the tool so the user 
 - Don't duplicate what `/flagrare:implementation-review` already covers. If it reported on SOLID, don't re-report the same finding.
 - Don't block on advisory findings. Use judgment on what's blocking vs nice-to-have.
 - Don't skip this because "the change is small". Small changes still break things.
+- Don't stop at the generic checks. A repo that ships its own skills or review rules expects them to run, and the user shouldn't have to ask.
 - Don't keep a comment because it is a "why". Most whys are provenance. The only why that survives is the one whose absence lets a reader break something they cannot see.
 - Don't leave comment deletions for the reviewer to request. "Does this file need all these comments?" on a PR means Step 3 was skipped.
 
@@ -205,6 +223,7 @@ Do not render these as a numbered prose list and wait, use the tool so the user 
 /flagrare:wrap-up
      |--- Step 1: automated checks (tests, lint, types)
      |--- Step 2: /flagrare:implementation-review (7 parallel subagents)
+     |--- Step 2.5: the repo's own skills and review rules
      |--- Step 3: comment cull (delete by default)
      |--- Step 4: supplementary review
      |--- Step 5: combined report
