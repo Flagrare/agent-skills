@@ -77,6 +77,7 @@ The cache lives under a top-level `tickets` key in `~/.claude/skills/flagrare/co
 }
 ```
 
+- `merge_approved`: merge an approved PR whose checks pass, that merges cleanly and has no unanswered comment, without asking. Ask the first time one is ready and store the answer.
 - `merged_auto`: move a ticket to `merged` without asking once all its PRs merge. Ask the user the first time a ticket reaches `merged` and store the answer.
 - `add_to_active_sprint` and `sprint_board`: when a ticket reaches `started` and the tracker has sprints, put it in the active sprint of that board if it is not in one.
 - `status_map`: one entry per project key. Missing stages are found by name and cached the first time they are needed.

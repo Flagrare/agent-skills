@@ -1,11 +1,13 @@
 ---
 name: ticket-hygiene
-description: "Match the user's tickets with the real state of their work and fix the gaps. Pairs every open ticket assigned to the user with its PRs (open, draft, merged, closed), works out the stage the work is really at (started, in review, merged, done), and shows each ticket's status next to the one it should have. Forward moves backed by a PR are applied right away; done, reopened, unassigned and stale tickets are proposed. Also takes one ticket (`PROJ-123`) or an event (`merged PROJ-123`, `deployed PROJ-123`). Use when the user says 'ticket hygiene', 'sync my tickets', 'are my tickets up to date', 'move my tickets', 'fix ticket statuses', 'the PR merged', 'it's deployed', or right after a merge or deploy of their work. Also for a scheduled hygiene run, which only reports."
+description: "Match the user's tickets with the real state of their work and fix the gaps. Pairs every open ticket assigned to the user with its PRs (open, draft, merged, closed), works out the stage the work is really at (started, in review, merged, done), and shows each ticket's status next to the one it should have. It also finds what is keeping each piece of work from its next stage: approved PRs that are ready to merge, review comments nobody answered, failing checks, conflicts, reviews that never came, merges waiting on a deploy. Forward moves backed by a PR are applied right away; done, reopened, unassigned and stale tickets are proposed. Also takes one ticket (`PROJ-123`) or an event (`merged PROJ-123`, `deployed PROJ-123`). Use when the user says 'ticket hygiene', 'sync my tickets', 'are my tickets up to date', 'move my tickets', 'fix ticket statuses', 'the PR merged', 'it's deployed', or right after a merge or deploy of their work. Also for a scheduled hygiene run, which only reports."
 ---
 
 # Ticket hygiene
 
-The board should show what is really happening. This skill reads the user's tickets and PRs, pairs them, and moves each ticket to the status its work is at. It is the place where merges and deploys get reflected, since no other skill runs at those moments.
+The board should show what is really happening, and the work should not sit still without anyone noticing. This skill reads the user's tickets and PRs, pairs them, moves each ticket to the status its work is at, and says what is stopping each one from reaching the next stage. It is the place where merges and deploys get reflected, since no other skill runs at those moments.
+
+A status that matches its PR is only half the answer. A ticket in review whose PR was approved yesterday is in the right column and still stuck: it should have merged. The sweep is not done until every open PR has a next step or a clear "waiting on someone else".
 
 **REQUIRED BACKGROUND:** read `<plugin root>/lib/tickets/LIFECYCLE.md` first, the plugin root being two directories above this skill's base directory. It defines the stages, how a stage maps to a real status, and the rules every move follows. This skill does not repeat them.
 
@@ -39,6 +41,15 @@ gh search prs --author "@me" --owner <org from repo_scope> --state closed --clos
 
 Get each PR's branch name with `gh pr view <url> --json headRefName,body,mergeCommit`. Closed PRs that also appear in the merged list are merged, not abandoned.
 
+**Review state**, for every open PR:
+
+```bash
+gh pr view <url> --json reviewDecision,mergeable,reviewRequests,reviews,comments,commits,statusCheckRollup
+gh api repos/<owner>/<repo>/pulls/<n>/comments   # inline review comments
+```
+
+For each PR, note: the review decision, who is still requested, whether checks pass, whether it merges cleanly, and every review, review comment and inline comment from someone else that is newer than the author's last commit or reply. A comment the author has not answered stays unanswered even on an approved PR; an approval can carry a suggestion, and merging past it surprises the reviewer.
+
 **Deploy evidence**, for merged PRs only: did a release or deploy run that holds the merge commit finish? Check the repo's release workflows (`gh run list --commit <merge sha>` or the runs created after the merge), or the deploy tool the user has connected. Record "deployed" only with a finished run or the user's word. "Verified" needs a check in production, or the user saying it works there.
 
 ## Step 3: Pair them
@@ -63,13 +74,20 @@ Then work out each ticket's stage from its PRs, using "What stage the work is at
 | Ticket is `in_review` or later but has no PR at all | **Flag**: a PR may be missing the key |
 | PR with no ticket key | **Flag**: the PR needs a ticket |
 | Ticket unassigned but a user's PR references it | **Propose** assigning it to the user |
-| Ticket already at or past the expected stage | Nothing |
+| Open PR approved, checks green, merges cleanly, no unanswered comment | **Merge**: apply when `merge_approved` is true (re-read every review and comment first), otherwise propose |
+| Open PR approved, but a comment is unanswered | **Flag**: quote each one in a line and say it must be answered (or the user says to merge anyway) before it merges |
+| Open PR with changes requested, or a reviewer comment newer than the author's last commit or reply | **Flag**: who commented, how many comments, and a one-line read of the main one |
+| Open PR with failing checks or merge conflicts | **Flag**: which check, or that it needs a rebase |
+| Open PR with no reviewer requested | **Flag**: nobody has been asked to review |
+| Open PR with a reviewer requested and no review after 2 working days | **Flag**: waiting on review, and who to nudge |
+| Merged, no deploy evidence 2 working days after the merge | **Flag**: waiting on a deploy |
+| Ticket already at or past the expected stage, and its PR has nothing holding it back | Nothing |
 
 Map every target stage to a real status with "Picking the real status for a stage" in LIFECYCLE.md, and follow its rules on every move (own tickets only, read before writing, forward only).
 
 ## Step 5: Show the table, apply, ask
 
-Show one table, then act. Skip tickets that need nothing.
+Show one table, then act. Skip tickets that need nothing. The **Action** column says what happens next: a status move, a merge, comments to answer, a review to chase, a deploy to run. A ticket whose status is right but whose PR is stuck still gets a row.
 
 **Name every ticket by what it does, not by its number.** The user does not know tickets by key. Wherever a ticket appears (the table, the questions, the one-line move notes, the closing line), lead with a short plain description of what the ticket changes, in the product's words ("say when the venue is closed in the test order dialog", "hide another venue's items on the menu page"), with the key as a link after it. The ticket title is the starting point; rewrite it when it reads like code or shorthand. A bare key, or a list of keys like "PROJ-1029 + PROJ-1048", is never enough.
 
@@ -80,13 +98,17 @@ Show one table, then act. Skip tickets that need nothing.
 | [PROJ-130](url) Payout export | [#490](url) merged Nov 10, deployed | Needs Code Review | Ready to Release | moved |
 | [PROJ-131](url) Report email | [#495](url) merged, deployed, checked | Ready to Release | Finished | proposed |
 | [PROJ-140](url) Image upload | none, quiet 6 days | In Progress | ? | stale |
+| [PROJ-150](url) Order menu width | [#500](url) approved, green, 1 unanswered suggestion | Needs Code Review | Ready to Release | answer the suggestion, then merge |
+| [PROJ-151](url) Test order hours | [#501](url) 4 new comments from a reviewer | Needs Code Review | Needs Code Review | answer comments |
 ```
 
-Apply every **Apply** row (in a scheduled run, mark them "would move" instead). Then ask about the **Propose** rows in one `AskUserQuestion` with `multiSelect: true`, one option per move, and apply the ones the user picks. Each option's label is the plain description of the ticket, and its description says the move and why ("finished during this sprint, so it counts here"), with the key at the end. The question names what kind of move it is asking about, never only the keys. **Flag** rows need no answer; they stay in the table.
+Apply every **Apply** row (in a scheduled run, mark them "would move" instead). Merge the **Merge** rows that apply (in dependency order, re-reading every review and comment right before each merge, never deleting the branch), and move each merged ticket on with the `merged` rule. Then ask about the **Propose** rows in one `AskUserQuestion` with `multiSelect: true`, one option per move, and apply the ones the user picks. Each option's label is the plain description of the ticket, and its description says the move and why ("finished during this sprint, so it counts here"), with the key at the end. The question names what kind of move it is asking about, never only the keys. **Flag** rows need no answer; they stay in the table.
 
-Close with one line: how many moved, how many are waiting on the user.
+Close with one line: how many moved, how many merged, and how many are waiting on the user (comments to answer, approvals to merge, deploys to run).
 
 ## Anti-patterns
+
+- **Don't stop at "the status matches".** A matching status with an approved PR, unanswered comments or a merge waiting on a deploy is still work that has not moved. Field-tested the hard way: a sweep reported "0 moved, 0 waiting on you" while one PR was approved and ready to merge and two others had a day of unanswered reviewer comments. The user: "Ticket hygiene is not about only matching the status, but checking what should be moved but has not moved."
 
 - **Don't move a ticket to done on a merge or a deploy alone.** Done needs proof the change works in production. Field-tested the hard way: two tickets went to Finished right after the user said "Deployed", and the next message was "but did you test/check?".
 - **Don't pick a status by its category.** "Ready to Release" sits in the In Progress category in Jira, so a category match puts merged work back in the in-progress column.
