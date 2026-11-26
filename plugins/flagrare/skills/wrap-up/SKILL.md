@@ -189,16 +189,19 @@ Merge automated check results, `/flagrare:implementation-review` findings, and s
 
 ### Step 6: Offer Fixes
 
-If issues were found, **close with a tool, not prose.** The Step 5 report is a large artifact; ending with a prose "Would you like me to…" frequently reads as turn-complete and stops before the user can answer (the stall pattern in [`docs/research/2026-06-11-claude-code-goal-anti-stall.md`](../../../../docs/research/2026-06-11-claude-code-goal-anti-stall.md)). Immediately after the report, issue an `AskUserQuestion` tool call with options:
+If issues were found, **close with a tool, not prose.** The Step 5 report is a large artifact; ending with a prose "Would you like me to…" frequently reads as turn-complete and stops before the user can answer (the stall pattern in [`docs/research/2026-06-11-claude-code-goal-anti-stall.md`](../../../../docs/research/2026-06-11-claude-code-goal-anti-stall.md)). Immediately after the report, issue an `AskUserQuestion` tool call.
 
-- **Fix the automated check errors** (lint/type)
-- **Apply the review suggestions**
-- **Both** (Recommended when both surfaced findings)
-- **Skip for now**
+**The question names every finding.** The question dialog can cover the report, so it may be the only thing the user sees when they decide. Never offer a generic menu like "Apply the review suggestions" or "Fix the lint errors". Build it like this:
+
+- Use `multiSelect: true` with **one option per finding**. The **label** is the fix in a few words, naming where it goes ("Test the discount error on a deleted account"). The **description** says what's wrong, in plain words, and what happens if it stays: "Nothing checks that a bad discount code still gets the discount error when the account is also gone, so reordering the lookup could break it silently."
+- Check failures (lint, types, tests) are findings too: one option each, naming the file and the error, never "fix the automated check errors".
+- The question line says how many findings there are and which change they're about ("2 test gaps in the checkout change: which should I fix?").
+- More than 4 findings: split them across up to 4 questions by kind (check failures, test gaps, code), 4 options each. If there are still more, fold the smallest ones into one option whose description lists each one.
+- Picking nothing means skip. Don't add a "Skip" option that takes a slot from a finding.
 
 Comment deletions are not on this menu: Step 3 already applied them. If the user wants one back, they say so after reading the report.
 
-Do not render these as a numbered prose list and wait, use the tool so the user gets buttons and the turn doesn't end ambiguously.
+Do not render these as a numbered prose list and wait, use the tool so the user gets buttons and the turn doesn't end ambiguously. Field-tested the hard way: the menu read "Fix the automated check errors / Apply the review suggestions / Both / Skip", and the user said that nearly every time, the skill asked whether to address the findings without saying what they were.
 
 ---
 
@@ -210,6 +213,7 @@ Do not render these as a numbered prose list and wait, use the tool so the user 
 - Don't skip this because "the change is small". Small changes still break things.
 - Don't stop at the generic checks. A repo that ships its own skills or review rules expects them to run, and the user shouldn't have to ask.
 - Don't keep a comment because it is a "why". Most whys are provenance. The only why that survives is the one whose absence lets a reader break something they cannot see.
+- Don't ask "apply the suggestions?" without naming them. Each finding is its own option, with what's wrong and the fix, because the question dialog may be all the user sees.
 - Don't leave comment deletions for the reviewer to request. "Does this file need all these comments?" on a PR means Step 3 was skipped.
 
 ---
