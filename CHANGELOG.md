@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.91.0: 2026-11-26
+
+The plan asks "who already decides this?" before it writes a new rule.
+
+### Improved Skills
+
+- **`/flagrare:atdd-plan`, reuse the gate that already makes the call**: when a change decides who or what something applies to (which accounts, users, records or pages), the plan now finds the check that already makes that decision, whether it's a page or route gate, a permission helper, or the same rule on another layer. It calls that check, or matches it exactly when it lives in another service, and cites where it is. A new rule is the last resort, and the plan has to say why nothing existing fits. Two layers that each write their own version of one rule will disagree at the edges, and reviewers are the ones who find out. Field-tested the hard way: a backend change picked a link by checking "the account has type X", while the page that sends the request is gated on "the account has only type X". Two reviewers asked about the edge cases, and the user pointed out the plan should have reused the existing gate from the start.
+- **`/flagrare:codebase-explore`, existing gates in Weak Spots**: exploration now lists the checks that already decide the same question (page and route gates, permission helpers, the same rule in another service) with file and line, so the planner starts from the rule that's already there.
+
 ## 1.90.0: 2026-11-26
 
 Following the house style no longer means inheriting its flaws.
