@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.90.0: 2026-11-26
+
+Following the house style no longer means inheriting its flaws.
+
+### Improved Skills
+
+- **`/flagrare:atdd-plan`, easy wins over copied weaknesses**: plans now have a third non-negotiable next to acceptance tests and design patterns. Before extending a local pattern, the plan checks it against SOLID and Clean Code and takes the cheap fixes as part of the change: a rule copied by hand from another source of truth gets derived, merged into one structure or guarded by a test that fails when the two disagree; two maps keyed by the same type become one map of objects; and when two places in the codebase solve the same problem differently, the plan follows the sounder one, not just the nearest. A win counts as easy when it stays in the files the change already touches, keeps every public contract and adds no dependency. Those go inline, one line each, in the step they belong to, and anything bigger becomes a one-line follow-up instead of scope creep. There is still no separate SOLID or Clean Code section: the principles shape the steps themselves. Field-tested the hard way: a plan added a hand-written map from each card type to its page's access rule, right next to an existing map of the same types to their links, while a sibling menu config already kept link and rule together. The reviewer had to point out that nothing kept the new map in sync with the routes, and the user asked why the plan hadn't done it that way from the start.
+- **`/flagrare:codebase-explore`, weak spots**: exploration now judges the template instead of only handing it over. It reports siblings that solve the same thing differently (and which one keeps the rule in one place), values copied by hand from another source of truth along with where they came from, and parallel structures that must be kept in step, in a new Weak Spots section the planner uses to pick its easy wins.
+
 ## 1.89.0: 2026-11-25
 
 The board stops counting proof and starts answering the question the promotion room asks.
