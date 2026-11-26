@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.89.0: 2026-11-25
+
+The board stops counting proof and starts answering the question the promotion room asks.
+
+### Improved Skills
+
+- **`/flagrare:promotion` and `/flagrare:career`, a rating per behavior**: every behavior on the next-level ladder now carries a rating, not just a pile of evidence. It says whether the work already meets the next level (and since when), whether it exceeds, meets or falls below the current level, the one-sentence reason a manager would accept, and the links it rests on. The promotion skill also quotes the company's own bar from its process page (for example, meeting every next-level expectation for about six months before the promotion takes effect) together with the effective date, so the board can tell which met behaviors have held long enough to count this cycle and which are too recent. A career run re-rates only the behaviors that need it: never rated, new proof tagged since the last rating, or not rated in two weeks. It does this without asking, so a scheduled run keeps the picture current. The board's Promotion tab now leads with "X of N behaviors met", the bar and how many hold for it, the behaviors where you already exceed your current level, and a Not yet list with each reason and next step. Maps without ratings keep working and show the old view. Field-tested the hard way: after a manager laid out the path (exceed at your level first, then bring every next-level behavior up to meets, then write the case) and the company's process page set a six-month bar, the board could only say how much proof each behavior had, and nobody could read off whether a promotion this cycle was even possible.
+
 ## 1.88.0: 2026-11-25
 
 A wrap-up now asks the repo what it checks, not just what every repo checks.
