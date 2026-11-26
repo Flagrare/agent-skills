@@ -62,6 +62,12 @@ Search for:
 
 Read 1-2 complete analogous files. These become the template.
 
+Then judge the template, don't just copy it. Note:
+- **Siblings that solve the same thing differently.** Report both, and which one keeps the rule in one place.
+- **Weaknesses the change would extend**: a value copied by hand from another source of truth (route config, schema, enum), two structures keyed by the same type that must be kept in step, magic values. Name the source of truth each copy came from.
+
+The planning skill uses these to pick the cheap improvements; this skill only reports them.
+
 ---
 
 ## Step 4: Map conventions
@@ -118,6 +124,9 @@ Return findings in this structure (no headers beyond these, no plan, no steps):
 
 ## Analogous Features
 [1-2 similar features with file paths and what makes them analogous]
+
+## Weak Spots
+[hand-kept copies and their source of truth, parallel structures, sibling that does it better; or "none found"]
 
 ## Conventions
 [table of conventions observed in this area]

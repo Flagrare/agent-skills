@@ -1,6 +1,6 @@
 ---
 name: atdd-plan
-description: "Produce an ATDD-first implementation plan in Claude Code's native plan mode, with named design patterns called out where they earn their keep. The skill enters plan mode automatically (via the EnterPlanMode tool), runs /flagrare:codebase-explore to ground the plan in the actual codebase, then produces a plan-mode plan that MUST include both: (1) 3-5 acceptance tests in plain English defining 'done' before any implementation, written behavior-first against the public API only; and (2) any non-trivial structural decisions named as design patterns with a one-line rationale. Plan mode's native approve/edit/reject button UI is the close, ExitPlanMode is how the skill ends. Use whenever the user wants to plan a feature, fix, or refactor, 'how should we implement X', 'plan this', 'let's design X', 'where do we start on Y'. Tests follow Kent Dodds Testing Trophy: behavior over implementation, integration-heavy, public-API-only, refactor-proof. The skill stops at the plan; it does not write implementation code."
+description: "Produce an ATDD-first implementation plan in Claude Code's native plan mode, with named design patterns called out where they earn their keep. The skill enters plan mode automatically (via the EnterPlanMode tool), runs /flagrare:codebase-explore to ground the plan in the actual codebase, then produces a plan-mode plan that MUST include all three: (1) 3-5 acceptance tests in plain English defining 'done' before any implementation, written behavior-first against the public API only; (2) any non-trivial structural decisions named as design patterns with a one-line rationale; and (3) the cheap SOLID and Clean Code wins in the code it extends (a rule kept in two places by hand, parallel maps, a sibling that does it better), planned inline instead of copying the local pattern's weakness. Plan mode's native approve/edit/reject button UI is the close, ExitPlanMode is how the skill ends. Use whenever the user wants to plan a feature, fix, or refactor, 'how should we implement X', 'plan this', 'let's design X', 'where do we start on Y'. Tests follow Kent Dodds Testing Trophy: behavior over implementation, integration-heavy, public-API-only, refactor-proof. The skill stops at the plan; it does not write implementation code."
 ---
 
 # ATDD Plan
@@ -9,7 +9,7 @@ This skill produces an implementation plan in **Claude Code's native plan mode**
 
 1. **Plan mode is actually used**: `EnterPlanMode` at skill start, `ExitPlanMode` at skill end. The user gets the native approve/edit/reject button UI, not a wall of markdown.
 2. **The plan is grounded in the real codebase**: `/flagrare:codebase-explore` runs before any planning, so the plan references the actual files, conventions, and reusable pieces that exist.
-3. **The plan contains the two non-negotiables below.**
+3. **The plan contains the three non-negotiables below.**
 
 Everything else about the plan's form, length, section ordering, tone, follows plan mode's defaults. Don't impose extra structure on top.
 
@@ -17,9 +17,9 @@ Everything else about the plan's form, length, section ordering, tone, follows p
 
 ---
 
-## The two non-negotiables
+## The three non-negotiables
 
-Every plan this skill produces **must include** both:
+Every plan this skill produces **must include** all three:
 
 ### 1. Acceptance Tests (ATDD)
 
@@ -50,6 +50,19 @@ For every **non-trivial structural decision**, name the pattern and give a one-l
 | Wrap incompatible interfaces | Adapter |
 
 Only name a pattern when it genuinely solves the stated problem. Forcing a pattern where it doesn't fit is worse than no pattern. If a plan's structural decisions are all trivial (one obvious file change, no abstraction needed), say so explicitly, *"No design patterns needed; this is a single-function fix in `path/to/file`"*, rather than inventing one.
+
+### 3. Easy wins over copied weaknesses
+
+Following the codebase's patterns is the default, not a reason to copy their flaws. When the code the plan extends has a weakness that SOLID or Clean Code would name, and fixing it is cheap, the plan fixes it as part of the change. Look for these in what exploration found:
+
+- **A rule kept in two places by hand.** A list, map or constant copied from another source of truth (route config, a schema, an enum elsewhere) drifts the day someone changes the original. Derive it from the source, or keep both halves in one structure, or add a test that fails when they disagree.
+- **Parallel structures keyed by the same thing.** Two maps from the same type to different facts (`TYPE → url` and `TYPE → access rule`) belong in one map of objects (`TYPE → { url, rule }`), so adding a type means filling one entry, not remembering two.
+- **A sibling that already does it better.** When two places in the codebase solve the same problem differently, follow the sounder one, even if it is not the closest one. Say which you picked and why.
+- **Magic values, unnamed conditions, a function doing two things** in the code the change touches.
+
+A win is easy when it stays in the files the change already touches (or one hop from them), changes no public contract, adds no dependency and needs no edits to unrelated callers. Plan those inline, one line each, in the step where they happen: *"The URL map becomes `{ href, rule }` per type, like the menu config next to it, so a card's link and access rule can't drift apart."* Bigger improvements get one line under a "Follow-ups" note and are not done in this change.
+
+If exploration found nothing worth improving, say so in one line. Field-tested the hard way: a plan added a hand-written map from each card type to its page's access rule, next to an existing map of the same types to their links. A sibling menu config in the same codebase already kept link and rule together. The reviewer had to point out that nothing kept the new map in sync with the routes, and the user asked why the plan had not done it that way from the start.
 
 ---
 
@@ -89,15 +102,16 @@ This gate is light by design, it's one button click when the synthesis is correc
 
 Write a plan-mode plan. Follow Claude Code's normal plan-mode conventions for shape, length, and tone, narrative + targeted lists, scannable, no padding.
 
-**Requirements layered on top of plan mode's defaults (the third only when a bet is present):**
+**Requirements layered on top of plan mode's defaults (the fourth only when a bet is present):**
 
 1. Include the **Acceptance Tests** section described above (3-5 ATs).
 2. **Name the design patterns** for any non-trivial structural decisions, with one-line rationale each. Or explicitly state none are needed.
-3. When the opening context carries a bet from `/flagrare:measure-impact` whose tracking does not exist yet, add the event or metric as an early step and one acceptance test that it records the change. Without a bet, add nothing.
+3. **Plan the easy wins** from non-negotiable 3 inline, in the step they belong to, and list bigger improvements as follow-ups. Or say in one line that the code being extended has none.
+4. When the opening context carries a bet from `/flagrare:measure-impact` whose tracking does not exist yet, add the event or metric as an early step and one acceptance test that it records the change. Without a bet, add nothing.
 
 **Do NOT add**:
 
-- A separate SOLID audit section
+- A separate SOLID audit section (SOLID and Clean Code shape the steps themselves, through the easy wins)
 - A separate Clean Code checklist
 - An enumerated Gap Review by category (empty/boundary/error/concurrent/state-machine/hostile/ordering)
 - A Design Patterns table separate from the prose
@@ -123,4 +137,5 @@ Do not follow `ExitPlanMode` with a prose question or summary. The button UI is 
 - **Skipping `/flagrare:codebase-explore`.** The plan must be grounded in the real codebase; references to actual `path/to/file.ts:42` locations are what separate this from a generic chatbot plan.
 - **Coverage targets as a goal.** Coverage is a side effect of testing the right behaviors, not something the plan aims at.
 - **A user-facing feature whose ATs never prove the layers connect.** Unit + integration coverage with no e2e/full-stack happy-path test is a gap, even when it looks complete. The e2e floor is non-optional for user-facing work, see `/flagrare:testing-philosophy`.
+- **Copying a pattern's weakness because it is the local pattern.** "The existing map only has URLs, so I added a second map" is how a hand-kept duplicate ships. Check the pattern against SOLID and Clean Code before extending it, and take the cheap fix.
 - **Closing with a prose question after `ExitPlanMode`.** The button UI is the close. Don't double-prompt.
