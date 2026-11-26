@@ -23,8 +23,10 @@ def full_map(**over) -> dict:
     m["calendar"] = {"packet_deadline": {**FACT, "value": "2027-01-07", "status": "inferred"},
                      "manager_conversation": {"comfortable_by": "2026-10-30", "absolute_by": "2026-11-14", "status": "inferred", "state": "ok"}}
     m["rubric"] = {"rows": [
-        {"id": "scope.proactive-discovery", "area": "Scope & Impact", "status": "partial", "target_text": FACT, "evidence": []},
-        {"id": "craft.review-quality", "area": "Technical Craft", "status": "done", "target_text": FACT, "evidence": ["a", "b", "c"]},
+        {"id": "scope.proactive-discovery", "area": "Scope & Impact", "status": "partial", "target_text": FACT, "evidence": [],
+         "assessment": {"target": "not_yet", "current": "meets", "checked_at": "2026-09-30"}},
+        {"id": "craft.review-quality", "area": "Technical Craft", "status": "done", "target_text": FACT, "evidence": ["a", "b", "c"],
+         "assessment": {"target": "meets", "current": "exceeds", "since": "2026-09-01", "checked_at": "2026-09-30"}},
     ]}
     m["sections"] = {s: dict(FRESH) for s in SECTIONS}
     m.update(over)

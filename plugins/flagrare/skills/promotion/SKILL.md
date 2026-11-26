@@ -57,13 +57,22 @@ Tell the user up front: the first run is long, often an hour or more, and it sav
 2. **Look up two facts about the target level:** is it terminal at this company (no expectation of promotion beyond it), and what's the expected time band at the current level? Quote both.
 3. **Say what the "why" changes.** A terminal target plus a "peace of mind" why makes the target the finish line. A "money" or "scope" why means planning past it. Write this into the map's section 1.
 4. **Find the process, calendar and packet template** in every connected source: wiki, docs, chat announcements, meeting notes, the HR portal (with consent). Also find **how product decisions get made**: the decision document and who usually drives it. Opportunity-scan needs this.
+   Also record **the bar** and **the effective date**. The bar is the process page's rule for how long the user must already meet the next level before a promotion takes effect ("meeting all expectations at the next step for around six months"). Save it as `process.bar`, a fact whose `value` is `{"months": <n>, "text": "<the rule, quoted>"}`. The date promotions take effect this cycle goes in `calendar.effective`. When the process names no length of time, leave `process.bar` out and add a manager question instead of guessing one.
    Also find **what leadership measures**: the company's themes or strategy documents, OKRs and planning docs, and what planning meetings and all-hands say (in meeting notes such as Granola, when connected). Record each metric that matters for the user's area in `priorities`: the theme, the metric, its baseline and target when written down (each a fact with a source), the team that owns it, and `user_lever`: `owner` if the user's seat owns the metric's main input, `input` if their systems feed it, `none` if the lever sits in another team. Opportunity-scan ranks proposals against this list. Take priorities from meeting notes, never quotes about people.
 5. Save the map (JSON and markdown) with the `target`, `process`, `calendar` and `sections` entries filled in.
 
 ### Phase 2: Rubric gap
 1. **Find the artifact managers rate against** (a ladder spreadsheet, a check-in workbook), not prose written about it. Ask the user whether their manager uses a check-in workbook. If prose and artifact disagree, use the artifact and record the mismatch in `rubric.prose_mismatches`.
 2. Build one `rubric.rows` entry per behavior: the current-level text, the target-level text, a stable id (`<area>.<short-slug>`), and a `label`, the behavior in two to four plain words ("Finding problems", "Sought-after reviewer"), which the board and digests show instead of the id.
-3. Mark each row `done`, `partial` or `not_started`, with evidence from `career_state.py contributions`, recognition peers gave the user (when a recognition tool is set up, see "Recognition" below: each bonus with its link is proof, and the company value it is tagged with points at the core-values behavior), the user's reviews and work, and prior review notes the user shares.
+3. **Rate each row** against its two texts, from evidence in `career_state.py contributions` (entries tagged `| row: <id>`), recognition peers gave the user (when a recognition tool is set up, see "Recognition" below: each bonus with its link is proof, and the company value it is tagged with points at the core-values behavior), the user's reviews and work, and prior review notes the user shares. Write it as the row's `assessment` (shape in `reference/map-schema.md`):
+   - `target`: `meets` when the work already shows the target-level text the way the ladder describes it, more than once and recently; otherwise `not_yet`.
+   - `current`: `exceeds`, `meets` or `below`, against the current-level text. Managers usually want a few exceeding behaviors before they back a case.
+   - `since`: for `meets`, the date of the earliest proof that shows it. The bar counts time from here, so never move it later on a re-rating while the row still meets.
+   - `reason`: one plain sentence a manager would accept, and `proof`: the links it rests on.
+   - `checked_at`: today.
+   Then set `status` from the rating so older readers keep working: `done` for target `meets`, `partial` when the current level is exceeded or there is any proof, otherwise `not_started`.
+   A rating is the skill's reading of the proof, offered for the user and their manager to check. Never write it as the manager's view, and never round up: one strong case is not yet a habit.
+   A row rated `meets` becomes `done`, so impact-scan stops tagging new proof to it (it only tags open rows). That is intended: the row is re-rated every 14 days anyway, and its `since` is what the bar counts.
 4. Save.
 
 ### Phase 3: Org and who knows your work
@@ -91,8 +100,9 @@ Tell the user up front: the first run is long, often an hour or more, and it sav
 2. Re-research only the stale or flagged sections. Keep every other section as it is.
 3. Ask the user "anything changed?", covering target, manager, team, and people who have seen their work.
 4. If the calendar section is re-checked, or a flag says the calendar was published, re-run `deadlines.py` and update `calendar.manager_conversation`.
-5. Refresh each open row's `next_step` when the evidence for it has moved (a step that's done or no longer the cheapest gets replaced), and add any missing `label`.
-6. Update `checked_at` for each re-checked section, clear the flags you handled, and save.
+5. **Rate rows again.** When `/flagrare:career` passes `rows` (from `coordinator.py due`: never rated, new proof tagged with the row since its last rating, or not rated in 14 days), rate those rows again the way Phase 2 step 3 does, and only those. Keep `since` while a row still meets; set it to the earliest proof date when a row first meets; clear it when a row drops back to `not_yet`, and say so in the summary. Update `status` from the rating.
+6. Refresh each open row's `next_step` when the evidence for it has moved (a step that's done or no longer the cheapest gets replaced), and add any missing `label`.
+7. Update `checked_at` for each re-checked section, clear the flags you handled, and save. Return which rows changed rating, in plain words ("Design docs now meets, since Nov 3").
 
 ### Recognition
 

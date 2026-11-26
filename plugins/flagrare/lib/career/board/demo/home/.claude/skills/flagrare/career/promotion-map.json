@@ -114,6 +114,15 @@
       "source": "Engineering career ladder, Senior tab",
       "checked_at": "2026-10-20",
       "status": "verified"
+    },
+    "bar": {
+      "value": {
+        "months": 6,
+        "text": "You should already meet every expectation of the next level for about six months before the promotion takes effect."
+      },
+      "source": "Engineering promotion process page",
+      "checked_at": "2026-11-01",
+      "status": "verified"
     }
   },
   "calendar": {
@@ -136,6 +145,12 @@
       "status": "verified",
       "state": "upcoming",
       "note": "Priya needs a few weeks to gather peer feedback"
+    },
+    "effective": {
+      "value": "2027-03-01",
+      "source": "Engineering promotion process page",
+      "checked_at": "2026-11-01",
+      "status": "verified"
     }
   },
   "rubric": {
@@ -162,7 +177,14 @@
         },
         "status": "partial",
         "evidence": [],
-        "next_step": "Log one more problem you found and fixed outside your tickets."
+        "next_step": "Log one more problem you found and fixed outside your tickets.",
+        "assessment": {
+          "target": "not_yet",
+          "current": "exceeds",
+          "reason": "One strong find so far; the ladder asks for a habit, not a single case.",
+          "proof": [],
+          "checked_at": "2026-11-10"
+        }
       },
       {
         "id": "scope.cross-team",
@@ -204,7 +226,16 @@
         "evidence": [
           "https://spokewise-demo.atlassian.net/browse/PAY-412"
         ],
-        "next_step": "Share the payout retries results with the squad and Felix."
+        "next_step": "Share the payout retries results with the squad and Felix.",
+        "assessment": {
+          "target": "not_yet",
+          "current": "meets",
+          "reason": "You lead payout retries, but the results aren't shared yet.",
+          "proof": [
+            "https://spokewise-demo.atlassian.net/browse/PAY-412"
+          ],
+          "checked_at": "2026-11-10"
+        }
       },
       {
         "id": "tech.design-docs",
@@ -269,7 +300,18 @@
           "https://github.com/spokewise-demo/booking-api/pull/884#pullrequestreview-3",
           "https://github.com/spokewise-demo/shop-dashboard/pull/2310#pullrequestreview-7",
           "https://github.com/spokewise-demo/payouts-service/pull/1201#pullrequestreview-5"
-        ]
+        ],
+        "assessment": {
+          "target": "meets",
+          "current": "exceeds",
+          "reason": "Three reviews where your comment changed the design before merge.",
+          "proof": [
+            "https://github.com/spokewise-demo/booking-api/pull/884#pullrequestreview-3",
+            "https://github.com/spokewise-demo/shop-dashboard/pull/2310#pullrequestreview-7"
+          ],
+          "checked_at": "2026-11-10",
+          "since": "2026-06-10"
+        }
       },
       {
         "id": "team.reviews",
@@ -288,7 +330,15 @@
           "status": "verified"
         },
         "status": "done",
-        "evidence": []
+        "evidence": [],
+        "assessment": {
+          "target": "meets",
+          "current": "exceeds",
+          "reason": "Two squads now ask you to review their payment changes.",
+          "proof": [],
+          "checked_at": "2026-11-10",
+          "since": "2026-08-20"
+        }
       },
       {
         "id": "team.incidents",
@@ -328,7 +378,14 @@
         },
         "status": "not_started",
         "evidence": [],
-        "next_step": "Join the interview rotation for backend roles."
+        "next_step": "Join the interview rotation for backend roles.",
+        "assessment": {
+          "target": "not_yet",
+          "current": "below",
+          "reason": "No interviews yet.",
+          "proof": [],
+          "checked_at": "2026-11-10"
+        }
       },
       {
         "id": "mentorship.pairing",
@@ -348,7 +405,14 @@
         },
         "status": "not_started",
         "evidence": [],
-        "next_step": "Offer Omar a weekly pairing hour for a month."
+        "next_step": "Offer Omar a weekly pairing hour for a month.",
+        "assessment": {
+          "target": "not_yet",
+          "current": "meets",
+          "reason": "No mentoring you started yet.",
+          "proof": [],
+          "checked_at": "2026-11-10"
+        }
       },
       {
         "id": "comms.writing",
@@ -371,7 +435,18 @@
           "https://www.notion.so/spokewise-demo/Incident-review-payout-stall-4e5f6a",
           "https://www.notion.so/spokewise-demo/Payout-retries-design-7c1e0a",
           "https://www.notion.so/spokewise-demo/Payout-retries-results-2d3e4f"
-        ]
+        ],
+        "assessment": {
+          "target": "meets",
+          "current": "meets",
+          "reason": "Your incident writeups became the squad's template.",
+          "proof": [
+            "https://www.notion.so/spokewise-demo/Incident-review-payout-stall-4e5f6a",
+            "https://www.notion.so/spokewise-demo/Payout-retries-design-7c1e0a"
+          ],
+          "checked_at": "2026-11-10",
+          "since": "2026-10-05"
+        }
       },
       {
         "id": "comms.community",

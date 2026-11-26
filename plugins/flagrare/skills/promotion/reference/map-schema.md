@@ -29,6 +29,7 @@ Absent sections mean "not researched yet", not an error.
   },
   "process": {
     "steps": [{}], "who_initiates": {}, "decision_makers": {}, "calibration_room": {},
+    "bar": {"value": {"months": 6, "text": "the rule, quoted"}, "source": "...", "checked_at": "...", "status": "verified"},
     "packet_template": {"sections": ["..."], "length": {}, "peer_feedback": {}},
     "decision_process": {"artifact": {}, "usual_driver": {}}
   },
@@ -42,7 +43,9 @@ Absent sections mean "not researched yet", not an error.
     "rows": [{"id": "scope.proactive-discovery", "area": "Scope & Impact", "label": "Finding problems",
               "current_text": {}, "target_text": {},
               "status": "done|partial|not_started", "evidence": ["log line or link"],
-              "next_step": "the single cheapest action that would add evidence this week"}]
+              "next_step": "the single cheapest action that would add evidence this week",
+              "assessment": {"target": "meets|not_yet", "current": "exceeds|meets|below", "since": "YYYY-MM-DD",
+                             "reason": "one plain sentence", "proof": ["link"], "checked_at": "YYYY-MM-DD"}}]
   },
   "org": {"chain": [{}], "options": [{}], "changes": [{}]},
   "people": [{"name": "...", "role": {}, "relation": "...", "seen_your_work": true,
@@ -57,3 +60,5 @@ Absent sections mean "not researched yet", not an error.
 ```
 
 Rubric row ids are `<area>.<short-slug>`, lowercase with hyphens, and stay stable across refreshes. Impact-scan tags contributions with these ids. `label` is the plain name people read (on the board and in digests); `next_step` is set for rows that are not `done` and feeds the board's "biggest gaps" list. `priorities` is optional (older maps have none); it is written in Phase 1 with the process and calendar, and its facts are checked like the others. `packet_readiness` entries may carry a one-line `note`, which the board shows under the section's state.
+
+A row's `assessment` is the skill's rating of that behavior, not a fact (it has no `value`), and a row without one is simply not rated yet. `map_schema.py check` reports an unknown `target` or `current`, a missing or bad `checked_at`, a `meets` with no `since`, and a `since` after `checked_at`. `process.bar` and `calendar.effective` together give the date a behavior must be met by to count this cycle (`effective` minus `months`); `coordinator.py assessment` reports which met rows hold that long.

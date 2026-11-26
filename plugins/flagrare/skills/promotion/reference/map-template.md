@@ -20,9 +20,11 @@ Last full check: <date>. Sources and statuses for every fact are in `promotion-m
 **Talk to your manager:** comfortable by <date>, absolute by <date> (<status>, <state>).
 
 ## 4. The gap
-| Area | Your level | Target level | Status | Evidence | Next step |
-|---|---|---|---|---|---|
-<one row per rubric row, named by its label; the next step only for rows not done>
+<X of N Senior behaviors met. The bar: met about <months> months before <effective>, so by <date>; <n> hold that long.>
+
+| Area | Your level | Target level | At your level | Meets the target | Since | Why | Next step |
+|---|---|---|---|---|---|---|---|
+<one row per rubric row, named by its label; "At your level" is exceeds, meets or below; "Since" only for rows that meet; the next step only for rows not met>
 
 <Any mismatch between the rubric file and prose about it.>
 

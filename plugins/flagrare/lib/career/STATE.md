@@ -46,6 +46,8 @@ The user's observed writing rules, used for drafts. The newer of the old and new
 
 Written only by `/flagrare:promotion`. Shape: `skills/promotion/reference/map-schema.md`.
 
+Each rubric row may carry an `assessment` (the skill's rating of that behavior: meets or not yet at the target level, exceeds, meets or below at the current level, since when, why, with what proof). `coordinator.py due` adds a promotion `refresh` step with `sections: ["rubric"]` and `rows: [ids]` when rows are due for a new rating (never rated, proof tagged with the row after its last rating, or not rated in 14 days); it joins an existing refresh step instead of adding a second one. `coordinator.py assessment` (also inside `board`) reports how many are met and which hold for `process.bar`.
+
 ## flags.json
 
 Signals that part of the promotion map may be stale. Other skills append through `career_state.py flag`, which skips a flag when one for the same section already has the same reason or the same source; `/flagrare:promotion` reads them on refresh and removes the ones it handled.

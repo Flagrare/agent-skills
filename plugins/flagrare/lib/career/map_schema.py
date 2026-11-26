@@ -6,6 +6,8 @@ import json
 from datetime import date
 from pathlib import Path
 
+import assessment
+
 SECTIONS = ["target", "process", "calendar", "rubric", "org", "people", "precedent", "packet_readiness", "manager_questions"]
 # Checked like the others when present, never reported missing: older maps predate them.
 OPTIONAL_SECTIONS = ["priorities"]
@@ -50,7 +52,7 @@ def validate(m: dict) -> list[str]:
                         date.fromisoformat(fact["checked_at"])
                     except (ValueError, TypeError):
                         errors.append(f"{path}: checked_at must be an ISO date (YYYY-MM-DD)")
-    return errors
+    return errors + assessment.validate(m)
 
 
 def conflicts(m: dict) -> list[str]:

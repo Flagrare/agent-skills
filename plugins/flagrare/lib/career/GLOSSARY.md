@@ -8,6 +8,9 @@ Clarity comes first, and the user still learns the terms their company uses. The
 |---|---|---|
 | Senior behaviors (or "<target level> behaviors") | rubric rows | The behaviors on the company's ladder for the level the user is going for. Each one is a line managers rate against. |
 | Senior behaviors not shown yet | open rubric rows | Behaviors the promotion map marks partial or not started. |
+| Met | assessment target `meets` | The work already shows the behavior the way the ladder describes it, with proof. The skill's reading, for the user and their manager to check. |
+| The bar | `process.bar` | The company's rule for how long the user must already meet the next level before a promotion takes effect. |
+| Exceeding at your level | assessment current `exceeds` | Behaviors where the work already goes beyond what the current level asks. |
 | Proof | evidence | Something the user did that shows a behavior, with a link. Every logged contribution counts as proof. |
 | Behaviors with little proof | rows with thin evidence | Behaviors with fewer than 3 pieces of proof. |
 | Your written case | packet | The document the manager takes into the promotion decision. |

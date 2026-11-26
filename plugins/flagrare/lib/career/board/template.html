@@ -274,6 +274,16 @@ details.row.plain .detail { padding-left: var(--s-5); }
 .date-what { font-weight: 700; font-size: 15px; margin-top: var(--s-1); }
 .date-left { font-size: var(--t-sm); color: var(--muted); }
 .dates-note { margin-top: var(--s-4); font-size: var(--t-sm); color: var(--muted); }
+.stand-bar { margin-top: var(--s-2); font-size: var(--t-sm); color: var(--ink-2); max-width: 70ch; }
+.notyet { margin-top: var(--s-5); padding-top: var(--s-5); border-top: 1px solid var(--hair); display: grid; gap: var(--s-3); }
+.notyet h3, .exceed h3 { font-size: 15px; font-weight: 700; margin: 0; }
+.notyet-row { display: grid; gap: 2px; }
+.notyet-row b { font-weight: 700; }
+.notyet-row span { font-size: var(--t-sm); color: var(--ink-2); max-width: 70ch; }
+.exceed { margin-top: var(--s-5); display: grid; gap: var(--s-2); }
+.exceed .chips { display: flex; flex-wrap: wrap; gap: var(--s-2); }
+.chip.met { background: var(--good-soft); color: var(--ink); }
+.chip.short { background: var(--week-soft); color: var(--ink); }
 .date-left.soon { color: var(--week); font-weight: 700; }
 .date-left.late { color: var(--now); font-weight: 700; }
 .callout { display: flex; gap: var(--s-3); align-items: flex-start; padding: var(--s-4) var(--s-5); border-radius: var(--r-box); background: var(--week-soft); color: var(--ink); margin-bottom: var(--s-4); font-size: 15px; }
@@ -617,11 +627,15 @@ dialog.keys dd { margin: 0; color: var(--ink-2); }
     draft: "A reply is already written and nothing needs checking first. Read it in the item, copy it, and send it yourself.",
     estimate: "A date worked out from the usual promotion calendar. Nobody has confirmed it yet, so check it with your manager.",
     waiting: "Things where you did your part and someone else has to answer. Each one stays here until they do.",
+    met: "A Senior behavior counts as met when your work already shows it the way your ladder describes it, with proof. It's Claude's reading of your proof, for you and your manager to check, not a rating anyone gave you.",
+    bar: "The company's rule for promotions, quoted in your promotion map: you already meet every next-level behavior for some months before the promotion takes effect. A behavior met later than that date doesn't count toward this cycle yet.",
+    exceeding: "Behaviors where your work already goes beyond what your current level asks. Managers often want a few of these before they back a promotion case.",
     recognition: "Thanks peers gave you in the company's recognition tool (Bonusly, for example). Each one is proof someone saw your work, and the people who give them are good picks for peer feedback in your written case.",
   };
   const GLOSS = [["Senior behaviors", "behaviors"], ["Proof", "proof"], ["Your written case", "case"], ["Promotion committee", "committee"],
     ["The project you own", "project"], ["Proposed projects", "proposed"], ["Ranking score", "score"], ["The bet", "bet"], ["Measure", "measure"], ["Check first", "check"],
-    ["Draft ready", "draft"], ["Estimate", "estimate"], ["Waiting on others", "waiting"], ["Recognition", "recognition"]];
+    ["Draft ready", "draft"], ["Estimate", "estimate"], ["Waiting on others", "waiting"], ["Recognition", "recognition"],
+    ["Met", "met"], ["The bar", "bar"], ["Exceeding at your level", "exceeding"]];
   const term = (text, key) => `<a class="term" href="#g-${key}" data-term="${key}" title="${esc(DEF[key])}">${esc(text)}</a>`;
 
   const CAREER = DATA.career || {};
@@ -631,6 +645,9 @@ dialog.keys dd { margin: 0; color: var(--ink-2); }
   const BAL = CAREER.balance || {};
   const REC = CAREER.recognition || {};
   const TARGET = Number(CAREER.readiness_target) || 3;
+  const ASSESS = CAREER.assessment || {};
+  const RATED = Number(ASSESS.rated) > 0;
+  const ARATE = Object.fromEntries((ASSESS.rows || []).map(r => [r.id, r]));
   const ROWLABEL = Object.fromEntries(ROWS.map(r => [r.id, r.label || r.area || r.id]));
   const SRC = { github: "GitHub", slack: "Slack", notion: "Notion", jira: "Jira" };
   const srcName = s => SRC[s] || s || "";
@@ -716,7 +733,9 @@ dialog.keys dd { margin: 0; color: var(--ink-2); }
   else if (!PROMO.has_map) tiles.push({ tab: "proof", focus: "sec-cov", miss: "No promotion map yet", label: cmdLabel("/flagrare:promotion") },
     { tab: "promotion", miss: "No date to talk to your manager", label: cmdLabel("/flagrare:promotion") });
   else {
-    tiles.push({ tab: "proof", focus: "sec-cov", num: PROMO.total_rows ? `${esc(PROMO.open_rows)}<small>of ${esc(PROMO.total_rows)}</small>` : esc(PROMO.open_rows ?? 0),
+    if (RATED) tiles.push({ tab: "promotion", num: `${esc(ASSESS.met)}<small>of ${esc(ASSESS.total)}</small>`,
+      label: "Senior behaviors met", sub: (ASSESS.not_yet || []).length ? `${(ASSESS.not_yet || []).length} not yet` : "All of them" });
+    else tiles.push({ tab: "proof", focus: "sec-cov", num: PROMO.total_rows ? `${esc(PROMO.open_rows)}<small>of ${esc(PROMO.total_rows)}</small>` : esc(PROMO.open_rows ?? 0),
       label: "Senior behaviors still to show", sub: ROWS.length ? `${weakRows.length} with little proof` : "" });
     const talk = PROMO.talk_to_manager || {};
     const est = s => s && s !== "verified" ? ", an estimate" : "";
@@ -899,15 +918,30 @@ dialog.keys dd { margin: 0; color: var(--ink-2); }
       talk.absolute_by ? dateCell(talk.absolute_by, "Latest date to talk", 14, talk.status) : "",
       dl.value ? dateCell(Array.isArray(dl.value) ? dl.value.join(" / ") : dl.value, `${term("Written case", "case")} due`, 30, dl.status) : "",
     ].filter(Boolean);
-    const line = PROMO.total_rows
+    const bar = ASSESS.bar || {};
+    const ratedLine = RATED
+      ? `${esc(ASSESS.met)} of ${esc(ASSESS.total)} ${term("Senior behaviors", "behaviors")} ${term("met", "met")}.${ASSESS.unrated ? ` ${esc(ASSESS.unrated)} not rated yet.` : ""} <a class="more" href="#proof" data-tab="proof" data-focus="sec-cov">See the proof</a>`
+      : "";
+    const barLine = RATED && bar.months != null && isDate(bar.met_by)
+      ? `${term("The bar", "bar")}: met about ${esc(bar.months)} months before ${esc(fmt(bar.effective))}, so by ${esc(fmt(bar.met_by))}. ${esc(ASSESS.holding)} of the met ones ${ASSESS.holding === 1 ? "holds" : "hold"} that long${ASSESS.short ? `, ${esc(ASSESS.short)} ${ASSESS.short === 1 ? "is" : "are"} too recent` : ""}.`
+      : RATED ? `No promotion bar recorded yet, so how long each behavior has been met isn't checked. The promotion skill quotes it from your company's process.` : "";
+    const notYet = RATED && (ASSESS.not_yet || []).length
+      ? `<div class="notyet"><h3>Not yet</h3>${ASSESS.not_yet.map(r => `<div class="notyet-row"><b>${esc(r.label)}</b>${r.reason ? `<span>${inline(r.reason)}</span>` : (ARATE[r.id] || {}).rated ? "" : `<span>Not rated yet.</span>`}${r.next_step ? `<span>Next: ${inline(r.next_step)}</span>` : ""}</div>`).join("")}</div>`
+      : "";
+    const exceed = RATED && (ASSESS.exceeding || []).length
+      ? `<div class="exceed"><h3>${term("Exceeding at your level", "exceeding")}</h3><div class="chips">${ASSESS.exceeding.map(r => `<span class="chip met">${esc(r.label)}</span>`).join("")}</div></div>`
+      : "";
+    const line = RATED ? ratedLine : PROMO.total_rows
       ? `${esc(PROMO.open_rows)} of ${esc(PROMO.total_rows)} ${term("Senior behaviors", "behaviors")} still to show${ROWS.length ? `, ${esc(weakRows.length)} with little ${term("proof", "proof")}` : ""}. <a class="more" href="#proof" data-tab="proof" data-focus="sec-cov">See them in Proof</a>`
       : "";
     $("stand").innerHTML = `<section class="box stand" aria-labelledby="h-stand">
       <p class="stand-for">Going for</p>
       <h2 id="h-stand">${esc(PROMO.target_level || "Your next level")}</h2>
       ${line ? `<p class="stand-line">${line}</p>` : ""}
+      ${barLine ? `<p class="stand-bar">${barLine}</p>` : ""}
       ${cells.length ? `<div class="dates">${cells.join("")}</div>` : ""}
       ${cells.length && allEst ? `<p class="dates-note">${cells.length === 1 ? "This date is an" : "These dates are an"} ${term("estimate", "estimate")} from the usual promotion calendar. Confirm them with your manager.</p>` : ""}
+      ${exceed}${notYet}
     </section>`;
     const unseen = PROMO.unseen_people || [];
     if (unseen.length) {
@@ -1006,10 +1040,16 @@ dialog.keys dd { margin: 0; color: var(--ink-2); }
     const segs = (n, state) => TARGET <= 6
       ? `<span class="segs" aria-hidden="true">${Array.from({ length: TARGET }, (_, k) => `<i${k < n ? ` class="on"` : ""}></i>`).join("")}</span>`
       : `<span class="bar" aria-hidden="true"><i style="width:${Math.round(Math.min(n, TARGET) / TARGET * 100)}%"></i></span>`;
+    const rateChip = id => {
+      const a = RATED ? ARATE[id] : null;
+      if (!a || !a.rated) return "";
+      if (a.target !== "meets") return ` <span class="chip">Not yet</span>`;
+      return ` <span class="chip ${a.holds === false ? "short" : "met"}">Met${isDate(a.since) ? ` since ${esc(fmt(a.since))}` : ""}</span>`;
+    };
     const rowHtml = r => {
       const q = inList(r.id), tag = q.length ? "button" : "div", n = Number(r.evidence) || 0, state = rowState(r);
       return `<${tag} class="cov-row s-${state}"${q.length ? ` type="button" data-row="${esc(r.id)}" aria-pressed="false"` : ""}>
-        <span class="cov-name">${esc(ROWLABEL[r.id])}</span>
+        <span class="cov-name">${esc(ROWLABEL[r.id])}${rateChip(r.id)}</span>
         <span class="cov-meter">${segs(n, state)}<span><b>${n}</b>${state !== "strong" ? `<span class="of"> of ${TARGET}</span>` : ""}</span></span>
         ${state !== "strong" && r.next_step ? `<span class="cov-step">${inline(r.next_step)}</span>` : ""}
         ${q.length ? `<span class="cov-q">${q.length === 1 ? "1 item in Act" : q.length + " items in Act"} would add proof. Show ${q.length === 1 ? "it" : "them"}</span>` : ""}

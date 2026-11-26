@@ -12,6 +12,7 @@ import re
 from datetime import date, timedelta
 from pathlib import Path
 
+import assessment
 import career_state
 import initiatives
 import measurements
@@ -72,12 +73,31 @@ def due(home: str, today: str) -> list[dict]:
                 why.append("flagged by a scan: " + ", ".join(sorted(flagged - set(missing) - set(stale) - {None})))
             steps.append({"skill": "promotion", "mode": "resume" if missing else "refresh", "sections": sections,
                           "needs_user": bool(set(sections) & NEEDS_USER) or bool(missing), "why": "; ".join(why)})
+    if m is not None:
+        _add_rerating(steps, assessment.due_rows(m, _log(home), today))
     cadence = initiatives.context(home, today)["cadence"]
     if cadence["due"]:
         since = "never run" if cadence["days_since"] is None else f"last run {cadence['days_since']} days ago"
         steps.append({"skill": "opportunity-scan", "mode": "scan", "sections": [], "needs_user": False, "why": since})
     steps.append({"skill": "impact-scan", "mode": "scan", "sections": [], "needs_user": False, "why": "every run"})
     return steps
+
+
+def _add_rerating(steps: list[dict], rows: list[dict]) -> None:
+    """Rows due for a new rating join the promotion refresh step, or start one. Rating reads evidence, so it never
+    needs the user. A first run or a resume rates every row anyway, so it gets nothing extra."""
+    if not rows:
+        return
+    why = "rate again, " + assessment.describe(rows)
+    step = next((s for s in steps if s["skill"] == "promotion"), None)
+    if step is None:
+        steps.append({"skill": "promotion", "mode": "refresh", "sections": ["rubric"], "rows": [r["id"] for r in rows],
+                      "needs_user": False, "why": why})
+    elif step["mode"] == "refresh":
+        if "rubric" not in step["sections"]:
+            step["sections"].append("rubric")
+        step["rows"] = [r["id"] for r in rows]
+        step["why"] = f"{step['why']}; {why}"
 
 
 def _log_links(home: str) -> list[tuple[str, str]]:
@@ -171,6 +191,12 @@ def map_line(home: str) -> dict:
     }
 
 
+def assessment_summary(home: str, today: str) -> dict:
+    """Each next-level behavior rated against the company's bar, or has_map false."""
+    m = _map(home)
+    return {"has_map": False} if m is None else {"has_map": True, **assessment.summary(m, today)}
+
+
 def measure(home: str, today: str) -> dict:
     """The Measure card and digest line: what is due, from the same list the session-start reminder uses.
     A broken measurements file is reported here, so it never hides the rest of the board."""
@@ -190,12 +216,13 @@ def board(home: str, today: str) -> dict:
             "promotion": map_line(home), "readiness": readiness(home), "balance": balance(home, today),
             "packet": packet(home), "trend": trend(home, today),
             "recognition": recognition.summary(home, today), "measure": measure(home, today),
-            "own_work": own_work.summary(home), "readiness_target": READINESS_STRONG}
+            "own_work": own_work.summary(home), "readiness_target": READINESS_STRONG,
+            "assessment": assessment_summary(home, today)}
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Read-only inputs for /flagrare:career.")
-    parser.add_argument("command", choices=["due", "balance", "readiness", "map", "board", "trend"])
+    parser.add_argument("command", choices=["due", "balance", "readiness", "map", "board", "trend", "assessment"])
     parser.add_argument("--home", default=str(Path.home()))
     parser.add_argument("--today", required=True)
     args = parser.parse_args()
@@ -210,6 +237,7 @@ def main() -> None:
         "map": lambda: map_line(args.home),
         "board": lambda: board(args.home, args.today),
         "trend": lambda: trend(args.home, args.today),
+        "assessment": lambda: assessment_summary(args.home, args.today),
     }[args.command]()
     print(json.dumps(result, indent=2, ensure_ascii=False))
 
