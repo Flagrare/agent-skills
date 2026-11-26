@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.92.0: 2026-11-26
+
+The fix menu stops asking "apply the suggestions?" and starts saying what they are.
+
+### Improved Skills
+
+- **`/flagrare:wrap-up`, a fix menu that names every finding**: the closing question used to offer "Fix the automated check errors / Apply the review suggestions / Both / Skip", and the question dialog can cover the report, so the user was asked to approve fixes they couldn't see. Now every finding gets its own option in a multi-select. The label is the fix in a few words, naming where it goes. The description says what's wrong in plain words and what happens if it stays. Lint, type and test failures are listed one by one, with the file and the error. The question line says how many findings there are and which change they belong to. More than four findings split across up to four questions by kind, with the smallest folded into one option that still lists each. Picking nothing means skip, so no slot is spent on a "Skip" button. Field-tested the hard way: the user said that nearly every time, the skill asked whether to address the findings without saying what they were.
+
 ## 1.91.0: 2026-11-26
 
 The plan asks "who already decides this?" before it writes a new rule.
