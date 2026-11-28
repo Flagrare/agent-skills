@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.93.0: 2026-11-28
+
+The TDD stops writing for its author and starts writing for whoever has to read it.
+
+### Improved Skills
+
+- **`/flagrare:tdd-writer`, write for the reader who needs to know**: Phase 3 now opens with the rule that matters most. By the time a section gets written, the author knows the code and the plan, and the reader knows neither. So each section starts from the reader's question, like "why do we need a URL at all?" or "where does this value come from?", and answers it in plain words before naming any code. A quick test catches the failure: hide every function, table and field name, and see if what's left still says what happens and why. A second rule covers review rounds. Fixes change one sentence at a time and slowly cut the framing, so after each edit the whole section gets reread as a newcomer. Field-tested the hard way: a section about showing item photos listed joins, a URL helper and two rules about source values, but never said that the page needs a full image URL and the database stores only an id. The reviewer couldn't follow it until that framing came first, with a diagram of the request on top.
+
 ## 1.92.0: 2026-11-26
 
 The fix menu stops asking "apply the suggestions?" and starts saying what they are.
