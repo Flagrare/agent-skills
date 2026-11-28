@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.93.1: 2026-11-28
+
+The reader's question stays in the author's head; the section opens with the answer.
+
+### Improved Skills
+
+- **`/flagrare:tdd-writer`, answer the question instead of printing it**: the v1.93.0 rule said to "write down the reader's question" before each section. Field-tested the hard way, that got read as "open each section with a question", and new sections started with "What happens to...?". The rule now says to name the question to yourself, then open the section with the answer, stated plainly.
+
 ## 1.93.0: 2026-11-28
 
 The TDD stops writing for its author and starts writing for whoever has to read it.
