@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.94.0: 2026-11-28
+
+The editor stops waiting for the last draft and starts checking every edit.
+
+### New Skills
+
+- **`/flagrare:doc-edit-check`, the editorial checks on one edit**: `/flagrare:editorial-pass` reads a whole document once it is nearly done, but most damage happens one edit at a time. A review fix adds a sentence that makes sense alone, the next one renumbers a section, a third records a worry that turned out to be false. This skill reads the changed text, its section and everything that points at it. It flags noise the edit added (ruled-out residue like "needs no change", provenance narration, leftover TBDs), text written for the author instead of the reader, details said twice, references a renumber broke, contracts named but not shown, made-up example values, bare identifiers and comment threads the edit detaches. It pairs with `/flagrare:controlled-english` on every edit: this skill decides what the edit should say, then controlled-english fixes how each sentence says it. Field-tested the hard way: across one review round of a design doc, a reviewer had to point out, one at a time, a bullet that only recorded a disproved worry, an invented example id, a stale "four rules" count and a comment thread the fix had detached.
+
+### Improved Skills
+
+- **`/flagrare:tdd-writer`, `/flagrare:write-docs` and `/flagrare:playbook`** now point at `/flagrare:doc-edit-check` for every edit after the first draft, paired with `/flagrare:controlled-english`.
+
 ## 1.93.1: 2026-11-28
 
 The reader's question stays in the author's head; the section opens with the answer.
