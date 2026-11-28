@@ -302,7 +302,7 @@ them into a document a busy senior engineer will actually read. The craft layer 
 
 Field-tested the hard way: a section about showing item photos opened with which reads add a join and which helper builds the URL, then listed two rules about source values. It never said that the page needs a full image URL and the database stores only an id, which is the whole reason the section exists. The reviewer couldn't follow it until that framing came first, with a diagram of the request on top.
 
-**Review fixes erode context, so reread the whole section after each one.** A review round changes one sentence at a time, and each change makes sense on its own. Over a few rounds, the framing sentences get cut or left behind, and a rule ends up with no "why" around it. After every edit, read the whole section again as a newcomer, top to bottom, before you call it done.
+**Review fixes erode context, so reread the whole section after each one.** A review round changes one sentence at a time, and each change makes sense on its own. Over a few rounds, the framing sentences get cut or left behind, and a rule ends up with no "why" around it. After every edit, read the whole section again as a newcomer, top to bottom, before you call it done. Run `/flagrare:doc-edit-check` on each edit, then `/flagrare:controlled-english` on what survives: the first catches residue, repeats and stale references, the second fixes the sentences.
 
 **Lead each section with the reader's situation, not the section's topic.** Compare
 *"This section describes the data model changes."* (metadata, it has done zero work)

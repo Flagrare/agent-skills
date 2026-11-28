@@ -100,4 +100,5 @@ Sometimes the playbook needs a rule nobody has decided yet ("how long to wait fo
 
 - `/flagrare:write-docs`: the craft layer (reader's situation, plain words). This skill fixes the shape for the how-to case.
 - `/flagrare:editorial-pass`: the review pass. Run it after drafting, biased toward cutting.
+- `/flagrare:doc-edit-check`: the per-edit pass. Run it on each change after the draft, paired with `/flagrare:controlled-english`.
 - `/flagrare:smoke-test`: when you run the flow for screenshots and find a bug, fix or report it before documenting around it.

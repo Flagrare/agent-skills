@@ -202,6 +202,7 @@ A handful of smaller anti-patterns are worth naming, but they're checkable rathe
 ## Cross-references
 
 - `/flagrare:editorial-pass` is the read-and-repair counterpart: this skill writes, that one reviews a finished draft whole-document (throughline, pacing, agent-noise deletion) and applies fixes on approval.
+- `/flagrare:doc-edit-check` is the per-edit check: run it on each change to a shared doc, then `/flagrare:controlled-english` on what survives.
 - `/flagrare:playbook` for a how-to guide that ops, support or launch teams follow while using a tool: it fixes the tutorial shape and gathers screenshots, links and escalation paths.
 - `/flagrare:atdd-plan` for the doc structure that ships *alongside* a feature.
 - `/flagrare:staleness-audit` runs before commit and surfaces doc drift (broken cross-links, stale version claims, references to removed symbols).
