@@ -298,6 +298,12 @@ This is where TDDs live or die. You've gathered verified facts; now you have to 
 them into a document a busy senior engineer will actually read. The craft layer is in
 `/flagrare:write-docs`, invoke it, but here is how its principles land in a TDD.
 
+**Write for the reader who needs to know, not for yourself.** By the time you write, you know how every piece works and what the plan is. The reader knows neither. The usual failure is a section written from the code outward: method names, flags and edge-case rules, with the one sentence that says what the section is for left out, because it felt too obvious to you. Before each section, write down the reader's question ("why do we need a URL at all?", "where does this value come from?") and answer it in the opening lines, in plain words. Only then name the code. Test it: hide every function, table and field name in the section. If what's left doesn't tell a newcomer what happens and why, the section is written for you.
+
+Field-tested the hard way: a section about showing item photos opened with which reads add a join and which helper builds the URL, then listed two rules about source values. It never said that the page needs a full image URL and the database stores only an id, which is the whole reason the section exists. The reviewer couldn't follow it until that framing came first, with a diagram of the request on top.
+
+**Review fixes erode context, so reread the whole section after each one.** A review round changes one sentence at a time, and each change makes sense on its own. Over a few rounds, the framing sentences get cut or left behind, and a rule ends up with no "why" around it. After every edit, read the whole section again as a newcomer, top to bottom, before you call it done.
+
 **Lead each section with the reader's situation, not the section's topic.** Compare
 *"This section describes the data model changes."* (metadata, it has done zero work)
 with *"Orders currently can't be partially refunded because the schema models a refund
